@@ -1,0 +1,11 @@
+{
+  "translation_key": "axolootl.axolootl.stone",
+  "primary_color": "0xff0000",
+  "secondary_color": "0xc0c0c0",
+  "resource_generators": [
+    {
+      "type": "resource",
+
+    }
+  ]
+}
