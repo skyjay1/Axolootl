@@ -1,10 +1,25 @@
 {
   "translation_key": "axolootl.axolootl.stone",
-  "primary_color": "0xff0000",
-  "secondary_color": "0xc0c0c0",
-  "resource_generators": [
+  "primary_color": 16711680,
+  "secondary_color": 16449280,
+  "resource_generator": [
     {
-      "type": "resource",
+      "type": "axolootl:item",
+      "pool": [
+        {
+          "data": "minecraft:stone",
+          "weight": 1
+        },
+        {
+          "data": "minecraft:cobblestone",
+          "weight": 4
+        }
+      ]
+
+    },
+    {
+      "type": "axolootl:mob",
+      "loot_table": "minecraft:entities/creeper"
 
     }
   ]

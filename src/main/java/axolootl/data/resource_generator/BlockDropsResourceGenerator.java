@@ -1,0 +1,107 @@
+package axolootl.data.resource_generator;
+
+import axolootl.AxRegistry;
+import axolootl.Axolootl;
+import axolootl.data.ResourceType;
+import com.google.common.collect.ImmutableList;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+
+import javax.annotation.concurrent.Immutable;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.function.Function;
+
+@Immutable
+public class BlockDropsResourceGenerator extends ResourceGenerator {
+
+    protected static final Codec<SimpleWeightedRandomList<BlockStateProvider>> WEIGHTED_LIST_CODEC = Codec.either(BlockStateProvider.CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(BlockStateProvider.CODEC))
+            .xmap(either -> either.map(SimpleWeightedRandomList::single, Function.identity()),
+                    list -> list.unwrap().size() == 1 ? Either.left(list.unwrap().get(0).getData()) : Either.right(list));
+
+    public static final Codec<BlockDropsResourceGenerator> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ITEM_OR_STACK_CODEC.optionalFieldOf("tool", ItemStack.EMPTY).forGetter(BlockDropsResourceGenerator::getTool),
+            WEIGHTED_LIST_CODEC.fieldOf("block").forGetter(BlockDropsResourceGenerator::getList)
+    ).apply(instance, BlockDropsResourceGenerator::new));
+
+    private final ItemStack tool;
+    private final SimpleWeightedRandomList<BlockStateProvider> list;
+
+    public BlockDropsResourceGenerator(ItemStack tool, SimpleWeightedRandomList<BlockStateProvider> list) {
+        super(ResourceType.BLOCK);
+        this.tool = tool;
+        this.list = list;
+    }
+
+    public ItemStack getTool() {
+        return tool;
+    }
+
+    public SimpleWeightedRandomList<BlockStateProvider> getList() {
+        return list;
+    }
+
+    @Override
+    public Collection<ItemStack> getRandomEntries(LivingEntity entity, RandomSource random) {
+        // validate server
+        final MinecraftServer server = entity.getServer();
+        if (null == server) {
+            return ImmutableList.of();
+        }
+        // load loot table
+        final Optional<BlockStateProvider> oBlockState = getList().getRandomValue(random);
+        if (oBlockState.isEmpty()) {
+            return ImmutableList.of();
+        }
+        final BlockState blockState = oBlockState.get().getState(random, entity.blockPosition());
+        final ResourceLocation lootTableId = blockState.getBlock().getLootTable();
+        final LootTable lootTable = server.getLootTables().get(lootTableId);
+        if (lootTable == LootTable.EMPTY) {
+            Axolootl.LOGGER.warn("[ResourceGenerator#getRandomEntries] Failed to load loot table " + lootTableId);
+            return ImmutableList.of();
+        }
+        // create loot table context
+        final LootContext context = createContext(entity, blockState, random);
+        // generate items
+        return lootTable.getRandomItems(context);
+    }
+
+    @Override
+    public Codec<? extends ResourceGenerator> getCodec() {
+        return AxRegistry.ResourceGenerators.BLOCK.get();
+    }
+
+    /**
+     * @param entity the entity
+     * @param random the random instance
+     * @return a loot context to generate random items from the selected loot table
+     */
+    protected LootContext createContext(LivingEntity entity, BlockState block, RandomSource random) {
+        return new LootContext.Builder((ServerLevel) entity.level)
+                .withRandom(random)
+                .withParameter(LootContextParams.TOOL, this.tool)
+                .withParameter(LootContextParams.BLOCK_STATE, block)
+                .withParameter(LootContextParams.ORIGIN, entity.position())
+                .withParameter(LootContextParams.THIS_ENTITY, entity)
+                .create(LootContextParamSets.BLOCK);
+    }
+
+    @Override
+    public String toString() {
+        return "BlockState: {tool=" + tool.getDisplayName() + ", block=" + list.toString() + "}";
+    }
+}

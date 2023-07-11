@@ -1,39 +1,54 @@
 package axolootl.data;
 
+import axolootl.AxRegistry;
+import axolootl.data.resource_generator.ResourceGenerator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.chat.Component;
 
-import javax.annotation.concurrent.Immutable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Immutable
 public class AxolootlVariant {
 
-    public static final AxolootlVariant EMPTY = new AxolootlVariant("empty", 0x0, 0x0, 0, new ArrayList<>());
+    public static final AxolootlVariant EMPTY = new AxolootlVariant("empty", 0, 0x0, 0x0, 0, new ArrayList<>());
 
     public static final Codec<AxolootlVariant> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         Codec.STRING.fieldOf("translation_key").forGetter(AxolootlVariant::getTranslationKey),
+        Codec.INT.optionalFieldOf("tier", 0).forGetter(AxolootlVariant::getTier),
         Codec.INT.optionalFieldOf("primary_color", 0xFFFFFF).forGetter(AxolootlVariant::getPrimaryColor),
         Codec.INT.optionalFieldOf("secondary_color", 0xFFFFFF).forGetter(AxolootlVariant::getSecondaryColor),
         Codec.INT.optionalFieldOf("energy_cost", 0).forGetter(AxolootlVariant::getEnergyCost),
-        ResourceGenerator.LIST_CODEC.fieldOf("resource_generators").forGetter(o -> o.getResourceGenerators())
+        ResourceGenerator.LIST_OR_SINGLE_CODEC.fieldOf("resource_generator").forGetter(AxolootlVariant::getResourceGenerators)
     ).apply(instance, AxolootlVariant::new));
 
-
+    /** The translation key of the object **/
     private final String translationKey;
+    /** The axolootl tier **/
+    private final int tier;
+    /** The primary packed color **/
     private final int primaryColor;
+    /** The secondary packed color **/
     private final int secondaryColor;
+    /** The amount of energy that is consumed each time a resource is generated **/
     private final int energyCost;
-    private final List<? extends ResourceGenerator> resourceGenerators;
+    /** Any number of resource generators **/
+    private final List<ResourceGenerator> resourceGenerators;
+    /** The resource generator lookup map **/
     private final Map<ResourceType, List<ResourceGenerator>> resourceTypeMap;
 
-    public AxolootlVariant(String translationKey, int primaryColor, int secondaryColor, int energyCost, List<? extends ResourceGenerator> resourceGenerators) {
+    /** The translation component **/
+    private Component description;
+
+    public AxolootlVariant(String translationKey, int tier, int primaryColor, int secondaryColor, int energyCost, List<ResourceGenerator> resourceGenerators) {
         this.translationKey = translationKey;
+        this.tier = tier;
         this.primaryColor = primaryColor;
         this.secondaryColor = secondaryColor;
         this.energyCost = energyCost;
@@ -54,6 +69,14 @@ public class AxolootlVariant {
 
     //// METHODS ////
 
+    /**
+     * @param access the registry access
+     * @return the axolootl variant registry
+     */
+    public static Registry<AxolootlVariant> getRegistry(final RegistryAccess access) {
+        return access.registryOrThrow(AxRegistry.Keys.AXOLOOTL_VARIANTS);
+    }
+
     public boolean hasResourceGeneratorOfType(final ResourceType type) {
         return this.resourceTypeMap.containsKey(type);
     }
@@ -72,6 +95,10 @@ public class AxolootlVariant {
         return translationKey;
     }
 
+    public int getTier() {
+        return tier;
+    }
+
     public int getPrimaryColor() {
         return primaryColor;
     }
@@ -84,11 +111,26 @@ public class AxolootlVariant {
         return energyCost;
     }
 
-    /*public <T extends List<? extends ResourceGenerator>> T getResourceGenerators() {
-        return (T) resourceGenerators;
-    }*/
-
-    public List<? extends ResourceGenerator> getResourceGenerators() {
+    public List<ResourceGenerator> getResourceGenerators() {
         return resourceGenerators;
+    }
+
+    public Component getDescription() {
+        if(null == this.description) {
+            this.description = Component.translatable(getTranslationKey());
+        }
+        return this.description;
+    }
+
+    //// OVERRIDES ////
+
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder("AxolootlVariant{");
+        builder.append(" name=" + translationKey);
+        builder.append(" colors=(" + primaryColor + ", " + secondaryColor + ")");
+        builder.append(" generators=" + resourceGenerators.toString());
+        builder.append("}");
+        return super.toString();
     }
 }

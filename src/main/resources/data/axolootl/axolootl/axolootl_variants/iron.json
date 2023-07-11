@@ -1,0 +1,15 @@
+{
+  "translation_key": "axolootl.axolootl.iron",
+  "primary_color": 11787004,
+  "secondary_color": 15726073,
+  "resource_generator": {
+    "type": "axolootl:tag",
+    "tag": "forge:nuggets/iron"
+  },
+  "forge:conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "axolootl"
+    }
+  ]
+}

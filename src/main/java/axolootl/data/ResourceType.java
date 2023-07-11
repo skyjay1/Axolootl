@@ -10,7 +10,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public enum ResourceType implements StringRepresentable {
-    RESOURCE("resource"), MOB("mob");
+    /** Indicates resources that are simple items **/
+    ITEM("item"),
+    /** Indicates resources that come from mobs **/
+    MOB("mob"),
+    /** Indicates resources that come from blocks **/
+    BLOCK("block");
 
     public static final Map<String, ResourceType> NAME_TO_TYPE_MAP = ImmutableMap.copyOf(Arrays.stream(values())
             .collect(Collectors.<ResourceType, String, ResourceType>toMap(ResourceType::getSerializedName, Function.identity())));
@@ -24,7 +29,7 @@ public enum ResourceType implements StringRepresentable {
     }
 
     public static ResourceType getByName(final String name) {
-        return NAME_TO_TYPE_MAP.getOrDefault(name, RESOURCE);
+        return NAME_TO_TYPE_MAP.getOrDefault(name, ITEM);
     }
 
     @Override
