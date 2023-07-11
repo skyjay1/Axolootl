@@ -1,0 +1,25 @@
+{
+  "settings": {
+    "mandatory": true,
+    "generation": 0.1
+  },
+  "block": {
+    "type": "minecraft:matching_blocks",
+    "blocks": "minecraft:chest"
+  },
+  "condition": {
+    "type": "axolootl:and",
+    "children": [
+      {
+        "type": "axolootl:count_capped",
+        "modifier": "axolootl:bubbler",
+        "count": 1
+      },
+      {
+        "type": "axolootl:count",
+        "modifier": "axolootl:powered_bubbler",
+        "count": 0
+      }
+    ]
+  }
+}

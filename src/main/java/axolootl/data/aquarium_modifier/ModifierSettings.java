@@ -1,4 +1,4 @@
-package axolootl.data.aquarium_modifier.condition;
+package axolootl.data.aquarium_modifier;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -10,6 +10,7 @@ import javax.annotation.concurrent.Immutable;
 public class ModifierSettings {
 
     public static final Codec<ModifierSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.BOOL.optionalFieldOf("mandatory", false).forGetter(ModifierSettings::isMandatory),
             Codec.DOUBLE.optionalFieldOf("generation", 0.0D).forGetter(ModifierSettings::getGenerationSpeed),
             Codec.DOUBLE.optionalFieldOf("breed", 0.0D).forGetter(ModifierSettings::getBreedSpeed),
             Codec.DOUBLE.optionalFieldOf("feed", 0.0D).forGetter(ModifierSettings::getFeedSpeed),
@@ -20,6 +21,10 @@ public class ModifierSettings {
             Codec.INT.optionalFieldOf("energy_cost", 0).forGetter(ModifierSettings::getEnergyCost)
     ).apply(instance, ModifierSettings::new));
 
+    // TODO find some way of specifying certain groups of modifiers are mandatory (but any modifier in the group fulfills the condition)
+    // Use case: bubbler OR powered bubbler is required, but not both
+    /** True if the aquarium must have this modifier to function **/
+    private final boolean mandatory;
     /** The generation speed multiplier to add **/
     private final double generationSpeed;
     /** The breeding speed multiplier to add **/
@@ -37,8 +42,9 @@ public class ModifierSettings {
     /** The energy cost of the modifier **/
     private final int energyCost;
 
-    public ModifierSettings(double generationSpeed, double breedSpeed, double feedSpeed, double spreadSpeed,
+    public ModifierSettings(boolean mandatory, double generationSpeed, double breedSpeed, double feedSpeed, double spreadSpeed,
                             Vec3i spreadSearchDistance, boolean enableMobResources, boolean enableMobBreeding, int energyCost) {
+        this.mandatory = mandatory;
         this.generationSpeed = generationSpeed;
         this.breedSpeed = breedSpeed;
         this.feedSpeed = feedSpeed;
@@ -50,6 +56,10 @@ public class ModifierSettings {
     }
 
     //// GETTERS ////
+
+    public boolean isMandatory() {
+        return mandatory;
+    }
 
     public double getGenerationSpeed() {
         return generationSpeed;
@@ -68,7 +78,7 @@ public class ModifierSettings {
     }
 
     public Vec3i getSpreadSearchDistance() {
-        return spreadSearchDistance;
+        return new Vec3i(spreadSearchDistance.getX(), spreadSearchDistance.getY(), spreadSearchDistance.getZ());
     }
 
     public boolean isEnableMobResources() {

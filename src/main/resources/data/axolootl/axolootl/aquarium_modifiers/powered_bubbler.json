@@ -1,0 +1,15 @@
+{
+  "settings": {
+    "generation": 0.25,
+    "energy_cost": 20
+  },
+  "block": {
+    "type": "minecraft:matching_blocks",
+    "blocks": "minecraft:trapped_chest"
+  },
+  "condition": {
+    "type": "axolootl:count_capped",
+    "modifier": "axolootl:powered_bubbler",
+    "count": 1
+  }
+}

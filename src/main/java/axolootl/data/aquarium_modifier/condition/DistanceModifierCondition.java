@@ -40,12 +40,12 @@ public class DistanceModifierCondition extends ModifierCondition {
     }
 
     public Vec3i getOffset() {
-        return offset;
+        return new Vec3i(offset.getX(), offset.getY(), offset.getZ());
     }
 
     @Override
     public boolean test(AquariumModifierContext aquariumModifierContext) {
-        final BlockPos pos = aquariumModifierContext.getPos().offset(getOffset());
+        final BlockPos pos = aquariumModifierContext.getPos().offset(offset);
         // check distance to each matching modifier
         for(Map.Entry<BlockPos, ResourceLocation> entry : aquariumModifierContext.getModifiers().entrySet()) {
             if(entry.getValue().equals(getModifierId())) {

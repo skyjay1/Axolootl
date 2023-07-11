@@ -2,6 +2,7 @@ package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
+import axolootl.util.MatchingStatePredicate;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.FluidPredicate;
@@ -16,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -41,8 +43,8 @@ public class LocationModifierCondition extends ModifierCondition {
     public static final Codec<FluidPredicate> FLUID_PREDICATE_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             TagKey.codec(ForgeRegistries.Keys.FLUIDS).optionalFieldOf("tag").forGetter(o -> Optional.ofNullable(o.tag)),
             ForgeRegistries.FLUIDS.getCodec().optionalFieldOf("fluid").forGetter(o -> Optional.ofNullable(o.fluid)),
-            // TODO state properties predicate is unsupported
-            Codec.unit(StatePropertiesPredicate.ANY).optionalFieldOf("state").forGetter(o -> Optional.ofNullable(o.properties))
+            // TODO state properties predicate is only partly supported
+            MatchingStatePredicate.STATE_PROPERTIES_PREDICATE_CODEC.optionalFieldOf("state").forGetter(o -> Optional.of(o.properties))
     ).apply(instance, (tag, fluid, state) -> {
         final FluidPredicate.Builder builder = FluidPredicate.Builder.fluid();
         tag.ifPresent(builder::of);
@@ -59,7 +61,8 @@ public class LocationModifierCondition extends ModifierCondition {
             ResourceKey.codec(Registry.DIMENSION_REGISTRY).optionalFieldOf("dimension").forGetter(LocationModifierCondition::getDimension),
             Codec.BOOL.optionalFieldOf("smokey").forGetter(LocationModifierCondition::getSmokey),
             LIGHT_PREDICATE_CODEC.optionalFieldOf("light", LightPredicate.ANY).forGetter(LocationModifierCondition::getLight),
-            FLUID_PREDICATE_CODEC.optionalFieldOf("fluid", FluidPredicate.ANY).forGetter(LocationModifierCondition::getFluid)
+            FLUID_PREDICATE_CODEC.optionalFieldOf("fluid", FluidPredicate.ANY).forGetter(LocationModifierCondition::getFluid),
+            BlockPredicate.CODEC.optionalFieldOf("block", BlockPredicate.alwaysTrue()).forGetter(LocationModifierCondition::getBlock)
     ).apply(instance, LocationModifierCondition::new));
 
     private final DoublesPosition position;
@@ -74,10 +77,12 @@ public class LocationModifierCondition extends ModifierCondition {
     private final Boolean smokey;
     private final LightPredicate light;
     private final FluidPredicate fluid;
+    private final BlockPredicate block;
 
     public LocationModifierCondition(DoublesPosition position, Vec3i offset,
                                      Optional<ResourceKey<Biome>> biome, Optional<ResourceKey<Structure>> structure,
-                                     Optional<ResourceKey<Level>> dimension, Optional<Boolean> smokey, LightPredicate light, FluidPredicate fluid) {
+                                     Optional<ResourceKey<Level>> dimension, Optional<Boolean> smokey,
+                                     LightPredicate light, FluidPredicate fluid, BlockPredicate block) {
         this.position = position;
         this.offset = offset;
         this.biome = biome.orElse(null);
@@ -86,12 +91,13 @@ public class LocationModifierCondition extends ModifierCondition {
         this.smokey = smokey.orElse(null);
         this.light = light;
         this.fluid = fluid;
+        this.block = block;
     }
 
 
     @Override
     public boolean test(AquariumModifierContext aquariumModifierContext) {
-        final BlockPos blockpos = aquariumModifierContext.getPos().offset(getOffset());
+        final BlockPos blockpos = aquariumModifierContext.getPos().offset(offset);
         final ServerLevel level = (ServerLevel) aquariumModifierContext.getLevel();
         // validate position
         if (!getPosition().x.matches(blockpos.getX())) {
@@ -107,24 +113,31 @@ public class LocationModifierCondition extends ModifierCondition {
         if (this.dimension != null && this.dimension != level.dimension()) {
             return false;
         }
+        // verify loaded
         boolean isLoaded = level.isLoaded(blockpos);
+        if(!isLoaded) {
+            return false;
+        }
         // validate biome
-        if(this.biome != null && (!isLoaded || !level.getBiome(blockpos).is(this.biome))) {
+        if(this.biome != null && !level.getBiome(blockpos).is(this.biome)) {
             return false;
         }
         // validate structure
-        if(this.structure != null && (!isLoaded || !level.structureManager().getStructureWithPieceAt(blockpos, this.structure).isValid())) {
+        if(this.structure != null && !level.structureManager().getStructureWithPieceAt(blockpos, this.structure).isValid()) {
             return false;
         }
         // validate light
         if(!getLight().matches(level, blockpos)) {
             return false;
         }
+        // validate block
+        if(!getBlock().test(level, blockpos)) {
+            return false;
+        }
         // validate fluid
         if(!getFluid().matches(level, blockpos)) {
             return false;
         }
-        // TODO block predicate not yet supported
         // all checks passed
         return true;
     }
@@ -141,7 +154,7 @@ public class LocationModifierCondition extends ModifierCondition {
     }
 
     public Vec3i getOffset() {
-        return offset;
+        return new Vec3i(offset.getX(), offset.getY(), offset.getZ());
     }
 
     public Optional<ResourceKey<Biome>> getBiome() {
@@ -166,6 +179,10 @@ public class LocationModifierCondition extends ModifierCondition {
 
     public FluidPredicate getFluid() {
         return fluid;
+    }
+
+    public BlockPredicate getBlock() {
+        return block;
     }
 
     //// UTILITY CLASSES ////

@@ -4,15 +4,18 @@ import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.AxolootlVariant;
 import axolootl.data.aquarium_modifier.condition.AndModifierCondition;
 import axolootl.data.aquarium_modifier.condition.AxolootlCountModifierCondition;
+import axolootl.data.aquarium_modifier.condition.BlockModifierCondition;
 import axolootl.data.aquarium_modifier.condition.CountCappedModifierCondition;
 import axolootl.data.aquarium_modifier.condition.CountModifierCondition;
 import axolootl.data.aquarium_modifier.condition.DistanceModifierCondition;
+import axolootl.data.aquarium_modifier.condition.EnergyModifierCondition;
 import axolootl.data.aquarium_modifier.condition.ExistsModifierCondition;
 import axolootl.data.aquarium_modifier.condition.FalseModifierCondition;
 import axolootl.data.aquarium_modifier.condition.LocationModifierCondition;
 import axolootl.data.aquarium_modifier.condition.ModifierCondition;
 import axolootl.data.aquarium_modifier.condition.NotModifierCondition;
 import axolootl.data.aquarium_modifier.condition.OrModifierCondition;
+import axolootl.data.aquarium_modifier.condition.RandomChanceModifierCondition;
 import axolootl.data.aquarium_modifier.condition.TimeModifierCondition;
 import axolootl.data.aquarium_modifier.condition.TrueModifierCondition;
 import axolootl.data.aquarium_modifier.condition.WeatherModifierCondition;
@@ -21,6 +24,7 @@ import axolootl.data.resource_generator.ItemResourceGenerator;
 import axolootl.data.resource_generator.ItemTagResourceGenerator;
 import axolootl.data.resource_generator.MobDropsResourceGenerator;
 import axolootl.data.resource_generator.ResourceGenerator;
+import axolootl.util.MatchingStatePredicate;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
@@ -36,6 +40,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
@@ -62,6 +67,7 @@ public final class AxRegistry {
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Axolootl.MODID);
     private static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Axolootl.MODID);
     private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Axolootl.MODID);
+    private static final DeferredRegister<BlockPredicateType<?>> BLOCK_PREDICATE_TYPES = DeferredRegister.create(Registry.BLOCK_PREDICATE_TYPE_REGISTRY, Axolootl.MODID);
 
     // RESOURCE GENERATORS //
     private static final DeferredRegister<Codec<? extends ResourceGenerator>> RESOURCE_GENERATOR_SERIALIZERS = DeferredRegister.create(Keys.RESOURCE_GENERATOR_SERIALIZERS, Axolootl.MODID);
@@ -101,6 +107,7 @@ public final class AxRegistry {
         BlockEntityReg.register();
         EntityReg.register();
         MenuReg.register();
+        BlockPredicateTypes.register();
         ModifierConditions.register();
         ResourceGenerators.register();
         AxolootlVariants.register();
@@ -243,6 +250,16 @@ public final class AxRegistry {
 
     }
 
+    public static final class BlockPredicateTypes {
+
+        public static void register() {
+            BLOCK_PREDICATE_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        }
+
+        public static final RegistryObject<BlockPredicateType<MatchingStatePredicate>> MATCHING_PROPERTY = BLOCK_PREDICATE_TYPES.register("matching_state", () -> () -> MatchingStatePredicate.CODEC);
+
+    }
+
     public static final class ResourceGenerators {
 
         public static void register() {
@@ -269,15 +286,16 @@ public final class AxRegistry {
         public static final RegistryObject<Codec<? extends ModifierCondition>> OR = MODIFIER_CONDITION_SERIALIZERS.register("or", () -> OrModifierCondition.CODEC);
         public static final RegistryObject<Codec<? extends ModifierCondition>> NOT = MODIFIER_CONDITION_SERIALIZERS.register("not", () -> NotModifierCondition.CODEC);
         public static final RegistryObject<Codec<? extends ModifierCondition>> COUNT = MODIFIER_CONDITION_SERIALIZERS.register("count", () -> CountModifierCondition.CODEC);
-        public static final RegistryObject<Codec<? extends ModifierCondition>> COUNT_CAPPED = MODIFIER_CONDITION_SERIALIZERS.register("count", () -> CountCappedModifierCondition.CODEC);
+        public static final RegistryObject<Codec<? extends ModifierCondition>> COUNT_CAPPED = MODIFIER_CONDITION_SERIALIZERS.register("count_capped", () -> CountCappedModifierCondition.CODEC);
         public static final RegistryObject<Codec<? extends ModifierCondition>> EXISTS = MODIFIER_CONDITION_SERIALIZERS.register("exists", () -> ExistsModifierCondition.CODEC);
         public static final RegistryObject<Codec<? extends ModifierCondition>> DISTANCE = MODIFIER_CONDITION_SERIALIZERS.register("distance", () -> DistanceModifierCondition.CODEC);
         public static final RegistryObject<Codec<? extends ModifierCondition>> TIME = MODIFIER_CONDITION_SERIALIZERS.register("time", () -> TimeModifierCondition.CODEC);
         public static final RegistryObject<Codec<? extends ModifierCondition>> WEATHER = MODIFIER_CONDITION_SERIALIZERS.register("weather", () -> WeatherModifierCondition.CODEC);
         public static final RegistryObject<Codec<? extends ModifierCondition>> AXOLOOTL_COUNT = MODIFIER_CONDITION_SERIALIZERS.register("axolootl_count", () -> AxolootlCountModifierCondition.CODEC);
         public static final RegistryObject<Codec<? extends ModifierCondition>> LOCATION = MODIFIER_CONDITION_SERIALIZERS.register("location", () -> LocationModifierCondition.CODEC);
-
-
+        public static final RegistryObject<Codec<? extends ModifierCondition>> CHANCE = MODIFIER_CONDITION_SERIALIZERS.register("chance", () -> RandomChanceModifierCondition.CODEC);
+        public static final RegistryObject<Codec<? extends ModifierCondition>> BLOCK = MODIFIER_CONDITION_SERIALIZERS.register("block", () -> BlockModifierCondition.CODEC);
+        public static final RegistryObject<Codec<? extends ModifierCondition>> ENERGY = MODIFIER_CONDITION_SERIALIZERS.register("energy", () -> EnergyModifierCondition.CODEC);
 
     }
 

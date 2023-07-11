@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * checks if the number of modifiers N is less than some value.
@@ -22,6 +23,12 @@ import java.util.Set;
  */
 @Immutable
 public class CountCappedModifierCondition extends CountModifierCondition {
+
+    public static final Codec<CountCappedModifierCondition> CODEC = CountModifierCondition.CODEC.xmap(CountCappedModifierCondition::new, Function.identity());
+
+    public CountCappedModifierCondition(CountModifierCondition copy) {
+        super(copy.getModifierId(), copy.getCount());
+    }
 
     public CountCappedModifierCondition(ResourceLocation modifierId, IntProvider count) {
         super(modifierId, count);

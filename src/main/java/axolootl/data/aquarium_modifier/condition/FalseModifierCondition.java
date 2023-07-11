@@ -22,4 +22,9 @@ public class FalseModifierCondition extends ModifierCondition {
     public Codec<? extends ModifierCondition> getCodec() {
         return AxRegistry.ModifierConditions.FALSE.get();
     }
+
+    @Override
+    public String toString() {
+        return "false";
+    }
 }
