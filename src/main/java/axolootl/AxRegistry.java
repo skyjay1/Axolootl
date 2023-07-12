@@ -26,6 +26,7 @@ import axolootl.data.resource_generator.MobDropsResourceGenerator;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.util.MatchingStatePredicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -38,6 +39,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
@@ -53,7 +55,9 @@ import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -99,6 +103,8 @@ public final class AxRegistry {
     private static final DeferredRegister<AquariumModifier> AQUARIUM_MODIFIERS = DeferredRegister.create(Keys.AQUARIUM_MODIFIERS, Axolootl.MODID);
     private static final Supplier<IForgeRegistry<AquariumModifier>> AQUARIUM_MODIFIERS_SUPPLIER = AQUARIUM_MODIFIERS.makeRegistry(() -> new RegistryBuilder<AquariumModifier>()
             .dataPackRegistry(AquariumModifier.CODEC, AquariumModifier.CODEC)
+            .onClear((owner, stage) -> AxRegistry.AQUARIUM_MODIFIER_CATEGORIES.clear())
+            .onBake((owner, stage) -> AxRegistry.AQUARIUM_MODIFIER_CATEGORIES.putAll(mapAquariumModifierCategories(owner)))
             .hasTags());
 
     public static void register() {
@@ -114,35 +120,19 @@ public final class AxRegistry {
         AquariumModifiers.register();
     }
 
-    /**
-     * @author Commoble
-     * @param <T> an object
-     */
-    public record RegistryDispatcher<T>(Codec<Codec<? extends T>> dispatcherCodec, Codec<T> dispatchedCodec, DeferredRegister<Codec<? extends T>> registry, Supplier<IForgeRegistry<Codec<? extends T>>> registryGetter)
-    {
-        public static <T> RegistryDispatcher<T> makeDispatchForgeRegistry(
-                final IEventBus modBus,
-                final ResourceLocation registryId,
-                final Function<T,? extends Codec<? extends T>> typeLookup,
-                final Consumer<RegistryBuilder<Codec<? extends T>>> extraSettings)
-        {
-            DeferredRegister<Codec<? extends T>> deferredRegister = DeferredRegister.create(registryId, registryId.getNamespace());
-            Supplier<RegistryBuilder<Codec<? extends T>>> builderFactory = () ->
-            {
-                RegistryBuilder<Codec<? extends T>> builder = new RegistryBuilder<>();
-                extraSettings.accept(builder);
-                return builder;
-            };
-            Supplier<IForgeRegistry<Codec<? extends T>>> registryGetter = deferredRegister.makeRegistry(builderFactory);
-            Codec<Codec<? extends T>> dispatcherCodec = ResourceLocation.CODEC.xmap(
-                    id -> registryGetter.get().getValue(id),
-                    codec -> registryGetter.get().getKey(codec));
-            Codec<T> dispatchedCodec = dispatcherCodec.dispatch(typeLookup, Function.identity());
-            deferredRegister.register(modBus);
+    //// HELPERS ////
 
-            return new RegistryDispatcher<>(dispatcherCodec, dispatchedCodec, deferredRegister, registryGetter);
+    public static final Map<ResourceLocation, ResourceLocation> AQUARIUM_MODIFIER_CATEGORIES = new HashMap<>();
+
+    private static Map<ResourceLocation, ResourceLocation> mapAquariumModifierCategories(final IForgeRegistry<AquariumModifier> registry) {
+        final ImmutableMap.Builder<ResourceLocation, ResourceLocation> builder = ImmutableMap.builder();
+        for(Map.Entry<ResourceKey<AquariumModifier>, AquariumModifier> entry : registry.getEntries()) {
+            entry.getValue().getSettings().getCategory().ifPresent(category -> builder.put(category, entry.getKey().location()));
         }
+        return builder.build();
     }
+
+    //// REGISTRY CLASSES ////
 
     public static final class ItemReg {
 

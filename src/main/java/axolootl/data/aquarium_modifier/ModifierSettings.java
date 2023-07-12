@@ -3,14 +3,17 @@ package axolootl.data.aquarium_modifier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceLocation;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.util.Optional;
 
 @Immutable
 public class ModifierSettings {
 
     public static final Codec<ModifierSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.BOOL.optionalFieldOf("mandatory", false).forGetter(ModifierSettings::isMandatory),
+            ResourceLocation.CODEC.optionalFieldOf("mandatory").forGetter(ModifierSettings::getCategory),
             Codec.DOUBLE.optionalFieldOf("generation", 0.0D).forGetter(ModifierSettings::getGenerationSpeed),
             Codec.DOUBLE.optionalFieldOf("breed", 0.0D).forGetter(ModifierSettings::getBreedSpeed),
             Codec.DOUBLE.optionalFieldOf("feed", 0.0D).forGetter(ModifierSettings::getFeedSpeed),
@@ -21,10 +24,9 @@ public class ModifierSettings {
             Codec.INT.optionalFieldOf("energy_cost", 0).forGetter(ModifierSettings::getEnergyCost)
     ).apply(instance, ModifierSettings::new));
 
-    // TODO find some way of specifying certain groups of modifiers are mandatory (but any modifier in the group fulfills the condition)
-    // Use case: bubbler OR powered bubbler is required, but not both
-    /** True if the aquarium must have this modifier to function **/
-    private final boolean mandatory;
+    /** The modifier category. At least one modifier from each category must be present for the aquarium to function **/
+    @Nullable
+    private final ResourceLocation category;
     /** The generation speed multiplier to add **/
     private final double generationSpeed;
     /** The breeding speed multiplier to add **/
@@ -42,9 +44,9 @@ public class ModifierSettings {
     /** The energy cost of the modifier **/
     private final int energyCost;
 
-    public ModifierSettings(boolean mandatory, double generationSpeed, double breedSpeed, double feedSpeed, double spreadSpeed,
+    public ModifierSettings(Optional<ResourceLocation> category, double generationSpeed, double breedSpeed, double feedSpeed, double spreadSpeed,
                             Vec3i spreadSearchDistance, boolean enableMobResources, boolean enableMobBreeding, int energyCost) {
-        this.mandatory = mandatory;
+        this.category = category.orElse(null);
         this.generationSpeed = generationSpeed;
         this.breedSpeed = breedSpeed;
         this.feedSpeed = feedSpeed;
@@ -57,8 +59,8 @@ public class ModifierSettings {
 
     //// GETTERS ////
 
-    public boolean isMandatory() {
-        return mandatory;
+    public Optional<ResourceLocation> getCategory() {
+        return Optional.ofNullable(category);
     }
 
     public double getGenerationSpeed() {

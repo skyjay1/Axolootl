@@ -4,13 +4,19 @@ import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.AxolootlVariant;
 import axolootl.data.aquarium_modifier.condition.ModifierCondition;
 import axolootl.data.resource_generator.ResourceGenerator;
+import axolootl.util.TankMultiblock;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+
+import java.util.Optional;
 
 public final class AxEvents {
 
@@ -34,6 +40,17 @@ public final class AxEvents {
             }
             // TODO remove for release
             event.getEntity().displayClientMessage(Component.literal("You are using a beta version of Axolootl, do not distribute").withStyle(ChatFormatting.AQUA), false);
+        }
+
+        @SubscribeEvent
+        public static void onPlayerRightClick(final PlayerInteractEvent.RightClickBlock event) {
+            if(event.getEntity().level.isClientSide() || event.getHand() != InteractionHand.MAIN_HAND || !event.getEntity().isCrouching()) {
+                return;
+            }
+            // TODO debug
+            Axolootl.LOGGER.debug("clicked: " + event.getPos());
+            final Optional<TankMultiblock.Size> size = TankMultiblock.AQUARIUM.hasTankStructure(event.getLevel(), event.getPos());
+            Axolootl.LOGGER.debug("size: " + size.toString());
         }
     }
 

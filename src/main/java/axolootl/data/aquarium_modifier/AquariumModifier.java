@@ -4,6 +4,7 @@ import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.condition.ModifierCondition;
 import axolootl.data.aquarium_modifier.condition.TrueModifierCondition;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -11,6 +12,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.LevelAccessor;
@@ -21,7 +24,9 @@ import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -37,13 +42,17 @@ public class AquariumModifier {
     public static final Codec<AquariumModifier> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ModifierSettings.CODEC.fieldOf("settings").forGetter(AquariumModifier::getSettings),
             Vec3i.CODEC.optionalFieldOf("dimensions", new Vec3i(1, 1, 1)).forGetter(AquariumModifier::getDimensions),
-            BLOCK_PREDICATE_LIST_OR_SINGLE_CODEC.fieldOf("block").forGetter(AquariumModifier::getBlockStatePredicate),
+            BLOCK_PREDICATE_LIST_OR_SINGLE_CODEC.optionalFieldOf("block", ImmutableList.of(BlockPredicate.not(BlockPredicate.alwaysTrue()))).forGetter(AquariumModifier::getBlockStatePredicate),
             ModifierCondition.DIRECT_CODEC.optionalFieldOf("condition", TrueModifierCondition.INSTANCE).forGetter(AquariumModifier::getCondition)
     ).apply(instance, AquariumModifier::new));
 
+    /** The aquarium modifier settings, such as generation speed and boolean flags **/
     private final ModifierSettings settings;
+    /** The width, length, and height of the modifier in the world, used for multiblocks **/
     private final Vec3i dimensions;
+    /** The width, length, and height of the modifier in the world, used for multiblocks **/
     private final List<BlockPredicate> blockStatePredicate;
+    /** The condition to check each generation cycle to determine if the modifier is active **/
     private final ModifierCondition condition;
 
     public AquariumModifier(ModifierSettings settings, Vec3i dimensions, List<BlockPredicate> blockStatePredicate, ModifierCondition condition) {
@@ -70,7 +79,12 @@ public class AquariumModifier {
      */
     public static Optional<AquariumModifier> forBlock(final LevelAccessor level, final BlockPos pos) {
         final ServerLevel serverLevel = (ServerLevel) level;
-        return getRegistry(level.registryAccess()).stream().filter(o -> o.isApplicable(serverLevel, pos)).findFirst();
+        for(AquariumModifier entry : getRegistry(level.registryAccess())) {
+            if(entry.isApplicable(serverLevel, pos)) {
+                return Optional.of(entry);
+            }
+        }
+        return Optional.empty();
     }
 
     /**
@@ -108,22 +122,22 @@ public class AquariumModifier {
     public boolean checkAndSpread(AquariumModifierContext context) {
         final double spreadSpeed = this.settings.getSpreadSpeed();
         // verify can spread
-        if(spreadSpeed > 0 && context.getLevel().getRandom().nextDouble() < spreadSpeed) {
-            // find position to spread to
-            final BlockState blockState = context.getLevel().getBlockState(context.getPos());
-            final Optional<BlockPos> oPos = findSpreadablePosition(context);
-            if(oPos.isEmpty()) {
-                return false;
-            }
-            // spread to the calculated position
-            if(!context.getLevel().setBlock(oPos.get(), blockState, Block.UPDATE_ALL)) {
-                return false;
-            }
-            context.getLevel().playSound(null, oPos.get(), blockState.getSoundType().getPlaceSound(), SoundSource.BLOCKS, 1.0F, 0.8F + context.getLevel().getRandom().nextFloat() * 0.4F);
-            context.getLevel().levelEvent(LevelEvent.PARTICLES_PLANT_GROWTH, oPos.get(), 0);
-            return true;
+        if(!(spreadSpeed > 0) || context.getLevel().getRandom().nextDouble() > spreadSpeed) {
+            return false;
         }
-        return false;
+        // find position to spread to
+        final BlockState blockState = context.getLevel().getBlockState(context.getPos());
+        final Optional<BlockPos> oPos = findSpreadablePosition(context);
+        if(oPos.isEmpty()) {
+            return false;
+        }
+        // spread to the calculated position
+        if(!context.getLevel().setBlock(oPos.get(), blockState, Block.UPDATE_ALL)) {
+            return false;
+        }
+        context.getLevel().playSound(null, oPos.get(), blockState.getSoundType().getPlaceSound(), SoundSource.BLOCKS, 1.0F, 0.8F + context.getLevel().getRandom().nextFloat() * 0.4F);
+        context.getLevel().levelEvent(LevelEvent.PARTICLES_PLANT_GROWTH, oPos.get(), 0);
+        return true;
     }
 
     /**
