@@ -10,6 +10,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -17,6 +18,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.Objects;
 import java.util.Optional;
 
 @Immutable
@@ -25,7 +27,7 @@ public class TankMultiblock {
     public static final TagKey<Block> AQUARIUM_BLOCKS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium"));
 
     /** Default parameters for the multiblock instance **/
-    public static TankMultiblock AQUARIUM = new TankMultiblock(new Vec3i(3, 3, 3), new Vec3i(64, 128, 64), AQUARIUM_BLOCKS);
+    public static TankMultiblock AQUARIUM = new TankMultiblock(new Vec3i(3, 3, 3), new Vec3i(64, 64, 64), AQUARIUM_BLOCKS);
 
     /** The minimum XYZ sizes of the multiblock **/
     public final BlockPos minSize;
@@ -96,9 +98,7 @@ public class TankMultiblock {
      */
     public Optional<Boolean> hasTankStructure(final LevelAccessor level, final TankMultiblock.Size size) {
         // validate area loaded
-        final BlockPos minPos = size.getMinChunk().getMiddleBlockPosition(size.getOrigin().getY());
-        final BlockPos maxPos = size.getMaxChunk().getMiddleBlockPosition(size.getOrigin().getY());
-        if(!level.hasChunksAt(minPos, maxPos)) {
+        if(!size.isAreaLoaded(level)) {
             return Optional.empty();
         }
         // validate blocks
@@ -220,6 +220,10 @@ public class TankMultiblock {
         private final BlockPos origin;
         /** The XYZ size of the bounds **/
         private final Vec3i dimensions;
+        /** The volume of the tank, including the outside bounds **/
+        private final long volume;
+        /** The volume of the tank, excluding the outside bounds **/
+        private final long innerVolume;
         /** A bounding box to represent this object **/
         private final BoundingBox boundingBox;
         /** An axis-aligned bounding box to represent this object **/
@@ -232,6 +236,8 @@ public class TankMultiblock {
         public Size(BlockPos origin, Vec3i dimensions) {
             this.origin = origin.immutable();
             this.dimensions = new Vec3i(Math.abs(dimensions.getX()), Math.abs(dimensions.getY()), Math.abs(dimensions.getZ()));
+            this.volume = ((long) dimensions.getX() + 1L) * ((long) dimensions.getY() + 1L) * ((long) dimensions.getZ() + 1L);
+            this.innerVolume = (Math.max(0, dimensions.getX() - 1L)) * (Math.max(0, dimensions.getY() - 1L)) * (Math.max(0, dimensions.getZ() - 1L));
             this.boundingBox = BoundingBox.fromCorners(this.origin, this.origin.offset(this.dimensions));
             this.aabb = AABB.of(this.boundingBox);
             this.minChunk = new ChunkPos(this.origin);
@@ -265,6 +271,14 @@ public class TankMultiblock {
             return BlockPos.betweenClosed(start, end);
         }
 
+        /**
+         * @param level the level
+         * @return true if the chunks between the origin and end position are all loaded
+         */
+        public boolean isAreaLoaded(final LevelAccessor level) {
+            return level.hasChunksAt(origin, origin.offset(dimensions));
+        }
+
         @Override
         public String toString() {
             return "Size {origin=" + origin + " dimensions=" + dimensions + "}";
@@ -278,6 +292,14 @@ public class TankMultiblock {
 
         public Vec3i getDimensions() {
             return new Vec3i(dimensions.getX(), dimensions.getY(), dimensions.getZ());
+        }
+
+        public long getVolume() {
+            return volume;
+        }
+
+        public long getInnerVolume() {
+            return innerVolume;
         }
 
         public BoundingBox boundingBox() {
@@ -294,6 +316,21 @@ public class TankMultiblock {
 
         public ChunkPos getMaxChunk() {
             return maxChunk;
+        }
+
+        //// EQUALITY ////
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Size)) return false;
+            Size size = (Size) o;
+            return origin.equals(size.origin) && dimensions.equals(size.dimensions);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(origin, dimensions);
         }
     }
 }

@@ -44,13 +44,9 @@ public final class AxEvents {
 
         @SubscribeEvent
         public static void onPlayerRightClick(final PlayerInteractEvent.RightClickBlock event) {
-            if(event.getEntity().level.isClientSide() || event.getHand() != InteractionHand.MAIN_HAND || !event.getEntity().isCrouching()) {
+            /*if(event.getEntity().level.isClientSide() || event.getHand() != InteractionHand.MAIN_HAND || !event.getEntity().isCrouching()) {
                 return;
-            }
-            // TODO debug
-            Axolootl.LOGGER.debug("clicked: " + event.getPos());
-            final Optional<TankMultiblock.Size> size = TankMultiblock.AQUARIUM.hasTankStructure(event.getLevel(), event.getPos());
-            Axolootl.LOGGER.debug("size: " + size.toString());
+            }*/
         }
     }
 

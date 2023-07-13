@@ -1,6 +1,11 @@
 {
   "values": [
+    "#axolootl:axolootl_inputs",
+    "#axolootl:energy_inputs",
+    "#axolootl:fluid_inputs",
+    "#axolootl:resource_outputs",
     "minecraft:glass",
-    "minecraft:smooth_stone"
+    "minecraft:smooth_stone",
+    "axolootl:aquarium_controller"
   ]
 }

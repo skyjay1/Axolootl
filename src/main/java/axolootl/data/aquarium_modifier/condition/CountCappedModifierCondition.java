@@ -1,19 +1,20 @@
 package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
+import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.RegistryCodecs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -24,32 +25,35 @@ import java.util.function.Function;
 @Immutable
 public class CountCappedModifierCondition extends CountModifierCondition {
 
-    public static final Codec<CountCappedModifierCondition> CODEC = CountModifierCondition.CODEC.xmap(CountCappedModifierCondition::new, Function.identity());
+    public static final Codec<CountCappedModifierCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            AquariumModifier.HOLDER_SET_CODEC.fieldOf("modifier").forGetter(CountModifierCondition::getModifiers),
+            IntProvider.NON_NEGATIVE_CODEC.fieldOf("count").forGetter(CountModifierCondition::getCount)
+    ).apply(instance, CountCappedModifierCondition::new));
 
     public CountCappedModifierCondition(CountModifierCondition copy) {
-        super(copy.getModifierId(), copy.getCount());
+        this(copy.getModifiers(), copy.getCount());
     }
 
-    public CountCappedModifierCondition(ResourceLocation modifierId, IntProvider count) {
+    public CountCappedModifierCondition(HolderSet<AquariumModifier> modifierId, IntProvider count) {
         super(modifierId, count);
     }
 
     @Override
-    public boolean test(AquariumModifierContext aquariumModifierContext) {
-        final BlockPos pos = aquariumModifierContext.getPos();
+    public boolean test(AquariumModifierContext context) {
+        final BlockPos pos = context.getPos();
         final List<BlockPos> modifiers = new LinkedList<>();
-        for(Map.Entry<BlockPos, ResourceLocation> entry : aquariumModifierContext.getModifiers().entrySet()) {
+        for(Map.Entry<BlockPos, AquariumModifier> entry : context.getModifiers().entrySet()) {
             // count matching modifiers
-            if(entry.getValue().equals(getModifierId())) {
+            if(getModifiers().contains(entry.getValue().getHolder(context.getRegistryAccess()))) {
                 insertSorted(modifiers, entry.getKey());
             }
         }
         // check if count is within range
-        if(modifiers.size() <= getCount().getMaxValue()) {
+        if(modifiers.size() < getCount().getMaxValue()) {
             return true;
         }
-        // check if count is above max and blockpos is not small enough
-        return sortedIndexOf(modifiers, pos) > getCount().getMaxValue();
+        // check if blockpos is small enough
+        return sortedIndexOf(modifiers, pos) < getCount().getMaxValue();
     }
 
     private void insertSorted(final List<BlockPos> list, final BlockPos pos) {
@@ -65,7 +69,7 @@ public class CountCappedModifierCondition extends CountModifierCondition {
                 return i;
             }
         }
-        return 0;
+        return list.size();
     }
 
     @Override
@@ -75,6 +79,6 @@ public class CountCappedModifierCondition extends CountModifierCondition {
 
     @Override
     public String toString() {
-        return "count_capped {count=(" + getCount().getMinValue() + "," + getCount().getMaxValue() + ") modifier=" + getModifierId() + "}";
+        return "count_capped {count=(" + getCount().getMinValue() + "," + getCount().getMaxValue() + ") modifier=" + getModifiers() + "}";
     }
 }

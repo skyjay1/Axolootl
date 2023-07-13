@@ -1,4 +1,5 @@
 {
+  "translation_key": "block.minecraft.seagrass",
   "settings": {
     "generation": 0.01,
     "spread": 0.0015,

@@ -1,5 +1,7 @@
 package axolootl.client;
 
+import axolootl.AxRegistry;
+import axolootl.client.entity.AxolootlRenderer;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -17,7 +19,7 @@ public final class ClientEvents {
     public static final class ModHandler {
         @SubscribeEvent
         public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event) {
-
+            event.registerEntityRenderer(AxRegistry.EntityReg.AXOLOOTL.get(), AxolootlRenderer::new);
         }
 
         @SubscribeEvent

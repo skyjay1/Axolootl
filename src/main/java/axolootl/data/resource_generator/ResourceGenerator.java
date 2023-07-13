@@ -1,12 +1,16 @@
 package axolootl.data.resource_generator;
 
 import axolootl.AxRegistry;
-import axolootl.data.ResourceType;
+import axolootl.data.AxolootlVariant;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.RegistryCodecs;
+import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,8 +28,10 @@ public abstract class ResourceGenerator {
     public static final Codec<ResourceGenerator> DIRECT_CODEC = ExtraCodecs.lazyInitializedCodec(() -> AxRegistry.RESOURCE_GENERATOR_SERIALIZERS_SUPPLIER.get().getCodec())
             .dispatch(ResourceGenerator::getCodec, Function.identity());
 
-    public static final Codec<List<ResourceGenerator>> LIST_CODEC = DIRECT_CODEC.listOf();
+    public static final Codec<Holder<ResourceGenerator>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.RESOURCE_GENERATORS, DIRECT_CODEC);
+    public static final Codec<HolderSet<ResourceGenerator>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.RESOURCE_GENERATORS, DIRECT_CODEC);
 
+    public static final Codec<List<ResourceGenerator>> LIST_CODEC = DIRECT_CODEC.listOf();
     public static final Codec<List<ResourceGenerator>> LIST_OR_SINGLE_CODEC = Codec.either(DIRECT_CODEC, LIST_CODEC)
             .xmap(either -> either.map(ImmutableList::of, Function.identity()),
                     list -> list.size() == 1 ? Either.left(list.get(0)) : Either.right(list));

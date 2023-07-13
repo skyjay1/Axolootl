@@ -1,5 +1,7 @@
 {
+  "translation_key": "modifier.axolootl.powered_bubbler",
   "settings": {
+    "category": "axolootl:bubbler",
     "generation": 0.25,
     "energy_cost": 20
   },

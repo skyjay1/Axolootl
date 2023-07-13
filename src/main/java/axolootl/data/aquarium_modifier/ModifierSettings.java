@@ -1,9 +1,11 @@
 package axolootl.data.aquarium_modifier;
 
+import axolootl.AxRegistry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -13,7 +15,7 @@ import java.util.Optional;
 public class ModifierSettings {
 
     public static final Codec<ModifierSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.optionalFieldOf("mandatory").forGetter(ModifierSettings::getCategory),
+            TagKey.codec(AxRegistry.Keys.AQUARIUM_MODIFIERS).optionalFieldOf("category").forGetter(ModifierSettings::getCategory),
             Codec.DOUBLE.optionalFieldOf("generation", 0.0D).forGetter(ModifierSettings::getGenerationSpeed),
             Codec.DOUBLE.optionalFieldOf("breed", 0.0D).forGetter(ModifierSettings::getBreedSpeed),
             Codec.DOUBLE.optionalFieldOf("feed", 0.0D).forGetter(ModifierSettings::getFeedSpeed),
@@ -26,7 +28,7 @@ public class ModifierSettings {
 
     /** The modifier category. At least one modifier from each category must be present for the aquarium to function **/
     @Nullable
-    private final ResourceLocation category;
+    private final TagKey<AquariumModifier> category;
     /** The generation speed multiplier to add **/
     private final double generationSpeed;
     /** The breeding speed multiplier to add **/
@@ -44,7 +46,7 @@ public class ModifierSettings {
     /** The energy cost of the modifier **/
     private final int energyCost;
 
-    public ModifierSettings(Optional<ResourceLocation> category, double generationSpeed, double breedSpeed, double feedSpeed, double spreadSpeed,
+    public ModifierSettings(Optional<TagKey<AquariumModifier>> category, double generationSpeed, double breedSpeed, double feedSpeed, double spreadSpeed,
                             Vec3i spreadSearchDistance, boolean enableMobResources, boolean enableMobBreeding, int energyCost) {
         this.category = category.orElse(null);
         this.generationSpeed = generationSpeed;
@@ -59,7 +61,7 @@ public class ModifierSettings {
 
     //// GETTERS ////
 
-    public Optional<ResourceLocation> getCategory() {
+    public Optional<TagKey<AquariumModifier>> getCategory() {
         return Optional.ofNullable(category);
     }
 

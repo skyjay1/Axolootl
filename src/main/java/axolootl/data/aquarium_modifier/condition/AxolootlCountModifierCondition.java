@@ -1,6 +1,7 @@
 package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
+import axolootl.block.entity.IAxolootlVariantProvider;
 import axolootl.data.AxolootlVariant;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.mojang.serialization.Codec;
@@ -20,7 +21,7 @@ import java.util.Optional;
 public class AxolootlCountModifierCondition extends ModifierCondition {
 
     public static final Codec<AxolootlCountModifierCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_VARIANTS).optionalFieldOf("variants").forGetter(AxolootlCountModifierCondition::getVariant),
+            AxolootlVariant.HOLDER_SET_CODEC.optionalFieldOf("variants").forGetter(AxolootlCountModifierCondition::getVariant),
             IntProvider.NON_NEGATIVE_CODEC.fieldOf("count").forGetter(AxolootlCountModifierCondition::getCount)
     ).apply(instance, AxolootlCountModifierCondition::new));
 
@@ -42,17 +43,18 @@ public class AxolootlCountModifierCondition extends ModifierCondition {
     }
 
     @Override
-    public boolean test(AquariumModifierContext aquariumModifierContext) {
+    public boolean test(AquariumModifierContext context) {
         int count = 0;
         // count all axolootls of the defined variant, or count all of them if no variant is defined
         if(this.variant != null) {
-            for(AxolootlVariant entry : aquariumModifierContext.getAxolootls()) {
-                if(variant.contains(new Holder.Direct<>(entry))) {
+            for(IAxolootlVariantProvider entry : context.getAxolootls()) {
+                Optional<AxolootlVariant> oVariant = entry.getAxolootlVariant(context.getRegistryAccess());
+                if(oVariant.isPresent() && variant.contains(new Holder.Direct<>(oVariant.get()))) {
                     count++;
                 }
             }
         } else {
-            count = aquariumModifierContext.getAxolootls().size();
+            count = context.getAxolootls().size();
         }
         // verify count is within range
         return count >= getCount().getMinValue() && count <= getCount().getMaxValue();

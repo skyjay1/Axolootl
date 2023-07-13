@@ -1,4 +1,4 @@
-package axolootl.data;
+package axolootl.data.resource_generator;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;

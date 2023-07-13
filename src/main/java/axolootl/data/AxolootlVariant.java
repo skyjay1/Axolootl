@@ -1,14 +1,20 @@
 package axolootl.data;
 
 import axolootl.AxRegistry;
+import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.resource_generator.ResourceGenerator;
+import axolootl.data.resource_generator.ResourceType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.RegistryCodecs;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryFileCodec;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +33,9 @@ public class AxolootlVariant {
         Codec.INT.optionalFieldOf("energy_cost", 0).forGetter(AxolootlVariant::getEnergyCost),
         ResourceGenerator.LIST_OR_SINGLE_CODEC.fieldOf("resource_generator").forGetter(AxolootlVariant::getResourceGenerators)
     ).apply(instance, AxolootlVariant::new));
+
+    public static final Codec<Holder<AxolootlVariant>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, CODEC);
+    public static final Codec<HolderSet<AxolootlVariant>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_VARIANTS, CODEC);
 
     /** The translation key of the object **/
     private final String translationKey;

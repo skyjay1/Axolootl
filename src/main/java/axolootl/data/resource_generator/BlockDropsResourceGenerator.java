@@ -2,7 +2,6 @@ package axolootl.data.resource_generator;
 
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
-import axolootl.data.ResourceType;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;

@@ -1,6 +1,7 @@
 {
+  "translation_key": "modifier.axolootl.bubbler",
   "settings": {
-    "mandatory": true,
+    "category": "axolootl:bubbler",
     "generation": 0.1
   },
   "block": {

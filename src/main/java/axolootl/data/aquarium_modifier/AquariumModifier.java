@@ -4,33 +4,36 @@ import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.condition.ModifierCondition;
 import axolootl.data.aquarium_modifier.condition.TrueModifierCondition;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.Vec3i;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
-import javax.annotation.concurrent.Immutable;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-@Immutable
 public class AquariumModifier {
 
     public static final Codec<BlockPredicate> BLOCK_PREDICATE_CODEC = Registry.BLOCK_PREDICATE_TYPES.byNameCodec().dispatch(BlockPredicate::type, BlockPredicateType::codec);
@@ -40,12 +43,18 @@ public class AquariumModifier {
                     list -> list.size() == 1 ? Either.left(list.get(0)) : Either.right(list));
 
     public static final Codec<AquariumModifier> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.STRING.fieldOf("translation_key").forGetter(AquariumModifier::getTranslationKey),
             ModifierSettings.CODEC.fieldOf("settings").forGetter(AquariumModifier::getSettings),
             Vec3i.CODEC.optionalFieldOf("dimensions", new Vec3i(1, 1, 1)).forGetter(AquariumModifier::getDimensions),
             BLOCK_PREDICATE_LIST_OR_SINGLE_CODEC.optionalFieldOf("block", ImmutableList.of(BlockPredicate.not(BlockPredicate.alwaysTrue()))).forGetter(AquariumModifier::getBlockStatePredicate),
             ModifierCondition.DIRECT_CODEC.optionalFieldOf("condition", TrueModifierCondition.INSTANCE).forGetter(AquariumModifier::getCondition)
     ).apply(instance, AquariumModifier::new));
 
+    public static final Codec<Holder<AquariumModifier>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AQUARIUM_MODIFIERS, CODEC);
+    public static final Codec<HolderSet<AquariumModifier>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AQUARIUM_MODIFIERS, CODEC);
+
+    /** The translation key of the object **/
+    private final String translationKey;
     /** The aquarium modifier settings, such as generation speed and boolean flags **/
     private final ModifierSettings settings;
     /** The width, length, and height of the modifier in the world, used for multiblocks **/
@@ -55,7 +64,12 @@ public class AquariumModifier {
     /** The condition to check each generation cycle to determine if the modifier is active **/
     private final ModifierCondition condition;
 
-    public AquariumModifier(ModifierSettings settings, Vec3i dimensions, List<BlockPredicate> blockStatePredicate, ModifierCondition condition) {
+    /** The translation component **/
+    private Component description;
+    private Holder<AquariumModifier> holder;
+
+    public AquariumModifier(String translationKey, ModifierSettings settings, Vec3i dimensions, List<BlockPredicate> blockStatePredicate, ModifierCondition condition) {
+        this.translationKey = translationKey;
         this.settings = settings;
         this.dimensions = dimensions;
         this.blockStatePredicate = ImmutableList.copyOf(blockStatePredicate);
@@ -88,6 +102,19 @@ public class AquariumModifier {
     }
 
     /**
+     * @param registryAccess the registry access
+     * @param tagKey a tag key
+     * @return true if the tag key contains this object
+     */
+    public boolean is(final RegistryAccess registryAccess, final TagKey<AquariumModifier> tagKey) {
+        return getHolder(registryAccess).is(tagKey);
+    }
+
+    public ResourceLocation getRegistryName(final RegistryAccess registryAccess) {
+        return Optional.ofNullable(getRegistry(registryAccess).getKey(this)).orElseThrow(() -> new IllegalStateException("Missing key in AquariumModifier registry for object " + this.toString()));
+    }
+
+    /**
      * @param level the level
      * @param pos the block position
      * @return true if the block at the given position is applicable to this modifier
@@ -117,27 +144,28 @@ public class AquariumModifier {
     /**
      * Checks if the modifier can spread and attempts to replicate
      * @param context the aquarium modifier context
-     * @return true if a block was placed
+     * @return the block position for the block that was placed, if any
      */
-    public boolean checkAndSpread(AquariumModifierContext context) {
+    public Optional<BlockPos> checkAndSpread(AquariumModifierContext context) {
         final double spreadSpeed = this.settings.getSpreadSpeed();
         // verify can spread
         if(!(spreadSpeed > 0) || context.getLevel().getRandom().nextDouble() > spreadSpeed) {
-            return false;
+            return Optional.empty();
         }
         // find position to spread to
         final BlockState blockState = context.getLevel().getBlockState(context.getPos());
         final Optional<BlockPos> oPos = findSpreadablePosition(context);
         if(oPos.isEmpty()) {
-            return false;
+            return Optional.empty();
         }
+        final BlockPos pos = oPos.get().immutable();
         // spread to the calculated position
-        if(!context.getLevel().setBlock(oPos.get(), blockState, Block.UPDATE_ALL)) {
-            return false;
+        if(!context.getLevel().setBlock(pos, blockState, Block.UPDATE_ALL)) {
+            return Optional.empty();
         }
-        context.getLevel().playSound(null, oPos.get(), blockState.getSoundType().getPlaceSound(), SoundSource.BLOCKS, 1.0F, 0.8F + context.getLevel().getRandom().nextFloat() * 0.4F);
-        context.getLevel().levelEvent(LevelEvent.PARTICLES_PLANT_GROWTH, oPos.get(), 0);
-        return true;
+        context.getLevel().playSound(null, pos, blockState.getSoundType().getPlaceSound(), SoundSource.BLOCKS, 1.0F, 0.8F + context.getLevel().getRandom().nextFloat() * 0.4F);
+        context.getLevel().levelEvent(LevelEvent.PARTICLES_PLANT_GROWTH, pos, 0);
+        return Optional.of(pos);
     }
 
     /**
@@ -149,15 +177,27 @@ public class AquariumModifier {
         final BlockState blockState = context.getLevel().getBlockState(origin);
         final BlockPos fromPos = origin.offset(settings.getSpreadSearchDistance().multiply(-1));
         final BlockPos toPos = origin.offset(settings.getSpreadSearchDistance());
+        // iterate block positions until one is found that can support the modifier block state
         for(BlockPos pos : BlockPos.betweenClosed(fromPos, toPos)) {
-            if(blockState.canSurvive(context.getLevel(), pos)) {
-                return Optional.of(pos);
+            // validate replaceable
+            if(!blockState.getMaterial().isReplaceable()) {
+                continue;
             }
+            // validate can survive
+            if(!blockState.canSurvive(context.getLevel(), pos)) {
+                continue;
+            }
+            // all checks passed
+            return Optional.of(pos);
         }
         return Optional.empty();
     }
 
     //// GETTERS ////
+
+    public String getTranslationKey() {
+        return translationKey;
+    }
 
     public ModifierSettings getSettings() {
         return settings;
@@ -173,5 +213,31 @@ public class AquariumModifier {
 
     public ModifierCondition getCondition() {
         return condition;
+    }
+
+    public Component getDescription() {
+        if(null == this.description) {
+            this.description = Component.translatable(getTranslationKey());
+        }
+        return this.description;
+    }
+
+    public Holder<AquariumModifier> getHolder(final RegistryAccess registryAccess) {
+        if(null == this.holder) {
+            final Registry<AquariumModifier> registry = getRegistry(registryAccess);
+            this.holder = registry.getOrCreateHolderOrThrow(ResourceKey.create(AxRegistry.Keys.AQUARIUM_MODIFIERS, getRegistryName(registryAccess)));
+        }
+        return this.holder;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder("AquariumModifier{");
+        builder.append(" name=" + translationKey);
+        builder.append(" settings=" + settings);
+        builder.append(" predicate=" + blockStatePredicate);
+        builder.append(" condition=" + condition);
+        builder.append(" }");
+        return builder.toString();
     }
 }
