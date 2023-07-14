@@ -1,0 +1,15 @@
+{
+  "translation_key": "block.axolootl.breeder",
+  "settings": {
+    "breed": 1.0
+  },
+  "block": {
+    "type": "minecraft:matching_blocks",
+    "blocks": "axolootl:breeder"
+  },
+  "condition": {
+    "type": "axolootl:count_capped",
+    "modifier": "axolootl:breeder",
+    "count": 1
+  }
+}

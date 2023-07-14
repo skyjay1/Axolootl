@@ -1,0 +1,15 @@
+{
+  "translation_key": "block.minecraft.kelp",
+  "settings": {
+    "generation": 0.05
+  },
+  "block": {
+    "type": "minecraft:matching_blocks",
+    "blocks": "minecraft:kelp"
+  },
+  "condition": {
+    "type": "axolootl:count_capped",
+    "modifier": "axolootl:kelp",
+    "count": 10
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "translation_key": "block.minecraft.brain_coral",
+  "settings": {
+    "generation": 0.06
+  },
+  "block": {
+    "type": "minecraft:matching_blocks",
+    "blocks": [
+      "minecraft:brain_coral",
+      "minecraft:brain_coral_fan"
+    ]
+  },
+  "condition": {
+    "type": "axolootl:and",
+    "children": [
+      {
+        "type": "axolootl:count_capped",
+        "modifier": "axolootl:brain_coral",
+        "count": 2
+      },
+      {
+        "type": "axolootl:count_capped",
+        "modifier": "#axolootl:coral_cluster",
+        "count": 10
+      }
+    ]
+  }
+}

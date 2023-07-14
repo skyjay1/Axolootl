@@ -17,7 +17,7 @@ public class AxConfig {
                 .defineInRange("tank_multiblock_update_cap", 40, 2, 256);
         TANK_CAPACITY_VOLUME_FACTOR = builder
                 .comment("The minimum cubic volume per axolootl, used to determine the maximum capacity")
-                .defineInRange("tank_capacity_volume_factor", 4.0D, 0.0D, 256.0D);
+                .defineInRange("tank_capacity_volume_factor", 15.0D, 0.0D, 512.0D);
         BASE_GENERATION_PERIOD = builder
                 .comment("The base number of ticks in a resource generation cycle")
                 .defineInRange("base_generation_period", 8000L, 1L, 96000L);

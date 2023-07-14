@@ -1,0 +1,28 @@
+{
+  "translation_key": "block.minecraft.horn_coral",
+  "settings": {
+    "generation": 0.06
+  },
+  "block": {
+    "type": "minecraft:matching_blocks",
+    "blocks": [
+      "minecraft:horn_coral",
+      "minecraft:horn_coral_fan"
+    ]
+  },
+  "condition": {
+    "type": "axolootl:and",
+    "children": [
+      {
+        "type": "axolootl:count_capped",
+        "modifier": "axolootl:horn_coral",
+        "count": 2
+      },
+      {
+        "type": "axolootl:count_capped",
+        "modifier": "#axolootl:coral_cluster",
+        "count": 10
+      }
+    ]
+  }
+}

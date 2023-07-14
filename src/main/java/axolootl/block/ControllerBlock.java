@@ -4,6 +4,7 @@ import axolootl.AxRegistry;
 import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.util.TankMultiblock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -26,6 +27,7 @@ public class ControllerBlock extends HorizontalDirectionalBlock implements Entit
 
     public ControllerBlock(Properties pProperties) {
         super(pProperties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
     //// METHODS ////
@@ -57,6 +59,14 @@ public class ControllerBlock extends HorizontalDirectionalBlock implements Entit
                 pPlayer.openMenu(menuProvider);
             }
             return InteractionResult.CONSUME;
+        }
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.is(newState.getBlock())) {
+            level.updateNeighbourForOutputSignal(pos, this);
+            super.onRemove(state, level, pos, newState, isMoving);
         }
     }
 

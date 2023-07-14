@@ -1,0 +1,15 @@
+{
+  "translation_key": "block.axolootl.monsterium",
+  "settings": {
+    "enable_mob_breeding": true
+  },
+  "block": {
+    "type": "minecraft:matching_blocks",
+    "blocks": "axolootl:monsterium"
+  },
+  "condition": {
+    "type": "axolootl:count_capped",
+    "modifier": "axolootl:monsterium",
+    "count": 1
+  }
+}

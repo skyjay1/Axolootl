@@ -1,16 +1,13 @@
 package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
-import axolootl.block.entity.IAxolootlVariantProvider;
+import axolootl.entity.IAxolootlVariantProvider;
 import axolootl.data.AxolootlVariant;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryCodecs;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.Nullable;

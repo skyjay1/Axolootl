@@ -1,7 +1,6 @@
 package axolootl.entity;
 
 import axolootl.Axolootl;
-import axolootl.block.entity.IAxolootlVariantProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;

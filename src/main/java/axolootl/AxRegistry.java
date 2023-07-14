@@ -1,7 +1,13 @@
 package axolootl;
 
+import axolootl.block.AirlockBlock;
 import axolootl.block.ControllerBlock;
+import axolootl.block.WaterInterfaceBlock;
+import axolootl.block.WaterloggedHorizontalBlock;
+import axolootl.block.WaterloggedHorizontalDoubleBlock;
+import axolootl.block.WaterloggedHorizontalMultiBlock;
 import axolootl.block.entity.ControllerBlockEntity;
+import axolootl.block.entity.WaterInterfaceBlockEntity;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.AxolootlVariant;
 import axolootl.data.aquarium_modifier.condition.AndModifierCondition;
@@ -27,9 +33,9 @@ import axolootl.data.resource_generator.ItemTagResourceGenerator;
 import axolootl.data.resource_generator.MobDropsResourceGenerator;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.entity.AxolootlEntity;
+import axolootl.item.MultiBlockItem;
 import axolootl.util.MatchingStatePredicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -66,11 +72,8 @@ import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -213,7 +216,24 @@ public final class AxRegistry {
             BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
-        public static final RegistryObject<Block> AQUARIUM_CONTROLLER = registerWithItem("aquarium_controller", () -> new ControllerBlock(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> AQUARIUM_CONTROLLER = registerWithItem("aquarium_controller", () -> new ControllerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> AQUARIUM_WATER_INTERFACE = registerWithItem("aquarium_water_interface", () -> new WaterInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> AQUARIUM_ENERGY_INTERFACE = registerWithItem("aquarium_energy_interface", () -> new Block(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> AQUARIUM_AXOLOOTL_INTERFACE = registerWithItem("aquarium_axolootl_interface", () -> new Block(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> AQUARIUM_OUTPUT = registerWithItem("aquarium_output", () -> new Block(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> LARGE_AQUARIUM_OUTPUT = registerWithItem("large_aquarium_output", () -> new Block(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> AQUARIUM_AIRLOCK = registerWithItem("aquarium_airlock", () -> new AirlockBlock(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> BUBBLER = registerWithItem("bubbler", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> POWERED_BUBBLER = registerWithItem("powered_bubbler", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> PUMP = registerWithItem("pump", () -> new WaterloggedHorizontalDoubleBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> POWERED_PUMP = registerWithItem("powered_pump", () -> new WaterloggedHorizontalDoubleBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> BREEDER = registerWithItem("breeder", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> NURSERY = registerWithItem("nursery", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> MONSTERIUM = registerWithItem("monsterium", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> AUTOFEEDER = registerWithItem("autofeeder", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> CASTLE = registerWithItem("castle", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> GRAND_CASTLE = registerWithItem("grand_castle", () -> new WaterloggedHorizontalMultiBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().requiresCorrectToolForDrops().strength(3.5F)),
+                block -> ItemReg.register(block.getId().getPath(), () -> new MultiBlockItem(block.get(), new Item.Properties().tab(ItemReg.TAB))));
 
         private static RegistryObject<Block> registerWithItem(final String name, final Supplier<Block> supplier) {
             return registerWithItem(name, supplier, ItemReg::registerBlockItem);
@@ -235,6 +255,10 @@ public final class AxRegistry {
 
         public static final RegistryObject<BlockEntityType<ControllerBlockEntity>> CONTROLLER = BLOCK_ENTITY_TYPES.register("controller", () ->
                 BlockEntityType.Builder.of(ControllerBlockEntity::new, BlockReg.AQUARIUM_CONTROLLER.get())
+                        .build(null));
+
+        public static final RegistryObject<BlockEntityType<WaterInterfaceBlockEntity>> WATER_INTERFACE = BLOCK_ENTITY_TYPES.register("water_interface", () ->
+                BlockEntityType.Builder.of(WaterInterfaceBlockEntity::new, BlockReg.AQUARIUM_WATER_INTERFACE.get())
                         .build(null));
 
     }

@@ -1,0 +1,15 @@
+{
+  "translation_key": "block.axolootl.nursery",
+  "settings": {
+    "breed": 0.5
+  },
+  "block": {
+    "type": "minecraft:matching_blocks",
+    "blocks": "axolootl:nursery"
+  },
+  "condition": {
+    "type": "axolootl:count_capped",
+    "modifier": "axolootl:nursery",
+    "count": 2
+  }
+}

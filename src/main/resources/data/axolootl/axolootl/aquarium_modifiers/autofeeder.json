@@ -1,0 +1,15 @@
+{
+  "translation_key": "block.axolootl.autofeeder",
+  "settings": {
+    "feed": 1.0
+  },
+  "block": {
+    "type": "minecraft:matching_blocks",
+    "blocks": "axolootl:autofeeder"
+  },
+  "condition": {
+    "type": "axolootl:count_capped",
+    "modifier": "axolootl:autofeeder",
+    "count": 1
+  }
+}

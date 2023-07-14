@@ -1,0 +1,28 @@
+{
+  "translation_key": "block.minecraft.tube_coral",
+  "settings": {
+    "generation": 0.06
+  },
+  "block": {
+    "type": "minecraft:matching_blocks",
+    "blocks": [
+      "minecraft:tube_coral",
+      "minecraft:tube_coral_fan"
+    ]
+  },
+  "condition": {
+    "type": "axolootl:and",
+    "children": [
+      {
+        "type": "axolootl:count_capped",
+        "modifier": "axolootl:tube_coral",
+        "count": 2
+      },
+      {
+        "type": "axolootl:count_capped",
+        "modifier": "#axolootl:coral_cluster",
+        "count": 10
+      }
+    ]
+  }
+}

@@ -1,26 +1,17 @@
 package axolootl.data.aquarium_modifier;
 
-import axolootl.block.entity.IAxolootlVariantProvider;
-import axolootl.data.AxolootlVariant;
+import axolootl.entity.IAxolootlVariantProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.LevelAccessor;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 @Immutable
 public class AquariumModifierContext {
-    /*
-    -level: LevelAccessor
--pos: BlockPos
--axolootls: List<Axolootl Variant>
--modifiers: Map<BlockPos, ResourceLocation> (map of all other modifier positions and IDs, excluding this one)
 
-     */
     private final LevelAccessor level;
     private final BlockPos pos;
     private final Collection<IAxolootlVariantProvider> axolootls;

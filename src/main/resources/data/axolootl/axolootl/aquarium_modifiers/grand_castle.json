@@ -1,0 +1,21 @@
+{
+  "translation_key": "block.axolootl.grand_castle",
+  "settings": {
+    "generation": 0.5
+  },
+  "dimensions": [ 3, 3, 3 ],
+  "block": {
+    "type": "axolootl:matching_state",
+    "blocks": "axolootl:grand_castle",
+    "state": {
+      "width": "1",
+      "height": "1",
+      "depth": "1"
+    }
+  },
+  "condition": {
+    "type": "axolootl:count_capped",
+    "modifier": "axolootl:grand_castle",
+    "count": 1
+  }
+}

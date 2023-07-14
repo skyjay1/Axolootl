@@ -1,0 +1,20 @@
+{
+  "translation_key": "block.axolootl.powered_pump",
+  "settings": {
+    "generation": 0.5,
+    "energy_cost": 20
+  },
+  "dimensions": [ 1, 2, 1 ],
+  "block": {
+    "type": "axolootl:matching_state",
+    "blocks": "axolootl:powered_pump",
+    "state": {
+      "half": "lower"
+    }
+  },
+  "condition": {
+    "type": "axolootl:count_capped",
+    "modifier": "axolootl:powered_pump",
+    "count": 1
+  }
+}

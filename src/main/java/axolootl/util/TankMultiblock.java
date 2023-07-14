@@ -211,6 +211,8 @@ public class TankMultiblock {
     @Immutable
     public static class Size {
 
+        public static final TankMultiblock.Size EMPTY = new TankMultiblock.Size(BlockPos.ZERO, Vec3i.ZERO);
+
         public static final Codec<TankMultiblock.Size> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 BlockPos.CODEC.fieldOf("origin").forGetter(TankMultiblock.Size::getOrigin),
                 Vec3i.CODEC.fieldOf("dimensions").forGetter(TankMultiblock.Size::getDimensions)

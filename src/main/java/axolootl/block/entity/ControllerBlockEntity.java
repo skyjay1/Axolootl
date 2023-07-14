@@ -8,7 +8,11 @@ import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.data.resource_generator.ResourceType;
 import axolootl.entity.AxolootlEntity;
+import axolootl.entity.IAxolootlVariantProvider;
+import axolootl.util.BreedStatus;
+import axolootl.util.FeedStatus;
 import axolootl.util.TankMultiblock;
+import axolootl.util.TankStatus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
@@ -84,10 +88,10 @@ public class ControllerBlockEntity extends BlockEntity {
     public static final double INSIDE_ITERATOR_SCAN = 0.6D;
 
     // TAGS //
-    public static final TagKey<Block> FLUID_INPUTS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "fluid_inputs"));
-    public static final TagKey<Block> ENERGY_INPUTS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "energy_inputs"));
-    public static final TagKey<Block> AXOLOOTL_INPUTS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "axolootl_inputs"));
-    public static final TagKey<Block> RESOURCE_OUTPUTS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "resource_outputs"));
+    public static final TagKey<Block> FLUID_INPUTS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_fluid_interfaces"));
+    public static final TagKey<Block> ENERGY_INPUTS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_energy_interfaces"));
+    public static final TagKey<Block> AXOLOOTL_INPUTS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_axolootl_interfaces"));
+    public static final TagKey<Block> RESOURCE_OUTPUTS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_outputs"));
 
     // CAPABILITIES //
     private static final Capability<IItemHandler> ITEM_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
@@ -175,6 +179,7 @@ public class ControllerBlockEntity extends BlockEntity {
             markDirty |= self.iterateInside(serverLevel, Mth.ceil(blocksToScan * INSIDE_ITERATOR_SCAN));
             if(self.validateUpdateModifiers(serverLevel) || self.forceCalculateBonuses) {
                 markDirty |= self.applyActiveModifiers(serverLevel.registryAccess());
+                self.forceCalculateBonuses = false;
             }
             level.getProfiler().pop();
         }
@@ -197,9 +202,8 @@ public class ControllerBlockEntity extends BlockEntity {
             level.getProfiler().pop();
         }
         // mark changed and send update
-        self.forceCalculateBonuses = false;
         if(markDirty) {
-            level.blockEntityChanged(pos);
+            self.setChanged();
             level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
         }
     }
@@ -522,10 +526,27 @@ public class ControllerBlockEntity extends BlockEntity {
             }
             // add to corresponding set, if applicable
             BlockState blockState = serverLevel.getBlockState(pos);
-            if(blockState.is(FLUID_INPUTS)) fluidInputs.add(pos.immutable());
-            if(blockState.is(ENERGY_INPUTS)) energyInputs.add(pos.immutable());
-            if(blockState.is(AXOLOOTL_INPUTS)) axolootlInputs.add(pos.immutable());
-            if(blockState.is(RESOURCE_OUTPUTS)) resourceOutputs.add(pos.immutable());
+            //IAquariumControllerProvider provider = serverLevel.getBlockEntity(pos) instanceof IAquariumControllerProvider i ? i : null;
+            // add fluid input
+            if(blockState.is(FLUID_INPUTS) && !fluidInputs.contains(pos)) {
+                fluidInputs.add(pos.immutable());
+                IAquariumControllerProvider.trySetController(serverLevel, pos, this);
+            }
+            // add energy input
+            if(blockState.is(ENERGY_INPUTS) && !energyInputs.contains(pos)) {
+                energyInputs.add(pos.immutable());
+                IAquariumControllerProvider.trySetController(serverLevel, pos, this);
+            }
+            // add axolootl input
+            if(blockState.is(AXOLOOTL_INPUTS) && !axolootlInputs.contains(pos)) {
+                axolootlInputs.add(pos.immutable());
+                IAquariumControllerProvider.trySetController(serverLevel, pos, this);
+            }
+            // add resource outputs
+            if(blockState.is(RESOURCE_OUTPUTS) && !resourceOutputs.contains(pos)) {
+                resourceOutputs.add(pos.immutable());
+                IAquariumControllerProvider.trySetController(serverLevel, pos, this);
+            }
         }
         // restart iterator after it is finished
         if(!outsideIterator.hasNext() && size != null) {
@@ -543,7 +564,6 @@ public class ControllerBlockEntity extends BlockEntity {
     }
 
     /**
-     *
      * @param serverLevel the server level
      * @param blocksToCheck the maximum number of blocks to iterate
      * @return true if the modifier map was changed
@@ -857,6 +877,7 @@ public class ControllerBlockEntity extends BlockEntity {
     public FeedStatus getFeedStatus() {
         return feedStatus;
     }
+
     /**
      * @return the number of ticks to subtract from the resource generation ticker based on generation speed
      */

@@ -1,0 +1,29 @@
+{
+  "translation_key": "block.axolootl.pump",
+  "settings": {
+    "generation": 0.2
+  },
+  "dimensions": [ 1, 2, 1 ],
+  "block": {
+    "type": "axolootl:matching_state",
+    "blocks": "axolootl:pump",
+    "state": {
+      "half": "lower"
+    }
+  },
+  "condition": {
+    "type": "axolootl:and",
+    "children": [
+      {
+        "type": "axolootl:count_capped",
+        "modifier": "axolootl:pump",
+        "count": 1
+      },
+      {
+        "type": "axolootl:count",
+        "modifier": "axolootl:powered_pump",
+        "count": 0
+      }
+    ]
+  }
+}

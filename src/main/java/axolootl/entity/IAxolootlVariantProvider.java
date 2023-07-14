@@ -1,4 +1,4 @@
-package axolootl.block.entity;
+package axolootl.entity;
 
 import axolootl.data.AxolootlVariant;
 import net.minecraft.core.RegistryAccess;

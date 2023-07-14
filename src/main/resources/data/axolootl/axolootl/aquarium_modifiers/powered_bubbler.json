@@ -1,5 +1,5 @@
 {
-  "translation_key": "modifier.axolootl.powered_bubbler",
+  "translation_key": "block.axolootl.powered_bubbler",
   "settings": {
     "category": "axolootl:bubbler",
     "generation": 0.25,
@@ -7,7 +7,7 @@
   },
   "block": {
     "type": "minecraft:matching_blocks",
-    "blocks": "minecraft:trapped_chest"
+    "blocks": "axolootl:powered_bubbler"
   },
   "condition": {
     "type": "axolootl:count_capped",

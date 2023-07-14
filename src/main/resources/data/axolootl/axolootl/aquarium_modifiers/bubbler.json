@@ -1,12 +1,12 @@
 {
-  "translation_key": "modifier.axolootl.bubbler",
+  "translation_key": "block.axolootl.bubbler",
   "settings": {
     "category": "axolootl:bubbler",
     "generation": 0.1
   },
   "block": {
     "type": "minecraft:matching_blocks",
-    "blocks": "minecraft:chest"
+    "blocks": "axolootl:bubbler"
   },
   "condition": {
     "type": "axolootl:and",

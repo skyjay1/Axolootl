@@ -1,4 +1,4 @@
-package axolootl.block.entity;
+package axolootl.util;
 
 import axolootl.Axolootl;
 import com.google.common.collect.ImmutableMap;
