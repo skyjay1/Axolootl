@@ -2,7 +2,7 @@
   "translation_key": "block.axolootl.powered_pump",
   "settings": {
     "generation": 0.5,
-    "energy_cost": 20
+    "energy_cost": 80
   },
   "dimensions": [ 1, 2, 1 ],
   "block": {

@@ -1,12 +1,24 @@
 package axolootl;
 
 import axolootl.block.AirlockBlock;
+import axolootl.block.AutofeederBlock;
+import axolootl.block.BreederBlock;
+import axolootl.block.BubblerBlock;
 import axolootl.block.ControllerBlock;
+import axolootl.block.EnergyInterfaceBlock;
+import axolootl.block.GrandCastleBlock;
+import axolootl.block.MonsteriumBlock;
+import axolootl.block.OutputBlock;
 import axolootl.block.WaterInterfaceBlock;
 import axolootl.block.WaterloggedHorizontalBlock;
 import axolootl.block.WaterloggedHorizontalDoubleBlock;
 import axolootl.block.WaterloggedHorizontalMultiBlock;
+import axolootl.block.entity.AutoFeederBlockEntity;
+import axolootl.block.entity.BreederBlockEntity;
 import axolootl.block.entity.ControllerBlockEntity;
+import axolootl.block.entity.EnergyInterfaceBlockEntity;
+import axolootl.block.entity.MonsteriumBlockEntity;
+import axolootl.block.entity.OutputInterfaceBlockEntity;
 import axolootl.block.entity.WaterInterfaceBlockEntity;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.AxolootlVariant;
@@ -34,6 +46,7 @@ import axolootl.data.resource_generator.MobDropsResourceGenerator;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.entity.AxolootlEntity;
 import axolootl.item.MultiBlockItem;
+import axolootl.recipe.AxolootlBreedingRecipe;
 import axolootl.util.MatchingStatePredicate;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
@@ -54,6 +67,8 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -87,6 +102,8 @@ public final class AxRegistry {
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Axolootl.MODID);
     private static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Axolootl.MODID);
     private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Axolootl.MODID);
+    private static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, Axolootl.MODID);
+    private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, Axolootl.MODID);
     private static final DeferredRegister<BlockPredicateType<?>> BLOCK_PREDICATE_TYPES = DeferredRegister.create(Registry.BLOCK_PREDICATE_TYPE_REGISTRY, Axolootl.MODID);
 
     // RESOURCE GENERATORS //
@@ -128,6 +145,7 @@ public final class AxRegistry {
         BlockEntityReg.register();
         EntityReg.register();
         MenuReg.register();
+        RecipeReg.register();
         BlockPredicateTypes.register();
         ModifierConditions.register();
         ResourceGenerators.register();
@@ -216,24 +234,25 @@ public final class AxRegistry {
             BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
-        public static final RegistryObject<Block> AQUARIUM_CONTROLLER = registerWithItem("aquarium_controller", () -> new ControllerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> AQUARIUM_WATER_INTERFACE = registerWithItem("aquarium_water_interface", () -> new WaterInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> AQUARIUM_ENERGY_INTERFACE = registerWithItem("aquarium_energy_interface", () -> new Block(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> AQUARIUM_AXOLOOTL_INTERFACE = registerWithItem("aquarium_axolootl_interface", () -> new Block(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> AQUARIUM_OUTPUT = registerWithItem("aquarium_output", () -> new Block(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> LARGE_AQUARIUM_OUTPUT = registerWithItem("large_aquarium_output", () -> new Block(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> AQUARIUM_AIRLOCK = registerWithItem("aquarium_airlock", () -> new AirlockBlock(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> BUBBLER = registerWithItem("bubbler", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> POWERED_BUBBLER = registerWithItem("powered_bubbler", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> AQUARIUM_CONTROLLER = registerWithItem("aquarium_controller", () -> new ControllerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> AQUARIUM_WATER_INTERFACE = registerWithItem("aquarium_water_interface", () -> new WaterInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> AQUARIUM_ENERGY_INTERFACE = registerWithItem("aquarium_energy_interface", () -> new EnergyInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> AQUARIUM_AXOLOOTL_INTERFACE = registerWithItem("aquarium_axolootl_interface", () -> new Block(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> AQUARIUM_OUTPUT = registerWithItem("aquarium_output", () -> new OutputBlock(3, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> LARGE_AQUARIUM_OUTPUT = registerWithItem("large_aquarium_output", () -> new OutputBlock(6, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> AQUARIUM_AIRLOCK = registerWithItem("aquarium_airlock", () -> new AirlockBlock(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().requiresCorrectToolForDrops().strength(3.5F, 6.0F)));
+        public static final RegistryObject<Block> BUBBLER = registerWithItem("bubbler", () -> new BubblerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> POWERED_BUBBLER = registerWithItem("powered_bubbler", () -> new BubblerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> PUMP = registerWithItem("pump", () -> new WaterloggedHorizontalDoubleBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> POWERED_PUMP = registerWithItem("powered_pump", () -> new WaterloggedHorizontalDoubleBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> BREEDER = registerWithItem("breeder", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> BREEDER = registerWithItem("breeder", () -> new BreederBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> NURSERY = registerWithItem("nursery", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> MONSTERIUM = registerWithItem("monsterium", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> AUTOFEEDER = registerWithItem("autofeeder", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> CASTLE = registerWithItem("castle", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> GRAND_CASTLE = registerWithItem("grand_castle", () -> new WaterloggedHorizontalMultiBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().requiresCorrectToolForDrops().strength(3.5F)),
-                block -> ItemReg.register(block.getId().getPath(), () -> new MultiBlockItem(block.get(), new Item.Properties().tab(ItemReg.TAB))));
+        public static final RegistryObject<Block> MONSTERIUM = registerWithItem("monsterium", () -> new MonsteriumBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> AUTOFEEDER = registerWithItem("autofeeder", () -> new AutofeederBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> CASTLE = registerWithItem("castle", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F, 5.0F)));
+        public static final RegistryObject<Block> GRAND_CASTLE = registerWithMultiBlockItem("grand_castle", () -> new GrandCastleBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 20.0F)));
+        public static final RegistryObject<Block> BASTION = registerWithMultiBlockItem("bastion", () -> new WaterloggedHorizontalMultiBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 60.0F)));
+        public static final RegistryObject<Block> PRISTINE_BASTION = registerWithMultiBlockItem("pristine_bastion", () -> new WaterloggedHorizontalMultiBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 60.0F)));
 
         private static RegistryObject<Block> registerWithItem(final String name, final Supplier<Block> supplier) {
             return registerWithItem(name, supplier, ItemReg::registerBlockItem);
@@ -243,6 +262,10 @@ public final class AxRegistry {
             final RegistryObject<Block> block = BLOCKS.register(name, blockSupplier);
             final RegistryObject<Item> item = itemSupplier.apply(block);
             return block;
+        }
+
+        private static RegistryObject<Block> registerWithMultiBlockItem(final String name, final Supplier<Block> supplier) {
+            return registerWithItem(name, supplier, block -> ItemReg.register(block.getId().getPath(), () -> new MultiBlockItem(block.get(), new Item.Properties().stacksTo(1).tab(ItemReg.TAB))));
         }
 
     }
@@ -259,6 +282,26 @@ public final class AxRegistry {
 
         public static final RegistryObject<BlockEntityType<WaterInterfaceBlockEntity>> WATER_INTERFACE = BLOCK_ENTITY_TYPES.register("water_interface", () ->
                 BlockEntityType.Builder.of(WaterInterfaceBlockEntity::new, BlockReg.AQUARIUM_WATER_INTERFACE.get())
+                        .build(null));
+
+        public static final RegistryObject<BlockEntityType<EnergyInterfaceBlockEntity>> ENERGY_INTERFACE = BLOCK_ENTITY_TYPES.register("energy_interface", () ->
+                BlockEntityType.Builder.of(EnergyInterfaceBlockEntity::new, BlockReg.AQUARIUM_ENERGY_INTERFACE.get())
+                        .build(null));
+
+        public static final RegistryObject<BlockEntityType<OutputInterfaceBlockEntity>> OUTPUT_INTERFACE = BLOCK_ENTITY_TYPES.register("output_interface", () ->
+                BlockEntityType.Builder.of(OutputInterfaceBlockEntity::new, BlockReg.AQUARIUM_OUTPUT.get(), BlockReg.LARGE_AQUARIUM_OUTPUT.get())
+                        .build(null));
+
+        public static final RegistryObject<BlockEntityType<AutoFeederBlockEntity>> AUTO_FEEDER = BLOCK_ENTITY_TYPES.register("auto_feeder", () ->
+                BlockEntityType.Builder.of(AutoFeederBlockEntity::new, BlockReg.AUTOFEEDER.get())
+                        .build(null));
+
+        public static final RegistryObject<BlockEntityType<BreederBlockEntity>> BREEDER = BLOCK_ENTITY_TYPES.register("breeder", () ->
+                BlockEntityType.Builder.of(BreederBlockEntity::new, BlockReg.BREEDER.get())
+                        .build(null));
+
+        public static final RegistryObject<BlockEntityType<MonsteriumBlockEntity>> MONSTERIUM = BLOCK_ENTITY_TYPES.register("monsterium", () ->
+                BlockEntityType.Builder.of(MonsteriumBlockEntity::new, BlockReg.MONSTERIUM.get())
                         .build(null));
 
     }
@@ -291,6 +334,18 @@ public final class AxRegistry {
         public static void register() {
             MENU_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
+
+    }
+
+    public static final class RecipeReg {
+
+        public static void register() {
+            RECIPE_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
+            RECIPE_SERIALIZERS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        }
+
+        public static final RegistryObject<RecipeType<AxolootlBreedingRecipe>> AXOLOOTL_BREEDING_TYPE = RECIPE_TYPES.register("breeding", () -> new RecipeType<>() {});
+        public static final RegistryObject<RecipeSerializer<AxolootlBreedingRecipe>> AXOLOOTL_BREEDING_SERIALIZER = RECIPE_SERIALIZERS.register("breeding", () -> new AxolootlBreedingRecipe.Serializer());
 
     }
 

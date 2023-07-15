@@ -1,7 +1,7 @@
 {
   "translation_key": "block.axolootl.breeder",
   "settings": {
-    "breed": 1.0
+    "breed": 0.8
   },
   "block": {
     "type": "minecraft:matching_blocks",

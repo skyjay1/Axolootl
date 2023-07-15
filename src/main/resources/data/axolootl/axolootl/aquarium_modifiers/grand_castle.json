@@ -10,12 +10,23 @@
     "state": {
       "width": "1",
       "height": "1",
-      "depth": "1"
+      "depth": "1",
+      "level": "0"
     }
   },
   "condition": {
-    "type": "axolootl:count_capped",
-    "modifier": "axolootl:grand_castle",
-    "count": 1
+    "type": "axolootl:and",
+    "children": [
+      {
+        "type": "axolootl:count_capped",
+        "modifier": "axolootl:grand_castle",
+        "count": 1
+      },
+      {
+        "type": "axolootl:count",
+        "modifier": "#axolootl:enchanted_grand_castle",
+        "count": 0
+      }
+    ]
   }
 }

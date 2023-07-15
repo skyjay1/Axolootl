@@ -1,0 +1,31 @@
+{
+  "translation_key": "block.axolootl.bastion",
+  "settings": {
+    "generation": 1.0
+  },
+  "dimensions": [ 3, 3, 3 ],
+  "block": {
+    "type": "axolootl:matching_state",
+    "blocks": "axolootl:bastion",
+    "state": {
+      "width": "1",
+      "height": "1",
+      "depth": "1"
+    }
+  },
+  "condition": {
+    "type": "axolootl:and",
+    "children": [
+      {
+        "type": "axolootl:count_capped",
+        "modifier": "axolootl:bastion",
+        "count": 1
+      },
+      {
+        "type": "axolootl:count",
+        "modifier": "axolootl:pristine_bastion",
+        "count": 0
+      }
+    ]
+  }
+}

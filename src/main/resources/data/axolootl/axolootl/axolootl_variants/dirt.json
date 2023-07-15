@@ -1,0 +1,52 @@
+{
+  "translation_key": "axolootl.axolootl.dirt",
+  "primary_color": 16711680,
+  "secondary_color": 16449280,
+  "food": [
+    {
+      "item": "#minecraft:fishes",
+      "bonus": 0.02
+    }
+  ],
+  "breed_food": "#minecraft:dirt",
+  "resource_generator": [
+    {
+      "type": "axolootl:item",
+      "pool": [
+        {
+          "data": "minecraft:dirt",
+          "weight": 20
+        },
+        {
+          "data": "minecraft:mud",
+          "weight": 15
+        },
+        {
+          "data": "minecraft:grass_block",
+          "weight": 4
+        },
+        {
+          "data": "minecraft:podzol",
+          "weight": 8
+        },
+        {
+          "data": "minecraft:coarse_dirt",
+          "weight": 10
+        },
+        {
+          "data": "minecraft:moss_block",
+          "weight": 10
+        },
+        {
+          "data": "minecraft:rooted_dirt",
+          "weight": 5
+        },
+        {
+          "data": "minecraft:mycelium",
+          "weight": 1
+        }
+      ]
+
+    }
+  ]
+}

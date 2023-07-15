@@ -6,6 +6,7 @@ import axolootl.util.TankMultiblock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -51,8 +52,9 @@ public class ControllerBlock extends HorizontalDirectionalBlock implements Entit
             // TODO debug only
             if(blockentity instanceof ControllerBlockEntity be) {
                 be.setSize(TankMultiblock.AQUARIUM.hasTankStructure(pLevel, pPos).orElse(null));
-                pPlayer.displayClientMessage(Component.literal(be.getSize().toString()), false);
-                pPlayer.displayClientMessage(be.getTankStatus().getDescription(), false);
+                pPlayer.displayClientMessage(Component.literal("Tank: ").append(be.getTankStatus().getDescription()), false);
+                pPlayer.displayClientMessage(Component.literal("Breed: ").append(be.getBreedStatus().getDescription()), false);
+                pPlayer.displayClientMessage(Component.literal("Feed: ").append(be.getFeedStatus().getDescription()), false);
             }
             // open menu
             if (blockentity instanceof MenuProvider menuProvider) {
@@ -66,8 +68,11 @@ public class ControllerBlock extends HorizontalDirectionalBlock implements Entit
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
             level.updateNeighbourForOutputSignal(pos, this);
-            super.onRemove(state, level, pos, newState, isMoving);
         }
+        if(level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof ControllerBlockEntity controller) {
+            controller.onRemoved(serverLevel);
+        }
+        super.onRemove(state, level, pos, newState, isMoving);
     }
 
     //// ENTITY BLOCK ////

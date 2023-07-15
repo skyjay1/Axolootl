@@ -16,6 +16,8 @@ public enum BreedStatus implements StringRepresentable {
     ACTIVE("active", true),
     /** Breeding is enabled for non-mob generating entities only **/
     RESOURCE_MOB_ONLY("resource_mob_only", true),
+    /** Breeding is enabled but not possible because there is no food **/
+    MISSING_RESOURCES("missing_resources", true),
     /** Breeding is halted because there are too few entities **/
     MIN_COUNT("min_count", false),
     /** Breeding is halted because the tank is at max capacity **/

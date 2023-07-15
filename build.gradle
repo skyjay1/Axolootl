@@ -84,6 +84,10 @@ dependencies {
 	
     // JEI
 	implementation fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
+
+    // Iron Generators
+    runtimeOnly fg.deobf("curse.maven:inzhefop-core-${inzhefop_core_project}:${inzhefop_core_file}")
+    runtimeOnly fg.deobf("curse.maven:iron-generators-${iron_generators_project}:${iron_generators_file}")
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

@@ -1,7 +1,7 @@
 package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
-import axolootl.entity.IAxolootlVariantProvider;
+import axolootl.entity.IAxolootl;
 import axolootl.data.AxolootlVariant;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.mojang.serialization.Codec;
@@ -44,7 +44,7 @@ public class AxolootlCountModifierCondition extends ModifierCondition {
         int count = 0;
         // count all axolootls of the defined variant, or count all of them if no variant is defined
         if(this.variant != null) {
-            for(IAxolootlVariantProvider entry : context.getAxolootls()) {
+            for(IAxolootl entry : context.getAxolootls()) {
                 Optional<AxolootlVariant> oVariant = entry.getAxolootlVariant(context.getRegistryAccess());
                 if(oVariant.isPresent() && variant.contains(new Holder.Direct<>(oVariant.get()))) {
                     count++;

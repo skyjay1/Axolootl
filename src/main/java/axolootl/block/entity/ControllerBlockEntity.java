@@ -8,15 +8,19 @@ import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.data.resource_generator.ResourceType;
 import axolootl.entity.AxolootlEntity;
-import axolootl.entity.IAxolootlVariantProvider;
+import axolootl.entity.IAxolootl;
 import axolootl.util.BreedStatus;
 import axolootl.util.FeedStatus;
 import axolootl.util.TankMultiblock;
 import axolootl.util.TankStatus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterators;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
@@ -32,9 +36,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -44,6 +54,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -53,6 +65,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -62,6 +75,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -69,7 +84,7 @@ public class ControllerBlockEntity extends BlockEntity {
 
     // CONSTANTS //
     /** The default resource generation speed **/
-    public static final double BASE_GENERATION_SPEED = 1.0D;
+    public static final double BASE_GENERATION_SPEED = 0.1D;
     /** The default breeding speed **/
     public static final double BASE_BREED_SPEED = 0.0D;
     /** The default feeding speed **/
@@ -107,6 +122,7 @@ public class ControllerBlockEntity extends BlockEntity {
     private boolean isOutputFull;
     private boolean isInsufficientPower;
     private boolean isFeedInputEmpty;
+    private boolean isBreedInputEmpty;
     private long resourceGenerationTime;
     private long breedTime;
     private long feedTime;
@@ -139,18 +155,19 @@ public class ControllerBlockEntity extends BlockEntity {
 
     // OTHER //
     public final BiPredicate<BlockPos, AquariumModifier> activePredicate = (p, o) -> this.activeAquariumModifiers.contains(p);
-    public final Predicate<IAxolootlVariantProvider> hasMobResourcePredicate = (a) -> {
+    public final Predicate<IAxolootl> hasMobResourcePredicate = (a) -> {
         final Optional<AxolootlVariant> oVariant = a.getAxolootlVariant(a.getEntity().level.registryAccess());
         return oVariant.isPresent() && oVariant.get().hasMobResources();
     };
 
     public ControllerBlockEntity(BlockPos pPos, BlockState pBlockState) {
         this(AxRegistry.BlockEntityReg.CONTROLLER.get(), pPos, pBlockState);
-        if(null == this.tankStatus) {
-            this.tankStatus = TankStatus.INCOMPLETE;
-            this.feedStatus = FeedStatus.INACTIVE;
-            this.breedStatus = BreedStatus.INACTIVE;
-        }
+        this.tankStatus = TankStatus.INCOMPLETE;
+        this.feedStatus = FeedStatus.INACTIVE;
+        this.breedStatus = BreedStatus.INACTIVE;
+        this.resourceGenerationTime = 1;
+        this.feedTime = 1;
+        this.breedTime = 1;
         this.forceCalculateBonuses = true;
     }
 
@@ -171,33 +188,38 @@ public class ControllerBlockEntity extends BlockEntity {
         // active updates
         if(self.hasTank()) {
             // validate tank size
-            level.getProfiler().push("axolootlTankSize");
+            level.getProfiler().push("aquariumTankSize");
             int blocksToScan = Axolootl.CONFIG.TANK_MULTIBLOCK_UPDATE_CAP.get();
             markDirty |= self.iterateOutside(serverLevel, Mth.ceil(blocksToScan * OUTSIDE_ITERATOR_SCAN));
             // search for, validate, and apply modifiers
-            level.getProfiler().popPush("axolootlModifiers");
+            level.getProfiler().popPush("aquariumModifiers");
             markDirty |= self.iterateInside(serverLevel, Mth.ceil(blocksToScan * INSIDE_ITERATOR_SCAN));
-            if(self.validateUpdateModifiers(serverLevel) || self.forceCalculateBonuses) {
-                markDirty |= self.applyActiveModifiers(serverLevel.registryAccess());
-                self.forceCalculateBonuses = false;
-            }
+            markDirty |= self.validateUpdateModifiers(serverLevel);
             level.getProfiler().pop();
         }
         // active updates after validating tank size and modifiers
         if(self.getTankStatus().isActive()) {
+            // distribute energy to modifiers
+            level.getProfiler().push("aquariumEnergy");
+            markDirty |= self.distributeEnergy(serverLevel);
             // validate and search for axolootl entities
-            level.getProfiler().push("axolootlEntities");
+            level.getProfiler().popPush("aquariumEntities");
             markDirty |= self.validateAxolootls(serverLevel);
             markDirty |= self.findAxolootls(serverLevel);
+            level.getProfiler().popPush("aquariumBonuses");
+            if(self.forceCalculateBonuses) {
+                markDirty |= self.applyActiveModifiers(serverLevel);
+                self.forceCalculateBonuses = false;
+            }
             // update tickers
-            level.getProfiler().popPush("axolootlTickers");
+            level.getProfiler().popPush("aquariumTickers");
             markDirty |= self.updateTickers(serverLevel);
             // feed, breed, and generate resources
-            level.getProfiler().popPush("axolootlFeed");
+            level.getProfiler().popPush("aquariumFeed");
             markDirty |= self.feed(serverLevel);
-            level.getProfiler().popPush("axolootlBreed");
+            level.getProfiler().popPush("aquariumBreed");
             markDirty |= self.breed(serverLevel);
-            level.getProfiler().popPush("axolootlResources");
+            level.getProfiler().popPush("aquariumResources");
             markDirty |= self.generateResources(serverLevel);
             level.getProfiler().pop();
         }
@@ -269,16 +291,17 @@ public class ControllerBlockEntity extends BlockEntity {
 
     /**
      * @return true if any modifier multipliers or flags changed
-     * @param registryAccess the registry access
+     * @param serverLevel the level
      */
-    private boolean applyActiveModifiers(RegistryAccess registryAccess) {
+    private boolean applyActiveModifiers(final ServerLevel serverLevel) {
         // calculate generation, feed, and breed speeds
         double generationSpeed = BASE_GENERATION_SPEED;
         double feedSpeed = BASE_FEED_SPEED;
         double breedSpeed = BASE_BREED_SPEED;
         boolean enableMobResources = false;
         boolean enableMobBreeding = false;
-        for(AquariumModifier entry : resolveModifiers(registryAccess, activePredicate).values()) {
+        // iterate active modifiers
+        for(AquariumModifier entry : resolveModifiers(serverLevel.registryAccess(), activePredicate).values()) {
             // add generation speed
             if(tankStatus.isActive()) {
                 generationSpeed += entry.getSettings().getGenerationSpeed();
@@ -294,6 +317,22 @@ public class ControllerBlockEntity extends BlockEntity {
                 enableMobBreeding |= entry.getSettings().isEnableMobBreeding();
             }
         }
+        // iterate axolootls
+        for(IAxolootl entry : resolveAxolootls(serverLevel)) {
+            // add generation speed
+            if(tankStatus.isActive()) {
+                generationSpeed += entry.getGenerationSpeed();
+            }
+            // add feed speed
+            if(feedStatus.isActive()) {
+                feedSpeed += entry.getFeedSpeed();
+            }
+            // add breed speed
+            if(breedStatus.isActive()) {
+                breedSpeed += entry.getBreedSpeed();
+            }
+        }
+        // determine results
         boolean isDirty = notEquals(this.generationSpeed, generationSpeed) || notEquals(this.feedSpeed, feedSpeed) || notEquals(this.breedSpeed, breedSpeed)
                 || this.enableMobResources != enableMobResources || this.enableMobBreeding != enableMobBreeding ;
         this.generationSpeed = generationSpeed;
@@ -357,18 +396,14 @@ public class ControllerBlockEntity extends BlockEntity {
         // create resource list
         final List<ItemStack> resources = new ArrayList<>();
         final Set<UUID> invalid = new HashSet<>();
+        // resolve axolootls
+        final Collection<IAxolootl> axolootls = resolveAxolootls(serverLevel, i -> !i.getEntity().isBaby());
         // iterate over axolootl variants to generate resources
-        for(Map.Entry<UUID, ResourceLocation> entry : trackedAxolootls.entrySet()) {
-            // verify entity exists
-            Entity entity = serverLevel.getEntity(entry.getKey());
-            if(!(entity instanceof LivingEntity livingEntity)) {
-                invalid.add(entry.getKey());
-                continue;
-            }
+        for(IAxolootl entry : axolootls) {
             // verify variant exists
-            Optional<AxolootlVariant> oVariant = AxolootlVariant.getRegistry(serverLevel.registryAccess()).getOptional(entry.getValue());
+            Optional<AxolootlVariant> oVariant = entry.getAxolootlVariant(serverLevel.registryAccess());
             if(oVariant.isEmpty()) {
-                invalid.add(entry.getKey());
+                invalid.add(entry.getEntity().getUUID());
                 continue;
             }
             // iterate all resource generators
@@ -378,7 +413,7 @@ public class ControllerBlockEntity extends BlockEntity {
                     continue;
                 }
                 // generate resources
-                resources.addAll(gen.getRandomEntries(livingEntity, livingEntity.getRandom()));
+                resources.addAll(gen.getRandomEntries(entry.getEntity(), entry.getEntity().getRandom()));
             }
         }
         // remove invalid variants
@@ -479,23 +514,245 @@ public class ControllerBlockEntity extends BlockEntity {
     // FEEDING //
 
     /**
-     * @return true if the axolootl list changed
+     * @return true if the axolootl list, feed ticker, or feed status changed
      * @param serverLevel the server level
      */
     private boolean feed(ServerLevel serverLevel) {
-        // TODO
-        return false;
+        // validate ticker
+        if(feedTime > 0 || !(feedSpeed > 0)) {
+            return false;
+        }
+        // validate entity count
+        if(this.trackedAxolootls.size() < 1) {
+            return false;
+        }
+        // resolve axolootls
+        final Collection<IAxolootl> axolootls = resolveAxolootls(serverLevel);
+        // resolve autofeeders
+        final Map<BlockPos, AquariumModifier> modifiers = resolveModifiers(serverLevel.registryAccess(),
+                activePredicate.and((b, a) -> a.getSettings().getFeedSpeed() > 0));
+        // collect inventories
+        final ImmutableMap.Builder<BlockPos, IItemHandler> itemHandlerBuilder = ImmutableMap.builder();
+        for(BlockPos entry : modifiers.keySet()) {
+            BlockEntity blockEntity = serverLevel.getBlockEntity(entry);
+            if(blockEntity != null) {
+                blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> itemHandlerBuilder.put(entry, handler));
+            }
+        }
+        final Map<BlockPos, IItemHandler> itemHandlers = itemHandlerBuilder.build();
+        // verify non-empty list
+        if(itemHandlers.isEmpty()) {
+            this.setFeedInputEmpty(true);
+            return true;
+        }
+        // iterate each axolootl
+        boolean hasFed = false; // true when at least one axolootl was fed
+        boolean nonEmpty = false; // true when at least one handler has items
+        int feedCandidates = 0; // the number of axolootls that need to be fed
+        for(IAxolootl axolootl : axolootls) {
+            // validate axolootl can accept food
+            if(!axolootl.isFeedCandidate(serverLevel)) continue;
+            // attempt to feed from each known item handler
+            for(IItemHandler handler : itemHandlers.values()) {
+                InteractionResultHolder<Boolean> result = feed(serverLevel, handler, axolootl);
+                nonEmpty |= result.getObject().booleanValue();
+                if(result.getResult().consumesAction()) {
+                    hasFed = true;
+                    break;
+                }
+            }
+            feedCandidates++;
+        }
+        // update empty flag
+        this.setFeedInputEmpty(feedCandidates > 0 && !nonEmpty);
+        // reset ticker
+        if(hasFed) {
+            this.feedTime = Axolootl.CONFIG.BASE_FEEDING_PERIOD.get() * BASE_SPEED_DECREMENT;
+        } else {
+            this.feedTime = 200L * BASE_SPEED_DECREMENT;
+        }
+        return true;
+    }
+
+    /**
+     * Iterates the item handler inventory and attempts to feed each item to the given axolootl
+     * @param serverLevel the server level
+     * @param handler the item handler
+     * @param axolootl the axolootl
+     * @return the result of the operation and a flag that is true when there are at least some items in the handler
+     */
+    private InteractionResultHolder<Boolean> feed(ServerLevel serverLevel, IItemHandler handler, IAxolootl axolootl) {
+        // iterate items in inventory
+        int emptySlots = 0;
+        for(int i = 0, n = handler.getSlots(); i < n; i++) {
+            // validate item can be extracted
+            if(handler.extractItem(i, 1, true).isEmpty()) {
+                emptySlots++;
+                continue;
+            }
+            // attempt to feed this item
+            ItemStack food = handler.getStackInSlot(i).copy().split(1);
+            InteractionResult result = axolootl.feed(serverLevel, food);
+            if(result.consumesAction()) {
+                // remove from item handler
+                handler.extractItem(i, 1, false);
+                return new InteractionResultHolder<>(result, true);
+            }
+        }
+        return InteractionResultHolder.pass(emptySlots < handler.getSlots());
     }
 
     // BREEDING //
 
     /**
-     * @return true if the axolootl list changed
+     * @return true if the axolootl list or breed ticker changed
      * @param serverLevel the server level
      */
     private boolean breed(ServerLevel serverLevel) {
-        // TODO
-        return false;
+        // validate ticker
+        if(breedTime > 0) {
+            return false;
+        }
+        // validate entity count
+        if(this.trackedAxolootls.size() < 2 || this.trackedAxolootls.size() + 1 > calculateMaxCapacity(this.size)) {
+            return false;
+        }
+        // resolve axolootls
+        final Collection<IAxolootl> axolootls = resolveAxolootls(serverLevel, a -> enableMobBreeding
+                || !a.getAxolootlVariant(serverLevel.registryAccess()).orElse(AxolootlVariant.EMPTY).hasMobResources());
+        // resolve breeders
+        final Map<BlockPos, AquariumModifier> modifiers = resolveModifiers(serverLevel.registryAccess(),
+                activePredicate.and((b, a) -> a.getSettings().getBreedSpeed() > 0 || a.getSettings().isEnableMobBreeding()));
+        // collect inventories
+        final ImmutableMap.Builder<BlockPos, IItemHandler> itemHandlerBuilder = ImmutableMap.builder();
+        for(BlockPos entry : modifiers.keySet()) {
+            BlockEntity blockEntity = serverLevel.getBlockEntity(entry);
+            if(blockEntity != null) {
+                blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> itemHandlerBuilder.put(entry, handler));
+            }
+        }
+        final Map<BlockPos, IItemHandler> itemHandlers = itemHandlerBuilder.build();
+        // verify non-empty list
+        if(itemHandlers.isEmpty()) {
+            this.setBreedInputEmpty(true);
+            return true;
+        }
+        // iterate each axolootl
+        boolean hasBred = false; // true when at least one pair was bred
+        boolean nonEmpty = false; // true when at least one handler has items
+        int breedCandidates = 0; // the number of axolootls that can breed
+        for(IAxolootl axolootl : axolootls) {
+            // validate axolootl can breed
+            if (!axolootl.isBreedCandidate(serverLevel, Optional.empty())) continue;
+            // iterate each other axolootl
+            Optional<IAxolootl> oAxolootl = Optional.of(axolootl);
+            for(IAxolootl other : axolootls) {
+                // validate other can breed
+                if (axolootl == other || !other.isBreedCandidate(serverLevel, oAxolootl)) continue;
+                // attempt to breed from each known item handler
+                InteractionResultHolder<Boolean> result = breed(serverLevel, itemHandlers, axolootl, other);
+                nonEmpty |= result.getObject().booleanValue();
+                if(result.getResult().consumesAction()) {
+                    hasBred = true;
+                    break;
+                }
+            }
+            breedCandidates++;
+        }
+        // update empty flag
+        this.setBreedInputEmpty(breedCandidates > 0 && !nonEmpty);
+        // reset ticker
+        if(hasBred) {
+            this.breedTime = Axolootl.CONFIG.BASE_BREEDING_PERIOD.get() * BASE_SPEED_DECREMENT;
+        } else {
+            this.breedTime = 200L * BASE_SPEED_DECREMENT;
+        }
+        return true;
+    }
+
+    /**
+     * Iterates the item handler inventory and attempts to feed each item to the given axolootls
+     * @param serverLevel the server level
+     * @param handlers the item handlers
+     * @param axolootl the axolootl
+     * @return the result of the operation and a flag that is true when there are at least some items in the handler
+     */
+    private InteractionResultHolder<Boolean> breed(ServerLevel serverLevel, Map<BlockPos, IItemHandler> handlers, IAxolootl axolootl, IAxolootl other) {
+
+        final AxolootlVariant variant1 = axolootl.getAxolootlVariant(serverLevel.registryAccess()).orElse(AxolootlVariant.EMPTY);
+        final AxolootlVariant variant2 = other.getAxolootlVariant(serverLevel.registryAccess()).orElse(AxolootlVariant.EMPTY);
+        final HolderSet<Item> breedFood1 = variant1.getBreedFood();
+        final HolderSet<Item> breedFood2 = variant2.getBreedFood();
+
+        // iterate inventories
+        IItemHandler handler1 = null;
+        IItemHandler handler2 = null;
+        int slot1 = -1;
+        int slot2 = -1;
+        for(IItemHandler handler : handlers.values()) {
+            // find items matching holder sets
+            Tuple<Integer, Integer> result = findItems(serverLevel, handler, breedFood1, breedFood2);
+            // check first item found
+            if(slot1 < 0 && result.getA() >= 0) {
+                handler1 = handler;
+                slot1 = result.getA();
+            }
+            // check second item found
+            if(slot2 < 0 && result.getB() >= 0) {
+                handler2 = handler;
+                slot2 = result.getB();
+            }
+            // check both items found early
+            if(slot1 >= 0 && slot2 >= 0) break;
+        }
+        // validate both items found
+        if(null == handler1 || null == handler2) {
+            return InteractionResultHolder.pass(true);
+        }
+        // validate both items extracted
+        if(handler1.extractItem(slot1, 1, false).isEmpty() || handler2.extractItem(slot2, 1, false).isEmpty()) {
+            return InteractionResultHolder.fail(false);
+        }
+        // try to breed
+        Optional<IAxolootl> oChild = axolootl.breed(serverLevel, other);
+        if(oChild.isEmpty() || oChild.get().getAxolootlVariantId().isEmpty()) {
+            return InteractionResultHolder.pass(slot1 < 0 && slot2 < 0);
+        }
+        // add child to tracked axolootls
+        this.trackedAxolootls.put(oChild.get().getEntity().getUUID(), oChild.get().getAxolootlVariantId().get());
+        this.forceCalculateBonuses();
+        return InteractionResultHolder.success(true);
+    }
+
+    /**
+     * Finds the given item in the given inventory
+     * @param serverLevel the server level
+     * @param handler the item handler
+     * @param left the first item to search for
+     * @param right the second item to search for
+     * @return the slots of the items that were found, where -1 means the item was not found
+     */
+    private Tuple<Integer, Integer> findItems(ServerLevel serverLevel, final IItemHandler handler, final HolderSet<Item> left, final HolderSet<Item> right) {
+        // iterate items in inventory
+        int slotLeft = -1;
+        int slotRight = -1;
+        for(int i = 0, n = handler.getSlots(); i < n; i++) {
+            // validate item can be extracted
+            if(handler.extractItem(i, 1, true).isEmpty()) continue;
+            // validate item is food
+            ItemStack food = handler.getStackInSlot(i).copy().split(1);
+            if(slotLeft < 0 && left.contains(food.getItemHolder())) {
+                slotLeft = i;
+            }
+            if(slotRight < 0 && right.contains(food.getItemHolder())) {
+                slotRight = i;
+            }
+            // both items were found
+            if(slotLeft >= 0 && slotRight >= 0) {
+                break;
+            }
+        }
+        return new Tuple<>(slotLeft, slotRight);
     }
 
     // ITERATORS //
@@ -586,6 +843,8 @@ public class ControllerBlockEntity extends BlockEntity {
                 foundModifiers |= !this.aquariumModifiers.containsKey(pos) || !this.aquariumModifiers.get(pos).equals(name);
                 // add modifier to map
                 this.aquariumModifiers.put(pos.immutable(), name);
+                // notify modifier
+                IAquariumControllerProvider.trySetController(serverLevel, pos, this);
             }
         }
         // restart iterator after it is finished
@@ -593,7 +852,10 @@ public class ControllerBlockEntity extends BlockEntity {
             insideIterator = size.innerPositions().iterator();
         }
         // report changes
-        return foundModifiers;
+        if(foundModifiers) {
+            return this.forceCalculateBonuses = true;
+        }
+        return false;
     }
 
     /**
@@ -614,8 +876,15 @@ public class ControllerBlockEntity extends BlockEntity {
         final List<AxolootlEntity> list = serverLevel.getEntitiesOfClass(AxolootlEntity.class, aabb,
                 entity -> !trackedAxolootls.containsKey(entity.getUUID()) && entity.getAxolootlVariantId().isPresent());
         // add new entities
-        list.forEach(e -> this.trackedAxolootls.put(e.getUUID(), e.getAxolootlVariantId().get()));
-        return !list.isEmpty();
+        list.forEach(e -> {
+            this.trackedAxolootls.put(e.getUUID(), e.getAxolootlVariantId().get());
+            IAquariumControllerProvider.trySetController(e, serverLevel, this.getBlockPos(), this);
+        });
+        // report changes
+        if(!list.isEmpty()) {
+            return this.forceCalculateBonuses = true;
+        }
+        return false;
     }
 
     /**
@@ -638,11 +907,16 @@ public class ControllerBlockEntity extends BlockEntity {
             Entity entity = serverLevel.getEntity(uuid);
             if(null == entity || !bounds.intersects(entity.getBoundingBox())) {
                 invalid.add(uuid);
+                IAquariumControllerProvider.tryClearController(entity);
             }
         }
         // remove invalid entities
         invalid.forEach(uuid -> trackedAxolootls.remove(uuid));
-        return !invalid.isEmpty();
+        // report changes
+        if(!invalid.isEmpty()) {
+            return this.forceCalculateBonuses = true;
+        }
+        return false;
     }
 
     /**
@@ -657,17 +931,17 @@ public class ControllerBlockEntity extends BlockEntity {
         // iterate modifiers and check if they still exist and whether they are active
         final Set<BlockPos> invalid = new HashSet<>();
         final Set<BlockPos> active = new HashSet<>();
-        final Collection<IAxolootlVariantProvider> axolootls = resolveAxolootls(serverLevel);
+        final Collection<IAxolootl> axolootls = resolveAxolootls(serverLevel);
         final Map<BlockPos, AquariumModifier> modifierMap = ImmutableMap.copyOf(resolveModifiers(serverLevel.registryAccess()));
-        for(Map.Entry<BlockPos, AquariumModifier> entry :modifierMap.entrySet()) {
+        for(Map.Entry<BlockPos, AquariumModifier> entry : modifierMap.entrySet()) {
             // validate modifier
             if(entry.getValue().isApplicable(serverLevel, entry.getKey())) {
                 // create context
                 final Map<BlockPos, AquariumModifier> contextMap = new HashMap<>(modifierMap);
                 contextMap.remove(entry.getKey());
                 AquariumModifierContext context = new AquariumModifierContext(serverLevel, entry.getKey(), axolootls, contextMap);
-                // validate active
-                if(entry.getValue().isActive(context)) {
+                // validate modifier is active and either does not require power or the tank has sufficient power
+                if(entry.getValue().isActive(context)/* && (!isInsufficientPower() || entry.getValue().getSettings().getEnergyCost() <= 0)*/) {
                     active.add(entry.getKey());
                     // attempt to spread
                     final Optional<BlockPos> oPropogated = entry.getValue().checkAndSpread(context);
@@ -684,6 +958,7 @@ public class ControllerBlockEntity extends BlockEntity {
                 }
             } else {
                 invalid.add(entry.getKey());
+                IAquariumControllerProvider.tryClearController(serverLevel, entry.getKey());
             }
         }
         // remove invalid modifiers
@@ -693,9 +968,150 @@ public class ControllerBlockEntity extends BlockEntity {
         if(!this.activeAquariumModifiers.equals(active)) {
             this.activeAquariumModifiers.clear();
             this.activeAquariumModifiers.addAll(active);
+            this.forceCalculateBonuses();
             isDirty = true;
         }
         return isDirty;
+    }
+
+    /**
+     * @param level the server level
+     * @return true if there are any changes
+     **/
+    private boolean distributeEnergy(Level level) {
+        // collect aquarium modifiers
+        final List<Map.Entry<BlockPos, AquariumModifier>> modifiers = new ArrayList<>(resolveModifiers(level.registryAccess(),
+                activePredicate.and((b, a) -> a.getSettings().getEnergyCost() > 0)).entrySet());
+        // sort from highest energy cost to lowest
+        final Comparator<Map.Entry<BlockPos, AquariumModifier>> comparator = Comparator.comparingInt(e -> e.getValue().getSettings().getEnergyCost());
+        modifiers.sort(comparator.reversed());
+        // verify energy is required
+        if(modifiers.isEmpty()) {
+            return false;
+        }
+        // collect energy handlers
+        final Map<BlockPos, IEnergyStorage> energyHandlers = new HashMap<>();
+        for(BlockPos entry : energyInputs) {
+            IEnergyStorage storage = resolveEnergyStorageOrVoid(level, entry, false);
+            if(storage.canExtract()) {
+                energyHandlers.put(entry, storage);
+            }
+        }
+        // attempt to distribute energy
+        boolean hasPowered = false;
+        for(Map.Entry<BlockPos, AquariumModifier> entry : modifiers) {
+            // determine cost for this modifier
+            int cost = entry.getValue().getSettings().getEnergyCost();
+            int depleted = 0;
+            // whether the destination block is responsible to use up the energy
+            boolean isVoid = entry.getValue().getSettings().isGreedyEnergy();
+            // iterate each energy storage and attempt to transfer energy
+            for(IEnergyStorage energyStorage : energyHandlers.values()) {
+                // transfer the amount of energy required for the modifier
+                depleted += transferEnergy(level, energyStorage, entry.getKey(), cost, isVoid);
+                if(depleted >= cost) {
+                    hasPowered = true;
+                    break;
+                }
+            }
+            // detect when the energy storage is depleted and notify the controller
+            if (depleted < cost) {
+                setInsufficientPower(true);
+                this.aquariumModifiers.remove(entry.getKey());
+                this.activeAquariumModifiers.remove(entry.getKey());
+                IAquariumControllerProvider.tryClearController(level, entry.getKey());
+                this.forceCalculateBonuses();
+                return true;
+            }
+        }
+        // update controller tank state
+        setInsufficientPower(false);
+        // no internal changes to report here
+        return false;
+    }
+
+
+    /**
+     * Attempts to insert energy into the given position. If the given block entity
+     * does not exist or cannot accept energy, the energy is permanently removed into a void storage
+     * @param level the level
+     * @param energyStorage the source energy storage
+     * @param receiverPos the destination position
+     * @param maxAmount the maximum amount of energy to transfer
+     * @param useVoidStorage true to transfer the energy into the void, never to be seen again
+     * @return the energy that was transferred
+     */
+    private int transferEnergy(final Level level, final IEnergyStorage energyStorage, final BlockPos receiverPos, final int maxAmount, final boolean useVoidStorage) {
+        // determine amount to extract
+        final int amount = Math.min(maxAmount, energyStorage.extractEnergy(maxAmount, true));
+        if(amount <= 0) {
+            return 0;
+        }
+        // load destination energy storage
+        final IEnergyStorage receiverStorage = resolveEnergyStorageOrVoid(level, receiverPos, useVoidStorage);
+        // attempt to insert energy
+        if(!receiverStorage.canReceive() || receiverStorage.receiveEnergy(amount, true) <= 0) {
+            return 0;
+        }
+        return energyStorage.extractEnergy(receiverStorage.receiveEnergy(amount, false), false);
+    }
+
+    /**
+     * Attempts to resolve an energy storage for each side of the block entity until one is found that can receive energy.
+     * If the block entity does not exist or the directional search fails, a void storage is created.
+     * @param level the level
+     * @param pos the block position
+     * @param useVoidStorage true to transfer the energy into the void, never to be seen again
+     * @return the non-null energy storage to represent the given position, may be void
+     * @see {@link VoidEnergyStorage}
+     */
+    private IEnergyStorage resolveEnergyStorageOrVoid(final Level level, final BlockPos pos, final boolean useVoidStorage) {
+        final BlockEntity blockEntity;
+        // verify smart storage and block entity exists
+        if(useVoidStorage || null == (blockEntity = level.getBlockEntity(pos))) {
+            return new VoidEnergyStorage();
+        }
+        // iterate each direction until an energy storage capability is found that can receive energy
+        for(Direction d : Direction.values()) {
+            Optional<IEnergyStorage> oStorage = blockEntity.getCapability(ForgeCapabilities.ENERGY, d).resolve();
+            if(oStorage.isPresent() && oStorage.get().canReceive()) {
+                return oStorage.get();
+            }
+        }
+        // all checks failed
+        return new VoidEnergyStorage();
+    }
+
+    /**
+     * Called when the block is removed from the world
+     * @param level the level
+     */
+    public void onRemoved(ServerLevel level) {
+        clearAllData(level);
+    }
+
+    private void clearAllData(final ServerLevel level) {
+        // remove self from modifiers
+        for(BlockPos p : aquariumModifiers.keySet()) {
+            IAquariumControllerProvider.tryClearController(level, p);
+        }
+        // remove self from inputs and outputs
+        Iterator<BlockPos> inputsOutputs = Iterators.concat(axolootlInputs.iterator(), fluidInputs.iterator(), energyInputs.iterator(), resourceOutputs.iterator());
+        while(inputsOutputs.hasNext()) {
+            IAquariumControllerProvider.tryClearController(level, inputsOutputs.next());
+        }
+        // remove self from entities
+        for(IAxolootl e : resolveAxolootls(level)) {
+            IAquariumControllerProvider.tryClearController(e.getEntity());
+        }
+        // clear data
+        this.tankStatus = TankStatus.INCOMPLETE;
+        this.trackedAxolootls.clear();
+        this.aquariumModifiers.clear();
+        this.activeAquariumModifiers.clear();
+        this.insideIterator = null;
+        this.outsideIterator = null;
+        this.setChanged();
     }
 
     // STATUS //
@@ -738,6 +1154,10 @@ public class ControllerBlockEntity extends BlockEntity {
         if(!this.hasMandatoryModifiers(serverLevel.registryAccess(), true)) {
             return TankStatus.MISSING_MODIFIERS;
         }
+        // check low power
+        if(this.isInsufficientPower()) {
+            return TankStatus.LOW_ENERGY;
+        }
         // check entity count is above capacity
         if(this.trackedAxolootls.size() > calculateMaxCapacity(this.size)) {
             return TankStatus.OVERCROWDED;
@@ -746,7 +1166,6 @@ public class ControllerBlockEntity extends BlockEntity {
         if(this.resourceOutputs.isEmpty() || isOutputFull()) {
             return TankStatus.STORAGE_FULL;
         }
-        // TODO check low power
         // all checks passed
         return TankStatus.ACTIVE;
     }
@@ -758,6 +1177,11 @@ public class ControllerBlockEntity extends BlockEntity {
      * @return the FeedStatus
      */
     private FeedStatus updateFeedStatus(ServerLevel serverLevel, final Map<BlockPos, AquariumModifier> activeModifiers) {
+        // check missing resources
+        if(isFeedInputEmpty()) {
+            return FeedStatus.MISSING_RESOURCES;
+        }
+        // calculate feed settings
         double feedSpeed = BASE_FEED_SPEED;
         for(AquariumModifier modifier : activeModifiers.values()) {
             feedSpeed += modifier.getSettings().getFeedSpeed();
@@ -782,6 +1206,11 @@ public class ControllerBlockEntity extends BlockEntity {
      * @return the BreedStatus
      */
     private BreedStatus updateBreedStatus(ServerLevel serverLevel, final Map<BlockPos, AquariumModifier> activeModifiers) {
+        // check insufficient resources
+        if(isBreedInputEmpty()) {
+            return BreedStatus.MISSING_RESOURCES;
+        }
+        // determine breed settings
         double breedSpeed = BASE_BREED_SPEED;
         boolean mobBreeding = false;
         for(AquariumModifier modifier : activeModifiers.values()) {
@@ -831,27 +1260,22 @@ public class ControllerBlockEntity extends BlockEntity {
             this.insideIterator = size.innerPositions().iterator();
             this.outsideIterator = size.outerPositions().iterator();
             this.forceCalculateBonuses = true;
-        } else {
-            this.tankStatus = TankStatus.INCOMPLETE;
-            this.trackedAxolootls.clear();
-            this.aquariumModifiers.clear();
-            this.activeAquariumModifiers.clear();
-            this.axolootlInputs.clear();
-            this.fluidInputs.clear();
-            this.energyInputs.clear();
-            this.resourceOutputs.clear();
-            this.insideIterator = null;
-            this.outsideIterator = null;
+        } else if(level instanceof ServerLevel serverLevel) {
+            clearAllData(serverLevel);
         }
         // send update
         if(this.level != null) {
-            level.blockEntityChanged(this.getBlockPos());
+            this.setChanged();
             level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
         }
     }
 
     public Optional<TankMultiblock.Size> getSize() {
         return Optional.ofNullable(size);
+    }
+
+    public void forceCalculateBonuses() {
+        this.forceCalculateBonuses = true;
     }
 
     public boolean isOutputFull() {
@@ -862,8 +1286,33 @@ public class ControllerBlockEntity extends BlockEntity {
         return isInsufficientPower;
     }
 
+    public void setInsufficientPower(final boolean insufficientPower) {
+        if(this.isInsufficientPower != insufficientPower) {
+            setChanged();
+        }
+        this.isInsufficientPower = insufficientPower;
+    }
+
     public boolean isFeedInputEmpty() {
         return isFeedInputEmpty;
+    }
+
+    public boolean isBreedInputEmpty() {
+        return isBreedInputEmpty;
+    }
+
+    public void setFeedInputEmpty(final boolean feedInputEmpty) {
+        if(this.isFeedInputEmpty != feedInputEmpty) {
+            setChanged();
+        }
+        this.isFeedInputEmpty = feedInputEmpty;
+    }
+
+    public void setBreedInputEmpty(final boolean breedInputEmpty) {
+        if(this.isBreedInputEmpty != breedInputEmpty) {
+            setChanged();
+        }
+        this.isBreedInputEmpty = breedInputEmpty;
     }
 
     public TankStatus getTankStatus() {
@@ -878,6 +1327,38 @@ public class ControllerBlockEntity extends BlockEntity {
         return feedStatus;
     }
 
+    public double getGenerationSpeed() {
+        return generationSpeed;
+    }
+
+    public double getBreedSpeed() {
+        return breedSpeed;
+    }
+
+    public double getFeedSpeed() {
+        return feedSpeed;
+    }
+
+    public boolean enableMobResources() {
+        return enableMobResources;
+    }
+
+    public boolean enableMobBreeding() {
+        return enableMobBreeding;
+    }
+
+    public long getResourceGenerationTime() {
+        return resourceGenerationTime;
+    }
+
+    public long getBreedTime() {
+        return breedTime;
+    }
+
+    public long getFeedTime() {
+        return feedTime;
+    }
+
     /**
      * @return the number of ticks to subtract from the resource generation ticker based on generation speed
      */
@@ -889,14 +1370,14 @@ public class ControllerBlockEntity extends BlockEntity {
      * @return the number of ticks to subtract from the breed ticker based on breed speed
      */
     public long getBreedTickAmount() {
-        return Mth.floor(BASE_BREED_SPEED * breedSpeed);
+        return Mth.floor(BASE_SPEED_DECREMENT * breedSpeed);
     }
 
     /**
      * @return the number of ticks to subtract from the feed ticker based on feed speed
      */
     public long getFeedTickAmount() {
-        return Mth.floor(BASE_FEED_SPEED * feedSpeed);
+        return Mth.floor(BASE_SPEED_DECREMENT * feedSpeed);
     }
 
     /**
@@ -905,7 +1386,7 @@ public class ControllerBlockEntity extends BlockEntity {
      * @param serverLevel the server level
      * @return a collection of axolootl entities
      */
-    public Collection<IAxolootlVariantProvider> resolveAxolootls(ServerLevel serverLevel) {
+    public Collection<IAxolootl> resolveAxolootls(ServerLevel serverLevel) {
         return resolveAxolootls(serverLevel, o -> true);
     }
 
@@ -916,15 +1397,15 @@ public class ControllerBlockEntity extends BlockEntity {
      * @param predicate a predicate for axolootls to resolve
      * @return a collection of axolootl entities
      */
-    public Collection<IAxolootlVariantProvider> resolveAxolootls(final ServerLevel serverLevel, final Predicate<IAxolootlVariantProvider> predicate) {
+    public Collection<IAxolootl> resolveAxolootls(final ServerLevel serverLevel, final Predicate<IAxolootl> predicate) {
         // create list builder
-        final ImmutableList.Builder<IAxolootlVariantProvider> builder = ImmutableList.builder();
+        final ImmutableList.Builder<IAxolootl> builder = ImmutableList.builder();
         // create set of modifiers that need to be removed
         final Set<UUID> invalid = new HashSet<>();
         // iterate each known axolootl and either add it to the list or mark it to be removed
         for(UUID uuid : trackedAxolootls.keySet()) {
             Entity entity = serverLevel.getEntity(uuid);
-            if(entity instanceof IAxolootlVariantProvider iprovider && !iprovider.getEntity().isDeadOrDying()) {
+            if(entity instanceof IAxolootl iprovider && !iprovider.getEntity().isDeadOrDying()) {
                 // test against predicate before adding
                 if(predicate.test(iprovider)) {
                     builder.add(iprovider);

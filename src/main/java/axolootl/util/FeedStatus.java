@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 public enum FeedStatus implements StringRepresentable {
     /** Feeding is enabled and has sufficient resources **/
     ACTIVE("active", true),
-    /** Feeding is halted due to insufficient resources **/
-    MISSING_RESOURCES("missing_resources", false),
+    /** Feeding is enabled but not possible because there is no food **/
+    MISSING_RESOURCES("missing_resources", true),
     /** Feeding is halted for other reasons **/
     PAUSED("paused", false),
     /** Feeding is not enabled **/

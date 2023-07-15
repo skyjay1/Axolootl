@@ -2,6 +2,16 @@
   "translation_key": "axolootl.axolootl.iron",
   "primary_color": 11787004,
   "secondary_color": 15726073,
+  "food": [
+    {
+      "item": "minecraft:iron_nugget",
+      "bonus": {
+        "generation": 0.04,
+        "breed": 0.01
+      }
+    }
+  ],
+  "breed_food": "#minecraft:fishes",
   "resource_generator": {
     "type": "axolootl:tag",
     "tag": "forge:nuggets/iron"

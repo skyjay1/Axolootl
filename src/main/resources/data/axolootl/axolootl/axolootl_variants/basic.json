@@ -1,0 +1,12 @@
+{
+  "translation_key": "axolootl.axolootl.basic",
+  "primary_color": 16711680,
+  "secondary_color": 16449280,
+  "food": [
+    {
+      "item": "#minecraft:fishes",
+      "bonus": 0.02
+    }
+  ],
+  "breed_food": "#minecraft:fishes"
+}

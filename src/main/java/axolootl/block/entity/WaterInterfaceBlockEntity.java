@@ -49,7 +49,7 @@ public class WaterInterfaceBlockEntity extends FluidHandlerBlockEntity implement
 
     public WaterInterfaceBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
         super(pType, pPos, pBlockState);
-        this.tank.setCapacity(FluidType.BUCKET_VOLUME * 4);
+        this.tank.setCapacity(FluidType.BUCKET_VOLUME * 12);
         this.tank.setValidator(f -> f.getFluid().getFluidType() == ForgeMod.WATER_TYPE.get());
     }
 

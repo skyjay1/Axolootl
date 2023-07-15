@@ -2,6 +2,16 @@
   "translation_key": "axolootl.axolootl.stone",
   "primary_color": 16711680,
   "secondary_color": 16449280,
+  "food": [
+    {
+      "item": "#minecraft:fishes",
+      "bonus": 0.02
+    }
+  ],
+  "breed_food": [
+    "minecraft:cobblestone",
+    "minecraft:cobbled_deepslate"
+  ],
   "resource_generator": [
     {
       "type": "axolootl:item",
@@ -20,7 +30,6 @@
     {
       "type": "axolootl:mob",
       "loot_table": "minecraft:entities/creeper"
-
     }
   ]
 }

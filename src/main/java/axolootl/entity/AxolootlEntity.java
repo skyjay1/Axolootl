@@ -1,40 +1,82 @@
 package axolootl.entity;
 
+import axolootl.AxRegistry;
 import axolootl.Axolootl;
+import axolootl.block.entity.ControllerBlockEntity;
+import axolootl.block.entity.IAquariumControllerProvider;
+import axolootl.data.AxolootlVariant;
+import axolootl.data.Bonuses;
+import axolootl.recipe.AxolootlBreedingRecipe;
+import axolootl.util.AxolootlVariantContainer;
+import com.mojang.datafixers.util.Either;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.Container;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntityEvent;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-public class AxolootlEntity extends Axolotl implements IAxolootlVariantProvider {
+public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumControllerProvider {
 
-    public static final TagKey<Item> AXOLOOTL_FOOD = ForgeRegistries.ITEMS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "axolootl_food"));
     public static final EntityDataSerializer<Optional<ResourceLocation>> OPTIONAL_RESOURCE_LOCATION = EntityDataSerializer.optional(FriendlyByteBuf::writeResourceLocation, FriendlyByteBuf::readResourceLocation);
 
     // DATA //
     private static final EntityDataAccessor<Optional<ResourceLocation>> DATA_VARIANT_ID = SynchedEntityData.defineId(AxolootlEntity.class, OPTIONAL_RESOURCE_LOCATION);
+    private static final EntityDataAccessor<Boolean> DATA_ACTIVE_BONUS = SynchedEntityData.defineId(AxolootlEntity.class, EntityDataSerializers.BOOLEAN);
+
+    // CONTROLLER PROVIDER //
     @Nullable
     private BlockPos controllerPos;
+    @Nullable
+    private ControllerBlockEntity controller;
+
+    // BONUSES //
+    private Bonuses bonuses = Bonuses.EMPTY;
+    private long bonusDuration;
 
     public AxolootlEntity(EntityType<? extends Axolotl> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -49,6 +91,7 @@ public class AxolootlEntity extends Axolotl implements IAxolootlVariantProvider 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+        this.entityData.define(DATA_ACTIVE_BONUS, false);
         this.entityData.define(DATA_VARIANT_ID, Optional.empty());
     }
 
@@ -62,11 +105,130 @@ public class AxolootlEntity extends Axolotl implements IAxolootlVariantProvider 
         return data;
     }
 
+    @Override
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+        // update bonus duration
+        if(bonusDuration > 0 && --bonusDuration <= 0) {
+            setBonuses(null);
+        }
+        // lazy load controller
+        this.getController();
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if(this.level.isClientSide() && this.isActiveBonus() && this.getRandom().nextInt(10) == 0) {
+            final Vec3 vec = position().add(0, this.getBbHeight() * 0.5D, 0);
+            final double radius = 0.25D;
+            this.level.addParticle(ParticleTypes.ELECTRIC_SPARK,
+                    vec.x() + (getRandom().nextDouble() - 0.5D) * 2.0D * radius,
+                    vec.y() + (getRandom().nextDouble() - 0.5D) * 2.0D * radius,
+                    vec.z() + (getRandom().nextDouble() - 0.5D) * 2.0D * radius,
+                    0, 0, 0);
+        }
+    }
+
+    @Override
+    protected Component getTypeName() {
+        Optional<AxolootlVariant> oVariant = getAxolootlVariant(level.registryAccess());
+        if(oVariant.isPresent()) {
+            return oVariant.get().getDescription();
+        }
+        return super.getTypeName();
+    }
+
+    @Override
+    protected void usePlayerItem(Player pPlayer, InteractionHand pHand, ItemStack pStack) {
+        final Optional<Bonuses> oBonuses = getUseFoodResult(pStack);
+        oBonuses.ifPresent(bonuses -> setBonuses(bonuses));
+        super.usePlayerItem(pPlayer, pHand, pStack);
+    }
+
+    /**
+     * @param pStack the item stack
+     * @return the food bonus, if any
+     */
+    private Optional<Bonuses> getUseFoodResult(ItemStack pStack) {
+        final AxolootlVariant variant = getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
+        // check for normal food and no active bonus
+        if(this.bonusDuration <= 0) {
+            return variant.getFoodBonuses(pStack.getItem());
+        }
+        return Optional.empty();
+    }
+
     //// ANIMAL ////
 
     @Override
+    public boolean canFallInLove() {
+        return this.controller != null && super.canFallInLove();
+    }
+
+    @Override
+    public boolean canBreed() {
+        // validate adult
+        if(this.isBaby()) {
+            return false;
+        }
+        // validate variant
+        final AxolootlVariant variant = getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
+        if(null == controller || (variant.hasMobResources() && !controller.enableMobBreeding())) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public boolean isFood(ItemStack pStack) {
-        return pStack.is(AXOLOOTL_FOOD) || super.isFood(pStack);
+        final AxolootlVariant variant = getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
+        // check for breed food
+        /*if(canFallInLove() && variant.getBreedFood().contains(pStack.getItemHolder())) {
+            return true;
+        }*/
+        // check for normal food
+        return variant.getFoodBonuses(pStack.getItem()).isPresent();
+    }
+
+    @Nullable
+    public AgeableMob getBreedOffspring(ServerLevel pLevel, AgeableMob pOtherParent) {
+        final AxolootlEntity baby = AxRegistry.EntityReg.AXOLOOTL.get().create(pLevel);
+        if(baby != null) {
+            baby.setAxolootlVariantId(this.getAxolootlVariantId().orElse(null));
+        }
+        return baby;
+    }
+
+    public Optional<IAxolootl> spawnAxolootlFromBreeding(ServerLevel pLevel, Animal pMate, ResourceKey<AxolootlVariant> variant) {
+        // create offspring
+        AgeableMob ageablemob = this.getBreedOffspring(pLevel, pMate);
+        if(!(ageablemob instanceof IAxolootl iaxolootl)) {
+            return Optional.empty();
+        }
+        // update variant ID
+        iaxolootl.setAxolootlVariantId(variant.location());
+        // prepare entity
+        ageablemob.setBaby(true);
+        ageablemob.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
+        // fire event
+        final BabyEntitySpawnEvent event = new net.minecraftforge.event.entity.living.BabyEntitySpawnEvent(this, pMate, ageablemob);
+        final boolean cancelled = MinecraftForge.EVENT_BUS.post(event);
+        // reset age and love
+        this.setAge(6000);
+        pMate.setAge(6000);
+        this.resetLove();
+        pMate.resetLove();
+        // handle event canceled (ignore the proposed entity)
+        if (cancelled) {
+            return Optional.empty();
+        }
+        // add the entity to the level
+        pLevel.addFreshEntityWithPassengers(ageablemob);
+        ageablemob.finalizeSpawn(pLevel, pLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.BREEDING, null, null);
+        pLevel.broadcastEntityEvent(this, EntityEvent.IN_LOVE_HEARTS);
+        pLevel.broadcastEntityEvent(pMate, EntityEvent.IN_LOVE_HEARTS);
+        return Optional.of(iaxolootl);
     }
 
     //// BUCKET ////
@@ -79,18 +241,39 @@ public class AxolootlEntity extends Axolotl implements IAxolootlVariantProvider 
     @Override
     public void setFromBucket(boolean pFromBucket) {}
 
-    //// CONTROLLER ////
-
-    public Optional<BlockPos> getControllerPos() {
-        return Optional.ofNullable(controllerPos);
+    @Override
+    public boolean requiresCustomPersistence() {
+        return true;
     }
 
-    public void setControllerPos(@Nullable BlockPos controllerPos) {
-        this.controllerPos = controllerPos;
+    //// CONTROLLER PROVIDER ////
+
+    @Override
+    public void setController(Level level, BlockPos pos, ControllerBlockEntity blockEntity) {
+        this.controllerPos = pos;
+        this.controller = blockEntity;
     }
 
+    @Override
+    public void clearController() {
+        this.controllerPos = null;
+        this.controller = null;
+    }
 
-    //// AXOLOOTL VARIANT PROVIDER ////
+    @Override
+    public Optional<ControllerBlockEntity> getController() {
+        // lazy load controller from position
+        if(controllerPos != null && null == controller) {
+            if(level.getBlockEntity(controllerPos) instanceof ControllerBlockEntity controller) {
+                setController(level, controllerPos, controller);
+            } else {
+                clearController();
+            }
+        }
+        return Optional.ofNullable(this.controller);
+    }
+
+    //// IAXOLOOTL ////
 
     @Override
     public LivingEntity getEntity() {
@@ -107,18 +290,120 @@ public class AxolootlEntity extends Axolotl implements IAxolootlVariantProvider 
         return getEntityData().get(DATA_VARIANT_ID);
     }
 
+    @Override
+    public boolean isFeedCandidate(ServerLevel level) {
+        return this.bonusDuration <= 0;
+    }
+
+    @Override
+    public InteractionResult feed(ServerLevel level, ItemStack food) {
+        final Optional<Bonuses> oBonuses = this.getUseFoodResult(food);
+        if(oBonuses.isPresent()) {
+            this.setBonuses(oBonuses.get());
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.PASS;
+    }
+
+    @Override
+    public boolean isBreedCandidate(ServerLevel level, Optional<IAxolootl> other) {
+        // check love and breed status
+        if(!(this.canFallInLove() && this.canBreed())) {
+            return false;
+        }
+        // check the specific axolootl, if any
+        if(other.isPresent()) {
+            final AxolootlVariant selfVariant = this.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
+            final AxolootlVariant otherVariant = other.get().getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
+            final AxolootlVariantContainer container = new AxolootlVariantContainer(selfVariant, otherVariant);
+            return getBreedingRecipe(level, container).isPresent();
+        }
+        // all checks passed
+        return true;
+    }
+
+    @Override
+    public Optional<IAxolootl> breed(ServerLevel level, IAxolootl other) {
+        // load recipe
+        final AxolootlVariant selfVariant = this.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
+        final AxolootlVariant otherVariant = other.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
+        final AxolootlVariantContainer container = new AxolootlVariantContainer(selfVariant, otherVariant);
+        final Optional<AxolootlBreedingRecipe> oRecipe = getBreedingRecipe(level, container);
+        // verify recipe
+        if(oRecipe.isEmpty()) {
+            return Optional.empty();
+        }
+        // load result
+        ResourceKey<AxolootlVariant> oResult = oRecipe.get().assemble(level, container, this.getRandom());
+        // create axolootl
+        Animal parent = (other.getEntity() instanceof Animal animal) ? animal : this;
+        return spawnAxolootlFromBreeding(level, parent, oResult);
+    }
+
+    @Override
+    public double getGenerationSpeed() {
+        return bonuses.getGenerationBonus();
+    }
+
+    @Override
+    public double getFeedSpeed() {
+        return bonuses.getFeedBonus();
+    }
+
+    @Override
+    public double getBreedSpeed() {
+        return bonuses.getBreedBonus();
+    }
+
+    public void setBonuses(@Nullable final Bonuses bonuses) {
+        if(this.bonuses.equals(bonuses)) {
+            return;
+        }
+        if(null == bonuses) {
+            this.bonuses = Bonuses.EMPTY;
+            this.bonusDuration = 0;
+            this.getEntityData().set(DATA_ACTIVE_BONUS, false);
+            return;
+        }
+        this.bonuses = bonuses;
+        this.bonusDuration = bonuses.getDuration();
+        this.getEntityData().set(DATA_ACTIVE_BONUS, true);
+        this.getController().ifPresent(c -> c.forceCalculateBonuses());
+    }
+
+    public Bonuses getBonuses() {
+        return this.bonuses;
+    }
+
+    public boolean isActiveBonus() {
+        return this.getEntityData().get(DATA_ACTIVE_BONUS);
+    }
 
     //// NBT ////
+
+    private static final String KEY_BONUSES = "Bonuses";
+    private static final String KEY_BONUS_DURATION = "BonusDuration";
 
     @Override
     public void addAdditionalSaveData(CompoundTag pCompound) {
         super.addAdditionalSaveData(pCompound);
         writeAxolootlVariant(pCompound);
+        writeControllerPos(controllerPos, pCompound);
+        pCompound.putLong(KEY_BONUS_DURATION, bonusDuration);
+        pCompound.put(KEY_BONUSES, Bonuses.DIRECT_CODEC.encodeStart(NbtOps.INSTANCE, bonuses)
+                .resultOrPartial(s -> Axolootl.LOGGER.error("Failed to write entity bonuses! " + s))
+                .orElse(new CompoundTag()));
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag pCompound) {
         super.readAdditionalSaveData(pCompound);
         readAxolootlVariant(pCompound);
+        this.controllerPos = readControllerPos(pCompound);
+        this.bonusDuration = pCompound.getLong(KEY_BONUS_DURATION);
+        this.bonuses = Bonuses.DIRECT_CODEC.parse(NbtOps.INSTANCE, pCompound.getCompound(KEY_BONUSES))
+                .resultOrPartial(s -> Axolootl.LOGGER.error("Failed to read entity bonuses! " + s))
+                .orElse(Bonuses.EMPTY);
+        this.getEntityData().set(DATA_ACTIVE_BONUS, this.bonusDuration > 0);
     }
 }

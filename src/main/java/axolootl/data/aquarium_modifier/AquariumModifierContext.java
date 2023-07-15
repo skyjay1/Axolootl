@@ -1,6 +1,6 @@
 package axolootl.data.aquarium_modifier;
 
-import axolootl.entity.IAxolootlVariantProvider;
+import axolootl.entity.IAxolootl;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.LevelAccessor;
@@ -14,10 +14,10 @@ public class AquariumModifierContext {
 
     private final LevelAccessor level;
     private final BlockPos pos;
-    private final Collection<IAxolootlVariantProvider> axolootls;
+    private final Collection<IAxolootl> axolootls;
     private final Map<BlockPos, AquariumModifier> modifiers;
 
-    public AquariumModifierContext(LevelAccessor level, BlockPos pos, Collection<IAxolootlVariantProvider> axolootls, Map<BlockPos, AquariumModifier> modifiers) {
+    public AquariumModifierContext(LevelAccessor level, BlockPos pos, Collection<IAxolootl> axolootls, Map<BlockPos, AquariumModifier> modifiers) {
         this.level = level;
         this.pos = pos;
         this.axolootls = axolootls;
@@ -38,7 +38,7 @@ public class AquariumModifierContext {
         return pos;
     }
 
-    public Collection<IAxolootlVariantProvider> getAxolootls() {
+    public Collection<IAxolootl> getAxolootls() {
         return axolootls;
     }
 

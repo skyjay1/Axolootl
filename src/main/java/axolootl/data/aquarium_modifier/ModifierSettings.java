@@ -4,7 +4,6 @@ import axolootl.AxRegistry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 
 import javax.annotation.Nullable;
@@ -23,7 +22,8 @@ public class ModifierSettings {
             Vec3i.CODEC.optionalFieldOf("spread_distance", Vec3i.ZERO).forGetter(ModifierSettings::getSpreadSearchDistance),
             Codec.BOOL.optionalFieldOf("enable_mob_generators", false).forGetter(ModifierSettings::isEnableMobResources),
             Codec.BOOL.optionalFieldOf("enable_mob_breeding", false).forGetter(ModifierSettings::isEnableMobBreeding),
-            Codec.INT.optionalFieldOf("energy_cost", 0).forGetter(ModifierSettings::getEnergyCost)
+            Codec.INT.optionalFieldOf("energy_cost", 0).forGetter(ModifierSettings::getEnergyCost),
+            Codec.BOOL.optionalFieldOf("greedy_energy", false).forGetter(ModifierSettings::isGreedyEnergy)
     ).apply(instance, ModifierSettings::new));
 
     /** The modifier category. At least one modifier from each category must be present for the aquarium to function **/
@@ -45,9 +45,11 @@ public class ModifierSettings {
     private final boolean enableMobBreeding;
     /** The energy cost of the modifier **/
     private final int energyCost;
+    /** True to deplete energy into the void, false to transfer energy to the block entity to be handled in some other way **/
+    private final boolean greedyEnergy;
 
     public ModifierSettings(Optional<TagKey<AquariumModifier>> category, double generationSpeed, double breedSpeed, double feedSpeed, double spreadSpeed,
-                            Vec3i spreadSearchDistance, boolean enableMobResources, boolean enableMobBreeding, int energyCost) {
+                            Vec3i spreadSearchDistance, boolean enableMobResources, boolean enableMobBreeding, int energyCost, boolean greedyEnergy) {
         this.category = category.orElse(null);
         this.generationSpeed = generationSpeed;
         this.breedSpeed = breedSpeed;
@@ -57,6 +59,7 @@ public class ModifierSettings {
         this.enableMobResources = enableMobResources;
         this.enableMobBreeding = enableMobBreeding;
         this.energyCost = energyCost;
+        this.greedyEnergy = greedyEnergy;
     }
 
     //// GETTERS ////
@@ -95,5 +98,9 @@ public class ModifierSettings {
 
     public int getEnergyCost() {
         return energyCost;
+    }
+
+    public boolean isGreedyEnergy() {
+        return greedyEnergy;
     }
 }

@@ -108,7 +108,7 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
             if(pPos.equals(p)) return;
             // determine block to place
             boolean waterlogged = pLevel.getFluidState(p).getType() == Fluids.WATER;
-            BlockState state = defaultBlockState()
+            BlockState state = pState
                     .setValue(WATERLOGGED, waterlogged)
                     .setValue(FACING, direction)
                     .setValue(WIDTH, x)

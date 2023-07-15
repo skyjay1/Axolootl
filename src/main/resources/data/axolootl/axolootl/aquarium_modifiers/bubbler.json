@@ -2,7 +2,8 @@
   "translation_key": "block.axolootl.bubbler",
   "settings": {
     "category": "axolootl:bubbler",
-    "generation": 0.1
+    "generation": 0.1,
+    "enable_mob_generators": true
   },
   "block": {
     "type": "minecraft:matching_blocks",
