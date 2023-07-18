@@ -4,12 +4,10 @@ import axolootl.AxRegistry;
 import axolootl.Axolootl;
 import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.block.entity.IAquariumControllerProvider;
+import axolootl.data.AxolootlBreeding;
 import axolootl.data.AxolootlVariant;
 import axolootl.data.Bonuses;
-import axolootl.recipe.AxolootlBreedingRecipe;
-import axolootl.util.AxolootlVariantContainer;
-import com.mojang.datafixers.util.Either;
-import net.minecraft.advancements.CriteriaTriggers;
+import com.mojang.math.Vector3f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
@@ -25,18 +23,12 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.stats.Stats;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.Container;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityEvent;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -44,20 +36,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumControllerProvider {
@@ -78,8 +64,15 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
     private Bonuses bonuses = Bonuses.EMPTY;
     private long bonusDuration;
 
+    // COLORS //
+    private static final Vector3f VEC3F_ONE = new Vector3f(1, 1, 1);
+    private Vector3f primaryColors;
+    private Vector3f secondaryColors;
+
     public AxolootlEntity(EntityType<? extends Axolotl> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
+        this.primaryColors = VEC3F_ONE;
+        this.secondaryColors = VEC3F_ONE;
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -159,6 +152,31 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
         return Optional.empty();
     }
 
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> pKey) {
+        super.onSyncedDataUpdated(pKey);
+        if(pKey == DATA_VARIANT_ID) {
+            getAxolootlVariant(level.registryAccess()).ifPresentOrElse(a -> {
+                // set primary color
+                if(a.getPrimaryColor() >= 0) {
+                    this.primaryColors = IAxolootl.unpackColor(a.getPrimaryColor());
+                } else {
+                    this.primaryColors = VEC3F_ONE;
+                }
+                // set secondary color
+                if(a.getSecondaryColor() >= 0) {
+                    this.secondaryColors = IAxolootl.unpackColor(a.getSecondaryColor());
+                } else {
+                    this.secondaryColors = VEC3F_ONE;
+                }
+            }, () -> {
+                // variant is not defined, use fallback colors
+                this.primaryColors = VEC3F_ONE;
+                this.secondaryColors = VEC3F_ONE;
+            });
+        }
+    }
+
     //// ANIMAL ////
 
     @Override
@@ -200,14 +218,19 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
         return baby;
     }
 
-    public Optional<IAxolootl> spawnAxolootlFromBreeding(ServerLevel pLevel, Animal pMate, ResourceKey<AxolootlVariant> variant) {
+    public Optional<IAxolootl> spawnAxolootlFromBreeding(ServerLevel pLevel, Animal pMate, Holder<AxolootlVariant> variant) {
+        // determine variant ID
+        final Optional<ResourceKey<AxolootlVariant>> oVariantId = variant.unwrapKey();
+        if(oVariantId.isEmpty()) {
+            return Optional.empty();
+        }
         // create offspring
         AgeableMob ageablemob = this.getBreedOffspring(pLevel, pMate);
         if(!(ageablemob instanceof IAxolootl iaxolootl)) {
             return Optional.empty();
         }
         // update variant ID
-        iaxolootl.setAxolootlVariantId(variant.location());
+        iaxolootl.setAxolootlVariantId(oVariantId.get().location());
         // prepare entity
         ageablemob.setBaby(true);
         ageablemob.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
@@ -244,6 +267,26 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
     @Override
     public boolean requiresCustomPersistence() {
         return true;
+    }
+
+    @Override
+    public void saveToBucketTag(ItemStack pStack) {
+        super.saveToBucketTag(pStack);
+        getAxolootlVariantId().ifPresent(id -> pStack.getTag().putString(KEY_VARIANT_ID, id.toString()));
+    }
+
+    @Override
+    public void loadFromBucketTag(CompoundTag pTag) {
+        super.loadFromBucketTag(pTag);
+        if(pTag.contains(KEY_VARIANT_ID, Tag.TAG_STRING)) {
+            final ResourceLocation id = new ResourceLocation(pTag.getString(KEY_VARIANT_ID));
+            this.setAxolootlVariantId(id);
+        }
+    }
+
+    @Override
+    public ItemStack getBucketItemStack() {
+        return new ItemStack(AxRegistry.ItemReg.AXOLOOTL_BUCKET.get());
     }
 
     //// CONTROLLER PROVIDER ////
@@ -315,8 +358,7 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
         if(other.isPresent()) {
             final AxolootlVariant selfVariant = this.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
             final AxolootlVariant otherVariant = other.get().getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
-            final AxolootlVariantContainer container = new AxolootlVariantContainer(selfVariant, otherVariant);
-            return getBreedingRecipe(level, container).isPresent();
+            return AxolootlBreeding.getBreedingRecipe(level, selfVariant, otherVariant).isPresent();
         }
         // all checks passed
         return true;
@@ -327,14 +369,13 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
         // load recipe
         final AxolootlVariant selfVariant = this.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
         final AxolootlVariant otherVariant = other.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
-        final AxolootlVariantContainer container = new AxolootlVariantContainer(selfVariant, otherVariant);
-        final Optional<AxolootlBreedingRecipe> oRecipe = getBreedingRecipe(level, container);
+        final Optional<AxolootlBreeding> oRecipe = AxolootlBreeding.getBreedingRecipe(level, selfVariant, otherVariant);
         // verify recipe
         if(oRecipe.isEmpty()) {
             return Optional.empty();
         }
         // load result
-        ResourceKey<AxolootlVariant> oResult = oRecipe.get().assemble(level, container, this.getRandom());
+        Holder<AxolootlVariant> oResult = oRecipe.get().getBreedResult(level, selfVariant, otherVariant, this.getRandom());
         // create axolootl
         Animal parent = (other.getEntity() instanceof Animal animal) ? animal : this;
         return spawnAxolootlFromBreeding(level, parent, oResult);
@@ -378,6 +419,17 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
     public boolean isActiveBonus() {
         return this.getEntityData().get(DATA_ACTIVE_BONUS);
     }
+
+    //// COLORS ////
+
+    public Vector3f getPrimaryColors() {
+        return primaryColors;
+    }
+
+    public Vector3f getSecondaryColors() {
+        return secondaryColors;
+    }
+
 
     //// NBT ////
 

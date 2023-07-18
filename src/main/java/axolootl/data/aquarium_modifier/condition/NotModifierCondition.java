@@ -29,7 +29,7 @@ public class NotModifierCondition extends ModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.NOT.get();
+        return AxRegistry.ModifierConditionsReg.NOT.get();
     }
 
     @Override

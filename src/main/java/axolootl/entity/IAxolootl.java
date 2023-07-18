@@ -1,9 +1,7 @@
 package axolootl.entity;
 
-import axolootl.AxRegistry;
 import axolootl.data.AxolootlVariant;
-import axolootl.recipe.AxolootlBreedingRecipe;
-import axolootl.util.AxolootlVariantContainer;
+import com.mojang.math.Vector3f;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -12,8 +10,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -97,16 +93,17 @@ public interface IAxolootl {
     }
 
     /**
-     * @param level the level
-     * @param container an axolootl variant container with exactly 2 entries
-     * @return the axolotl breeding recipe for the given container, if any
+     * Helper method to unpack a color into 3 values, each between 0 and 1
+     * @param color the packed color
+     * @return the red, green, and blue components of the color, each between 0 and 1.0
      */
-    default Optional<AxolootlBreedingRecipe> getBreedingRecipe(final Level level, final AxolootlVariantContainer container) {
-        if(container.getContainerSize() != 2 || container.isEmpty()) {
-            return Optional.empty();
-        }
-        return level.getRecipeManager().getRecipeFor(AxRegistry.RecipeReg.AXOLOOTL_BREEDING_TYPE.get(), container, level);
+    public static Vector3f unpackColor(final int color) {
+        final float red = (color >> 16) & 0xFF;
+        final float green = (color >> 8) & 0xFF;
+        final float blue = color & 0xFF;
+        return new Vector3f(red / 255.0F, green / 255.0F, blue / 255.0F);
     }
+
 
     //// NBT ////
 

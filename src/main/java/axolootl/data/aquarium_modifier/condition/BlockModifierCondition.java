@@ -36,7 +36,7 @@ public class BlockModifierCondition extends ModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.BLOCK.get();
+        return AxRegistry.ModifierConditionsReg.BLOCK.get();
     }
 
     @Override

@@ -8,7 +8,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 
 import javax.annotation.concurrent.Immutable;
@@ -48,7 +47,7 @@ public class EnergyModifierCondition extends ModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.ENERGY.get();
+        return AxRegistry.ModifierConditionsReg.ENERGY.get();
     }
 
     @Override

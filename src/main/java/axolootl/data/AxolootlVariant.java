@@ -14,10 +14,12 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,8 +36,8 @@ public class AxolootlVariant {
     public static final Codec<AxolootlVariant> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         Codec.STRING.fieldOf("translation_key").forGetter(AxolootlVariant::getTranslationKey),
         Codec.INT.optionalFieldOf("tier", 0).forGetter(AxolootlVariant::getTier),
-        Codec.INT.optionalFieldOf("primary_color", 0xFFFFFF).forGetter(AxolootlVariant::getPrimaryColor),
-        Codec.INT.optionalFieldOf("secondary_color", 0xFFFFFF).forGetter(AxolootlVariant::getSecondaryColor),
+        Codec.INT.optionalFieldOf("primary_color", -1).forGetter(AxolootlVariant::getPrimaryColor),
+        Codec.INT.optionalFieldOf("secondary_color", -1).forGetter(AxolootlVariant::getSecondaryColor),
         Codec.INT.optionalFieldOf("energy_cost", 0).forGetter(AxolootlVariant::getEnergyCost),
         BonusesProvider.CODEC.listOf().optionalFieldOf("food", ImmutableList.of()).forGetter(AxolootlVariant::getFoods),
         ITEM_HOLDER_SET_CODEC.optionalFieldOf("breed_food", HolderSet.direct()).forGetter(AxolootlVariant::getBreedFood),
@@ -66,6 +68,8 @@ public class AxolootlVariant {
 
     /** The translation component **/
     private Component description;
+    /** The registry object holder **/
+    private Holder<AxolootlVariant> holder;
 
     public AxolootlVariant(String translationKey, int tier, int primaryColor, int secondaryColor, int energyCost,
                            List<BonusesProvider> foods, HolderSet<Item> breedFood, List<ResourceGenerator> resourceGenerators) {
@@ -99,6 +103,34 @@ public class AxolootlVariant {
      */
     public static Registry<AxolootlVariant> getRegistry(final RegistryAccess access) {
         return access.registryOrThrow(AxRegistry.Keys.AXOLOOTL_VARIANTS);
+    }
+
+    /**
+     * @param registryAccess the registry access
+     * @param tagKey a tag key
+     * @return true if the tag key contains this object
+     */
+    public boolean is(final RegistryAccess registryAccess, final TagKey<AxolootlVariant> tagKey) {
+        return getHolder(registryAccess).is(tagKey);
+    }
+
+    /**
+     * @param registryAccess the registry access
+     * @return the resource location ID of the object, if present. Not cached.
+     */
+    public ResourceLocation getRegistryName(final RegistryAccess registryAccess) {
+        return Optional.ofNullable(getRegistry(registryAccess).getKey(this)).orElseThrow(() -> new IllegalStateException("Missing key in Axolootl Variant registry for object " + this.toString()));
+    }
+
+    /**
+     * @param registryAccess the registry access
+     * @return the holder for this registry object
+     */
+    public Holder<AxolootlVariant> getHolder(final RegistryAccess registryAccess) {
+        if(null == this.holder) {
+            this.holder =  getRegistry(registryAccess).getOrCreateHolderOrThrow(ResourceKey.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, getRegistryName(registryAccess)));;
+        }
+        return this.holder;
     }
 
     public boolean hasResourceGeneratorOfType(final ResourceType type) {

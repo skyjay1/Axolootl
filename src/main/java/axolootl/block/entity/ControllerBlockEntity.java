@@ -16,7 +16,6 @@ import axolootl.util.TankStatus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,14 +36,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.Container;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -55,7 +51,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -75,8 +70,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -201,7 +194,7 @@ public class ControllerBlockEntity extends BlockEntity {
         if(self.getTankStatus().isActive()) {
             // distribute energy to modifiers
             level.getProfiler().push("aquariumEnergy");
-            markDirty |= self.distributeEnergy(serverLevel);
+            markDirty |= self.distributeEnergyToModifiers(serverLevel);
             // validate and search for axolootl entities
             level.getProfiler().popPush("aquariumEntities");
             markDirty |= self.validateAxolootls(serverLevel);
@@ -406,11 +399,17 @@ public class ControllerBlockEntity extends BlockEntity {
                 invalid.add(entry.getEntity().getUUID());
                 continue;
             }
+            // verify energy
+            int cost = oVariant.get().getEnergyCost();
             // iterate all resource generators
             for(ResourceGenerator gen : oVariant.get().getResourceGenerators()) {
                 // verify mob resources are enabled
                 if(gen.getResourceType() == ResourceType.MOB && !this.enableMobResources) {
                     continue;
+                }
+                // remove energy
+                if(cost > 0 && transferEnergy(serverLevel, this.getBlockPos(), cost, true) < cost) {
+                    break;
                 }
                 // generate resources
                 resources.addAll(gen.getRandomEntries(entry.getEntity(), entry.getEntity().getRandom()));
@@ -978,7 +977,7 @@ public class ControllerBlockEntity extends BlockEntity {
      * @param level the server level
      * @return true if there are any changes
      **/
-    private boolean distributeEnergy(Level level) {
+    private boolean distributeEnergyToModifiers(Level level) {
         // collect aquarium modifiers
         final List<Map.Entry<BlockPos, AquariumModifier>> modifiers = new ArrayList<>(resolveModifiers(level.registryAccess(),
                 activePredicate.and((b, a) -> a.getSettings().getEnergyCost() > 0)).entrySet());
@@ -1028,6 +1027,41 @@ public class ControllerBlockEntity extends BlockEntity {
         setInsufficientPower(false);
         // no internal changes to report here
         return false;
+    }
+
+    /**
+     * General purpose method to transfer energy from all known energy sources until the given amount is transferred
+     * @param level the level
+     * @param targetPos the block position to receive the energy
+     * @param maxAmount the amount of energy to transfer
+     * @param useVoidStorage true to transfer energy into the void, never to be seen again
+     * @return the amount of energy that was transferred
+     */
+    private int transferEnergy(final Level level, final BlockPos targetPos, final int maxAmount, final boolean useVoidStorage) {
+        // collect energy handlers
+        final Map<BlockPos, IEnergyStorage> energyHandlers = new HashMap<>();
+        for(BlockPos entry : energyInputs) {
+            IEnergyStorage storage = resolveEnergyStorageOrVoid(level, entry, false);
+            if(storage.canExtract()) {
+                energyHandlers.put(entry, storage);
+            }
+        }
+        // attempt to transfer energy
+        int depleted = 0;
+        // iterate each energy storage and attempt to transfer energy
+        for(IEnergyStorage energyStorage : energyHandlers.values()) {
+            // transfer the amount of energy required for the modifier
+            depleted += transferEnergy(level, energyStorage, targetPos, maxAmount - depleted, useVoidStorage);
+            if(depleted >= maxAmount) {
+                break;
+            }
+        }
+        // detect when the energy storage is depleted and notify the controller
+        if (depleted < maxAmount) {
+            setInsufficientPower(true);
+            this.forceCalculateBonuses();
+        }
+        return depleted;
     }
 
 

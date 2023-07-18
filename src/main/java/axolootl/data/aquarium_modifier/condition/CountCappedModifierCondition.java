@@ -7,15 +7,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * checks if the number of modifiers N is less than some value.
@@ -74,7 +71,7 @@ public class CountCappedModifierCondition extends CountModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.COUNT_CAPPED.get();
+        return AxRegistry.ModifierConditionsReg.COUNT_CAPPED.get();
     }
 
     @Override

@@ -49,7 +49,7 @@ public class ItemTagResourceGenerator extends ResourceGenerator {
 
     @Override
     public Codec<? extends ResourceGenerator> getCodec() {
-        return AxRegistry.ResourceGenerators.TAG.get();
+        return AxRegistry.ResourceGeneratorsReg.TAG.get();
     }
 
     @Override

@@ -152,7 +152,7 @@ public class WaterInterfaceBlockEntity extends FluidHandlerBlockEntity implement
         // fluid block was placed, remove fluid from handler
         fluidHandler.drain(fluidStack, IFluidHandler.FluidAction.EXECUTE);
         // reset ticker
-        placeFluidTime = 50L * BASE_SPEED_DECREMENT; // TODO balance
+        placeFluidTime = 80L * BASE_SPEED_DECREMENT; // TODO balance
         // all checks passed
         return true;
     }

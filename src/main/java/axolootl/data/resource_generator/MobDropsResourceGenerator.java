@@ -26,7 +26,7 @@ public class MobDropsResourceGenerator extends AbstractLootTableResourceGenerato
 
     @Override
     public Codec<? extends ResourceGenerator> getCodec() {
-        return AxRegistry.ResourceGenerators.MOB.get();
+        return AxRegistry.ResourceGeneratorsReg.MOB.get();
     }
 
     @Override

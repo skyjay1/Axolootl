@@ -49,7 +49,7 @@ public class TimeModifierCondition extends ModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.TIME.get();
+        return AxRegistry.ModifierConditionsReg.TIME.get();
     }
 
     @Override

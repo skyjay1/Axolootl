@@ -1,0 +1,8 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "axolootl:item/axolootl_bucket_base",
+    "layer1": "axolootl:item/axolootl_bucket_layer_1",
+    "layer2": "axolootl:item/axolootl_bucket_layer_2"
+  }
+}

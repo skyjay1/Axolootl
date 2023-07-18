@@ -51,7 +51,7 @@ public class WeatherModifierCondition extends ModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.WEATHER.get();
+        return AxRegistry.ModifierConditionsReg.WEATHER.get();
     }
 
     @Override

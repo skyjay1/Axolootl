@@ -8,7 +8,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.FluidPredicate;
 import net.minecraft.advancements.critereon.LightPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
-import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
@@ -144,7 +143,7 @@ public class LocationModifierCondition extends ModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.LOCATION.get();
+        return AxRegistry.ModifierConditionsReg.LOCATION.get();
     }
 
     //// GETTERS ////

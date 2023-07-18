@@ -81,7 +81,7 @@ public class BlockDropsResourceGenerator extends ResourceGenerator {
 
     @Override
     public Codec<? extends ResourceGenerator> getCodec() {
-        return AxRegistry.ResourceGenerators.BLOCK.get();
+        return AxRegistry.ResourceGeneratorsReg.BLOCK.get();
     }
 
     /**

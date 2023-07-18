@@ -36,7 +36,7 @@ public class OrModifierCondition extends ModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.OR.get();
+        return AxRegistry.ModifierConditionsReg.OR.get();
     }
 
     @Override

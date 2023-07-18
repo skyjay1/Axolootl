@@ -20,7 +20,7 @@ public class FalseModifierCondition extends ModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.FALSE.get();
+        return AxRegistry.ModifierConditionsReg.FALSE.get();
     }
 
     @Override

@@ -6,7 +6,6 @@ import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.concurrent.Immutable;
@@ -48,7 +47,7 @@ public class CountModifierCondition extends ModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.COUNT.get();
+        return AxRegistry.ModifierConditionsReg.COUNT.get();
     }
 
     @Override

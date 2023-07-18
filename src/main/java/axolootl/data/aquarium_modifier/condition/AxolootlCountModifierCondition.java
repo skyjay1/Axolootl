@@ -59,7 +59,7 @@ public class AxolootlCountModifierCondition extends ModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.AXOLOOTL_COUNT.get();
+        return AxRegistry.ModifierConditionsReg.AXOLOOTL_COUNT.get();
     }
 
     @Override

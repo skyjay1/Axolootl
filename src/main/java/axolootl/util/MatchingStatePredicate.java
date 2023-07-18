@@ -60,6 +60,6 @@ public class MatchingStatePredicate extends StateTestingPredicate {
 
     @Override
     public BlockPredicateType<?> type() {
-        return AxRegistry.BlockPredicateTypes.MATCHING_PROPERTY.get();
+        return AxRegistry.BlockPredicateTypesReg.MATCHING_PROPERTY.get();
     }
 }

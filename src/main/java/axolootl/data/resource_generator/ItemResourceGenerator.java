@@ -47,7 +47,7 @@ public class ItemResourceGenerator extends ResourceGenerator {
 
     @Override
     public Codec<? extends ResourceGenerator> getCodec() {
-        return AxRegistry.ResourceGenerators.ITEM.get();
+        return AxRegistry.ResourceGeneratorsReg.ITEM.get();
     }
 
     @Override

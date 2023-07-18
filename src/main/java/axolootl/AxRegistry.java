@@ -20,6 +20,7 @@ import axolootl.block.entity.EnergyInterfaceBlockEntity;
 import axolootl.block.entity.MonsteriumBlockEntity;
 import axolootl.block.entity.OutputInterfaceBlockEntity;
 import axolootl.block.entity.WaterInterfaceBlockEntity;
+import axolootl.data.AxolootlBreeding;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.AxolootlVariant;
 import axolootl.data.aquarium_modifier.condition.AndModifierCondition;
@@ -45,8 +46,8 @@ import axolootl.data.resource_generator.ItemTagResourceGenerator;
 import axolootl.data.resource_generator.MobDropsResourceGenerator;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.entity.AxolootlEntity;
+import axolootl.item.AxolootlBucketItem;
 import axolootl.item.MultiBlockItem;
-import axolootl.recipe.AxolootlBreedingRecipe;
 import axolootl.util.MatchingStatePredicate;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
@@ -55,6 +56,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -74,6 +76,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
@@ -132,6 +135,12 @@ public final class AxRegistry {
             .dataPackRegistry(AxolootlVariant.CODEC, AxolootlVariant.CODEC)
             .hasTags());
 
+    // AXOLOOTL BREEDING //
+    private static final DeferredRegister<AxolootlBreeding> AXOLOOTL_BREEDING = DeferredRegister.create(Keys.AXOLOOTL_BREEDING, Axolootl.MODID);
+    public static final Supplier<IForgeRegistry<AxolootlBreeding>> AXOLOOTL_BREEDING_SUPPLIER = AXOLOOTL_BREEDING.makeRegistry(() -> new RegistryBuilder<AxolootlBreeding>()
+            .dataPackRegistry(AxolootlBreeding.CODEC, AxolootlBreeding.CODEC)
+            .hasTags());
+
     // AQUARIUM MODIFIERS //
     private static final DeferredRegister<AquariumModifier> AQUARIUM_MODIFIERS = DeferredRegister.create(Keys.AQUARIUM_MODIFIERS, Axolootl.MODID);
     public static final Supplier<IForgeRegistry<AquariumModifier>> AQUARIUM_MODIFIERS_SUPPLIER = AQUARIUM_MODIFIERS.makeRegistry(() -> new RegistryBuilder<AquariumModifier>()
@@ -146,11 +155,12 @@ public final class AxRegistry {
         EntityReg.register();
         MenuReg.register();
         RecipeReg.register();
-        BlockPredicateTypes.register();
-        ModifierConditions.register();
-        ResourceGenerators.register();
-        AxolootlVariants.register();
-        AquariumModifiers.register();
+        BlockPredicateTypesReg.register();
+        ModifierConditionsReg.register();
+        ResourceGeneratorsReg.register();
+        AxolootlVariantsReg.register();
+        AquariumModifiersReg.register();
+        AxolootlBreedingReg.register();
         FMLJavaModLoadingContext.get().getModEventBus().addListener(AxRegistry::onCommonSetup);
     }
 
@@ -188,6 +198,9 @@ public final class AxRegistry {
         public static void register() {
             ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
+
+        public static final RegistryObject<Item> AXOLOOTL_BUCKET = ITEMS.register("axolootl_bucket", () ->
+                new AxolootlBucketItem(EntityReg.AXOLOOTL, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, new Item.Properties().stacksTo(1).tab(TAB)));
 
         /**
          * Creates a registry object for a block item and adds it to the mod creative tab
@@ -240,7 +253,7 @@ public final class AxRegistry {
         public static final RegistryObject<Block> AQUARIUM_AXOLOOTL_INTERFACE = registerWithItem("aquarium_axolootl_interface", () -> new Block(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> AQUARIUM_OUTPUT = registerWithItem("aquarium_output", () -> new OutputBlock(3, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> LARGE_AQUARIUM_OUTPUT = registerWithItem("large_aquarium_output", () -> new OutputBlock(6, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
-        public static final RegistryObject<Block> AQUARIUM_AIRLOCK = registerWithItem("aquarium_airlock", () -> new AirlockBlock(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().requiresCorrectToolForDrops().strength(3.5F, 6.0F)));
+        public static final RegistryObject<Block> AQUARIUM_AIRLOCK = registerWithItem("aquarium_airlock", () -> new AirlockBlock(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().isSuffocating((s, l, p) -> false).requiresCorrectToolForDrops().strength(3.5F, 6.0F)));
         public static final RegistryObject<Block> BUBBLER = registerWithItem("bubbler", () -> new BubblerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> POWERED_BUBBLER = registerWithItem("powered_bubbler", () -> new BubblerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> PUMP = registerWithItem("pump", () -> new WaterloggedHorizontalDoubleBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
@@ -344,12 +357,9 @@ public final class AxRegistry {
             RECIPE_SERIALIZERS.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
-        public static final RegistryObject<RecipeType<AxolootlBreedingRecipe>> AXOLOOTL_BREEDING_TYPE = RECIPE_TYPES.register("breeding", () -> new RecipeType<>() {});
-        public static final RegistryObject<RecipeSerializer<AxolootlBreedingRecipe>> AXOLOOTL_BREEDING_SERIALIZER = RECIPE_SERIALIZERS.register("breeding", () -> new AxolootlBreedingRecipe.Serializer());
-
     }
 
-    public static final class BlockPredicateTypes {
+    public static final class BlockPredicateTypesReg {
 
         public static void register() {
             BLOCK_PREDICATE_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -359,7 +369,7 @@ public final class AxRegistry {
 
     }
 
-    public static final class ResourceGenerators {
+    public static final class ResourceGeneratorsReg {
 
         public static void register() {
             RESOURCE_GENERATORS.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -372,7 +382,7 @@ public final class AxRegistry {
         public static final RegistryObject<Codec<? extends ResourceGenerator>> TAG = RESOURCE_GENERATOR_SERIALIZERS.register("tag", () -> ItemTagResourceGenerator.CODEC);
     }
 
-    public static final class ModifierConditions {
+    public static final class ModifierConditionsReg {
 
         public static void register() {
             MODIFIER_CONDITIONS.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -398,7 +408,7 @@ public final class AxRegistry {
 
     }
 
-    public static final class AquariumModifiers {
+    public static final class AquariumModifiersReg {
 
         public static void register() {
             AQUARIUM_MODIFIERS.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -406,7 +416,7 @@ public final class AxRegistry {
 
     }
 
-    public static final class AxolootlVariants {
+    public static final class AxolootlVariantsReg {
 
         public static void register() {
             AXOLOOTL_VARIANTS.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -414,8 +424,17 @@ public final class AxRegistry {
 
     }
 
+    public static final class AxolootlBreedingReg {
+
+        public static void register() {
+            AXOLOOTL_BREEDING.register(FMLJavaModLoadingContext.get().getModEventBus());
+        }
+
+    }
+
     public static final class Keys {
         public static final ResourceKey<Registry<AxolootlVariant>> AXOLOOTL_VARIANTS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "axolootl_variants"));
+        public static final ResourceKey<Registry<AxolootlBreeding>> AXOLOOTL_BREEDING = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "breeding"));
         public static final ResourceKey<Registry<AquariumModifier>> AQUARIUM_MODIFIERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "aquarium_modifiers"));
         public static final ResourceKey<Registry<Codec<? extends ResourceGenerator>>> RESOURCE_GENERATOR_SERIALIZERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "resource_generator_serializers"));
         public static final ResourceKey<? extends Registry<ResourceGenerator>> RESOURCE_GENERATORS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "resource_generators"));

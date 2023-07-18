@@ -3,8 +3,6 @@ package axolootl.data.aquarium_modifier.condition;
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.mojang.serialization.Codec;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.valueproviders.UniformInt;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -31,7 +29,7 @@ public class RandomChanceModifierCondition extends ModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.EXISTS.get();
+        return AxRegistry.ModifierConditionsReg.EXISTS.get();
     }
 
     @Override

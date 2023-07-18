@@ -36,7 +36,7 @@ public class AndModifierCondition extends ModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.AND.get();
+        return AxRegistry.ModifierConditionsReg.AND.get();
     }
 
     @Override

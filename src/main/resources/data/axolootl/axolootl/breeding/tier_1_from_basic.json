@@ -1,0 +1,18 @@
+{
+  "first": "axolootl:basic",
+  "second": "axolootl:basic",
+  "result": [
+    {
+      "data": "axolootl:basic",
+      "weight": 2
+    },
+    {
+      "data": "axolootl:dirt",
+      "weight": 4
+    },
+    {
+      "data": "axolootl:stone",
+      "weight": 4
+    }
+  ]
+}

@@ -7,7 +7,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.valueproviders.IntProvider;
 
@@ -63,7 +62,7 @@ public class DistanceModifierCondition extends ModifierCondition {
 
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
-        return AxRegistry.ModifierConditions.DISTANCE.get();
+        return AxRegistry.ModifierConditionsReg.DISTANCE.get();
     }
 
     @Override
