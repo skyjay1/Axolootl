@@ -1,24 +1,21 @@
 {
-  "translation_key": "entity.axolootl.axolootl.stone",
+  "translation_key": "entity.axolootl.axolootl.bone",
   "primary_color": 16711680,
   "secondary_color": 16449280,
-  "breed_food": [
-    "minecraft:cobblestone",
-    "minecraft:cobbled_deepslate"
-  ],
+  "breed_food": "minecraft:bone_block",
   "resource_generator": [
     {
-      "weight": 3,
+      "weight": 4,
       "data": {
         "type": "axolootl:item",
         "pool": [
           {
-            "data": "minecraft:stone",
-            "weight": 1
+            "data": "minecraft:bone_meal",
+            "weight": 3
           },
           {
-            "data": "minecraft:cobblestone",
-            "weight": 4
+            "data": "minecraft:bone",
+            "weight": 1
           }
         ]
       }

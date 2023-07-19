@@ -1,5 +1,6 @@
 package axolootl.item;
 
+import axolootl.client.ClientUtil;
 import axolootl.data.AxolootlVariant;
 import axolootl.entity.AxolootlEntity;
 import net.minecraft.ChatFormatting;
@@ -33,11 +34,15 @@ public class AxolootlBucketItem extends MobBucketItem {
     @Override
     public void fillItemCategory(CreativeModeTab pCategory, NonNullList<ItemStack> pItems) {
         if (this.allowedIn(pCategory)) {
-            ItemStack itemStack = new ItemStack(this);
-            CompoundTag tag = new CompoundTag();
-            tag.putString(AxolootlEntity.KEY_VARIANT_ID, "axolootl:basic");
-            itemStack.setTag(tag);
-            pItems.add(itemStack);
+            ClientUtil.getClientLevel().ifPresentOrElse(level -> {
+                for(ResourceLocation variantId : AxolootlVariant.getRegistry(level.registryAccess()).keySet()) {
+                    ItemStack itemStack = new ItemStack(this);
+                    CompoundTag tag = new CompoundTag();
+                    tag.putString(AxolootlEntity.KEY_VARIANT_ID, variantId.toString());
+                    itemStack.setTag(tag);
+                    pItems.add(itemStack);
+                }
+            }, () -> pItems.add(new ItemStack(this)));
         }
     }
 
@@ -48,7 +53,10 @@ public class AxolootlBucketItem extends MobBucketItem {
         if(level != null) {
             getVariant(level.registryAccess(), pStack).ifPresentOrElse(a -> {
                 final ResourceLocation id = a.getRegistryName(level.registryAccess());
-                final Component description = a.getDescription().copy().withStyle(ChatFormatting.AQUA);
+                final Component tierLevel = Component.translatable("enchantment.level." + a.getTier());
+                final Component tier = Component.translatable("item.axolootl.axolootl_bucket.tooltip.tier", tierLevel).withStyle(ChatFormatting.GRAY);
+                final Component description = a.getDescription().copy().withStyle(ChatFormatting.AQUA)
+                        .append(" ").append(tier);
                 // add variant description
                 pTooltipComponents.add(description);
                 // add advanced info
@@ -79,5 +87,15 @@ public class AxolootlBucketItem extends MobBucketItem {
         final ResourceLocation id = new ResourceLocation(itemStack.getTag().getString(AxolootlEntity.KEY_VARIANT_ID));
         // load variant
         return AxolootlVariant.getRegistry(registryAccess).getOptional(id);
+    }
+
+    public static ItemStack getWithVariant(final RegistryAccess registryAccess, final ItemStack itemStack, final AxolootlVariant variant) {
+        itemStack.getOrCreateTag().putString(AxolootlEntity.KEY_VARIANT_ID, variant.getRegistryName(registryAccess).toString());
+        return itemStack;
+    }
+
+    public static ItemStack getWithVariant(final ItemStack itemStack, final ResourceLocation variant) {
+        itemStack.getOrCreateTag().putString(AxolootlEntity.KEY_VARIANT_ID, variant.toString());
+        return itemStack;
     }
 }

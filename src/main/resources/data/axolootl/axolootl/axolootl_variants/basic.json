@@ -1,12 +1,16 @@
 {
-  "translation_key": "axolootl.axolootl.basic",
+  "translation_key": "entity.axolootl.axolootl.basic",
+  "tier": 1,
   "primary_color": 16711680,
   "secondary_color": 16449280,
-  "food": [
-    {
-      "item": "#minecraft:fishes",
-      "bonus": 0.02
-    }
-  ],
-  "breed_food": "#minecraft:fishes"
+  "breed_food": {
+    "type": "forge:and",
+    "values": [
+      "#minecraft:fishes",
+      {
+        "type": "forge:not",
+        "value": "minecraft:pufferfish"
+      }
+    ]
+  }
 }

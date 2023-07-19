@@ -1,0 +1,26 @@
+{
+  "translation_key": "entity.axolootl.axolootl.gravel",
+  "primary_color": 16711680,
+  "secondary_color": 16449280,
+  "breed_food": "minecraft:gravel",
+  "resource_generator": [
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:block",
+        "block_provider": {
+          "type": "minecraft:simple_state_provider",
+          "state": {
+            "Name": "minecraft:gravel"
+          }
+        }
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

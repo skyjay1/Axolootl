@@ -24,7 +24,13 @@
   "item.axolootl.axolootl_bucket.tooltip.primary_color": "Primary Color: %1$s",
   "item.axolootl.axolootl_bucket.tooltip.secondary_color": "Secondary Color: %1$s",
   "item.axolootl.axolootl_bucket.tooltip.unknown": "Unknown Variant",
+  "item.axolootl.axolootl_bucket.tooltip.tier": "(Tier %1$s)",
   "entity.axolootl.axolootl": "Axolootl",
+  "entity.axolootl.axolootl.description": "%1$s (%2$s)",
+  "entity.axolootl.axolootl.basic": "Basic",
+  "entity.axolootl.axolootl.dirt": "Dirt",
+  "entity.axolootl.axolootl.stone": "Stone",
+  "entity.axolootl.axolootl.iron": "Iron",
   "axolootl.breed_status.active": "Active",
   "axolootl.breed_status.resource_mob_only": "Non-Mob Active",
   "axolootl.breed_status.missing_resources": "Breeding Food Depleted",
@@ -41,5 +47,8 @@
   "axolootl.tank_status.missing_modifiers": "Mandatory Addons Not Active",
   "axolootl.tank_status.overcrowded": "Overcrowded",
   "axolootl.tank_status.storage_full": "Output Storage Full",
-  "axolootl.tank_status.incomplete": "Incomplete Tank"
+  "axolootl.tank_status.incomplete": "Incomplete Tank",
+  "jei.recipe_category.breeding": "Axolootl Breeding",
+  "jei.recipe_category.breeding.monsterium": "Requires %1$s",
+  "jei.recipe_category.breeding.food": "Food"
 }

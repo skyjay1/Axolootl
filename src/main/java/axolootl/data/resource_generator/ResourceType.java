@@ -15,7 +15,13 @@ public enum ResourceType implements StringRepresentable {
     /** Indicates resources that come from mobs **/
     MOB("mob"),
     /** Indicates resources that come from blocks **/
-    BLOCK("block");
+    BLOCK("block"),
+    /** Indicates no resources **/
+    EMPTY("empty"),
+    /** Indicates resources that come from multiple sources **/
+    MULTIPLE("multiple"),
+    /** Indicates some other resource **/
+    OTHER("other");
 
     public static final Map<String, ResourceType> NAME_TO_TYPE_MAP = ImmutableMap.copyOf(Arrays.stream(values())
             .collect(Collectors.<ResourceType, String, ResourceType>toMap(ResourceType::getSerializedName, Function.identity())));

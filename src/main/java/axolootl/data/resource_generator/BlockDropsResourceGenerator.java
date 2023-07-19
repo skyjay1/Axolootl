@@ -3,14 +3,12 @@ package axolootl.data.resource_generator;
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
 import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,35 +21,30 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.function.Function;
 
 @Immutable
 public class BlockDropsResourceGenerator extends ResourceGenerator {
 
-    protected static final Codec<SimpleWeightedRandomList<BlockStateProvider>> WEIGHTED_LIST_CODEC = Codec.either(BlockStateProvider.CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(BlockStateProvider.CODEC))
-            .xmap(either -> either.map(SimpleWeightedRandomList::single, Function.identity()),
-                    list -> list.unwrap().size() == 1 ? Either.left(list.unwrap().get(0).getData()) : Either.right(list));
-
     public static final Codec<BlockDropsResourceGenerator> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ITEM_OR_STACK_CODEC.optionalFieldOf("tool", ItemStack.EMPTY).forGetter(BlockDropsResourceGenerator::getTool),
-            WEIGHTED_LIST_CODEC.fieldOf("block").forGetter(BlockDropsResourceGenerator::getList)
+            BlockStateProvider.CODEC.fieldOf("block_provider").forGetter(BlockDropsResourceGenerator::getBlockProvider)
     ).apply(instance, BlockDropsResourceGenerator::new));
 
     private final ItemStack tool;
-    private final SimpleWeightedRandomList<BlockStateProvider> list;
+    private final BlockStateProvider blockProvider;
 
-    public BlockDropsResourceGenerator(ItemStack tool, SimpleWeightedRandomList<BlockStateProvider> list) {
+    public BlockDropsResourceGenerator(ItemStack tool, BlockStateProvider blockProvider) {
         super(ResourceType.BLOCK);
         this.tool = tool;
-        this.list = list;
+        this.blockProvider = blockProvider;
     }
 
     public ItemStack getTool() {
         return tool;
     }
 
-    public SimpleWeightedRandomList<BlockStateProvider> getList() {
-        return list;
+    public BlockStateProvider getBlockProvider() {
+        return blockProvider;
     }
 
     @Override
@@ -62,11 +55,7 @@ public class BlockDropsResourceGenerator extends ResourceGenerator {
             return ImmutableList.of();
         }
         // load loot table
-        final Optional<BlockStateProvider> oBlockState = getList().getRandomValue(random);
-        if (oBlockState.isEmpty()) {
-            return ImmutableList.of();
-        }
-        final BlockState blockState = oBlockState.get().getState(random, entity.blockPosition());
+        final BlockState blockState = getBlockProvider().getState(random, entity.blockPosition());
         final ResourceLocation lootTableId = blockState.getBlock().getLootTable();
         final LootTable lootTable = server.getLootTables().get(lootTableId);
         if (lootTable == LootTable.EMPTY) {
@@ -101,6 +90,6 @@ public class BlockDropsResourceGenerator extends ResourceGenerator {
 
     @Override
     public String toString() {
-        return "BlockState: {tool=" + tool.getDisplayName() + ", block=" + list.toString() + "}";
+        return "BlockState: {tool=" + tool.getDisplayName() + ", block=" + blockProvider.toString() + "}";
     }
 }

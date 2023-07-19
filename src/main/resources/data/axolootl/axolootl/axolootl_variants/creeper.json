@@ -1,0 +1,24 @@
+{
+  "translation_key": "entity.axolootl.axolootl.creeper",
+  "tier": 2,
+  "primary_color": 16711680,
+  "secondary_color": 16449280,
+  "breed_food": [
+    "minecraft:tnt"
+  ],
+  "resource_generator": [
+    {
+      "weight": 5,
+      "data": {
+        "type": "axolootl:mob",
+        "loot_table": "minecraft:entities/creeper"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

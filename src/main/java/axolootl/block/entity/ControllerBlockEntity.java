@@ -401,19 +401,20 @@ public class ControllerBlockEntity extends BlockEntity {
             }
             // verify energy
             int cost = oVariant.get().getEnergyCost();
-            // iterate all resource generators
-            for(ResourceGenerator gen : oVariant.get().getResourceGenerators()) {
-                // verify mob resources are enabled
-                if(gen.getResourceType() == ResourceType.MOB && !this.enableMobResources) {
-                    continue;
-                }
-                // remove energy
-                if(cost > 0 && transferEnergy(serverLevel, this.getBlockPos(), cost, true) < cost) {
-                    break;
-                }
-                // generate resources
-                resources.addAll(gen.getRandomEntries(entry.getEntity(), entry.getEntity().getRandom()));
+            // load generator
+            ResourceGenerator gen = oVariant.get().getResourceGenerator(entry.getEntity().getRandom());
+            // verify mob resources are enabled
+            if(gen.is(ResourceType.MOB) && !this.enableMobResources) {
+                continue;
             }
+            // generate resources
+            Collection<ItemStack> generatedResources = gen.getRandomEntries(entry.getEntity(), entry.getEntity().getRandom());
+            // remove energy
+            if(!generatedResources.isEmpty() && cost > 0 && transferEnergy(serverLevel, this.getBlockPos(), cost, true) < cost) {
+                break;
+            }
+            // add generated resources to list
+            resources.addAll(generatedResources);
         }
         // remove invalid variants
         invalid.forEach(uuid -> trackedAxolootls.remove(uuid));
@@ -709,8 +710,19 @@ public class ControllerBlockEntity extends BlockEntity {
             return InteractionResultHolder.pass(true);
         }
         // validate both items extracted
-        if(handler1.extractItem(slot1, 1, false).isEmpty() || handler2.extractItem(slot2, 1, false).isEmpty()) {
+        ItemStack food1;
+        ItemStack food2;
+        if((food1 = handler1.extractItem(slot1, 1, false)).isEmpty() || (food2 = handler2.extractItem(slot2, 1, false)).isEmpty()) {
             return InteractionResultHolder.fail(false);
+        }
+        // insert crafting remainders
+        ItemStack remainder1 = food1.getCraftingRemainingItem();
+        ItemStack remainder2 = food2.getCraftingRemainingItem();
+        if(!remainder1.isEmpty()) {
+            insertItem(remainder1, false);
+        }
+        if(!remainder2.isEmpty()) {
+            insertItem(remainder2, false);
         }
         // try to breed
         Optional<IAxolootl> oChild = axolootl.breed(serverLevel, other);

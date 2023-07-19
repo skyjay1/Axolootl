@@ -69,6 +69,9 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
     private Vector3f primaryColors;
     private Vector3f secondaryColors;
 
+    // TEXT //
+    private Component displayName;
+
     public AxolootlEntity(EntityType<? extends Axolotl> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         this.primaryColors = VEC3F_ONE;
@@ -125,11 +128,15 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
 
     @Override
     protected Component getTypeName() {
-        Optional<AxolootlVariant> oVariant = getAxolootlVariant(level.registryAccess());
-        if(oVariant.isPresent()) {
-            return oVariant.get().getDescription();
+        if(null == displayName) {
+            Optional<AxolootlVariant> oVariant = getAxolootlVariant(level.registryAccess());
+            if(oVariant.isPresent()) {
+                this.displayName = Component.translatable(getType().getDescriptionId() + ".description", super.getTypeName(), oVariant.get().getDescription());
+            } else {
+                this.displayName = super.getTypeName();
+            }
         }
-        return super.getTypeName();
+        return displayName;
     }
 
     @Override
@@ -156,6 +163,7 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
     public void onSyncedDataUpdated(EntityDataAccessor<?> pKey) {
         super.onSyncedDataUpdated(pKey);
         if(pKey == DATA_VARIANT_ID) {
+            this.displayName = null;
             getAxolootlVariant(level.registryAccess()).ifPresentOrElse(a -> {
                 // set primary color
                 if(a.getPrimaryColor() >= 0) {

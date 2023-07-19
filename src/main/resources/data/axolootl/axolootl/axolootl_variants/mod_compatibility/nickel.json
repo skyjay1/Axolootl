@@ -1,0 +1,50 @@
+{
+  "translation_key": "entity.axolootl.axolootl.nickel",
+  "tier": 2,
+  "primary_color": 11787004,
+  "secondary_color": 15726073,
+  "food": [
+    {
+      "item": "#forge:nuggets/nickel",
+      "bonus": 0.04
+    }
+  ],
+  "breed_food": "#forge:storage_blocks/nickel",
+  "resource_generator": [
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:tag",
+        "tag": "forge:nuggets/nickel"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ],
+  "forge:conditions": [
+    {
+      "type": "forge:not",
+      "value": {
+        "type": "forge:or",
+        "values": [
+          {
+            "type": "forge:tag_empty",
+            "tag": "forge:nuggets/nickel"
+          },
+          {
+            "type": "forge:tag_empty",
+            "tag": "forge:ingots/nickel"
+          },
+          {
+            "type": "forge:tag_empty",
+            "tag": "forge:storage_blocks/nickel"
+          }
+        ]
+      }
+    }
+  ]
+}

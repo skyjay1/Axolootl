@@ -42,7 +42,7 @@ public class ItemResourceGenerator extends ResourceGenerator {
         if (sample.isEmpty()) {
             return ImmutableList.of();
         }
-        return ImmutableList.of(sample.get());
+        return ImmutableList.of(sample.get().copy());
     }
 
     @Override

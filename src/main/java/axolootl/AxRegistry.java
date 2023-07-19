@@ -40,7 +40,9 @@ import axolootl.data.aquarium_modifier.condition.RandomChanceModifierCondition;
 import axolootl.data.aquarium_modifier.condition.TimeModifierCondition;
 import axolootl.data.aquarium_modifier.condition.TrueModifierCondition;
 import axolootl.data.aquarium_modifier.condition.WeatherModifierCondition;
+import axolootl.data.resource_generator.AndResourceGenerator;
 import axolootl.data.resource_generator.BlockDropsResourceGenerator;
+import axolootl.data.resource_generator.EmptyResourceGenerator;
 import axolootl.data.resource_generator.ItemResourceGenerator;
 import axolootl.data.resource_generator.ItemTagResourceGenerator;
 import axolootl.data.resource_generator.MobDropsResourceGenerator;
@@ -189,7 +191,7 @@ public final class AxRegistry {
         public static final CreativeModeTab TAB = new CreativeModeTab(Axolootl.MODID) {
             @Override
             public ItemStack makeIcon() {
-                return new ItemStack(Items.EGG);
+                return Items.AXOLOTL_BUCKET.getDefaultInstance();
             }
         };
 
@@ -200,7 +202,7 @@ public final class AxRegistry {
         }
 
         public static final RegistryObject<Item> AXOLOOTL_BUCKET = ITEMS.register("axolootl_bucket", () ->
-                new AxolootlBucketItem(EntityReg.AXOLOOTL, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, new Item.Properties().stacksTo(1).tab(TAB)));
+                new AxolootlBucketItem(EntityReg.AXOLOOTL, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET).tab(TAB)));
 
         /**
          * Creates a registry object for a block item and adds it to the mod creative tab
@@ -376,10 +378,12 @@ public final class AxRegistry {
             RESOURCE_GENERATOR_SERIALIZERS.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
+        public static final RegistryObject<Codec<? extends ResourceGenerator>> EMPTY = RESOURCE_GENERATOR_SERIALIZERS.register("empty", () -> EmptyResourceGenerator.CODEC);
         public static final RegistryObject<Codec<? extends ResourceGenerator>> ITEM = RESOURCE_GENERATOR_SERIALIZERS.register("item", () -> ItemResourceGenerator.CODEC);
         public static final RegistryObject<Codec<? extends ResourceGenerator>> MOB = RESOURCE_GENERATOR_SERIALIZERS.register("mob", () -> MobDropsResourceGenerator.CODEC);
-        public static final RegistryObject<Codec<? extends ResourceGenerator>> BLOCK = RESOURCE_GENERATOR_SERIALIZERS.register("block_state", () -> BlockDropsResourceGenerator.CODEC);
+        public static final RegistryObject<Codec<? extends ResourceGenerator>> BLOCK = RESOURCE_GENERATOR_SERIALIZERS.register("block", () -> BlockDropsResourceGenerator.CODEC);
         public static final RegistryObject<Codec<? extends ResourceGenerator>> TAG = RESOURCE_GENERATOR_SERIALIZERS.register("tag", () -> ItemTagResourceGenerator.CODEC);
+        public static final RegistryObject<Codec<? extends ResourceGenerator>> AND = RESOURCE_GENERATOR_SERIALIZERS.register("and", () -> AndResourceGenerator.CODEC);
     }
 
     public static final class ModifierConditionsReg {

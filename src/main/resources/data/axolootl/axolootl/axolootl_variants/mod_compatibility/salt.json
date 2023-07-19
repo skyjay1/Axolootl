@@ -1,0 +1,46 @@
+{
+  "translation_key": "entity.axolootl.axolootl.nickel",
+  "tier": 2,
+  "primary_color": 11787004,
+  "secondary_color": 15726073,
+  "food": [
+    {
+      "item": "#forge:dusts/salt",
+      "bonus": 0.04
+    }
+  ],
+  "breed_food": "#forge:storage_blocks/salt",
+  "resource_generator": [
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:tag",
+        "tag": "forge:dusts/salt"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ],
+  "forge:conditions": [
+    {
+      "type": "forge:not",
+      "value": {
+        "type": "forge:or",
+        "values": [
+          {
+            "type": "forge:tag_empty",
+            "tag": "forge:dusts/salt"
+          },
+          {
+            "type": "forge:tag_empty",
+            "tag": "forge:storage_blocks/salt"
+          }
+        ]
+      }
+    }
+  ]
+}

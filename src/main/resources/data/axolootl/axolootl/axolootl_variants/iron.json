@@ -1,25 +1,22 @@
 {
-  "translation_key": "axolootl.axolootl.iron",
+  "translation_key": "entity.axolootl.axolootl.iron",
+  "tier": 2,
   "primary_color": 11787004,
   "secondary_color": 15726073,
-  "food": [
+  "breed_food": "#forge:storage_blocks/iron",
+  "resource_generator": [
     {
-      "item": "minecraft:iron_nugget",
-      "bonus": {
-        "generation": 0.04,
-        "breed": 0.01
+      "weight": 5,
+      "data": {
+        "type": "axolootl:tag",
+        "tag": "forge:nuggets/iron"
       }
-    }
-  ],
-  "breed_food": "#minecraft:fishes",
-  "resource_generator": {
-    "type": "axolootl:tag",
-    "tag": "forge:nuggets/iron"
-  },
-  "forge:conditions": [
+    },
     {
-      "type": "forge:mod_loaded",
-      "modid": "axolootl"
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
     }
   ]
 }
