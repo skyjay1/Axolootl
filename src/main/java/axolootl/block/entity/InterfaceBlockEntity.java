@@ -1,7 +1,5 @@
 package axolootl.block.entity;
 
-import axolootl.AxRegistry;
-import axolootl.block.OutputBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -32,27 +30,23 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class InterfaceBlockEntity extends BlockEntity implements Container, MenuProvider, IAquariumControllerProvider {
+public abstract class InterfaceBlockEntity extends BlockEntity implements Container, MenuProvider, IAquariumControllerProvider {
 
     protected final NonNullList<ItemStack> inventory;
-    protected final LazyOptional<IItemHandler> holder = LazyOptional.of(this::createItemHandler);
+    protected LazyOptional<IItemHandler> holder = LazyOptional.of(this::createItemHandler);
     protected final int rows;
 
     protected BlockPos controllerPos;
     protected ControllerBlockEntity controller;
 
-    public InterfaceBlockEntity(BlockPos pPos, BlockState pBlockState) {
-        this(AxRegistry.BlockEntityReg.OUTPUT_INTERFACE.get(), pPos, pBlockState);
-    }
-
-    public InterfaceBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
-        this(pType, pPos, pBlockState, (pBlockState.getBlock() instanceof OutputBlock b) ? b.inventoryRows : 0);
-    }
-
     protected InterfaceBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState, int rows) {
+        this(pType, pPos, pBlockState, rows, rows * 9);
+    }
+
+    protected InterfaceBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState, int rows, int slots) {
         super(pType, pPos, pBlockState);
         this.rows = rows;
-        this.inventory = NonNullList.withSize(rows * 9, ItemStack.EMPTY);
+        this.inventory = NonNullList.withSize(slots, ItemStack.EMPTY);
     }
 
     //// CONTROLLER PROVIDER ////
@@ -108,6 +102,10 @@ public class InterfaceBlockEntity extends BlockEntity implements Container, Menu
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
+        // verify availability
+        if(!isMenuAvailable(pPlayer, this.controller)) {
+            return null;
+        }
         switch (rows) {
             case 1: return new ChestMenu(MenuType.GENERIC_9x1, pContainerId, pPlayerInventory, this, rows);
             case 2: return new ChestMenu(MenuType.GENERIC_9x2, pContainerId, pPlayerInventory, this, rows);
@@ -118,6 +116,8 @@ public class InterfaceBlockEntity extends BlockEntity implements Container, Menu
             default: return null;
         }
     }
+
+    public abstract boolean isMenuAvailable(final Player player, final ControllerBlockEntity controller);
 
     //// CONTAINER ////
 
@@ -202,6 +202,18 @@ public class InterfaceBlockEntity extends BlockEntity implements Container, Menu
             return holder.cast();
         }
         return super.getCapability(capability, facing);
+    }
+
+    @Override
+    public void invalidateCaps() {
+        super.invalidateCaps();
+        holder.invalidate();
+    }
+
+    @Override
+    public void reviveCaps() {
+        super.reviveCaps();
+        holder = LazyOptional.of(this::createItemHandler);
     }
 
     //// NBT ////

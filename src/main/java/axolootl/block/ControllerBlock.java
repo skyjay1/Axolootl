@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 public class ControllerBlock extends HorizontalDirectionalBlock implements EntityBlock {
@@ -57,8 +59,11 @@ public class ControllerBlock extends HorizontalDirectionalBlock implements Entit
                 pPlayer.displayClientMessage(Component.literal("Feed: ").append(be.getFeedStatus().getDescription()), false);
             }
             // open menu
-            if (blockentity instanceof MenuProvider menuProvider) {
-                pPlayer.openMenu(menuProvider);
+            if (pPlayer instanceof ServerPlayer serverPlayer && blockentity instanceof MenuProvider menuProvider) {
+                NetworkHooks.openScreen(serverPlayer, menuProvider, buf -> {
+                    buf.writeBlockPos(pPos);
+                    buf.writeInt(0);
+                });
             }
             return InteractionResult.CONSUME;
         }

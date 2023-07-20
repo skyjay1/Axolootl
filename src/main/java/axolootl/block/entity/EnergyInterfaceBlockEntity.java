@@ -2,9 +2,15 @@ package axolootl.block.entity;
 
 import axolootl.AxRegistry;
 import axolootl.block.EnergyInterfaceBlock;
+import axolootl.menu.TabType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -19,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquariumControllerProvider {
+public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquariumControllerProvider, MenuProvider {
 
     protected IEnergyStorage energy = new EnergyStorage(25_000, 10_000) {
         @Override
@@ -27,7 +33,7 @@ public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquarium
             return !getBlockState().getValue(EnergyInterfaceBlock.POWERED);
         }
     };
-    private final LazyOptional<IEnergyStorage> holder = LazyOptional.of(() -> energy);
+    private LazyOptional<IEnergyStorage> holder = LazyOptional.of(() -> energy);
 
     private BlockPos controllerPos;
     private ControllerBlockEntity controller;
@@ -93,6 +99,39 @@ public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquarium
             return holder.cast();
         }
         return super.getCapability(capability, facing);
+    }
+
+    @Override
+    public void invalidateCaps() {
+        super.invalidateCaps();
+        holder.invalidate();
+    }
+
+    @Override
+    public void reviveCaps() {
+        super.reviveCaps();
+        holder = LazyOptional.of(() -> energy);
+    }
+
+    //// MENU PROVIDER ////
+
+    @Override
+    public Component getDisplayName() {
+        return getBlockState().getBlock().getName();
+    }
+
+    public boolean isMenuAvailable(Player player, ControllerBlockEntity controller) {
+        return TabType.ENERGY_INTERFACE.isAvailable(controller);
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
+        if(!isMenuAvailable(pPlayer, controller)) {
+            return null;
+        }
+        // TODO create energy interface menu
+        return null;
     }
 
     //// NBT ////

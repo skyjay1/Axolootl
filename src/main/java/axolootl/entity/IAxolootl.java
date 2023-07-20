@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -20,6 +21,11 @@ public interface IAxolootl {
      * @return the axolootl as an entity
      */
     LivingEntity getEntity();
+
+    /**
+     * @return a representation of the entity as an item stack
+     */
+    ItemStack asItemStack();
 
     /**
      * @param level the level

@@ -2,6 +2,7 @@ package axolootl;
 
 import axolootl.block.AirlockBlock;
 import axolootl.block.AutofeederBlock;
+import axolootl.block.AxolootlInterfaceBlock;
 import axolootl.block.BreederBlock;
 import axolootl.block.BubblerBlock;
 import axolootl.block.ControllerBlock;
@@ -14,6 +15,7 @@ import axolootl.block.WaterloggedHorizontalBlock;
 import axolootl.block.WaterloggedHorizontalDoubleBlock;
 import axolootl.block.WaterloggedHorizontalMultiBlock;
 import axolootl.block.entity.AutoFeederBlockEntity;
+import axolootl.block.entity.AxolootlInterfaceBlockEntity;
 import axolootl.block.entity.BreederBlockEntity;
 import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.block.entity.EnergyInterfaceBlockEntity;
@@ -50,14 +52,17 @@ import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
 import axolootl.item.MultiBlockItem;
+import axolootl.menu.ControllerMenu;
 import axolootl.util.MatchingStatePredicate;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
@@ -65,6 +70,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -73,6 +79,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -81,10 +88,12 @@ import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.ForgeSpawnEggItem;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -252,7 +261,7 @@ public final class AxRegistry {
         public static final RegistryObject<Block> AQUARIUM_CONTROLLER = registerWithItem("aquarium_controller", () -> new ControllerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> AQUARIUM_WATER_INTERFACE = registerWithItem("aquarium_water_interface", () -> new WaterInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> AQUARIUM_ENERGY_INTERFACE = registerWithItem("aquarium_energy_interface", () -> new EnergyInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
-        public static final RegistryObject<Block> AQUARIUM_AXOLOOTL_INTERFACE = registerWithItem("aquarium_axolootl_interface", () -> new Block(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> AQUARIUM_AXOLOOTL_INTERFACE = registerWithItem("aquarium_axolootl_interface", () -> new AxolootlInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> AQUARIUM_OUTPUT = registerWithItem("aquarium_output", () -> new OutputBlock(3, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> LARGE_AQUARIUM_OUTPUT = registerWithItem("large_aquarium_output", () -> new OutputBlock(6, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> AQUARIUM_AIRLOCK = registerWithItem("aquarium_airlock", () -> new AirlockBlock(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().isSuffocating((s, l, p) -> false).requiresCorrectToolForDrops().strength(3.5F, 6.0F)));
@@ -268,6 +277,7 @@ public final class AxRegistry {
         public static final RegistryObject<Block> GRAND_CASTLE = registerWithMultiBlockItem("grand_castle", () -> new GrandCastleBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 20.0F)));
         public static final RegistryObject<Block> BASTION = registerWithMultiBlockItem("bastion", () -> new WaterloggedHorizontalMultiBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 60.0F)));
         public static final RegistryObject<Block> PRISTINE_BASTION = registerWithMultiBlockItem("pristine_bastion", () -> new WaterloggedHorizontalMultiBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 60.0F)));
+        // TODO end city and end ship blocks
 
         private static RegistryObject<Block> registerWithItem(final String name, final Supplier<Block> supplier) {
             return registerWithItem(name, supplier, ItemReg::registerBlockItem);
@@ -293,6 +303,10 @@ public final class AxRegistry {
 
         public static final RegistryObject<BlockEntityType<ControllerBlockEntity>> CONTROLLER = BLOCK_ENTITY_TYPES.register("controller", () ->
                 BlockEntityType.Builder.of(ControllerBlockEntity::new, BlockReg.AQUARIUM_CONTROLLER.get())
+                        .build(null));
+
+        public static final RegistryObject<BlockEntityType<AxolootlInterfaceBlockEntity>> AXOLOOTL_INTERFACE = BLOCK_ENTITY_TYPES.register("axolootl_interface", () ->
+                BlockEntityType.Builder.of(AxolootlInterfaceBlockEntity::new, BlockReg.AQUARIUM_AXOLOOTL_INTERFACE.get())
                         .build(null));
 
         public static final RegistryObject<BlockEntityType<WaterInterfaceBlockEntity>> WATER_INTERFACE = BLOCK_ENTITY_TYPES.register("water_interface", () ->
@@ -349,6 +363,14 @@ public final class AxRegistry {
         public static void register() {
             MENU_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
+
+        public static final RegistryObject<MenuType<ControllerMenu>> CONTROLLER = MENU_TYPES.register("controller", () ->
+                IForgeMenuType.create((windowId, inv, data) -> {
+                    BlockPos pos = data.readBlockPos();
+                    int tab = data.readInt();
+                    return new ControllerMenu(windowId, inv, pos, (ControllerBlockEntity)inv.player.level.getBlockEntity(pos), tab);
+                })
+        );
 
     }
 

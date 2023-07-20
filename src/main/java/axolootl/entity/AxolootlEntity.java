@@ -36,7 +36,9 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
@@ -329,6 +331,13 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
     @Override
     public LivingEntity getEntity() {
         return this;
+    }
+
+    @Override
+    public ItemStack asItemStack() {
+        ItemStack stack = getBucketItemStack();
+        this.saveToBucketTag(stack);
+        return stack;
     }
 
     @Override

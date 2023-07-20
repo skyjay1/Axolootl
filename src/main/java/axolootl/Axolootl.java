@@ -1,5 +1,6 @@
 package axolootl;
 
+import axolootl.network.AxNetwork;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -26,6 +27,8 @@ public class Axolootl {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CONFIG_SPEC);
         // register registry objects
         AxRegistry.register();
+        // register network
+        AxNetwork.register();
         // register event handlers
         AxEvents.register();
         // register client events

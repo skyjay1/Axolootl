@@ -4,15 +4,31 @@
   "result": [
     {
       "data": "axolootl:basic",
-      "weight": 2
+      "weight": 1
     },
     {
       "data": "axolootl:dirt",
-      "weight": 4
+      "weight": 6
     },
     {
       "data": "axolootl:stone",
+      "weight": 5
+    },
+    {
+      "data": "axolootl:wood",
       "weight": 4
+    },
+    {
+      "data": "axolootl:sand",
+      "weight": 6
+    },
+    {
+      "data": "axolootl:gravel",
+      "weight": 6
+    },
+    {
+      "data": "axolootl:bone",
+      "weight": 2
     }
   ]
 }

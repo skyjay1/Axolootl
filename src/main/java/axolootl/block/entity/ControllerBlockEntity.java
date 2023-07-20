@@ -9,12 +9,16 @@ import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.data.resource_generator.ResourceType;
 import axolootl.entity.AxolootlEntity;
 import axolootl.entity.IAxolootl;
+import axolootl.item.AxolootlBucketItem;
+import axolootl.menu.ControllerMenu;
+import axolootl.menu.TabType;
 import axolootl.util.BreedStatus;
 import axolootl.util.FeedStatus;
 import axolootl.util.TankMultiblock;
 import axolootl.util.TankStatus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
@@ -28,17 +32,25 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -47,6 +59,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -55,6 +68,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -73,7 +87,7 @@ import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-public class ControllerBlockEntity extends BlockEntity {
+public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     // CONSTANTS //
     /** The default resource generation speed **/
@@ -1405,6 +1419,34 @@ public class ControllerBlockEntity extends BlockEntity {
         return feedTime;
     }
 
+    public Set<BlockPos> getAxolootlInputs() {
+        return ImmutableSet.copyOf(axolootlInputs);
+    }
+
+    public Set<BlockPos> getFluidInputs() {
+        return ImmutableSet.copyOf(fluidInputs);
+    }
+
+    public Set<BlockPos> getEnergyInputs() {
+        return ImmutableSet.copyOf(energyInputs);
+    }
+
+    public Set<BlockPos> getResourceOutputs() {
+        return ImmutableSet.copyOf(resourceOutputs);
+    }
+
+    public Map<BlockPos, ResourceLocation> getAquariumModifiers() {
+        return ImmutableMap.copyOf(aquariumModifiers);
+    }
+
+    public Set<BlockPos> getActiveAquariumModifiers() {
+        return ImmutableSet.copyOf(activeAquariumModifiers);
+    }
+
+    public Map<UUID, ResourceLocation> getTrackedAxolootls() {
+        return ImmutableMap.copyOf(trackedAxolootls);
+    }
+
     /**
      * @return the number of ticks to subtract from the resource generation ticker based on generation speed
      */
@@ -1424,6 +1466,44 @@ public class ControllerBlockEntity extends BlockEntity {
      */
     public long getFeedTickAmount() {
         return Mth.floor(BASE_SPEED_DECREMENT * feedSpeed);
+    }
+
+    /**
+     * @param serverLevel the server level
+     * @param uuid the entity ID
+     * @return the itemstack representation of the axolootl if it was removed
+     */
+    public ItemStack removeAxolootl(final ServerLevel serverLevel, final UUID uuid) {
+        ResourceLocation id = trackedAxolootls.remove(uuid);
+        if(null == id) {
+            return ItemStack.EMPTY;
+        }
+        // resolve axolootl
+        Entity entity = serverLevel.getEntity(uuid);
+        if(!(entity instanceof IAxolootl iprovider && !iprovider.getEntity().isDeadOrDying())) {
+            return ItemStack.EMPTY;
+        }
+        // resolve item stack
+        ItemStack itemStack = iprovider.asItemStack();
+        // remove entity
+        iprovider.getEntity().discard();
+        this.forceCalculateBonuses();
+        return itemStack;
+    }
+
+    /**
+     * @param iaxolootl an axolootl to start tracking
+     * @return true if the iaxolootl was added
+     */
+    public boolean addAxolootl(final IAxolootl iaxolootl) {
+        final UUID uuid = iaxolootl.getEntity().getUUID();
+        final Optional<ResourceLocation> oId = iaxolootl.getAxolootlVariantId();
+        if(oId.isEmpty()) {
+            return false;
+        }
+        this.trackedAxolootls.put(uuid, oId.get());
+        this.forceCalculateBonuses();
+        return true;
     }
 
     /**
@@ -1532,11 +1612,37 @@ public class ControllerBlockEntity extends BlockEntity {
 
     // TODO
 
+
+    @Override
+    public Component getDisplayName() {
+        return getBlockState().getBlock().getName();
+    }
+
+    @Override
+    public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
+        if(!TabType.CONTROLLER.isAvailable(this)) {
+            return null;
+        }
+        return new ControllerMenu(pContainerId, pPlayerInventory, getBlockPos(), this, 0);
+    }
+
+
     //// BLOCK ENTITY METHODS ////
 
     // TODO
 
     //// CLIENT SERVER SYNC ////
+
+    /**
+     * Called when the chunk is saved
+     * @return the compound tag to use in #handleUpdateTag
+     */
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+        return tag;
+    }
 
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {

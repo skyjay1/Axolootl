@@ -1,11 +1,8 @@
 {
-  "translation_key": "block.minecraft.stone",
+  "translation_key": "block.minecraft.sand",
   "primary_color": 16711680,
   "secondary_color": 16449280,
-  "breed_food": [
-    "minecraft:cobblestone",
-    "minecraft:cobbled_deepslate"
-  ],
+  "breed_food": "#forge:sandstone",
   "resource_generator": [
     {
       "weight": 3,
@@ -13,12 +10,12 @@
         "type": "axolootl:item",
         "pool": [
           {
-            "data": "minecraft:stone",
-            "weight": 1
+            "data": "minecraft:sand",
+            "weight": 20
           },
           {
-            "data": "minecraft:cobblestone",
-            "weight": 4
+            "data": "minecraft:red_sand",
+            "weight": 1
           }
         ]
       }

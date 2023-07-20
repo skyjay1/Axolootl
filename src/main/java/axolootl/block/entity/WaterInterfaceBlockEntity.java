@@ -2,11 +2,17 @@ package axolootl.block.entity;
 
 import axolootl.AxRegistry;
 import axolootl.block.WaterInterfaceBlock;
+import axolootl.menu.TabType;
 import axolootl.util.TankMultiblock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlockContainer;
@@ -18,11 +24,13 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.FluidHandlerBlockEntity;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,7 +38,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class WaterInterfaceBlockEntity extends FluidHandlerBlockEntity implements IAquariumControllerProvider {
+public class WaterInterfaceBlockEntity extends FluidHandlerBlockEntity implements IAquariumControllerProvider, MenuProvider {
 
     /** The number to multiply by the corresponding speed and subtract from the corresponding ticker each tick **/
     public static final long BASE_SPEED_DECREMENT = 100;
@@ -79,6 +87,27 @@ public class WaterInterfaceBlockEntity extends FluidHandlerBlockEntity implement
             self.setChanged();
             level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
         }
+    }
+
+    //// MENU PROVIDER ////
+
+    public boolean isMenuAvailable(Player player, ControllerBlockEntity controller) {
+        return TabType.FLUID_INTERFACE.isAvailable(controller);
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return getBlockState().getBlock().getName();
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
+        if(!isMenuAvailable(pPlayer, controller)) {
+            return null;
+        }
+        // TODO create fluid interface menu
+        return null;
     }
 
     //// CONTROLLER PROVIDER ////
@@ -229,7 +258,6 @@ public class WaterInterfaceBlockEntity extends FluidHandlerBlockEntity implement
         // no checks passed
         return false;
     }
-
 
     //// SETTERS AND GETTERS ////
 

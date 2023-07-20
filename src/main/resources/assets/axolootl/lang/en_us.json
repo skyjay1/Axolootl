@@ -28,9 +28,9 @@
   "entity.axolootl.axolootl": "Axolootl",
   "entity.axolootl.axolootl.description": "%1$s (%2$s)",
   "entity.axolootl.axolootl.basic": "Basic",
-  "entity.axolootl.axolootl.dirt": "Dirt",
-  "entity.axolootl.axolootl.stone": "Stone",
   "entity.axolootl.axolootl.iron": "Iron",
+  "entity.axolootl.axolootl.totemic": "Totemic",
+  "entity.axolootl.axolootl.wood": "Wood",
   "axolootl.breed_status.active": "Active",
   "axolootl.breed_status.resource_mob_only": "Non-Mob Active",
   "axolootl.breed_status.missing_resources": "Breeding Food Depleted",
@@ -50,5 +50,11 @@
   "axolootl.tank_status.incomplete": "Incomplete Tank",
   "jei.recipe_category.breeding": "Axolootl Breeding",
   "jei.recipe_category.breeding.monsterium": "Requires %1$s",
-  "jei.recipe_category.breeding.food": "Food"
+  "jei.recipe_category.breeding.food": "Food",
+  "gui.axolootl.tab.controller": "Controller",
+  "gui.axolootl.tab.axolootl_interface": "Axolootl Interface",
+  "gui.axolootl.tab.fluid_interface": "Fluid Interface",
+  "gui.axolootl.tab.energy_interface": "Energy Interface",
+  "gui.axolootl.tab.output": "Output",
+  "gui.axolootl.not_enabled": "Not enabled"
 }
