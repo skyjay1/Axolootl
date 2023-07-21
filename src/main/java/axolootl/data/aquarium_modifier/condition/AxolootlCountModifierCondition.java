@@ -2,7 +2,7 @@ package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
 import axolootl.entity.IAxolootl;
-import axolootl.data.AxolootlVariant;
+import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

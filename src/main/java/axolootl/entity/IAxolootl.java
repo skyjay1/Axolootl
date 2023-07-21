@@ -1,6 +1,6 @@
 package axolootl.entity;
 
-import axolootl.data.AxolootlVariant;
+import axolootl.data.axolootl_variant.AxolootlVariant;
 import com.mojang.math.Vector3f;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
@@ -10,7 +10,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nullable;
 import java.util.Optional;

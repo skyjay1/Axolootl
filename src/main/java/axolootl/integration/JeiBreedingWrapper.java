@@ -1,8 +1,8 @@
 package axolootl.integration;
 
 import axolootl.AxRegistry;
-import axolootl.data.AxolootlBreeding;
-import axolootl.data.AxolootlVariant;
+import axolootl.data.breeding.AxolootlBreeding;
+import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.item.AxolootlBucketItem;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

@@ -1,13 +1,10 @@
 package axolootl.client.menu;
 
 import axolootl.client.menu.widget.CycleButton;
-import axolootl.client.menu.widget.TabButton;
 import axolootl.menu.AbstractControllerMenu;
-import axolootl.menu.TabType;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

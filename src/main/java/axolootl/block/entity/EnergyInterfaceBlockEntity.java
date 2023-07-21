@@ -2,7 +2,6 @@ package axolootl.block.entity;
 
 import axolootl.AxRegistry;
 import axolootl.block.EnergyInterfaceBlock;
-import axolootl.menu.TabType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -121,7 +120,7 @@ public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquarium
     }
 
     public boolean isMenuAvailable(Player player, ControllerBlockEntity controller) {
-        return TabType.ENERGY_INTERFACE.isAvailable(controller);
+        return AxRegistry.AquariumTabsReg.ENERGY_INTERFACE.get().isAvailable(controller);
     }
 
     @Nullable

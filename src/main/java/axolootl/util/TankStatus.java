@@ -22,6 +22,8 @@ public enum TankStatus implements StringRepresentable {
     OVERCROWDED("overcrowded", false),
     /** Tank is complete but output storage is full **/
     STORAGE_FULL("storage_full", false),
+    /** Tank is complete but a duplicate controller was found **/
+    DUPLICATE_CONTROLLERS("duplicate_controllers", false),
     /** Tank border is incomplete or invalid **/
     INCOMPLETE("incomplete", false);
 

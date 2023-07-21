@@ -1,11 +1,13 @@
 package axolootl.menu;
 
+import axolootl.AxRegistry;
 import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.block.entity.IAquariumControllerProvider;
 import axolootl.network.AxNetwork;
 import axolootl.network.ServerBoundControllerCyclePacket;
 import axolootl.network.ServerBoundControllerTabPacket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -30,22 +32,27 @@ public abstract class AbstractControllerMenu extends AbstractContainerMenu imple
         this.controllerPos = controllerPos;
         this.controller = blockEntity;
         this.blockPos = blockPos;
-        this.tab = tab;
-        if(!TabType.getByIndex(tab).isAvailable(controller)) {
-            this.tab = 0;
+        this.tab = validateTab(tab);
+        if(!AxRegistry.AquariumTabsReg.getSortedTabs().get(tab).isAvailable(controller)) {
+            this.tab = AxRegistry.AquariumTabsReg.CONTROLLER.get().getSortedIndex();
         }
         this.cycle = cycle;
     }
 
     //// TAB ////
 
+    public int validateTab(int tab) {
+        return Mth.clamp(tab, 0, AxRegistry.AquariumTabsReg.getTabCount() - 1);
+    }
+
     public int getTab() {
         return tab;
     }
 
     public void setTab(int tab) {
+        tab = validateTab(tab);
         if(this.tab != tab && this.inventory.player.level.isClientSide() && this.controller != null
-                && TabType.getByIndex(tab).isAvailable(this.controller)) {
+                && AxRegistry.AquariumTabsReg.getSortedTabs().get(tab).isAvailable(this.controller)) {
             // send packet to server to change tab
             AxNetwork.CHANNEL.sendToServer(new ServerBoundControllerTabPacket(tab));
         }

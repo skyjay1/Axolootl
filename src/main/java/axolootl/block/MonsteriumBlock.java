@@ -2,8 +2,6 @@ package axolootl.block;
 
 import axolootl.AxRegistry;
 import axolootl.block.entity.MonsteriumBlockEntity;
-import axolootl.block.entity.OutputInterfaceBlockEntity;
-import axolootl.menu.TabType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -46,7 +44,7 @@ public class MonsteriumBlock extends WaterloggedHorizontalBlock implements Entit
                 }
                 // open menu
                 BlockPos controllerPos = blockEntity.getController().isPresent() ? blockEntity.getController().get().getBlockPos() : pPos;
-                NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, TabType.FOOD_INTERFACE.getIndex(), -1));
+                NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.FOOD_INTERFACE.get().getSortedIndex(), -1));
             }
             return InteractionResult.CONSUME;
         }

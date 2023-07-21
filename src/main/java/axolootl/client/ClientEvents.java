@@ -4,7 +4,7 @@ import axolootl.AxRegistry;
 import axolootl.client.entity.AxolootlRenderer;
 import axolootl.client.menu.ControllerScreen;
 import axolootl.client.menu.CyclingInventoryScreen;
-import axolootl.data.AxolootlVariant;
+import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.item.AxolootlBucketItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;

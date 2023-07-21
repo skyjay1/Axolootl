@@ -2,15 +2,12 @@ package axolootl.block;
 
 import axolootl.AxRegistry;
 import axolootl.block.entity.OutputInterfaceBlockEntity;
-import axolootl.menu.TabType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -40,7 +37,7 @@ public class OutputBlock extends AbstractInterfaceBlock {
                 }
                 // open menu
                 BlockPos controllerPos = blockEntity.getController().isPresent() ? blockEntity.getController().get().getBlockPos() : pPos;
-                NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, TabType.OUTPUT.getIndex(), -1));
+                NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.OUTPUT.get().getSortedIndex(), -1));
             }
             return InteractionResult.CONSUME;
         }

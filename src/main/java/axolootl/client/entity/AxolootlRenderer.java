@@ -1,19 +1,13 @@
 package axolootl.client.entity;
 
 import axolootl.Axolootl;
-import axolootl.data.AxolootlVariant;
 import axolootl.entity.AxolootlEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.AxolotlModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.AxolotlRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.Optional;
 
 public class AxolootlRenderer extends MobRenderer<AxolootlEntity, AxolootlModel<AxolootlEntity>> {
 

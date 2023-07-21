@@ -2,13 +2,12 @@ package axolootl.network;
 
 import axolootl.AxRegistry;
 import axolootl.block.entity.ControllerBlockEntity;
+import axolootl.data.aquarium_tab.IAquariumTab;
+import axolootl.data.aquarium_tab.WorldlyMenuProvider;
 import axolootl.menu.AbstractControllerMenu;
-import axolootl.menu.TabType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.MenuProvider;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkHooks;
@@ -68,8 +67,8 @@ public class ServerBoundControllerCyclePacket {
                     return;
                 }
                 // validate tab
-                final TabType tabType = TabType.getByIndex(menu.getTab());
-                if(!tabType.isAvailable(controller)) {
+                final IAquariumTab tab = AxRegistry.AquariumTabsReg.getSortedTabs().get(menu.validateTab(menu.getTab()));
+                if(!tab.isAvailable(controller)) {
                     return;
                 }
                 // validate cycle
@@ -78,12 +77,12 @@ public class ServerBoundControllerCyclePacket {
                 }
                 BlockPos pos = menu.getSortedCycleList().get(message.cycle);
                 // validate menu provider
-                final Optional<Tuple<BlockPos, MenuProvider>> oProvider = tabType.getMenuProvider(controller, pos);
+                final Optional<WorldlyMenuProvider> oProvider = tab.getMenuProvider(controller, pos);
                 if(oProvider.isEmpty()) {
                     return;
                 }
                 // open menu
-                NetworkHooks.openScreen(player, oProvider.get().getB(), AxRegistry.MenuReg.writeControllerMenu(controllerPos, oProvider.get().getA(), menu.getTab(), message.cycle));
+                NetworkHooks.openScreen(player, oProvider.get().getProvider(), AxRegistry.MenuReg.writeControllerMenu(controllerPos, oProvider.get().getPos(), menu.getTab(), message.cycle));
             });
         }
         context.setPacketHandled(true);

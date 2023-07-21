@@ -1,4 +1,4 @@
-package axolootl.data;
+package axolootl.data.axolootl_variant;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;

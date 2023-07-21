@@ -2,12 +2,11 @@ package axolootl.integration;
 
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
-import axolootl.data.AxolootlBreeding;
+import axolootl.data.breeding.AxolootlBreeding;
 import axolootl.entity.AxolootlEntity;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.recipe.RecipeType;
-import mezz.jei.api.registration.IAdvancedRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
@@ -16,9 +15,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @JeiPlugin
 public class JeiAddon implements IModPlugin {

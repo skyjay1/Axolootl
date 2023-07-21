@@ -1,11 +1,12 @@
 package axolootl.client.menu;
 
+import axolootl.AxRegistry;
 import axolootl.Axolootl;
 import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.client.menu.widget.CycleButton;
 import axolootl.client.menu.widget.TabButton;
+import axolootl.client.menu.widget.TabGroupButton;
 import axolootl.menu.CyclingInventoryMenu;
-import axolootl.menu.TabType;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
@@ -13,7 +14,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +35,12 @@ public class CyclingInventoryScreen extends AbstractContainerScreen<CyclingInven
     // WIDGETS //
     private ResourceLocation texture;
     private List<TabButton> tabButtons;
+    private List<TabGroupButton> tabGroupButtons;
     private List<CycleButton> cycleButtons;
 
     // DATA //
     private int tab;
+    private int tabGroup;
 
     // COMPONENTS //
     private Component cycledTitle;
@@ -47,6 +49,7 @@ public class CyclingInventoryScreen extends AbstractContainerScreen<CyclingInven
     public CyclingInventoryScreen(CyclingInventoryMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         this.tabButtons = new ArrayList<>();
+        this.tabGroupButtons = new ArrayList<>();
         this.cycleButtons = new ArrayList<>();
         this.imageWidth = WIDTH;
         this.imageHeight = HEIGHT;
@@ -73,16 +76,21 @@ public class CyclingInventoryScreen extends AbstractContainerScreen<CyclingInven
         // add tab buttons
         this.tabButtons.clear();
         this.tabButtons.addAll(initTabs(this, controller));
+        // add tab group buttons
+        this.tabGroupButtons.clear();
+        this.tabGroupButtons.addAll(initTabGroups(this));
         // add cycle buttons
         this.cycleButtons.clear();
         this.cycleButtons.addAll(initCycleButtons(this, getMenu().getSortedCycleList()));
         // update tab
         this.setTab(this.getMenu().getTab());
+        this.setTabGroup(calculateTabGroup(this.tab));
     }
 
     @Override
     protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
         this.renderBackground(pPoseStack);
+        RenderSystem.disableBlend();
         RenderSystem.setShaderTexture(0, texture);
         blit(pPoseStack, this.leftPos, this.topPos, 0, 0, WIDTH, HEIGHT);
     }
@@ -96,6 +104,8 @@ public class CyclingInventoryScreen extends AbstractContainerScreen<CyclingInven
         if(isHovering(this.titleLabelX, this.titleLabelY, this.cycledTitleWidth, font.lineHeight, pMouseX, pMouseY)) {
             renderComponentHoverEffect(pPoseStack, cycledTitle.getStyle(), pMouseX, pMouseY);
         }
+        // render slot tooltips
+        this.renderTooltip(pPoseStack, pMouseX, pMouseY);
     }
 
     @Override
@@ -107,16 +117,22 @@ public class CyclingInventoryScreen extends AbstractContainerScreen<CyclingInven
     //// TABS ////
 
     @Override
-    public TabButton addTabButton(int x, int y, int index, ItemStack icon, List<Component> tooltips, Button.OnPress onPress) {
-        TabButton button = addRenderableWidget(new TabButton(leftPos + x, topPos + y, index, getMinecraft().getItemRenderer(), icon, tooltips.get(0), onPress, (b, p, mx, my) -> renderTooltip(p, tooltips, Optional.empty(), mx, my)));
+    public TabButton addTabButton(int x, int y, int index) {
+        TabButton button = addRenderableWidget(new TabButton(leftPos + x, topPos + y, index, getMinecraft().getItemRenderer(), (b, p, mx, my) -> renderTooltip(p, ((TabButton)b).getTooltips(), Optional.empty(), mx, my)));
         button.setSelected(index == this.tab);
         return button;
     }
 
     @Override
+    public TabGroupButton addTabGroupButton(int x, int y, boolean isLeft, Button.OnPress onPress) {
+        return addRenderableWidget(new TabGroupButton(leftPos + x, topPos + y, isLeft, onPress, (b, p, mx, my) -> renderTooltip(p, b.getMessage(), mx, Math.max(MIN_TOOLTIP_Y, my))));
+    }
+
+    @Override
     public void setTab(int tab) {
         // validate tab
-        if(tab == this.tab || getMenu().getController().isEmpty() || !TabType.getByIndex(tab).isAvailable(getMenu().getController().get())) {
+        tab = validateTab(tab);
+        if(tab == this.tab || getMenu().getController().isEmpty() || !AxRegistry.AquariumTabsReg.getSortedTabs().get(tab).isAvailable(getMenu().getController().get())) {
             return;
         }
         // update tab
@@ -125,13 +141,29 @@ public class CyclingInventoryScreen extends AbstractContainerScreen<CyclingInven
     }
 
     @Override
-    public int getTabIndex() {
+    public int getTab() {
         return this.tab;
+    }
+
+    @Override
+    public void setTabGroup(int tabGroup) {
+        this.tabGroup = validateTabGroup(tabGroup);
+        getMenu().getController().ifPresent(c -> onTabGroupUpdated(c));
+    }
+
+    @Override
+    public int getTabGroup() {
+        return this.tabGroup;
     }
 
     @Override
     public List<TabButton> getTabButtons() {
         return tabButtons;
+    }
+
+    @Override
+    public List<TabGroupButton> getTabGroupButtons() {
+        return tabGroupButtons;
     }
 
     //// CYCLES ////

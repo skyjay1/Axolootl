@@ -2,14 +2,11 @@ package axolootl.block;
 
 import axolootl.AxRegistry;
 import axolootl.block.entity.AxolootlInterfaceBlockEntity;
-import axolootl.block.entity.BreederBlockEntity;
-import axolootl.menu.TabType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
@@ -45,7 +42,8 @@ public class AxolootlInterfaceBlock extends WaterloggedHorizontalBlock implement
                     blockEntity.setChanged();
                 }
                 // open menu
-                NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(pPos, pPos, TabType.AXOLOOTL_INTERFACE.getIndex(), -1));
+                BlockPos controllerPos = blockEntity.getController().isPresent() ? blockEntity.getController().get().getBlockPos() : pPos;
+                NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.AXOLOOTL_INTERFACE.get().getSortedIndex(), -1));
             }
             return InteractionResult.CONSUME;
         }

@@ -2,16 +2,14 @@ package axolootl.block.entity;
 
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
-import axolootl.data.AxolootlVariant;
+import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.data.resource_generator.ResourceType;
 import axolootl.entity.AxolootlEntity;
 import axolootl.entity.IAxolootl;
-import axolootl.item.AxolootlBucketItem;
 import axolootl.menu.ControllerMenu;
-import axolootl.menu.TabType;
 import axolootl.util.BreedStatus;
 import axolootl.util.FeedStatus;
 import axolootl.util.TankMultiblock;
@@ -32,21 +30,18 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -59,7 +54,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -68,7 +62,6 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -130,6 +123,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     private boolean isInsufficientPower;
     private boolean isFeedInputEmpty;
     private boolean isBreedInputEmpty;
+    private boolean isDuplicateFound;
     private long resourceGenerationTime;
     private long breedTime;
     private long feedTime;
@@ -359,7 +353,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
      * @see #hasAnyModifier(RegistryAccess, TagKey, boolean)
      */
     private boolean hasMandatoryModifiers(final RegistryAccess registryAccess, final boolean requireActive) {
-        final Collection<TagKey<AquariumModifier>> mandatoryModifiers = AxRegistry.getMandatoryAquariumModifiers(registryAccess);
+        final Collection<TagKey<AquariumModifier>> mandatoryModifiers = AxRegistry.AquariumModifiersReg.getMandatoryAquariumModifiers(registryAccess);
         // check non-empty
         if(!mandatoryModifiers.isEmpty() && activeAquariumModifiers.isEmpty()) {
             return false;
@@ -803,6 +797,12 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         int blocksChecked = 0;
         while(outsideIterator.hasNext() && blocksChecked++ < blocksToCheck) {
             BlockPos pos = outsideIterator.next();
+            // validate no duplicate controllers
+            if(!getBlockPos().equals(pos) && level.getBlockEntity(pos) instanceof ControllerBlockEntity) {
+                this.isDuplicateFound = true;
+                this.setSize(null);
+                return true;
+            }
             // validate tank block
             if(!TankMultiblock.AQUARIUM.isTankBlock(serverLevel, pos)) {
                 this.setSize(null);
@@ -810,7 +810,6 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             }
             // add to corresponding set, if applicable
             BlockState blockState = serverLevel.getBlockState(pos);
-            //IAquariumControllerProvider provider = serverLevel.getBlockEntity(pos) instanceof IAquariumControllerProvider i ? i : null;
             // add fluid input
             if(blockState.is(FLUID_INPUTS) && !fluidInputs.contains(pos)) {
                 fluidInputs.add(pos.immutable());
@@ -1209,6 +1208,11 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
      * @return the TankStatus
      */
     private TankStatus updateTankStatus(ServerLevel serverLevel) {
+        // check duplicate controllers
+        if(this.isDuplicateFound) {
+            return TankStatus.DUPLICATE_CONTROLLERS;
+        }
+        // check missing tank
         if(null == this.size) {
             return TankStatus.INCOMPLETE;
         }
@@ -1319,6 +1323,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         }
         this.size = size;
         if(size != null) {
+            this.isDuplicateFound = false;
             this.insideIterator = size.innerPositions().iterator();
             this.outsideIterator = size.outerPositions().iterator();
             this.forceCalculateBonuses = true;
@@ -1619,10 +1624,10 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        if(!TabType.CONTROLLER.isAvailable(this)) {
+        if(!AxRegistry.AquariumTabsReg.CONTROLLER.get().isAvailable(this)) {
             return null;
         }
-        return new ControllerMenu(pContainerId, pPlayerInventory, getBlockPos(), this, getBlockPos(), TabType.CONTROLLER.getIndex(), 0);
+        return new ControllerMenu(pContainerId, pPlayerInventory, getBlockPos(), this, getBlockPos(), AxRegistry.AquariumTabsReg.CONTROLLER.get().getSortedIndex(), 0);
     }
 
 

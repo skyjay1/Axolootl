@@ -3,7 +3,6 @@ package axolootl.block.entity;
 import axolootl.AxRegistry;
 import axolootl.block.OutputBlock;
 import axolootl.menu.CyclingInventoryMenu;
-import axolootl.menu.TabType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -24,7 +23,7 @@ public class OutputInterfaceBlockEntity extends InterfaceBlockEntity {
 
     @Override
     public boolean isMenuAvailable(Player player, ControllerBlockEntity controller) {
-        return TabType.OUTPUT.isAvailable(controller);
+        return AxRegistry.AquariumTabsReg.OUTPUT.get().isAvailable(controller);
     }
 
     @Override
@@ -34,8 +33,8 @@ public class OutputInterfaceBlockEntity extends InterfaceBlockEntity {
             return super.createMenu(pContainerId, pPlayerInventory, pPlayer);
         }
         switch (this.rows) {
-            case 3: return CyclingInventoryMenu.createOutput(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), TabType.OUTPUT.getIndex(), -1);
-            case 6: return CyclingInventoryMenu.createLargeOutput(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), TabType.OUTPUT.getIndex(), -1);
+            case 3: return CyclingInventoryMenu.createOutput(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.OUTPUT.get().getSortedIndex(), -1);
+            case 6: return CyclingInventoryMenu.createLargeOutput(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.OUTPUT.get().getSortedIndex(), -1);
             default: return null;
         }
     }

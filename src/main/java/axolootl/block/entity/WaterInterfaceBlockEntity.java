@@ -2,7 +2,6 @@ package axolootl.block.entity;
 
 import axolootl.AxRegistry;
 import axolootl.block.WaterInterfaceBlock;
-import axolootl.menu.TabType;
 import axolootl.util.TankMultiblock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,7 +23,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.FluidHandlerBlockEntity;
@@ -92,7 +90,7 @@ public class WaterInterfaceBlockEntity extends FluidHandlerBlockEntity implement
     //// MENU PROVIDER ////
 
     public boolean isMenuAvailable(Player player, ControllerBlockEntity controller) {
-        return TabType.FLUID_INTERFACE.isAvailable(controller);
+        return AxRegistry.AquariumTabsReg.FLUID_INTERFACE.get().isAvailable(controller);
     }
 
     @Override

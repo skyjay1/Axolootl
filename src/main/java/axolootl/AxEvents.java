@@ -1,6 +1,6 @@
 package axolootl;
 
-import axolootl.data.AxolootlVariant;
+import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.condition.ModifierCondition;
 import axolootl.data.resource_generator.ResourceGenerator;

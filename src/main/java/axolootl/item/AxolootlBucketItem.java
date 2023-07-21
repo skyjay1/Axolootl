@@ -1,7 +1,7 @@
 package axolootl.item;
 
 import axolootl.client.ClientUtil;
-import axolootl.data.AxolootlVariant;
+import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.entity.AxolootlEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

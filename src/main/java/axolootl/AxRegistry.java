@@ -22,9 +22,12 @@ import axolootl.block.entity.EnergyInterfaceBlockEntity;
 import axolootl.block.entity.MonsteriumBlockEntity;
 import axolootl.block.entity.OutputInterfaceBlockEntity;
 import axolootl.block.entity.WaterInterfaceBlockEntity;
-import axolootl.data.AxolootlBreeding;
+import axolootl.data.aquarium_tab.AquariumTab;
+import axolootl.data.aquarium_tab.IAquariumTab;
+import axolootl.data.aquarium_tab.WorldlyMenuProvider;
+import axolootl.data.breeding.AxolootlBreeding;
 import axolootl.data.aquarium_modifier.AquariumModifier;
-import axolootl.data.AxolootlVariant;
+import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.aquarium_modifier.condition.AndModifierCondition;
 import axolootl.data.aquarium_modifier.condition.AxolootlCountModifierCondition;
 import axolootl.data.aquarium_modifier.condition.BlockModifierCondition;
@@ -54,8 +57,16 @@ import axolootl.item.AxolootlBucketItem;
 import axolootl.item.MultiBlockItem;
 import axolootl.menu.ControllerMenu;
 import axolootl.menu.CyclingInventoryMenu;
+import axolootl.util.ControllerTabSorter;
 import axolootl.util.MatchingStatePredicate;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
+import com.google.common.graph.ElementOrder;
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.MutableGraph;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -79,6 +90,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -94,6 +106,7 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.toposort.TopologicalSort;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -101,6 +114,7 @@ import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -157,7 +171,13 @@ public final class AxRegistry {
     private static final DeferredRegister<AquariumModifier> AQUARIUM_MODIFIERS = DeferredRegister.create(Keys.AQUARIUM_MODIFIERS, Axolootl.MODID);
     public static final Supplier<IForgeRegistry<AquariumModifier>> AQUARIUM_MODIFIERS_SUPPLIER = AQUARIUM_MODIFIERS.makeRegistry(() -> new RegistryBuilder<AquariumModifier>()
             .dataPackRegistry(AquariumModifier.CODEC, AquariumModifier.CODEC)
-            .onClear((owner, stage) -> AxRegistry.MANDATORY_AQUARIUM_MODIFIERS.clear())
+            .onClear((owner, stage) -> AquariumModifiersReg.MANDATORY_AQUARIUM_MODIFIERS.clear())
+            .hasTags());
+
+    // AQUARIUM TABS //
+    private static final DeferredRegister<IAquariumTab> AQUARIUM_TABS = DeferredRegister.create(Keys.AQUARIUM_TABS, Axolootl.MODID);
+    public static final Supplier<IForgeRegistry<IAquariumTab>> AQUARIUM_TABS_SUPPLIER = AQUARIUM_TABS.makeRegistry(() -> new RegistryBuilder<IAquariumTab>()
+            .onClear((owner, stage) -> AquariumTabsReg.SORTED_TABS.clear())
             .hasTags());
 
     public static void register() {
@@ -172,23 +192,12 @@ public final class AxRegistry {
         ResourceGeneratorsReg.register();
         AxolootlVariantsReg.register();
         AquariumModifiersReg.register();
+        AquariumTabsReg.register();
         AxolootlBreedingReg.register();
         FMLJavaModLoadingContext.get().getModEventBus().addListener(AxRegistry::onCommonSetup);
     }
 
     //// HELPERS ////
-
-    private static final Set<TagKey<AquariumModifier>> MANDATORY_AQUARIUM_MODIFIERS = new HashSet<>();
-
-    public static Set<TagKey<AquariumModifier>> getMandatoryAquariumModifiers(final RegistryAccess registryAccess) {
-        if(MANDATORY_AQUARIUM_MODIFIERS.isEmpty()) {
-            // attempt to load mandatory aquarium modifiers
-            for(AquariumModifier entry : AquariumModifier.getRegistry(registryAccess)) {
-                entry.getSettings().getCategory().ifPresent(tagKey -> AxRegistry.MANDATORY_AQUARIUM_MODIFIERS.add(tagKey));
-            }
-        }
-        return MANDATORY_AQUARIUM_MODIFIERS;
-    }
 
     private static void onCommonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> EntityDataSerializers.registerSerializer(AxolootlEntity.OPTIONAL_RESOURCE_LOCATION));
@@ -461,10 +470,99 @@ public final class AxRegistry {
 
     public static final class AquariumModifiersReg {
 
+        private static final Set<TagKey<AquariumModifier>> MANDATORY_AQUARIUM_MODIFIERS = new HashSet<>();
+
         public static void register() {
             AQUARIUM_MODIFIERS.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
+        public static Set<TagKey<AquariumModifier>> getMandatoryAquariumModifiers(final RegistryAccess registryAccess) {
+            if(MANDATORY_AQUARIUM_MODIFIERS.isEmpty()) {
+                // attempt to load mandatory aquarium modifiers
+                for(AquariumModifier entry : AquariumModifier.getRegistry(registryAccess)) {
+                    entry.getSettings().getCategory().ifPresent(tagKey -> MANDATORY_AQUARIUM_MODIFIERS.add(tagKey));
+                }
+            }
+            return MANDATORY_AQUARIUM_MODIFIERS;
+        }
+    }
+
+    public static final class AquariumTabsReg {
+
+        private static final List<IAquariumTab> SORTED_TABS = new ArrayList<>();
+        private static final List<IAquariumTab> SORTED_TABS_VIEW = Collections.unmodifiableList(SORTED_TABS);
+
+        public static void register() {
+            AQUARIUM_TABS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        }
+
+        public static final RegistryObject<IAquariumTab> CONTROLLER = AQUARIUM_TABS.register("controller", () ->
+                AquariumTab.builder()
+                        .available(c -> true)
+                        .menuProvider(c -> new WorldlyMenuProvider(c.getBlockPos(), c))
+                        .icon(() -> Items.CONDUIT.getDefaultInstance())
+                        .build());
+
+        public static final RegistryObject<IAquariumTab> OUTPUT = AQUARIUM_TABS.register("output", () ->
+                AquariumTab.builder()
+                        .available(c -> !c.getResourceOutputs().isEmpty())
+                        .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getResourceOutputs()))
+                        .icon(() -> Items.CHEST.getDefaultInstance())
+                        .before(() -> List.of(AquariumTabsReg.CONTROLLER.get()))
+                        .after(() -> List.of(AquariumTabsReg.AXOLOOTL_INTERFACE.get()))
+                        .build());
+
+        public static final RegistryObject<IAquariumTab> AXOLOOTL_INTERFACE = AQUARIUM_TABS.register("axolootl_interface", () ->
+                AquariumTab.builder()
+                        .available(c -> !c.getAxolootlInputs().isEmpty())
+                        .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getAxolootlInputs()))
+                        .icon(() -> Items.AXOLOTL_BUCKET.getDefaultInstance())
+                        .before(() -> List.of(AquariumTabsReg.OUTPUT.get()))
+                        .after(() -> List.of(AquariumTabsReg.FLUID_INTERFACE.get()))
+                        .build());
+
+        public static final RegistryObject<IAquariumTab> FOOD_INTERFACE = AQUARIUM_TABS.register("food_interface", () ->
+                AquariumTab.builder()
+                        .available(c -> !c.resolveModifiers(c.getLevel().registryAccess(), c.activePredicate.and(c.foodInterfacePredicate)).isEmpty())
+                        .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.resolveModifiers(c.getLevel().registryAccess(), c.activePredicate.and(c.foodInterfacePredicate)).keySet()))
+                        .icon(() -> Items.TROPICAL_FISH.getDefaultInstance())
+                        .before(() -> List.of(AquariumTabsReg.AXOLOOTL_INTERFACE.get()))
+                        .after(() -> List.of(AquariumTabsReg.FLUID_INTERFACE.get()))
+                        .build());
+
+        public static final RegistryObject<IAquariumTab> FLUID_INTERFACE = AQUARIUM_TABS.register("fluid_interface", () ->
+                AquariumTab.builder()
+                        .available(c -> !c.getFluidInputs().isEmpty())
+                        .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getFluidInputs()))
+                        .icon(() -> Items.WATER_BUCKET.getDefaultInstance())
+                        .before(() -> List.of(AquariumTabsReg.FOOD_INTERFACE.get()))
+                        .after(() -> List.of(AquariumTabsReg.ENERGY_INTERFACE.get()))
+                        .build());
+
+        public static final RegistryObject<IAquariumTab> ENERGY_INTERFACE = AQUARIUM_TABS.register("energy_interface", () ->
+                AquariumTab.builder()
+                        .available(c -> !c.getEnergyInputs().isEmpty())
+                        .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getEnergyInputs()))
+                        .icon(() -> Items.REDSTONE.getDefaultInstance())
+                        .before(() -> List.of(AquariumTabsReg.FLUID_INTERFACE.get()))
+                        .build());
+
+        /**
+         * @return an immutable view of the sorted tab list
+         */
+        public static List<IAquariumTab> getSortedTabs() {
+            if(SORTED_TABS.isEmpty()) {
+                SORTED_TABS.addAll(ControllerTabSorter.recalculateSortedTabs());
+            }
+            return SORTED_TABS_VIEW;
+        }
+
+        /**
+         * @return the total number of registered tabs
+         */
+        public static int getTabCount() {
+            return AxRegistry.AQUARIUM_TABS_SUPPLIER.get().getKeys().size();
+        }
     }
 
     public static final class AxolootlVariantsReg {
@@ -487,6 +585,7 @@ public final class AxRegistry {
         public static final ResourceKey<Registry<AxolootlVariant>> AXOLOOTL_VARIANTS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "axolootl_variants"));
         public static final ResourceKey<Registry<AxolootlBreeding>> AXOLOOTL_BREEDING = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "breeding"));
         public static final ResourceKey<Registry<AquariumModifier>> AQUARIUM_MODIFIERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "aquarium_modifiers"));
+        public static final ResourceKey<Registry<IAquariumTab>> AQUARIUM_TABS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "aquarium_tabs"));
         public static final ResourceKey<Registry<Codec<? extends ResourceGenerator>>> RESOURCE_GENERATOR_SERIALIZERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "resource_generator_serializers"));
         public static final ResourceKey<? extends Registry<ResourceGenerator>> RESOURCE_GENERATORS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "resource_generators"));
         public static final ResourceKey<Registry<Codec<? extends ModifierCondition>>> MODIFIER_CONDITION_SERIALIZERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "modifier_condition_serializers"));

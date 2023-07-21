@@ -1,7 +1,6 @@
 package axolootl.block.entity;
 
 import axolootl.AxRegistry;
-import axolootl.menu.TabType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -22,7 +21,7 @@ public class AxolootlInterfaceBlockEntity extends InterfaceBlockEntity {
 
     @Override
     public boolean isMenuAvailable(Player player, ControllerBlockEntity controller) {
-        return TabType.AXOLOOTL_INTERFACE.isAvailable(controller);
+        return AxRegistry.AquariumTabsReg.AXOLOOTL_INTERFACE.get().isAvailable(controller);
     }
 
     @Override

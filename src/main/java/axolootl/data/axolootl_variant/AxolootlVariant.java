@@ -1,4 +1,4 @@
-package axolootl.data;
+package axolootl.data.axolootl_variant;
 
 import axolootl.AxRegistry;
 import axolootl.data.resource_generator.EmptyResourceGenerator;
