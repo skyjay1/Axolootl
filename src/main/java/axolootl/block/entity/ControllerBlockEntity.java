@@ -161,6 +161,8 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     private final Map<UUID, ResourceLocation> trackedAxolootls = new HashMap<>();
 
     // OTHER //
+
+    public final BiPredicate<BlockPos, AquariumModifier> foodInterfacePredicate = (p, a) -> a.getSettings().isEnableMobBreeding() || a.getSettings().getBreedSpeed() > 0 || a.getSettings().getFeedSpeed() > 0;
     public final BiPredicate<BlockPos, AquariumModifier> activePredicate = (p, o) -> this.activeAquariumModifiers.contains(p);
     public final Predicate<IAxolootl> hasMobResourcePredicate = (a) -> {
         final Optional<AxolootlVariant> oVariant = a.getAxolootlVariant(a.getEntity().level.registryAccess());
@@ -1610,9 +1612,6 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     //// MENU PROVIDER METHODS ////
 
-    // TODO
-
-
     @Override
     public Component getDisplayName() {
         return getBlockState().getBlock().getName();
@@ -1623,7 +1622,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         if(!TabType.CONTROLLER.isAvailable(this)) {
             return null;
         }
-        return new ControllerMenu(pContainerId, pPlayerInventory, getBlockPos(), this, 0);
+        return new ControllerMenu(pContainerId, pPlayerInventory, getBlockPos(), this, getBlockPos(), TabType.CONTROLLER.getIndex(), 0);
     }
 
 

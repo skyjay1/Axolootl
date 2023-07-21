@@ -3,12 +3,11 @@ package axolootl.client;
 import axolootl.AxRegistry;
 import axolootl.client.entity.AxolootlRenderer;
 import axolootl.client.menu.ControllerScreen;
+import axolootl.client.menu.CyclingInventoryScreen;
 import axolootl.data.AxolootlVariant;
 import axolootl.item.AxolootlBucketItem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
@@ -59,6 +58,11 @@ public final class ClientEvents {
 
         private static void onRegisterScreens() {
             MenuScreens.register(AxRegistry.MenuReg.CONTROLLER.get(), ControllerScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.OUTPUT.get(), CyclingInventoryScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.LARGE_OUTPUT.get(), CyclingInventoryScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.AUTOFEEDER.get(), CyclingInventoryScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.BREEDER.get(), CyclingInventoryScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.MONSTERIUM.get(), CyclingInventoryScreen::new);
         }
     }
 

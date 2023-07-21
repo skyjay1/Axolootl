@@ -19,7 +19,7 @@ public interface IAquariumControllerProvider {
      */
     public static boolean trySetController(final Level level, final BlockPos pos, final ControllerBlockEntity blockEntity) {
         if(level.getBlockEntity(pos) instanceof IAquariumControllerProvider provider) {
-            provider.setController(level, pos.immutable(), blockEntity);
+            provider.setController(level, blockEntity.getBlockPos(), blockEntity);
             return true;
         }
         return false;
@@ -34,7 +34,7 @@ public interface IAquariumControllerProvider {
      */
     public static boolean trySetController(final Entity entity, final Level level, final BlockPos pos, final ControllerBlockEntity blockEntity) {
         if(entity instanceof IAquariumControllerProvider provider) {
-            provider.setController(level, pos.immutable(), blockEntity);
+            provider.setController(level, blockEntity.getBlockPos(), blockEntity);
             return true;
         }
         return false;

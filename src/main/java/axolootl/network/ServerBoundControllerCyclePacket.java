@@ -16,12 +16,12 @@ import net.minecraftforge.network.NetworkHooks;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class ServerBoundControllerTabPacket {
+public class ServerBoundControllerCyclePacket {
 
-    private int tab;
+    private int cycle;
 
-    public ServerBoundControllerTabPacket(final int tab) {
-        this.tab = tab;
+    public ServerBoundControllerCyclePacket(final int cycle) {
+        this.cycle = cycle;
     }
 
     /**
@@ -30,9 +30,9 @@ public class ServerBoundControllerTabPacket {
      * @param buf the PacketBuffer
      * @return a new instance of the packet based on the PacketBuffer
      */
-    public static ServerBoundControllerTabPacket fromBytes(final FriendlyByteBuf buf) {
+    public static ServerBoundControllerCyclePacket fromBytes(final FriendlyByteBuf buf) {
         int tab = buf.readInt();
-        return new ServerBoundControllerTabPacket(tab);
+        return new ServerBoundControllerCyclePacket(tab);
     }
 
     /**
@@ -41,8 +41,8 @@ public class ServerBoundControllerTabPacket {
      * @param msg the packet
      * @param buf the PacketBuffer
      */
-    public static void toBytes(final ServerBoundControllerTabPacket msg, final FriendlyByteBuf buf) {
-        buf.writeInt(msg.tab);
+    public static void toBytes(final ServerBoundControllerCyclePacket msg, final FriendlyByteBuf buf) {
+        buf.writeInt(msg.cycle);
     }
 
     /**
@@ -51,7 +51,7 @@ public class ServerBoundControllerTabPacket {
      * @param message the packet
      * @param contextSupplier the NetworkEvent.Context supplier
      */
-    public static void handlePacket(final ServerBoundControllerTabPacket message, final Supplier<NetworkEvent.Context> contextSupplier) {
+    public static void handlePacket(final ServerBoundControllerCyclePacket message, final Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
         if (context.getDirection().getReceptionSide() == LogicalSide.SERVER && context.getSender() != null) {
             context.enqueueWork(() -> {
@@ -62,23 +62,28 @@ public class ServerBoundControllerTabPacket {
                     return;
                 }
                 // validate controller
-                final BlockPos pos = menu.getControllerPos();
-                final ControllerBlockEntity controller = (ControllerBlockEntity) player.level.getBlockEntity(pos);
+                final BlockPos controllerPos = menu.getController().get().getBlockPos();
+                final ControllerBlockEntity controller = (ControllerBlockEntity) player.level.getBlockEntity(controllerPos);
                 if(null == controller) {
                     return;
                 }
                 // validate tab
-                final TabType tabType = TabType.getByIndex(message.tab);
+                final TabType tabType = TabType.getByIndex(menu.getTab());
                 if(!tabType.isAvailable(controller)) {
                     return;
                 }
+                // validate cycle
+                if(message.cycle < 0 || message.cycle >= menu.getSortedCycleList().size()) {
+                    return;
+                }
+                BlockPos pos = menu.getSortedCycleList().get(message.cycle);
                 // validate menu provider
-                final Optional<Tuple<BlockPos, MenuProvider>> oProvider = tabType.getMenuProvider(controller, null);
+                final Optional<Tuple<BlockPos, MenuProvider>> oProvider = tabType.getMenuProvider(controller, pos);
                 if(oProvider.isEmpty()) {
                     return;
                 }
                 // open menu
-                NetworkHooks.openScreen(player, oProvider.get().getB(), AxRegistry.MenuReg.writeControllerMenu(pos, oProvider.get().getA(), message.tab, -1));
+                NetworkHooks.openScreen(player, oProvider.get().getB(), AxRegistry.MenuReg.writeControllerMenu(controllerPos, oProvider.get().getA(), menu.getTab(), message.cycle));
             });
         }
         context.setPacketHandled(true);

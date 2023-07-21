@@ -2,6 +2,7 @@ package axolootl.block.entity;
 
 import axolootl.AxRegistry;
 import axolootl.block.OutputBlock;
+import axolootl.menu.CyclingInventoryMenu;
 import axolootl.menu.TabType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
@@ -24,5 +25,18 @@ public class OutputInterfaceBlockEntity extends InterfaceBlockEntity {
     @Override
     public boolean isMenuAvailable(Player player, ControllerBlockEntity controller) {
         return TabType.OUTPUT.isAvailable(controller);
+    }
+
+    @Override
+    public @Nullable AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
+        // verify availability
+        if(!isMenuAvailable(pPlayer, this.controller)) {
+            return super.createMenu(pContainerId, pPlayerInventory, pPlayer);
+        }
+        switch (this.rows) {
+            case 3: return CyclingInventoryMenu.createOutput(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), TabType.OUTPUT.getIndex(), -1);
+            case 6: return CyclingInventoryMenu.createLargeOutput(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), TabType.OUTPUT.getIndex(), -1);
+            default: return null;
+        }
     }
 }

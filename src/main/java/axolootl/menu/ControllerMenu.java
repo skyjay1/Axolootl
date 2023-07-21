@@ -9,9 +9,8 @@ import net.minecraft.world.item.ItemStack;
 
 public class ControllerMenu extends AbstractControllerMenu {
 
-
-    public ControllerMenu(int windowId, Inventory inv, BlockPos pos, ControllerBlockEntity blockEntity, int tab) {
-        super(AxRegistry.MenuReg.CONTROLLER.get(), windowId, inv, pos, blockEntity, tab);
+    public ControllerMenu(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity blockEntity, BlockPos blockPos, int tab, int cycle) {
+        super(AxRegistry.MenuReg.CONTROLLER.get(), windowId, inv, controllerPos, blockEntity, blockPos, tab, cycle);
     }
 
     @Override

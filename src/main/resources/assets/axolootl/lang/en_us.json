@@ -54,7 +54,11 @@
   "gui.axolootl.tab.controller": "Controller",
   "gui.axolootl.tab.axolootl_interface": "Axolootl Interface",
   "gui.axolootl.tab.fluid_interface": "Fluid Interface",
+  "gui.axolootl.tab.food_interface": "Food Interface",
   "gui.axolootl.tab.energy_interface": "Energy Interface",
   "gui.axolootl.tab.output": "Output",
-  "gui.axolootl.not_enabled": "Not enabled"
+  "gui.axolootl.not_enabled": "Not enabled",
+  "gui.axolootl.cycle.next": "Next",
+  "gui.axolootl.cycle.previous": "Previous",
+  "gui.axolootl.cycle.tooltip": "%1$s/%2$s"
 }

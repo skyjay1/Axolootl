@@ -15,5 +15,6 @@ public final class AxNetwork {
     public static void register() {
         int messageId = 0;
         CHANNEL.registerMessage(messageId++, ServerBoundControllerTabPacket.class, ServerBoundControllerTabPacket::toBytes, ServerBoundControllerTabPacket::fromBytes, ServerBoundControllerTabPacket::handlePacket, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(messageId++, ServerBoundControllerCyclePacket.class, ServerBoundControllerCyclePacket::toBytes, ServerBoundControllerCyclePacket::fromBytes, ServerBoundControllerCyclePacket::handlePacket, Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
 }

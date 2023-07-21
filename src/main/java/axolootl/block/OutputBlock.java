@@ -2,7 +2,9 @@ package axolootl.block;
 
 import axolootl.AxRegistry;
 import axolootl.block.entity.OutputInterfaceBlockEntity;
+import axolootl.menu.TabType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -13,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 public class OutputBlock extends AbstractInterfaceBlock {
@@ -30,13 +33,14 @@ public class OutputBlock extends AbstractInterfaceBlock {
             return InteractionResult.SUCCESS;
         } else {
             // open menu
-            if (pLevel.getBlockEntity(pPos) instanceof OutputInterfaceBlockEntity blockEntity) {
+            if (pPlayer instanceof ServerPlayer serverPlayer && pLevel.getBlockEntity(pPos) instanceof OutputInterfaceBlockEntity blockEntity) {
                 // validate controller
                 if(blockEntity.hasTank() && blockEntity.validateController(pLevel)) {
                     blockEntity.setChanged();
                 }
                 // open menu
-                pPlayer.openMenu(blockEntity);
+                BlockPos controllerPos = blockEntity.getController().isPresent() ? blockEntity.getController().get().getBlockPos() : pPos;
+                NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, TabType.OUTPUT.getIndex(), -1));
             }
             return InteractionResult.CONSUME;
         }

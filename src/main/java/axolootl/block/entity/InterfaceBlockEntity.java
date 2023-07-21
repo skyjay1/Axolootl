@@ -35,6 +35,7 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
     protected final NonNullList<ItemStack> inventory;
     protected LazyOptional<IItemHandler> holder = LazyOptional.of(this::createItemHandler);
     protected final int rows;
+    protected final int slots;
 
     protected BlockPos controllerPos;
     protected ControllerBlockEntity controller;
@@ -46,6 +47,7 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
     protected InterfaceBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState, int rows, int slots) {
         super(pType, pPos, pBlockState);
         this.rows = rows;
+        this.slots = slots;
         this.inventory = NonNullList.withSize(slots, ItemStack.EMPTY);
     }
 
@@ -102,10 +104,6 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        // verify availability
-        if(!isMenuAvailable(pPlayer, this.controller)) {
-            return null;
-        }
         switch (rows) {
             case 1: return new ChestMenu(MenuType.GENERIC_9x1, pContainerId, pPlayerInventory, this, rows);
             case 2: return new ChestMenu(MenuType.GENERIC_9x2, pContainerId, pPlayerInventory, this, rows);
@@ -134,7 +132,7 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
 
     @Override
     public int getContainerSize() {
-        return rows * 9;
+        return slots;
     }
 
     @Override

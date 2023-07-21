@@ -13,7 +13,7 @@ public class TabButton extends Button {
 
     public static final ResourceLocation TEXTURE = ControllerScreen.WIDGETS;
     public static final int WIDTH = 44;
-    public static final int HEIGHT = 32;
+    public static final int HEIGHT = 21;
 
     private final int index;
     private final ItemRenderer itemRenderer;
@@ -48,6 +48,6 @@ public class TabButton extends Button {
         RenderSystem.setShaderTexture(0, TEXTURE);
         blit(pPoseStack, this.x, this.y, u, v, WIDTH, HEIGHT);
         // render icon
-        this.itemRenderer.renderGuiItem(this.icon, this.x + (this.width - 16) / 2, this.y + (this.height - 16) / 2);
+        this.itemRenderer.renderGuiItem(this.icon, this.x + (this.width - 16) / 2, this.y + this.height - 16 - 2);
     }
 }

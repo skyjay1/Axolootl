@@ -5,7 +5,7 @@ import axolootl.client.menu.widget.TabButton;
 import axolootl.menu.TabType;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -14,7 +14,15 @@ import java.util.List;
 
 public interface ITabProvider {
 
-    default List<TabButton> initTabs(final Screen screen, final ControllerBlockEntity controller) {
+    default int calculateTopPos(final AbstractContainerScreen<?> screen) {
+        final int tabHeight = TabButton.HEIGHT;
+        if(screen.getGuiTop() < tabHeight) {
+            return tabHeight;
+        }
+        return screen.getGuiTop();
+    }
+
+    default List<TabButton> initTabs(final AbstractContainerScreen<?> screen, final ControllerBlockEntity controller) {
         final List<TabButton> list = new ArrayList<>();
         // add tab buttons
         for(int i = 0, y = -TabButton.HEIGHT + 4, n = TabType.values().length; i < n; i++) {
@@ -23,7 +31,10 @@ public interface ITabProvider {
             List<Component> messages = new ArrayList<>();
             if (type.isAvailable(controller)) {
                 messages.add(type.getTitle());
-                onPress = b -> setTab(type);
+                onPress = b -> {
+                    setTab(type);
+                    this.setTabsEnabled(getTabButtons(), false);
+                };
             } else {
                 messages.add(type.getUnavailableTitle());
                 messages.add(Component.translatable("gui.axolootl.not_enabled"));
@@ -36,14 +47,13 @@ public interface ITabProvider {
 
     /**
      * Renders tooltips for the given tabs
-     * @param tabs the tab buttons
      * @param poseStack the pose stack
      * @param mouseX the mouse x position
      * @param mouseY the mouse y position
      * @param partialTick the partial tick
      */
-    default void renderTabTooltip(List<TabButton> tabs, PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
-        for(TabButton tabButton : tabs) {
+    default void renderTabTooltip(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+        for(TabButton tabButton : getTabButtons()) {
             if (tabButton.isHoveredOrFocused()) {
                 tabButton.renderToolTip(poseStack, mouseX, mouseY);
             }
@@ -51,7 +61,6 @@ public interface ITabProvider {
     }
 
     /**
-     *
      * @param x the relative x position
      * @param y the relative y position
      * @param index the tab index
@@ -63,16 +72,26 @@ public interface ITabProvider {
     TabButton addTabButton(final int x, final int y, final int index, final ItemStack icon, final List<Component> tooltips, final Button.OnPress onPress);
 
     /**
+     * @param tab the tab index to apply
+     */
+    void setTab(final int tab);
+
+    /**
+     * @return the current tab index
+     */
+    int getTabIndex();
+
+    /**
+     * @return the tab button list
+     */
+    List<TabButton> getTabButtons();
+
+    /**
      * @param type the tab type to apply
      */
     default void setTab(final TabType type) {
         setTab(type.ordinal());
     }
-
-    /**
-     * @param tab the tab index to apply
-     */
-    void setTab(final int tab);
 
     /**
      * @return the current tab type
@@ -81,8 +100,9 @@ public interface ITabProvider {
         return TabType.getByIndex(getTabIndex());
     }
 
-    /**
-     * @return the current tab index
-     */
-    int getTabIndex();
+    default void setTabsEnabled(final List<TabButton> tabs, final boolean enabled) {
+        for(TabButton tabButton : tabs) {
+            tabButton.active = enabled;
+        }
+    }
 }

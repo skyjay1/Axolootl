@@ -53,16 +53,17 @@ import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
 import axolootl.item.MultiBlockItem;
 import axolootl.menu.ControllerMenu;
+import axolootl.menu.CyclingInventoryMenu;
 import axolootl.util.MatchingStatePredicate;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
@@ -70,7 +71,8 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -79,7 +81,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -93,7 +94,6 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -104,6 +104,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -364,13 +365,37 @@ public final class AxRegistry {
             MENU_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
-        public static final RegistryObject<MenuType<ControllerMenu>> CONTROLLER = MENU_TYPES.register("controller", () ->
-                IForgeMenuType.create((windowId, inv, data) -> {
-                    BlockPos pos = data.readBlockPos();
-                    int tab = data.readInt();
-                    return new ControllerMenu(windowId, inv, pos, (ControllerBlockEntity)inv.player.level.getBlockEntity(pos), tab);
-                })
-        );
+        public static final RegistryObject<MenuType<ControllerMenu>> CONTROLLER = MENU_TYPES.register("controller", () -> createForgeMenu(ControllerMenu::new));
+        public static final RegistryObject<MenuType<CyclingInventoryMenu>> OUTPUT = MENU_TYPES.register("output", () -> createForgeMenu(CyclingInventoryMenu::createOutput));
+        public static final RegistryObject<MenuType<CyclingInventoryMenu>> LARGE_OUTPUT = MENU_TYPES.register("large_output", () -> createForgeMenu(CyclingInventoryMenu::createLargeOutput));
+        public static final RegistryObject<MenuType<CyclingInventoryMenu>> AUTOFEEDER = MENU_TYPES.register("autofeeder", () -> createForgeMenu(CyclingInventoryMenu::createFeeder));
+        public static final RegistryObject<MenuType<CyclingInventoryMenu>> BREEDER = MENU_TYPES.register("breeder", () -> createForgeMenu(CyclingInventoryMenu::createBreeder));
+        public static final RegistryObject<MenuType<CyclingInventoryMenu>> MONSTERIUM = MENU_TYPES.register("monsterium", () -> createForgeMenu(CyclingInventoryMenu::createMonsterium));
+
+        public static Consumer<FriendlyByteBuf> writeControllerMenu(final BlockPos controller, final BlockPos block, final int tab, final int cycle) {
+            return buf -> {
+              buf.writeBlockPos(controller);
+              buf.writeBlockPos(block);
+              buf.writeInt(tab);
+              buf.writeInt(cycle);
+            };
+        }
+
+        private static <T extends AbstractContainerMenu> MenuType<T> createForgeMenu(final IControllerMenuConstructor<T> constructor) {
+            return IForgeMenuType.create(((windowId, inv, data) -> {
+                BlockPos controllerPos = data.readBlockPos();
+                BlockPos blockPos = data.readBlockPos();
+                int tab = data.readInt();
+                int cycle = data.readInt();
+                return constructor.create(windowId, inv, controllerPos, (ControllerBlockEntity)inv.player.level.getBlockEntity(controllerPos), blockPos, tab, cycle);
+            }));
+        }
+
+
+        @FunctionalInterface
+        private static interface IControllerMenuConstructor<T extends AbstractContainerMenu> {
+            T create(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle);
+        }
 
     }
 

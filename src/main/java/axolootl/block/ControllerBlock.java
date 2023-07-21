@@ -2,6 +2,7 @@ package axolootl.block;
 
 import axolootl.AxRegistry;
 import axolootl.block.entity.ControllerBlockEntity;
+import axolootl.menu.TabType;
 import axolootl.util.TankMultiblock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -60,10 +61,7 @@ public class ControllerBlock extends HorizontalDirectionalBlock implements Entit
             }
             // open menu
             if (pPlayer instanceof ServerPlayer serverPlayer && blockentity instanceof MenuProvider menuProvider) {
-                NetworkHooks.openScreen(serverPlayer, menuProvider, buf -> {
-                    buf.writeBlockPos(pPos);
-                    buf.writeInt(0);
-                });
+                NetworkHooks.openScreen(serverPlayer, menuProvider, AxRegistry.MenuReg.writeControllerMenu(pPos, pPos, TabType.CONTROLLER.getIndex(), 0));
             }
             return InteractionResult.CONSUME;
         }

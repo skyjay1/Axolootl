@@ -1,12 +1,12 @@
 package axolootl.menu;
 
-import axolootl.AxRegistry;
 import axolootl.block.entity.ControllerBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -17,12 +17,16 @@ import net.minecraftforge.common.util.NonNullSupplier;
 import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public enum TabType implements StringRepresentable {
-    CONTROLLER("controller", c -> true, c -> c, () -> Items.CONDUIT.getDefaultInstance()),
+    CONTROLLER("controller",
+            c -> true,
+            c -> new Tuple<>(c.getBlockPos(), c),
+            () -> Items.CONDUIT.getDefaultInstance()),
     AXOLOOTL_INTERFACE("axolootl_interface",
             c -> !c.getAxolootlInputs().isEmpty(),
             c -> getFirstMenuProvider(c.getLevel(), c.getAxolootlInputs()),
@@ -35,6 +39,10 @@ public enum TabType implements StringRepresentable {
             c -> !c.getEnergyInputs().isEmpty(),
             c -> getFirstMenuProvider(c.getLevel(), c.getEnergyInputs()),
             () -> Items.REDSTONE.getDefaultInstance()),
+    FOOD_INTERFACE("food_interface",
+            c -> !c.resolveModifiers(c.getLevel().registryAccess(), c.activePredicate.and(c.foodInterfacePredicate)).isEmpty(),
+            c -> getFirstMenuProvider(c.getLevel(), c.resolveModifiers(c.getLevel().registryAccess(), c.activePredicate.and(c.foodInterfacePredicate)).keySet()),
+            () -> Items.TROPICAL_FISH.getDefaultInstance()),
     OUTPUT("output",
             c -> !c.getResourceOutputs().isEmpty(),
             c -> getFirstMenuProvider(c.getLevel(), c.getResourceOutputs()),
@@ -44,11 +52,11 @@ public enum TabType implements StringRepresentable {
     private final Component title;
     private final Component unavailableTitle;
     private final Predicate<ControllerBlockEntity> availablePredicate;
-    private final Function<ControllerBlockEntity, MenuProvider> menuProvider;
+    private final Function<ControllerBlockEntity, Tuple<BlockPos, MenuProvider>> menuProvider;
     private final LazyOptional<ItemStack> icon;
 
     TabType(final String name, Predicate<ControllerBlockEntity> availablePredicate,
-            Function<ControllerBlockEntity, MenuProvider> menuProvider, NonNullSupplier<ItemStack> icon) {
+            Function<ControllerBlockEntity, Tuple<BlockPos, MenuProvider>> menuProvider, NonNullSupplier<ItemStack> icon) {
         this.name = name;
         this.title = Component.translatable("gui.axolootl.tab." + name);
         this.unavailableTitle = this.title.copy().withStyle(ChatFormatting.RED);
@@ -84,14 +92,22 @@ public enum TabType implements StringRepresentable {
 
     /**
      * @param blockEntity the controller block entity
+     * @param pos the block position to search, can be null
      * @return the menu provider for this tab type, if any was found
      */
-    public Optional<MenuProvider> getMenuProvider(final ControllerBlockEntity blockEntity) {
+    public Optional<Tuple<BlockPos, MenuProvider>> getMenuProvider(final ControllerBlockEntity blockEntity, @Nullable final BlockPos pos) {
+        if(pos != null) {
+            return Optional.ofNullable(getMenuProviderAt(blockEntity.getLevel(), pos));
+        }
         return Optional.ofNullable(menuProvider.apply(blockEntity));
     }
 
     public ItemStack getIcon() {
         return icon.orElse(ItemStack.EMPTY);
+    }
+
+    public int getIndex() {
+        return this.ordinal();
     }
 
     /**
@@ -116,11 +132,11 @@ public enum TabType implements StringRepresentable {
      * @see #getMenuProviderAt(Level, BlockPos)
      */
     @Nullable
-    private static MenuProvider getFirstMenuProvider(final Level level, final Set<BlockPos> positions) {
+    private static Tuple<BlockPos, MenuProvider> getFirstMenuProvider(final Level level, final Set<BlockPos> positions) {
         for (BlockPos p : positions) {
-            MenuProvider provider = getMenuProviderAt(level, p);
-            if (provider != null) {
-                return provider;
+            Tuple<BlockPos, MenuProvider> tuple = getMenuProviderAt(level, p);
+            if (tuple != null) {
+                return tuple;
             }
         }
         return null;
@@ -132,9 +148,9 @@ public enum TabType implements StringRepresentable {
      * @return the menu provider at this position, may be null
      */
     @Nullable
-    private static MenuProvider getMenuProviderAt(final Level level, final BlockPos pos) {
+    private static Tuple<BlockPos, MenuProvider> getMenuProviderAt(final Level level, final BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof MenuProvider provider) {
-            return provider;
+            return new Tuple<>(pos, provider);
         }
         return null;
     }
