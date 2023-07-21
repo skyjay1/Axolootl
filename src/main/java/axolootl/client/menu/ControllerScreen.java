@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2023 Skyler James
+ * Permission is granted to use, modify, and redistribute this software, in parts or in whole,
+ * under the GNU LGPLv3 license (https://www.gnu.org/licenses/lgpl-3.0.en.html)
+ **/
+
 package axolootl.client.menu;
 
 import axolootl.AxRegistry;
@@ -71,7 +77,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> im
         this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + 202, topPos + 104, 12, 110, WIDGETS, 244, 0, 12, 15, 15, true, 1.0F, this));
         // add tab buttons
         this.tabButtons.clear();
-        this.tabButtons.addAll(initTabs(this, controller));
+        this.tabButtons.addAll(initTabs(this));
         // add tab group buttons
         this.tabGroupButtons.clear();
         this.tabGroupButtons.addAll(initTabGroups(this));

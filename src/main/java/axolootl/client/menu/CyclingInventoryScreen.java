@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2023 Skyler James
+ * Permission is granted to use, modify, and redistribute this software, in parts or in whole,
+ * under the GNU LGPLv3 license (https://www.gnu.org/licenses/lgpl-3.0.en.html)
+ **/
+
 package axolootl.client.menu;
 
 import axolootl.AxRegistry;
@@ -72,16 +78,16 @@ public class CyclingInventoryScreen extends AbstractContainerScreen<CyclingInven
         this.topPos = calculateTopPos(this);
         // adjust title pos
         this.cycledTitleWidth = this.font.width(this.cycledTitle);
-        this.titleLabelX = calculateTitleStartX(this.cycledTitle, this.imageWidth, this.cycledTitleWidth);
+        this.titleLabelX = calculateTitleStartX(this.imageWidth, this.cycledTitleWidth);
         // add tab buttons
         this.tabButtons.clear();
-        this.tabButtons.addAll(initTabs(this, controller));
+        this.tabButtons.addAll(initTabs(this));
         // add tab group buttons
         this.tabGroupButtons.clear();
         this.tabGroupButtons.addAll(initTabGroups(this));
         // add cycle buttons
         this.cycleButtons.clear();
-        this.cycleButtons.addAll(initCycleButtons(this, getMenu().getSortedCycleList()));
+        this.cycleButtons.addAll(initCycleButtons(this));
         // update tab
         this.setTab(this.getMenu().getTab());
         this.setTabGroup(calculateTabGroup(this.tab));

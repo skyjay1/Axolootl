@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2023 Skyler James
+ * Permission is granted to use, modify, and redistribute this software, in parts or in whole,
+ * under the GNU LGPLv3 license (https://www.gnu.org/licenses/lgpl-3.0.en.html)
+ **/
+
 package axolootl.data.aquarium_tab;
 
 import axolootl.AxRegistry;
@@ -6,7 +12,6 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -19,6 +24,11 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+/**
+ * Default instance of {@link IAquariumTab}.
+ * Use the {@link AquariumTab.Builder} to construct a tab.
+ * @author skyjay1
+ */
 public class AquariumTab implements IAquariumTab {
 
     protected final Predicate<ControllerBlockEntity> availablePredicate;

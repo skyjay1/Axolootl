@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2023 Skyler James
+ * Permission is granted to use, modify, and redistribute this software, in parts or in whole,
+ * under the GNU LGPLv3 license (https://www.gnu.org/licenses/lgpl-3.0.en.html)
+ **/
+
 package axolootl.client.menu;
 
 import axolootl.client.menu.widget.CycleButton;
@@ -15,11 +21,21 @@ import java.util.List;
 
 public interface ICycleProvider {
 
-    default int calculateTitleStartX(final Component component, final int imageWidth, final int textWidth) {
+    /**
+     * @param imageWidth the image width
+     * @param textWidth the width of the title component
+     * @return the adjusted x position of the title component
+     */
+    default int calculateTitleStartX(final int imageWidth, final int textWidth) {
         return (imageWidth - textWidth) / 2;
     }
 
-    default List<CycleButton> initCycleButtons(final AbstractContainerScreen<? extends AbstractControllerMenu> screen, final List<BlockPos> positions) {
+    /**
+     * Call from the Screen {@code init()} method
+     * @param screen the screen instance
+     * @return the cycle buttons that were added
+     */
+    default List<CycleButton> initCycleButtons(final AbstractContainerScreen<? extends AbstractControllerMenu> screen) {
         final List<CycleButton> list = new ArrayList<>();
         // add left button
         addCycleButton(7, 4, true, b -> {
@@ -48,6 +64,13 @@ public interface ICycleProvider {
         }
     }
 
+    /**
+     * @param title the original title
+     * @param pos the block position for the hover text
+     * @param cycle the current cycle index
+     * @param maxCycle the maximum cycle index
+     * @return the title with cycle and block pos information
+     */
     default Component createCycledTitle(final Component title, final BlockPos pos, final int cycle, final int maxCycle) {
         return Component.empty()
                 .append(Component.translatable("gui.axolootl.cycle.tooltip", cycle + 1, maxCycle).withStyle(ChatFormatting.BLUE))

@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2023 Skyler James
+ * Permission is granted to use, modify, and redistribute this software, in parts or in whole,
+ * under the GNU LGPLv3 license (https://www.gnu.org/licenses/lgpl-3.0.en.html)
+ **/
+
 package axolootl.client.menu;
 
 import axolootl.AxRegistry;
@@ -21,15 +27,21 @@ public interface ITabProvider {
 
     public static final int MIN_TOOLTIP_Y = 24;
 
+    /**
+     * @param screen the screen instance
+     * @return the gui top position, adjusted to allow space for the tab buttons
+     */
     default int calculateTopPos(final AbstractContainerScreen<?> screen) {
         final int tabHeight = TabButton.HEIGHT - TabButton.DELTA_SELECTED;
-        if(screen.getGuiTop() < tabHeight) {
-            return tabHeight;
-        }
-        return screen.getGuiTop();
+        return Math.max(screen.getGuiTop(), tabHeight);
     }
 
-    default List<TabButton> initTabs(final AbstractContainerScreen<?> screen, final ControllerBlockEntity controller) {
+    /**
+     * Call from the Screen {@code init()} method
+     * @param screen the screen instance
+     * @return the list of tab buttons that were added
+     */
+    default List<TabButton> initTabs(final AbstractContainerScreen<? extends AbstractControllerMenu> screen) {
         final List<TabButton> list = new ArrayList<>();
         // add tab buttons
         for(int i = 0, y = -TabButton.HEIGHT, n = getTabsPerGroup(); i < n; i++) {
@@ -39,6 +51,11 @@ public interface ITabProvider {
         return list;
     }
 
+    /**
+     * Call from the Screen {@code init()} method
+     * @param screen the screen instance
+     * @return the list of tab group buttons that were added
+     */
     default List<TabGroupButton> initTabGroups(final AbstractContainerScreen<? extends AbstractControllerMenu> screen) {
         final List<TabGroupButton> list = new ArrayList<>();
         // add previous button
