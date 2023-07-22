@@ -8,15 +8,21 @@ package axolootl.block.entity;
 
 import axolootl.AxRegistry;
 import axolootl.block.EnergyInterfaceBlock;
+import axolootl.menu.CyclingMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,12 +38,7 @@ import java.util.Optional;
 
 public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquariumControllerProvider, MenuProvider {
 
-    protected IEnergyStorage energy = new EnergyStorage(25_000, 10_000) {
-        @Override
-        public boolean canExtract() {
-            return !getBlockState().getValue(EnergyInterfaceBlock.POWERED);
-        }
-    };
+    protected EnergyStorage energy = new InternalEnergyStorage();
     private LazyOptional<IEnergyStorage> holder = LazyOptional.of(() -> energy);
 
     private BlockPos controllerPos;
@@ -78,7 +79,7 @@ public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquarium
      * @param level the level
      * @return true if the controller changed
      */
-    private boolean validateController(final Level level) {
+    public boolean validateController(final Level level) {
         // validate position
         if(null == controllerPos) {
             this.controller = null;
@@ -133,22 +134,84 @@ public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquarium
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
         if(!isMenuAvailable(pPlayer, controller)) {
+            // TODO create UI when not connected to controller
             return null;
         }
-        // TODO create energy interface menu
-        return null;
+        return CyclingMenu.createEnergy(pContainerId, pPlayerInventory, controllerPos, controller, getBlockPos(), AxRegistry.AquariumTabsReg.ENERGY_INTERFACE.get().getSortedIndex(), -1);
     }
 
+    //// CLIENT SERVER SYNC ////
+
+    /**
+     * Called when the chunk is saved
+     * @return the compound tag to use in #handleUpdateTag
+     */
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+        tag.put(KEY_ENERGY, this.energy.serializeNBT());
+        return tag;
+    }
+
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+
     //// NBT ////
+
+    private static final String KEY_ENERGY = "Energy";
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        if(tag.contains(KEY_ENERGY, Tag.TAG_INT)) {
+            this.energy.deserializeNBT(tag.get(KEY_ENERGY));
+        }
     }
 
     @Override
     public void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
+    }
+
+    //// ENERGY STORAGE ////
+
+    private class InternalEnergyStorage extends EnergyStorage {
+
+        private static final int CAPACITY = 10_000;
+        private static final int TRANSFER = 10_000;
+
+        public InternalEnergyStorage() {
+            super(CAPACITY, TRANSFER);
+        }
+
+        @Override
+        public boolean canExtract() {
+            return !EnergyInterfaceBlockEntity.this.getBlockState().getValue(EnergyInterfaceBlock.POWERED);
+        }
+
+        @Override
+        public int receiveEnergy(int maxReceive, boolean simulate) {
+            int value = super.receiveEnergy(maxReceive, simulate);
+            if (!simulate && value != 0) {
+                EnergyInterfaceBlockEntity.this.setChanged();
+                EnergyInterfaceBlockEntity.this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            }
+            return value;
+        }
+
+        @Override
+        public int extractEnergy(int maxExtract, boolean simulate) {
+            int value = super.extractEnergy(maxExtract, simulate);
+            if (!simulate && value != 0) {
+                EnergyInterfaceBlockEntity.this.setChanged();
+                EnergyInterfaceBlockEntity.this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            }
+            return value;
+        }
     }
 
 }

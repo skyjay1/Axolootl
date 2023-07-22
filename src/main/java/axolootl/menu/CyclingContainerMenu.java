@@ -10,8 +10,8 @@ import axolootl.AxRegistry;
 import axolootl.block.entity.ControllerBlockEntity;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class CyclingInventoryMenu extends AbstractControllerMenu {
+public class CyclingContainerMenu extends AbstractControllerMenu {
 
     public static final int INV_X = 30;
     public static final int INV_Y = 18;
@@ -33,10 +33,11 @@ public class CyclingInventoryMenu extends AbstractControllerMenu {
 
     public final int cycleCount;
     private final List<BlockPos> sortedCycleList;
+    private int containerRows;
     private int containerSize;
     private Container container;
 
-    public CyclingInventoryMenu(MenuType<?> menuType, int windowId, Inventory inv,
+    public CyclingContainerMenu(MenuType<?> menuType, int windowId, Inventory inv,
                                 BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos,
                                 int tab, int cycle, Collection<BlockPos> positions) {
         super(menuType, windowId, inv, controllerPos, controller, blockPos, tab, cycle);
@@ -56,24 +57,24 @@ public class CyclingInventoryMenu extends AbstractControllerMenu {
         addPlayerSlots(inv, PLAYER_INV_X, PLAYER_INV_Y);
     }
 
-    public static CyclingInventoryMenu createOutput(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
-        return new CyclingInventoryMenu(AxRegistry.MenuReg.OUTPUT.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.getResourceOutputs());
+    public static CyclingContainerMenu createOutput(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
+        return new CyclingContainerMenu(AxRegistry.MenuReg.OUTPUT.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.getResourceOutputs());
     }
 
-    public static CyclingInventoryMenu createLargeOutput(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
-        return new CyclingInventoryMenu(AxRegistry.MenuReg.LARGE_OUTPUT.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.getResourceOutputs());
+    public static CyclingContainerMenu createLargeOutput(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
+        return new CyclingContainerMenu(AxRegistry.MenuReg.LARGE_OUTPUT.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.getResourceOutputs());
     }
 
-    public static CyclingInventoryMenu createFeeder(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
-        return new CyclingInventoryMenu(AxRegistry.MenuReg.AUTOFEEDER.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.resolveModifiers(controller.getLevel().registryAccess(), controller.activePredicate.and(controller.foodInterfacePredicate)).keySet());
+    public static CyclingContainerMenu createFeeder(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
+        return new CyclingContainerMenu(AxRegistry.MenuReg.AUTOFEEDER.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.resolveModifiers(controller.getLevel().registryAccess(), controller.activePredicate.and(controller.foodInterfacePredicate)).keySet());
     }
 
-    public static CyclingInventoryMenu createBreeder(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
-        return new CyclingInventoryMenu(AxRegistry.MenuReg.BREEDER.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.resolveModifiers(controller.getLevel().registryAccess(), controller.activePredicate.and(controller.foodInterfacePredicate)).keySet());
+    public static CyclingContainerMenu createBreeder(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
+        return new CyclingContainerMenu(AxRegistry.MenuReg.BREEDER.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.resolveModifiers(controller.getLevel().registryAccess(), controller.activePredicate.and(controller.foodInterfacePredicate)).keySet());
     }
 
-    public static CyclingInventoryMenu createMonsterium(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
-        return new CyclingInventoryMenu(AxRegistry.MenuReg.MONSTERIUM.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.resolveModifiers(controller.getLevel().registryAccess(), controller.activePredicate.and(controller.foodInterfacePredicate)).keySet());
+    public static CyclingContainerMenu createMonsterium(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
+        return new CyclingContainerMenu(AxRegistry.MenuReg.MONSTERIUM.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.resolveModifiers(controller.getLevel().registryAccess(), controller.activePredicate.and(controller.foodInterfacePredicate)).keySet());
     }
 
     protected void addBlockSlots(BlockPos blockPos) {
@@ -84,6 +85,7 @@ public class CyclingInventoryMenu extends AbstractControllerMenu {
         }
         this.container = container;
         this.containerSize = container.getContainerSize();
+        this.containerRows = Math.min(6, Mth.ceil(this.containerSize / 9.0F));
         // add item slots
         for(int i = 0, x = 0, y = 0; i < this.containerSize; i++) {
             x = INV_X + (i % 9) * 18;
@@ -92,8 +94,13 @@ public class CyclingInventoryMenu extends AbstractControllerMenu {
         }
     }
 
-    public boolean isLargeOutput() {
-        return this.getType() == AxRegistry.MenuReg.LARGE_OUTPUT.get();
+    public int getRows() {
+        return this.containerRows;
+    }
+
+    @Override
+    public boolean hasPlayerSlots() {
+        return true;
     }
 
     @Override

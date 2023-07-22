@@ -63,5 +63,16 @@
   "gui.axolootl.tab_group.previous": "Previous",
   "gui.axolootl.cycle.next": "Next",
   "gui.axolootl.cycle.previous": "Previous",
-  "gui.axolootl.cycle.tooltip": "%1$s/%2$s"
+  "gui.axolootl.cycle.tooltip": "%1$s/%2$s",
+  "gui.controller_tab.axolootl.energy_interface.powered_modifier_count": "Powered Modifiers: %1$s",
+  "gui.controller_tab.axolootl.energy_interface.powered_modifier_count.description": "The number of aquarium modifiers that require power",
+  "gui.controller_tab.axolootl.energy_interface.powered_axolootl_count": "Powered Axolootls: %1$s",
+  "gui.controller_tab.axolootl.energy_interface.powered_axolootl_count.description": "The number of axolootls that require power each resource generation cycle",
+  "gui.controller_tab.axolootl.energy_interface.tick_usage": "Energy usage / tick: %1$s FE",
+  "gui.controller_tab.axolootl.energy_interface.tick_usage.description": "Forge Energy depleted each tick",
+  "gui.controller_tab.axolootl.energy_interface.axolootl_usage": "Energy usage / axolootl: %1$s FE",
+  "gui.controller_tab.axolootl.energy_interface.axolootl_usage.description": "Forge Energy depleted each generation cycle",
+  "gui.controller_tab.axolootl.energy_interface.energy_capacity": "Total capacity: %1$s FE",
+  "gui.controller_tab.axolootl.energy_interface.energy_storage": "Total energy: %1$s / %2$s FE",
+  "gui.controller_tab.axolootl.energy_interface.individual_storage": "Energy at this position: %1$s / %2$s FE"
 }

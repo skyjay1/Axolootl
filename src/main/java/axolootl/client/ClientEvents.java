@@ -9,7 +9,8 @@ package axolootl.client;
 import axolootl.AxRegistry;
 import axolootl.client.entity.AxolootlRenderer;
 import axolootl.client.menu.ControllerScreen;
-import axolootl.client.menu.CyclingInventoryScreen;
+import axolootl.client.menu.CyclingContainerScreen;
+import axolootl.client.menu.EnergyScreen;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.item.AxolootlBucketItem;
 import net.minecraft.client.Minecraft;
@@ -64,11 +65,12 @@ public final class ClientEvents {
 
         private static void onRegisterScreens() {
             MenuScreens.register(AxRegistry.MenuReg.CONTROLLER.get(), ControllerScreen::new);
-            MenuScreens.register(AxRegistry.MenuReg.OUTPUT.get(), CyclingInventoryScreen::new);
-            MenuScreens.register(AxRegistry.MenuReg.LARGE_OUTPUT.get(), CyclingInventoryScreen::new);
-            MenuScreens.register(AxRegistry.MenuReg.AUTOFEEDER.get(), CyclingInventoryScreen::new);
-            MenuScreens.register(AxRegistry.MenuReg.BREEDER.get(), CyclingInventoryScreen::new);
-            MenuScreens.register(AxRegistry.MenuReg.MONSTERIUM.get(), CyclingInventoryScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.OUTPUT.get(), CyclingContainerScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.LARGE_OUTPUT.get(), CyclingContainerScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.AUTOFEEDER.get(), CyclingContainerScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.BREEDER.get(), CyclingContainerScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.MONSTERIUM.get(), CyclingContainerScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.ENERGY.get(), EnergyScreen::new);
         }
     }
 

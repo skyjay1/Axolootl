@@ -8,7 +8,7 @@ package axolootl.block.entity;
 
 import axolootl.AxRegistry;
 import axolootl.block.OutputBlock;
-import axolootl.menu.CyclingInventoryMenu;
+import axolootl.menu.CyclingContainerMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -39,8 +39,8 @@ public class OutputInterfaceBlockEntity extends InterfaceBlockEntity {
             return super.createMenu(pContainerId, pPlayerInventory, pPlayer);
         }
         switch (this.rows) {
-            case 3: return CyclingInventoryMenu.createOutput(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.OUTPUT.get().getSortedIndex(), -1);
-            case 6: return CyclingInventoryMenu.createLargeOutput(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.OUTPUT.get().getSortedIndex(), -1);
+            case 3: return CyclingContainerMenu.createOutput(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.OUTPUT.get().getSortedIndex(), -1);
+            case 6: return CyclingContainerMenu.createLargeOutput(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.OUTPUT.get().getSortedIndex(), -1);
             default: return null;
         }
     }

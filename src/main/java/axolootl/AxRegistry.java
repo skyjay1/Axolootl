@@ -62,17 +62,11 @@ import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
 import axolootl.item.MultiBlockItem;
 import axolootl.menu.ControllerMenu;
-import axolootl.menu.CyclingInventoryMenu;
+import axolootl.menu.CyclingContainerMenu;
+import axolootl.menu.CyclingMenu;
 import axolootl.util.ControllerTabSorter;
 import axolootl.util.MatchingStatePredicate;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
-import com.google.common.graph.ElementOrder;
-import com.google.common.graph.GraphBuilder;
-import com.google.common.graph.MutableGraph;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -96,7 +90,6 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -112,7 +105,6 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.toposort.TopologicalSort;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -381,11 +373,12 @@ public final class AxRegistry {
         }
 
         public static final RegistryObject<MenuType<ControllerMenu>> CONTROLLER = MENU_TYPES.register("controller", () -> createForgeMenu(ControllerMenu::new));
-        public static final RegistryObject<MenuType<CyclingInventoryMenu>> OUTPUT = MENU_TYPES.register("output", () -> createForgeMenu(CyclingInventoryMenu::createOutput));
-        public static final RegistryObject<MenuType<CyclingInventoryMenu>> LARGE_OUTPUT = MENU_TYPES.register("large_output", () -> createForgeMenu(CyclingInventoryMenu::createLargeOutput));
-        public static final RegistryObject<MenuType<CyclingInventoryMenu>> AUTOFEEDER = MENU_TYPES.register("autofeeder", () -> createForgeMenu(CyclingInventoryMenu::createFeeder));
-        public static final RegistryObject<MenuType<CyclingInventoryMenu>> BREEDER = MENU_TYPES.register("breeder", () -> createForgeMenu(CyclingInventoryMenu::createBreeder));
-        public static final RegistryObject<MenuType<CyclingInventoryMenu>> MONSTERIUM = MENU_TYPES.register("monsterium", () -> createForgeMenu(CyclingInventoryMenu::createMonsterium));
+        public static final RegistryObject<MenuType<CyclingContainerMenu>> OUTPUT = MENU_TYPES.register("output", () -> createForgeMenu(CyclingContainerMenu::createOutput));
+        public static final RegistryObject<MenuType<CyclingMenu>> ENERGY = MENU_TYPES.register("energy", () -> createForgeMenu(CyclingMenu::createEnergy));
+        public static final RegistryObject<MenuType<CyclingContainerMenu>> LARGE_OUTPUT = MENU_TYPES.register("large_output", () -> createForgeMenu(CyclingContainerMenu::createLargeOutput));
+        public static final RegistryObject<MenuType<CyclingContainerMenu>> AUTOFEEDER = MENU_TYPES.register("autofeeder", () -> createForgeMenu(CyclingContainerMenu::createFeeder));
+        public static final RegistryObject<MenuType<CyclingContainerMenu>> BREEDER = MENU_TYPES.register("breeder", () -> createForgeMenu(CyclingContainerMenu::createBreeder));
+        public static final RegistryObject<MenuType<CyclingContainerMenu>> MONSTERIUM = MENU_TYPES.register("monsterium", () -> createForgeMenu(CyclingContainerMenu::createMonsterium));
 
         public static Consumer<FriendlyByteBuf> writeControllerMenu(final BlockPos controller, final BlockPos block, final int tab, final int cycle) {
             return buf -> {

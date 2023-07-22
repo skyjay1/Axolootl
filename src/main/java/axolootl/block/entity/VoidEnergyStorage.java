@@ -43,6 +43,6 @@ public class VoidEnergyStorage implements IEnergyStorage {
 
     @Override
     public int getMaxEnergyStored() {
-        return Integer.MAX_VALUE;
+        return 0;
     }
 }

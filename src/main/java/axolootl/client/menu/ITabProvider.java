@@ -133,7 +133,7 @@ public interface ITabProvider {
     List<TabGroupButton> getTabGroupButtons();
 
     /**
-     * @return the maximum number of tab buttons per tab group
+     * @return the maximum number of tab buttons per tab group. Recommended 3 or greater.
      */
     default int getTabsPerGroup() {
         return 5;
@@ -144,7 +144,32 @@ public interface ITabProvider {
      * @return the tab group index for the given tab
      */
     default int calculateTabGroup(final int tab) {
-        return tab / getTabsPerGroup();
+        int maxPerGroup = getTabsPerGroup();
+        int groupCount = calculateGroupCount();
+        // these tabs are always in the first group
+        if(tab < maxPerGroup - 1) {
+            return 0;
+        }
+        // these tabs could be at the end of one group or the start of another
+        // depending on how many groups there are
+        if(tab % Math.max(1, maxPerGroup - 2) == 1) {
+            int groupIndex = (tab - 1) / Math.max(1, maxPerGroup - 2);
+            return groupCount > groupIndex ? groupIndex : groupIndex - 1;
+        }
+        // these tabs are always in the middle of a group
+        return ((tab + 1) / Math.max(1, maxPerGroup - 2)) - 1;
+    }
+
+    /**
+     * @return the total number of groups
+     */
+    default int calculateGroupCount() {
+        int tabCount = AxRegistry.AquariumTabsReg.getTabCount();
+        int maxPerGroup = getTabsPerGroup();
+        if(tabCount <= maxPerGroup) {
+            return 1;
+        }
+        return tabCount / Math.max(1, maxPerGroup - 2);
     }
 
     default int validateTab(int tab) {
@@ -156,13 +181,13 @@ public interface ITabProvider {
      * @return the tab group clamped between 0 and the maximum number of groups
      */
     default int validateTabGroup(int tabGroup) {
-        return Mth.clamp(tabGroup, 0, Mth.ceil((float) AxRegistry.AquariumTabsReg.getTabCount() / (float) getTabsPerGroup()));
+        return Mth.clamp(tabGroup, 0, calculateGroupCount() - 1);
     }
 
     default void onTabGroupUpdated(ControllerBlockEntity controller) {
         // collect values
         int group = getTabGroup();
-        int maxGroup = Mth.ceil((float) AxRegistry.AquariumTabsReg.getTabCount() / (float) getTabsPerGroup());
+        int maxGroup = calculateGroupCount() - 1;
         final List<IAquariumTab> sortedTabs = AxRegistry.AquariumTabsReg.getSortedTabs();
         // collect buttons
         final List<TabButton> tabButtons = getTabButtons();

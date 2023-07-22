@@ -94,6 +94,10 @@ public abstract class AbstractControllerMenu extends AbstractContainerMenu imple
 
     //// SLOTS ////
 
+    public boolean hasPlayerSlots() {
+        return false;
+    }
+
     protected void addPlayerSlots(Inventory inv, int startX, int startY) {
         // add player inventory
         for (int inventoryY = 0; inventoryY < 3; inventoryY++) {

@@ -7,7 +7,7 @@
 package axolootl.block.entity;
 
 import axolootl.AxRegistry;
-import axolootl.menu.CyclingInventoryMenu;
+import axolootl.menu.CyclingContainerMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -37,6 +37,6 @@ public class BreederBlockEntity extends InterfaceBlockEntity {
         if(!isMenuAvailable(pPlayer, this.controller)) {
             return super.createMenu(pContainerId, pPlayerInventory, pPlayer);
         }
-        return CyclingInventoryMenu.createBreeder(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.FOOD_INTERFACE.get().getSortedIndex(), -1);
+        return CyclingContainerMenu.createBreeder(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.FOOD_INTERFACE.get().getSortedIndex(), -1);
     }
 }

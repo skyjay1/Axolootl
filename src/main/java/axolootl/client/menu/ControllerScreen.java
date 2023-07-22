@@ -29,6 +29,7 @@ import java.util.Optional;
 public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> implements ITabProvider, ScrollButton.IScrollListener {
 
     // TEXTURES //
+    public static final ResourceLocation BACKGROUND = new ResourceLocation(Axolootl.MODID, "textures/gui/aquarium/background.png");
     public static final ResourceLocation CONTROLLER = new ResourceLocation(Axolootl.MODID, "textures/gui/aquarium/controller.png");
     public static final ResourceLocation WIDGETS = new ResourceLocation(Axolootl.MODID, "textures/gui/aquarium/widgets.png");
 
@@ -109,6 +110,11 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> im
     @Override
     protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {
         this.font.draw(pPoseStack, this.title, this.titleLabelX, this.titleLabelY, 0x404040);
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 
     //// TABS ////

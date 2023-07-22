@@ -12,7 +12,9 @@ import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.client.menu.widget.CycleButton;
 import axolootl.client.menu.widget.TabButton;
 import axolootl.client.menu.widget.TabGroupButton;
-import axolootl.menu.CyclingInventoryMenu;
+import axolootl.menu.AbstractControllerMenu;
+import axolootl.menu.CyclingContainerMenu;
+import axolootl.menu.CyclingMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
@@ -25,11 +27,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class CyclingInventoryScreen extends AbstractContainerScreen<CyclingInventoryMenu> implements ITabProvider, ICycleProvider {
+public abstract class AbstractCyclingScreen<T extends AbstractControllerMenu> extends AbstractContainerScreen<T> implements ITabProvider, ICycleProvider {
 
     // TEXTURES //
-    public static final ResourceLocation OUTPUT = new ResourceLocation(Axolootl.MODID, "textures/gui/aquarium/output.png");
-    public static final ResourceLocation LARGE_OUTPUT = new ResourceLocation(Axolootl.MODID, "textures/gui/aquarium/large_output.png");
+    public static final ResourceLocation BACKGROUND = ControllerScreen.BACKGROUND;
+    public static final ResourceLocation SLOTS = new ResourceLocation(Axolootl.MODID, "textures/gui/aquarium/slots.png");
     public static final ResourceLocation WIDGETS = ControllerScreen.WIDGETS;
 
     // CONSTANTS //
@@ -39,20 +41,19 @@ public class CyclingInventoryScreen extends AbstractContainerScreen<CyclingInven
     // WIDGET CONSTANTS //
 
     // WIDGETS //
-    private ResourceLocation texture;
-    private List<TabButton> tabButtons;
-    private List<TabGroupButton> tabGroupButtons;
-    private List<CycleButton> cycleButtons;
+    protected List<TabButton> tabButtons;
+    protected List<TabGroupButton> tabGroupButtons;
+    protected List<CycleButton> cycleButtons;
 
     // DATA //
-    private int tab;
-    private int tabGroup;
+    protected int tab;
+    protected int tabGroup;
 
     // COMPONENTS //
-    private Component cycledTitle;
-    private int cycledTitleWidth;
+    protected Component cycledTitle;
+    protected int cycledTitleWidth;
 
-    public CyclingInventoryScreen(CyclingInventoryMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
+    public AbstractCyclingScreen(T pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         this.tabButtons = new ArrayList<>();
         this.tabGroupButtons = new ArrayList<>();
@@ -60,9 +61,8 @@ public class CyclingInventoryScreen extends AbstractContainerScreen<CyclingInven
         this.imageWidth = WIDTH;
         this.imageHeight = HEIGHT;
         this.inventoryLabelY = this.imageHeight - 94;
-        this.inventoryLabelX = CyclingInventoryMenu.PLAYER_INV_X;
+        this.inventoryLabelX = CyclingMenu.PLAYER_INV_X;
         this.tab = getMenu().getTab();
-        this.texture = getMenu().isLargeOutput() ? LARGE_OUTPUT : OUTPUT;
         this.cycledTitle = createCycledTitle(pTitle, getMenu().getBlockPos(), getMenu().getCycle(), getMenu().getMaxCycle());
     }
 
@@ -97,8 +97,12 @@ public class CyclingInventoryScreen extends AbstractContainerScreen<CyclingInven
     protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
         this.renderBackground(pPoseStack);
         RenderSystem.disableBlend();
-        RenderSystem.setShaderTexture(0, texture);
+        RenderSystem.setShaderTexture(0, BACKGROUND);
         blit(pPoseStack, this.leftPos, this.topPos, 0, 0, WIDTH, HEIGHT);
+        if(getMenu().hasPlayerSlots()) {
+            RenderSystem.setShaderTexture(0, SLOTS);
+            blit(pPoseStack, this.leftPos + CyclingMenu.PLAYER_INV_X - 1, this.topPos + CyclingMenu.PLAYER_INV_Y - 1, 29, 139, 9 * 18, 4 * 18 + 4);
+        }
     }
 
     @Override
@@ -117,7 +121,14 @@ public class CyclingInventoryScreen extends AbstractContainerScreen<CyclingInven
     @Override
     protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {
         this.font.draw(pPoseStack, this.cycledTitle, this.titleLabelX, this.titleLabelY, 0x404040);
-        this.font.draw(pPoseStack, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0x404040);
+        if(getMenu().hasPlayerSlots()) {
+            this.font.draw(pPoseStack, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0x404040);
+        }
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 
     //// TABS ////

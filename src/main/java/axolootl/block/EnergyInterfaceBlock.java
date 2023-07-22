@@ -8,8 +8,10 @@ package axolootl.block;
 
 import axolootl.AxRegistry;
 import axolootl.block.entity.EnergyInterfaceBlockEntity;
+import axolootl.block.entity.MonsteriumBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -22,6 +24,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 public class EnergyInterfaceBlock extends AbstractInterfaceBlock {
@@ -42,9 +45,14 @@ public class EnergyInterfaceBlock extends AbstractInterfaceBlock {
                 LazyOptional<IEnergyStorage> energyStorage = be.getCapability(ForgeCapabilities.ENERGY, null);
                 energyStorage.ifPresent(i -> pPlayer.displayClientMessage(Component.literal("energy: " + i.getEnergyStored()), false));
             }
-            // open menu
-            if (blockentity instanceof MenuProvider menuProvider) {
-                pPlayer.openMenu(menuProvider);
+            if (pPlayer instanceof ServerPlayer serverPlayer && pLevel.getBlockEntity(pPos) instanceof EnergyInterfaceBlockEntity blockEntity) {
+                // validate controller
+                if (blockEntity.hasTank() && blockEntity.validateController(pLevel)) {
+                    blockEntity.setChanged();
+                }
+                // open menu
+                BlockPos controllerPos = blockEntity.getController().isPresent() ? blockEntity.getController().get().getBlockPos() : pPos;
+                NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.ENERGY_INTERFACE.get().getSortedIndex(), -1));
             }
             return InteractionResult.CONSUME;
         }

@@ -1022,13 +1022,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             return false;
         }
         // collect energy handlers
-        final Map<BlockPos, IEnergyStorage> energyHandlers = new HashMap<>();
-        for(BlockPos entry : energyInputs) {
-            IEnergyStorage storage = resolveEnergyStorageOrVoid(level, entry, false);
-            if(storage.canExtract()) {
-                energyHandlers.put(entry, storage);
-            }
-        }
+        final Map<BlockPos, IEnergyStorage> energyHandlers = resolveEnergyStorage(IEnergyStorage::canExtract);
         // attempt to distribute energy
         boolean hasPowered = false;
         for(Map.Entry<BlockPos, AquariumModifier> entry : modifiers) {
@@ -1577,6 +1571,28 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         }
         // remove invalid axolootls
         invalid.forEach(o -> this.trackedAxolootls.remove(o));
+        return builder.build();
+    }
+
+    /**
+     * @return a map of block positions and energy storage handlers
+     */
+    public Map<BlockPos, IEnergyStorage> resolveEnergyStorage() {
+        return resolveEnergyStorage(i -> true);
+    }
+
+    /**
+     * @param predicate the predicate to filter energy storage handlers
+     * @return a map of block positions and energy storage handlers that pass the given predicate
+     */
+    public Map<BlockPos, IEnergyStorage> resolveEnergyStorage(final Predicate<IEnergyStorage> predicate) {
+        final ImmutableMap.Builder<BlockPos, IEnergyStorage> builder = ImmutableMap.builder();
+        for(BlockPos entry : energyInputs) {
+            IEnergyStorage storage = resolveEnergyStorageOrVoid(level, entry, false);
+            if(predicate.test(storage)) {
+                builder.put(entry, storage);
+            }
+        }
         return builder.build();
     }
 
