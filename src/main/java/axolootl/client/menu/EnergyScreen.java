@@ -37,8 +37,7 @@ public class EnergyScreen extends AbstractCyclingScreen<CyclingMenu> {
 
     private static final int TEXT_X = 63;
     private static final int TEXT_Y = 17;
-
-    // WIDGETS //
+    private static final int TEXT_LINE_SPACING = 8;
 
     // DATA //
     private Map<BlockPos, IEnergyStorage> energyStorage;
@@ -69,7 +68,7 @@ public class EnergyScreen extends AbstractCyclingScreen<CyclingMenu> {
         super(pMenu, pPlayerInventory, pTitle);
         this.energyStorage = new HashMap<>();
         pMenu.getController().ifPresent(c -> energyStorage.putAll(c.resolveEnergyStorage(IEnergyStorage::canExtract)));
-        this.storage = this.energyStorage.getOrDefault(pMenu.getBlockPos(), new VoidEnergyStorage());
+        this.storage = this.energyStorage.getOrDefault(pMenu.getBlockPos(), VoidEnergyStorage.INSTANCE);
     }
 
     @Override
@@ -159,7 +158,7 @@ public class EnergyScreen extends AbstractCyclingScreen<CyclingMenu> {
     private void renderDetails(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         int x = this.leftPos + TEXT_X;
         int y = this.topPos + TEXT_Y;
-        int deltaY = font.lineHeight + 8;
+        int deltaY = font.lineHeight + TEXT_LINE_SPACING;
         this.font.draw(pPoseStack, energyStorageText, x, y, 0);
         y += deltaY;
         this.font.draw(pPoseStack, poweredModifiersText, x, y, 0);
@@ -172,7 +171,7 @@ public class EnergyScreen extends AbstractCyclingScreen<CyclingMenu> {
     }
 
     private void renderHoverActions(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        int deltaY = font.lineHeight + 8;
+        int deltaY = font.lineHeight + TEXT_LINE_SPACING;
         int x = TEXT_X;
         int y = TEXT_Y + deltaY;
         // render detail hover actions

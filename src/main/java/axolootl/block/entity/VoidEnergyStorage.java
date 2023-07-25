@@ -14,7 +14,9 @@ import net.minecraftforge.energy.IEnergyStorage;
  */
 public class VoidEnergyStorage implements IEnergyStorage {
 
-    public VoidEnergyStorage() {}
+    public static final VoidEnergyStorage INSTANCE = new VoidEnergyStorage();
+
+    protected VoidEnergyStorage() {}
 
     @Override
     public boolean canExtract() {

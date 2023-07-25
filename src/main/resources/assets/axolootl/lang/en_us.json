@@ -74,5 +74,14 @@
   "gui.controller_tab.axolootl.energy_interface.axolootl_usage.description": "Forge Energy depleted each generation cycle",
   "gui.controller_tab.axolootl.energy_interface.energy_capacity": "Total capacity: %1$s FE",
   "gui.controller_tab.axolootl.energy_interface.energy_storage": "Total energy: %1$s / %2$s FE",
-  "gui.controller_tab.axolootl.energy_interface.individual_storage": "Energy at this position: %1$s / %2$s FE"
+  "gui.controller_tab.axolootl.energy_interface.individual_storage": "Energy at this position: %1$s / %2$s FE",
+  "gui.controller_tab.axolootl.fluid_interface.capacity": "Capacity: %1$s mB",
+  "gui.controller_tab.axolootl.fluid_interface.storage": "Storage: %1$s / %2$s mB",
+  "gui.controller_tab.axolootl.fluid_interface.status": "Status: %1$s",
+  "gui.controller_tab.axolootl.fluid_interface.status.paused": "Paused",
+  "gui.controller_tab.axolootl.fluid_interface.status.paused.description": "Paused due to redstone signal",
+  "gui.controller_tab.axolootl.fluid_interface.status.empty": "Empty",
+  "gui.controller_tab.axolootl.fluid_interface.status.empty.description": "Requires min. 1000 mB water",
+  "gui.controller_tab.axolootl.fluid_interface.status.active": "Active",
+  "gui.controller_tab.axolootl.fluid_interface.status.active.description": "Filling tank with water"
 }

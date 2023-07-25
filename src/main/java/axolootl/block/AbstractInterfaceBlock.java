@@ -7,8 +7,11 @@
 package axolootl.block;
 
 import axolootl.block.entity.IAquariumControllerProvider;
+import axolootl.block.entity.InterfaceBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.Container;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -76,6 +79,11 @@ public abstract class AbstractInterfaceBlock extends HorizontalDirectionalBlock 
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
+            // drop items
+            if(!level.isClientSide() && level.getBlockEntity(pos) instanceof InterfaceBlockEntity blockEntity) {
+                blockEntity.dropAllItems();
+            }
+            // update neighbors
             level.updateNeighbourForOutputSignal(pos, this);
             super.onRemove(state, level, pos, newState, isMoving);
         }

@@ -11,6 +11,7 @@ import axolootl.client.entity.AxolootlRenderer;
 import axolootl.client.menu.ControllerScreen;
 import axolootl.client.menu.CyclingContainerScreen;
 import axolootl.client.menu.EnergyScreen;
+import axolootl.client.menu.FluidScreen;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.item.AxolootlBucketItem;
 import net.minecraft.client.Minecraft;
@@ -71,6 +72,7 @@ public final class ClientEvents {
             MenuScreens.register(AxRegistry.MenuReg.BREEDER.get(), CyclingContainerScreen::new);
             MenuScreens.register(AxRegistry.MenuReg.MONSTERIUM.get(), CyclingContainerScreen::new);
             MenuScreens.register(AxRegistry.MenuReg.ENERGY.get(), EnergyScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.FLUID.get(), FluidScreen::new);
         }
     }
 

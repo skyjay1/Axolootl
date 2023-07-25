@@ -7,8 +7,10 @@
 package axolootl.block;
 
 import axolootl.AxRegistry;
+import axolootl.block.entity.BreederBlockEntity;
 import axolootl.block.entity.WaterInterfaceBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -26,6 +28,7 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 public class WaterInterfaceBlock extends AbstractInterfaceBlock {
@@ -41,22 +44,14 @@ public class WaterInterfaceBlock extends AbstractInterfaceBlock {
         if (pLevel.isClientSide()) {
             return InteractionResult.SUCCESS;
         } else {
-            BlockEntity blockentity = pLevel.getBlockEntity(pPos);
-            ItemStack itemStack = pPlayer.getItemInHand(pHand);
-            // TODO debug only
-            if(blockentity instanceof WaterInterfaceBlockEntity be && itemStack.is(Items.WATER_BUCKET)) {
-                be.getCapability(ForgeCapabilities.FLUID_HANDLER).ifPresent(c -> {
-                    // DEBUG AMOUNT IS MORE THAN ONE BUCKET AT A TIME
-                    final FluidStack fluidStack = new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME * 2);
-                    if(c.fill(fluidStack, IFluidHandler.FluidAction.SIMULATE) >= fluidStack.getAmount()) {
-                        c.fill(fluidStack, IFluidHandler.FluidAction.EXECUTE);
-                        pPlayer.setItemInHand(pHand, itemStack.getCraftingRemainingItem());
-                    }
-                });
-            }
-            // open menu
-            if (blockentity instanceof MenuProvider menuProvider) {
-                pPlayer.openMenu(menuProvider);
+            if (pPlayer instanceof ServerPlayer serverPlayer && pLevel.getBlockEntity(pPos) instanceof WaterInterfaceBlockEntity blockEntity) {
+                // validate controller
+                if(blockEntity.hasTank() && blockEntity.validateController(pLevel)) {
+                    blockEntity.setChanged();
+                }
+                // open menu
+                BlockPos controllerPos = blockEntity.getController().isPresent() ? blockEntity.getController().get().getBlockPos() : pPos;
+                NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.FLUID_INTERFACE.get().getSortedIndex(), -1));
             }
             return InteractionResult.CONSUME;
         }

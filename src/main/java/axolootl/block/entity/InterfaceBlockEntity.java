@@ -132,6 +132,7 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
     public void dropAllItems() {
         if (this.level != null && !this.level.isClientSide()) {
             Containers.dropContents(this.level, this.getBlockPos(), this.getInventory());
+            clearContent();
         }
         this.setChanged();
     }
@@ -190,6 +191,7 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
     @Override
     public void clearContent() {
         this.inventory.clear();
+        this.setChanged();
     }
 
     //// CAPABILITY ////

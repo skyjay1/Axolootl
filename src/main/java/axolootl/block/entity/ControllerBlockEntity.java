@@ -200,6 +200,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             level.getProfiler().push("aquariumTankSize");
             int blocksToScan = Axolootl.CONFIG.TANK_MULTIBLOCK_UPDATE_CAP.get();
             markDirty |= self.iterateOutside(serverLevel, Mth.ceil(blocksToScan * OUTSIDE_ITERATOR_SCAN));
+            markDirty |= self.validateInputsOutputs(serverLevel);
             // search for, validate, and apply modifiers
             level.getProfiler().popPush("aquariumModifiers");
             markDirty |= self.iterateInside(serverLevel, Mth.ceil(blocksToScan * INSIDE_ITERATOR_SCAN));
@@ -952,6 +953,71 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     /**
+     * Validates that all tracked inputs and outputs are still valid
+     * @param serverLevel the server level
+     * @return true if any input or output set was changed
+     */
+    private boolean validateInputsOutputs(ServerLevel serverLevel) {
+        // determine which set to validate this tick, if any
+        int flag = (int) (serverLevel.getGameTime() % 40);
+        Set<BlockPos> invalid;
+        // validate all block positions in the set
+        switch (flag) {
+            case 0:
+                // validate resource outputs
+                invalid = invalidateBlocks(serverLevel, resourceOutputs, p -> serverLevel.getBlockState(p).is(RESOURCE_OUTPUTS));
+                invalid.forEach(p -> {
+                    IAquariumControllerProvider.tryClearController(serverLevel, p);
+                    resourceOutputs.remove(p);
+                });
+                return !invalid.isEmpty();
+            case 1:
+                // validate axolootl inputs
+                invalid = invalidateBlocks(serverLevel, axolootlInputs, p -> serverLevel.getBlockState(p).is(AXOLOOTL_INPUTS));
+                invalid.forEach(p -> {
+                    IAquariumControllerProvider.tryClearController(serverLevel, p);
+                    axolootlInputs.remove(p);
+                });
+                return !invalid.isEmpty();
+            case 2:
+                // validate fluid inputs
+                invalid = invalidateBlocks(serverLevel, fluidInputs, p -> serverLevel.getBlockState(p).is(FLUID_INPUTS));
+                invalid.forEach(p -> {
+                    IAquariumControllerProvider.tryClearController(serverLevel, p);
+                    fluidInputs.remove(p);
+                });
+                return !invalid.isEmpty();
+            case 3:
+                // validate energy inputs
+                invalid = invalidateBlocks(serverLevel, energyInputs, p -> serverLevel.getBlockState(p).is(ENERGY_INPUTS));
+                invalid.forEach(p -> {
+                    IAquariumControllerProvider.tryClearController(serverLevel, p);
+                    energyInputs.remove(p);
+                });
+                return !invalid.isEmpty();
+            default:
+                // do not validate any sets this tick
+                return false;
+        }
+    }
+
+    /**
+     * @param serverLevel the server level
+     * @param positions the block positions to validate
+     * @param predicate the predicate that all valid block positions must pass
+     * @return the block positions that were invalid, if any
+     */
+    private Set<BlockPos> invalidateBlocks(ServerLevel serverLevel, Set<BlockPos> positions, Predicate<BlockPos> predicate) {
+        final Set<BlockPos> invalid = new HashSet<>();
+        for(BlockPos p : positions) {
+            if(!predicate.test(p)) {
+                invalid.add(p);
+            }
+        }
+        return invalid;
+    }
+
+    /**
      * @param serverLevel the server level
      * @return true if there are any changes to the modifier map or active modifier set
      */
@@ -1130,7 +1196,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         final BlockEntity blockEntity;
         // verify smart storage and block entity exists
         if(useVoidStorage || null == (blockEntity = level.getBlockEntity(pos))) {
-            return new VoidEnergyStorage();
+            return VoidEnergyStorage.INSTANCE;
         }
         // iterate each direction until an energy storage capability is found that can receive energy
         for(Direction d : Direction.values()) {
@@ -1140,7 +1206,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             }
         }
         // all checks failed
-        return new VoidEnergyStorage();
+        return VoidEnergyStorage.INSTANCE;
     }
 
     /**

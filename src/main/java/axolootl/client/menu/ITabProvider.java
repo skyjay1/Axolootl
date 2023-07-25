@@ -25,7 +25,7 @@ import java.util.List;
 
 public interface ITabProvider {
 
-    public static final int MIN_TOOLTIP_Y = 24;
+    public static final int MIN_TOOLTIP_Y = 18;
 
     /**
      * @param screen the screen instance

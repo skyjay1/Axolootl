@@ -159,7 +159,6 @@ public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquarium
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-
     //// NBT ////
 
     private static final String KEY_ENERGY = "Energy";

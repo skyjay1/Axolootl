@@ -375,6 +375,7 @@ public final class AxRegistry {
         public static final RegistryObject<MenuType<ControllerMenu>> CONTROLLER = MENU_TYPES.register("controller", () -> createForgeMenu(ControllerMenu::new));
         public static final RegistryObject<MenuType<CyclingContainerMenu>> OUTPUT = MENU_TYPES.register("output", () -> createForgeMenu(CyclingContainerMenu::createOutput));
         public static final RegistryObject<MenuType<CyclingMenu>> ENERGY = MENU_TYPES.register("energy", () -> createForgeMenu(CyclingMenu::createEnergy));
+        public static final RegistryObject<MenuType<CyclingContainerMenu>> FLUID = MENU_TYPES.register("fluid", () -> createForgeMenu(CyclingContainerMenu::createFluid));
         public static final RegistryObject<MenuType<CyclingContainerMenu>> LARGE_OUTPUT = MENU_TYPES.register("large_output", () -> createForgeMenu(CyclingContainerMenu::createLargeOutput));
         public static final RegistryObject<MenuType<CyclingContainerMenu>> AUTOFEEDER = MENU_TYPES.register("autofeeder", () -> createForgeMenu(CyclingContainerMenu::createFeeder));
         public static final RegistryObject<MenuType<CyclingContainerMenu>> BREEDER = MENU_TYPES.register("breeder", () -> createForgeMenu(CyclingContainerMenu::createBreeder));

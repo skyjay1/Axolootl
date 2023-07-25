@@ -14,22 +14,19 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class CyclingContainerScreen extends AbstractCyclingScreen<CyclingContainerMenu> {
 
-    // CONSTANTS //
-
-    // WIDGET CONSTANTS //
-
-    // WIDGETS //
-
     // DATA //
-    private int textureHeight;
-
-    // COMPONENTS //
+    protected int textureHeight;
 
     public CyclingContainerScreen(CyclingContainerMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         this.inventoryLabelY = this.imageHeight - 94;
         this.inventoryLabelX = CyclingContainerMenu.PLAYER_INV_X;
         this.textureHeight = getMenu().getRows() * 18;
+    }
+
+    protected void renderContainerSlots(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
+        RenderSystem.setShaderTexture(0, SLOTS);
+        blit(pPoseStack, this.leftPos + CyclingContainerMenu.INV_X, this.topPos + CyclingContainerMenu.INV_Y, CyclingContainerMenu.INV_X - 1, CyclingContainerMenu.INV_Y - 1, 9 * 18, textureHeight);
     }
 
     @Override
@@ -40,8 +37,7 @@ public class CyclingContainerScreen extends AbstractCyclingScreen<CyclingContain
     @Override
     protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
         super.renderBg(pPoseStack, pPartialTick, pMouseX, pMouseY);
-        RenderSystem.setShaderTexture(0, SLOTS);
-        blit(pPoseStack, this.leftPos + CyclingContainerMenu.INV_X, this.topPos + CyclingContainerMenu.INV_Y, CyclingContainerMenu.INV_X - 1, CyclingContainerMenu.INV_Y - 1, 9 * 18, textureHeight);
+        renderContainerSlots(pPoseStack, pPartialTick, pMouseX, pMouseY);
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -19,6 +20,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,10 +34,10 @@ public class CyclingContainerMenu extends AbstractControllerMenu {
     public static final int PLAYER_INV_Y = 140;
 
     public final int cycleCount;
-    private final List<BlockPos> sortedCycleList;
-    private int containerRows;
-    private int containerSize;
-    private Container container;
+    protected final List<BlockPos> sortedCycleList;
+    protected int containerRows;
+    protected int containerSize;
+    protected Container container;
 
     public CyclingContainerMenu(MenuType<?> menuType, int windowId, Inventory inv,
                                 BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos,
@@ -77,6 +79,31 @@ public class CyclingContainerMenu extends AbstractControllerMenu {
         return new CyclingContainerMenu(AxRegistry.MenuReg.MONSTERIUM.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.resolveModifiers(controller.getLevel().registryAccess(), controller.activePredicate.and(controller.foodInterfacePredicate)).keySet());
     }
 
+    public static CyclingContainerMenu createFluid(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
+        return new CyclingContainerMenu(AxRegistry.MenuReg.FLUID.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.getFluidInputs()) {
+            @Override
+            protected void addBlockSlots(BlockPos blockPos) {
+                // load block entity
+                final BlockEntity blockEntity = controller.getLevel().getBlockEntity(blockPos);
+                if(!(blockEntity instanceof Container container)) {
+                    return;
+                }
+                this.container = container;
+                this.containerSize = container.getContainerSize();
+                this.containerRows = 1;
+                this.addSlot(new Slot(container, 0, 31, 109));
+            }
+
+            @Override
+            public void removed(Player pPlayer) {
+                super.removed(pPlayer);
+                /*if(this.container != null) {
+                    this.clearContainer(pPlayer, this.container);
+                }*/
+            }
+        };
+    }
+
     protected void addBlockSlots(BlockPos blockPos) {
         // load block entity
         final BlockEntity blockEntity = controller.getLevel().getBlockEntity(blockPos);
@@ -98,6 +125,15 @@ public class CyclingContainerMenu extends AbstractControllerMenu {
         return this.containerRows;
     }
 
+    @Nullable
+    public Container getContainer() {
+        return this.container;
+    }
+
+    public int getContainerSize() {
+        return this.containerSize;
+    }
+
     @Override
     public boolean hasPlayerSlots() {
         return true;
@@ -116,6 +152,9 @@ public class CyclingContainerMenu extends AbstractControllerMenu {
     @Override
     public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
         ItemStack itemstack = ItemStack.EMPTY;
+        if(this.containerSize <= 0 || !hasPlayerSlots()) {
+            return itemstack;
+        }
         Slot slot = this.slots.get(pIndex);
         if (slot != null && slot.hasItem()) {
             ItemStack itemstack1 = slot.getItem();
