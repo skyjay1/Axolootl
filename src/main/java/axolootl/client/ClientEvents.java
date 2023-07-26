@@ -8,10 +8,11 @@ package axolootl.client;
 
 import axolootl.AxRegistry;
 import axolootl.client.entity.AxolootlRenderer;
+import axolootl.client.menu.AxolootlInterfaceScreen;
 import axolootl.client.menu.ControllerScreen;
 import axolootl.client.menu.CyclingContainerScreen;
-import axolootl.client.menu.EnergyScreen;
-import axolootl.client.menu.FluidScreen;
+import axolootl.client.menu.EnergyInterfaceScreen;
+import axolootl.client.menu.FluidInterfaceScreen;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.item.AxolootlBucketItem;
 import net.minecraft.client.Minecraft;
@@ -46,7 +47,7 @@ public final class ClientEvents {
         public static void onRegisterItemColors(final RegisterColorHandlersEvent.Item event) {
             event.register((pStack, pTintIndex) -> {
                 // do not color layer 0
-                if(pTintIndex == 0) {
+                if(pTintIndex < 1 || pTintIndex > 2) {
                     return -1;
                 }
                 // validate level
@@ -66,13 +67,14 @@ public final class ClientEvents {
 
         private static void onRegisterScreens() {
             MenuScreens.register(AxRegistry.MenuReg.CONTROLLER.get(), ControllerScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.AXOLOOTL.get(), AxolootlInterfaceScreen::new);
             MenuScreens.register(AxRegistry.MenuReg.OUTPUT.get(), CyclingContainerScreen::new);
             MenuScreens.register(AxRegistry.MenuReg.LARGE_OUTPUT.get(), CyclingContainerScreen::new);
             MenuScreens.register(AxRegistry.MenuReg.AUTOFEEDER.get(), CyclingContainerScreen::new);
             MenuScreens.register(AxRegistry.MenuReg.BREEDER.get(), CyclingContainerScreen::new);
             MenuScreens.register(AxRegistry.MenuReg.MONSTERIUM.get(), CyclingContainerScreen::new);
-            MenuScreens.register(AxRegistry.MenuReg.ENERGY.get(), EnergyScreen::new);
-            MenuScreens.register(AxRegistry.MenuReg.FLUID.get(), FluidScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.ENERGY.get(), EnergyInterfaceScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.FLUID.get(), FluidInterfaceScreen::new);
         }
     }
 

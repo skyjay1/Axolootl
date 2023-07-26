@@ -133,7 +133,7 @@ public class AquariumTab implements IAquariumTab {
         }
 
         /**
-         * @param before the aquarium tabs that this tab is ordered before
+         * @param before the aquarium tabs that are before this one
          * @return the builder instance
          */
         public AquariumTab.Builder before(NonNullSupplier<List<IAquariumTab>> before) {
@@ -142,7 +142,7 @@ public class AquariumTab implements IAquariumTab {
         }
 
         /**
-         * @param after the aquarium tabs that this tab is ordered after
+         * @param after the aquarium tabs that are after this one
          * @return the builder instance
          */
         public AquariumTab.Builder after(NonNullSupplier<List<IAquariumTab>> after) {

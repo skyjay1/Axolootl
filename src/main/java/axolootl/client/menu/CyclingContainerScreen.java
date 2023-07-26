@@ -41,11 +41,6 @@ public class CyclingContainerScreen extends AbstractCyclingScreen<CyclingContain
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
-    }
-
-    @Override
     protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {
         this.font.draw(pPoseStack, this.cycledTitle, this.titleLabelX, this.titleLabelY, 0x404040);
         if(getMenu().hasPlayerSlots()) {

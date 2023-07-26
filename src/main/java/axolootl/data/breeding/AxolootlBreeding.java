@@ -72,6 +72,9 @@ public class AxolootlBreeding {
      * @return the axolotl breeding recipe for the given variants, if any
      */
     public static Optional<AxolootlBreeding> getBreedingRecipe(final Level level, final AxolootlVariant first, final AxolootlVariant second) {
+        if(AxolootlVariant.EMPTY.equals(first) || AxolootlVariant.EMPTY.equals(second)) {
+            return Optional.empty();
+        }
         return getRegistry(level.registryAccess()).entrySet()
                 .stream()
                 .filter(e -> e.getValue().matches(level, first, second))

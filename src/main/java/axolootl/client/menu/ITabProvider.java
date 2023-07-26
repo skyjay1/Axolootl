@@ -232,6 +232,7 @@ public interface ITabProvider {
             }
             // update tab index and icon
             button.setIndex(i, tab.getIcon(), messages, onPress);
+            button.setSelected(i == getTab());
             button.setSelected(index == getTab());
             index++;
         }
@@ -242,7 +243,7 @@ public interface ITabProvider {
         TabGroupButton b = tabGroupButtons.get(0);
         b.visible = b.active = group > 0;
         b = tabGroupButtons.get(1);
-        b.visible = b.active = group <= maxGroup;
+        b.visible = b.active = group < maxGroup;
     }
 
     /**

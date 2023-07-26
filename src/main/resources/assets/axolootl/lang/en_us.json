@@ -76,6 +76,7 @@
   "gui.controller_tab.axolootl.energy_interface.energy_storage": "Total energy: %1$s / %2$s FE",
   "gui.controller_tab.axolootl.energy_interface.individual_storage": "Energy at this position: %1$s / %2$s FE",
   "gui.controller_tab.axolootl.fluid_interface.capacity": "Capacity: %1$s mB",
+  "gui.controller_tab.axolootl.fluid_interface.volume": "Tank Volume: %1$s blocks",
   "gui.controller_tab.axolootl.fluid_interface.storage": "Storage: %1$s / %2$s mB",
   "gui.controller_tab.axolootl.fluid_interface.status": "Status: %1$s",
   "gui.controller_tab.axolootl.fluid_interface.status.paused": "Paused",
@@ -83,5 +84,11 @@
   "gui.controller_tab.axolootl.fluid_interface.status.empty": "Empty",
   "gui.controller_tab.axolootl.fluid_interface.status.empty.description": "Requires min. 1000 mB water",
   "gui.controller_tab.axolootl.fluid_interface.status.active": "Active",
-  "gui.controller_tab.axolootl.fluid_interface.status.active.description": "Filling tank with water"
+  "gui.controller_tab.axolootl.fluid_interface.status.active.description": "Filling tank with water",
+  "gui.controller_tab.axolootl.axolootl_interface.count": "%1$s / %2$s Axolootls",
+  "gui.controller_tab.axolootl.axolootl_interface.insert": "Insert Axolootls",
+  "gui.controller_tab.axolootl.axolootl_interface.extract": "Extract",
+  "gui.controller_tab.axolootl.axolootl_interface.extract_x": "Extract 1 %1$s",
+  "gui.controller_tab.axolootl.axolootl_interface.extract.fail": "Place buckets in slot to extract",
+  "gui.controller_tab.axolootl.axolootl_interface.entry": "%1$sx %2$s"
 }

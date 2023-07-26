@@ -44,6 +44,7 @@ import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
@@ -221,6 +222,14 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
         }*/
         // check for normal food
         return variant.getFoodBonuses(pStack.getItem()).isPresent();
+    }
+
+    @Override
+    public float getWalkTargetValue(BlockPos pPos, LevelReader pLevel) {
+        if(pLevel.getBlockState(pPos).is(AxRegistry.BlockReg.AQUARIUM_AIRLOCK.get())) {
+            return -10.0F;
+        }
+        return super.getWalkTargetValue(pPos, pLevel);
     }
 
     @Nullable
@@ -450,7 +459,6 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
     public Vector3f getSecondaryColors() {
         return secondaryColors;
     }
-
 
     //// NBT ////
 

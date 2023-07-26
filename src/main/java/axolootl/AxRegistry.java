@@ -61,6 +61,7 @@ import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
 import axolootl.item.MultiBlockItem;
+import axolootl.menu.AxolootlMenu;
 import axolootl.menu.ControllerMenu;
 import axolootl.menu.CyclingContainerMenu;
 import axolootl.menu.CyclingMenu;
@@ -373,6 +374,7 @@ public final class AxRegistry {
         }
 
         public static final RegistryObject<MenuType<ControllerMenu>> CONTROLLER = MENU_TYPES.register("controller", () -> createForgeMenu(ControllerMenu::new));
+        public static final RegistryObject<MenuType<AxolootlMenu>> AXOLOOTL = MENU_TYPES.register("axolootl", () -> createForgeMenu(AxolootlMenu::new));
         public static final RegistryObject<MenuType<CyclingContainerMenu>> OUTPUT = MENU_TYPES.register("output", () -> createForgeMenu(CyclingContainerMenu::createOutput));
         public static final RegistryObject<MenuType<CyclingMenu>> ENERGY = MENU_TYPES.register("energy", () -> createForgeMenu(CyclingMenu::createEnergy));
         public static final RegistryObject<MenuType<CyclingContainerMenu>> FLUID = MENU_TYPES.register("fluid", () -> createForgeMenu(CyclingContainerMenu::createFluid));
@@ -503,22 +505,22 @@ public final class AxRegistry {
                         .icon(() -> Items.CONDUIT.getDefaultInstance())
                         .build());
 
-        public static final RegistryObject<IAquariumTab> OUTPUT = AQUARIUM_TABS.register("output", () ->
-                AquariumTab.builder()
-                        .available(c -> !c.getResourceOutputs().isEmpty())
-                        .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getResourceOutputs()))
-                        .icon(() -> Items.CHEST.getDefaultInstance())
-                        .before(() -> List.of(AquariumTabsReg.CONTROLLER.get()))
-                        .after(() -> List.of(AquariumTabsReg.AXOLOOTL_INTERFACE.get()))
-                        .build());
-
         public static final RegistryObject<IAquariumTab> AXOLOOTL_INTERFACE = AQUARIUM_TABS.register("axolootl_interface", () ->
                 AquariumTab.builder()
                         .available(c -> !c.getAxolootlInputs().isEmpty())
                         .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getAxolootlInputs()))
                         .icon(() -> Items.AXOLOTL_BUCKET.getDefaultInstance())
-                        .before(() -> List.of(AquariumTabsReg.OUTPUT.get()))
-                        .after(() -> List.of(AquariumTabsReg.FLUID_INTERFACE.get()))
+                        .before(() -> List.of(AquariumTabsReg.CONTROLLER.get()))
+                        .after(() -> List.of(AquariumTabsReg.OUTPUT.get()))
+                        .build());
+
+        public static final RegistryObject<IAquariumTab> OUTPUT = AQUARIUM_TABS.register("output", () ->
+                AquariumTab.builder()
+                        .available(c -> !c.getResourceOutputs().isEmpty())
+                        .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getResourceOutputs()))
+                        .icon(() -> Items.CHEST.getDefaultInstance())
+                        .before(() -> List.of(AquariumTabsReg.AXOLOOTL_INTERFACE.get()))
+                        .after(() -> List.of(AquariumTabsReg.FOOD_INTERFACE.get()))
                         .build());
 
         public static final RegistryObject<IAquariumTab> FOOD_INTERFACE = AQUARIUM_TABS.register("food_interface", () ->
@@ -526,7 +528,7 @@ public final class AxRegistry {
                         .available(c -> !c.resolveModifiers(c.getLevel().registryAccess(), c.activePredicate.and(c.foodInterfacePredicate)).isEmpty())
                         .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.resolveModifiers(c.getLevel().registryAccess(), c.activePredicate.and(c.foodInterfacePredicate)).keySet()))
                         .icon(() -> Items.TROPICAL_FISH.getDefaultInstance())
-                        .before(() -> List.of(AquariumTabsReg.AXOLOOTL_INTERFACE.get()))
+                        .before(() -> List.of(AquariumTabsReg.OUTPUT.get()))
                         .after(() -> List.of(AquariumTabsReg.FLUID_INTERFACE.get()))
                         .build());
 

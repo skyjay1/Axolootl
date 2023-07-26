@@ -30,6 +30,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.ListTag;
@@ -42,13 +43,17 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -59,7 +64,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -135,6 +142,8 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     private long feedTime;
     /** True to force the block entity to recalculate bonuses in the next tick **/
     private boolean forceCalculateBonuses;
+    /** True to force the block entity to search for axolootls in the next tick **/
+    private boolean forceCalculateAxolootls;
 
     // STATUS //
     private TankStatus tankStatus;
@@ -895,22 +904,23 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
      * @param serverLevel the server level
      * @return true if the entity list changed
      */
-    private boolean findAxolootls(ServerLevel serverLevel) {
+    public boolean findAxolootls(ServerLevel serverLevel) {
         // validate tank exists
         if(null == this.size) {
             return false;
         }
         // validate needs to update this tick
-        if(serverLevel.getGameTime() % AXOLOOTL_SEARCH_INTERVAL != 0) {
+        if(!forceCalculateAxolootls && serverLevel.getGameTime() % AXOLOOTL_SEARCH_INTERVAL != 0) {
             return false;
         }
+        this.forceCalculateAxolootls = false;
         // query entities that are not already tracked
         final AABB aabb = this.size.aabb();
-        final List<AxolootlEntity> list = serverLevel.getEntitiesOfClass(AxolootlEntity.class, aabb,
-                entity -> !trackedAxolootls.containsKey(entity.getUUID()) && entity.getAxolootlVariantId().isPresent());
+        final List<LivingEntity> list = serverLevel.getEntitiesOfClass(LivingEntity.class, aabb,
+                entity -> entity instanceof IAxolootl iAxolootl && !trackedAxolootls.containsKey(entity.getUUID()) && iAxolootl.getAxolootlVariantId().isPresent());
         // add new entities
         list.forEach(e -> {
-            this.trackedAxolootls.put(e.getUUID(), e.getAxolootlVariantId().get());
+            this.trackedAxolootls.put(e.getUUID(), ((IAxolootl)e).getAxolootlVariantId().get());
             IAquariumControllerProvider.trySetController(e, serverLevel, this.getBlockPos(), this);
         });
         // report changes
@@ -1411,6 +1421,10 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         this.forceCalculateBonuses = true;
     }
 
+    public void forceCalculateAxolootls() {
+        this.forceCalculateAxolootls = true;
+    }
+
     public boolean isOutputFull() {
         return isOutputFull;
     }
@@ -1577,6 +1591,32 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         this.trackedAxolootls.put(uuid, oId.get());
         this.forceCalculateBonuses();
         return true;
+    }
+
+    /**
+     * @param serverLevel the server level
+     * @param random the random source
+     * @return a random position in the tank that has water and no collisions
+     */
+    public Optional<BlockPos> findSpawnablePosition(ServerLevel serverLevel, RandomSource random) {
+        // validate tank
+        if(!hasTank()) {
+            return Optional.empty();
+        }
+        final Vec3i dimensions = size.getDimensions();
+        final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        int attempts = Math.max(1, (int) (size.getInnerVolume() / 10));
+        // check random positions until one passes
+        while(attempts-- > 0) {
+            // randomize position
+            pos.setWithOffset(size.getOrigin(), 1 + random.nextInt(dimensions.getX() - 2), 1 + random.nextInt(dimensions.getY() - 2), 1 + random.nextInt(dimensions.getZ() - 2));
+            // validate position
+            if(serverLevel.getFluidState(pos).is(FluidTags.WATER) && serverLevel.noCollision(AxRegistry.EntityReg.AXOLOOTL.get().getAABB(pos.getX() + 0.5D, pos.getY() + 0.05D, pos.getZ() + 0.5D))) {
+                return Optional.of(pos);
+            }
+        }
+        // no checks passed
+        return Optional.empty();
     }
 
     /**

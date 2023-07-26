@@ -6,6 +6,7 @@
 
 package axolootl.block;
 
+import axolootl.entity.IAxolootl;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -105,7 +106,7 @@ public class AirlockBlock extends HorizontalDirectionalBlock {
 
     @Override
     public VoxelShape getCollisionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        if(pContext instanceof EntityCollisionContext ctx && ctx.getEntity() != null) {
+        if(pContext instanceof EntityCollisionContext ctx && !(ctx.getEntity() instanceof IAxolootl)) {
             return Shapes.empty();
         }
         return super.getCollisionShape(pState, pLevel, pPos, pContext);

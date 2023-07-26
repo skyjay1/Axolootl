@@ -196,7 +196,7 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
 
     //// CAPABILITY ////
 
-    private IItemHandler createItemHandler() {
+    protected IItemHandler createItemHandler() {
         return new InvWrapper(this);
     }
 

@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EnergyScreen extends AbstractCyclingScreen<CyclingMenu> {
+public class EnergyInterfaceScreen extends AbstractCyclingScreen<CyclingMenu> {
 
     // WIDGET CONSTANTS //
     private static final int ENERGY_X = 29;
@@ -55,7 +55,7 @@ public class EnergyScreen extends AbstractCyclingScreen<CyclingMenu> {
     private int usagePerAxolootl;
 
     // COMPONENTS //
-    private static final String PREFIX = "gui.controller_tab.axolootl.energy_interface.";
+    public static final String PREFIX = "gui.controller_tab.axolootl.energy_interface.";
     private Component energyCapacityText;
     private Component energyStorageText;
     private Component individualStorageText;
@@ -64,7 +64,7 @@ public class EnergyScreen extends AbstractCyclingScreen<CyclingMenu> {
     private Component poweredAxolootlsText;
     private Component energyUsagePerAxolootlText;
 
-    public EnergyScreen(CyclingMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
+    public EnergyInterfaceScreen(CyclingMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         this.energyStorage = new HashMap<>();
         pMenu.getController().ifPresent(c -> energyStorage.putAll(c.resolveEnergyStorage(IEnergyStorage::canExtract)));
@@ -126,11 +126,6 @@ public class EnergyScreen extends AbstractCyclingScreen<CyclingMenu> {
         this.energyCapacityText = Component.translatable(PREFIX + "energy_capacity", totalCapacity);
         this.energyStorageText = Component.translatable(PREFIX + "energy_storage", totalEnergy, totalCapacity);
         this.individualStorageText = Component.translatable(PREFIX + "individual_storage", individualEnergy, this.storage.getMaxEnergyStored());
-    }
-
-    @Override
-    protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
-        super.renderBg(pPoseStack, pPartialTick, pMouseX, pMouseY);
     }
 
     @Override

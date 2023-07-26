@@ -6,6 +6,7 @@
 
 package axolootl.entity;
 
+import axolootl.AxRegistry;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import com.mojang.math.Vector3f;
 import net.minecraft.core.RegistryAccess;
@@ -14,7 +15,10 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -93,6 +97,14 @@ public interface IAxolootl {
     }
 
     /**
+     * @param <T> an entity class that extends {@link LivingEntity}, {@link Bucketable}, and {@link IAxolootl}
+     * @return the entity type of the entity
+     */
+    default <T extends LivingEntity & Bucketable & IAxolootl> EntityType<T> getEntityType() {
+        return (EntityType<T>) AxRegistry.EntityReg.AXOLOOTL.get();
+    }
+
+    /**
      * @return the axolootl variant from the registry, if any
      */
     default Optional<AxolootlVariant> getAxolootlVariant(final RegistryAccess registryAccess) {
@@ -118,7 +130,7 @@ public interface IAxolootl {
 
     //// NBT ////
 
-    public static final String KEY_VARIANT_ID = "VariantId";
+    public static final String KEY_VARIANT_ID = "Axolootl";
 
     default void writeAxolootlVariant(CompoundTag pCompound) {
         getAxolootlVariantId().ifPresent(id -> pCompound.putString(KEY_VARIANT_ID, id.toString()));

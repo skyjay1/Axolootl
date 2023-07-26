@@ -15,9 +15,11 @@ import axolootl.network.ServerBoundControllerTabPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -109,6 +111,33 @@ public abstract class AbstractControllerMenu extends AbstractContainerMenu imple
         for (int hotbarSlot = 0; hotbarSlot < 9; hotbarSlot++) {
             addSlot(new Slot(inv, hotbarSlot, startX + hotbarSlot * 18, startY + 3 * 18 + 4));
         }
+    }
+
+    public ItemStack quickMoveStack(Player pPlayer, int pIndex, int blockContainerSize) {
+        ItemStack itemstack = ItemStack.EMPTY;
+        if(blockContainerSize <= 0 || !hasPlayerSlots()) {
+            return itemstack;
+        }
+        Slot slot = this.slots.get(pIndex);
+        if (slot != null && slot.hasItem()) {
+            ItemStack itemstack1 = slot.getItem();
+            itemstack = itemstack1.copy();
+            if (pIndex < blockContainerSize) {
+                if (!this.moveItemStackTo(itemstack1, blockContainerSize, this.slots.size(), true)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.moveItemStackTo(itemstack1, 0, blockContainerSize, false)) {
+                return ItemStack.EMPTY;
+            }
+
+            if (itemstack1.isEmpty()) {
+                slot.set(ItemStack.EMPTY);
+            } else {
+                slot.setChanged();
+            }
+        }
+
+        return itemstack;
     }
 
     //// CONTAINER MENU ////

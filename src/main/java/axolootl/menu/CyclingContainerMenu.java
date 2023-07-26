@@ -93,14 +93,6 @@ public class CyclingContainerMenu extends AbstractControllerMenu {
                 this.containerRows = 1;
                 this.addSlot(new Slot(container, 0, 31, 109));
             }
-
-            @Override
-            public void removed(Player pPlayer) {
-                super.removed(pPlayer);
-                /*if(this.container != null) {
-                    this.clearContainer(pPlayer, this.container);
-                }*/
-            }
         };
     }
 
@@ -151,30 +143,7 @@ public class CyclingContainerMenu extends AbstractControllerMenu {
 
     @Override
     public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
-        ItemStack itemstack = ItemStack.EMPTY;
-        if(this.containerSize <= 0 || !hasPlayerSlots()) {
-            return itemstack;
-        }
-        Slot slot = this.slots.get(pIndex);
-        if (slot != null && slot.hasItem()) {
-            ItemStack itemstack1 = slot.getItem();
-            itemstack = itemstack1.copy();
-            if (pIndex < this.containerSize) {
-                if (!this.moveItemStackTo(itemstack1, this.containerSize, this.slots.size(), true)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (!this.moveItemStackTo(itemstack1, 0, this.containerSize, false)) {
-                return ItemStack.EMPTY;
-            }
-
-            if (itemstack1.isEmpty()) {
-                slot.set(ItemStack.EMPTY);
-            } else {
-                slot.setChanged();
-            }
-        }
-
-        return itemstack;
+        return quickMoveStack(pPlayer, pIndex, this.containerSize);
     }
 
     @Override

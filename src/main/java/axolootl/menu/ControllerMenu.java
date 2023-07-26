@@ -26,6 +26,6 @@ public class ControllerMenu extends AbstractControllerMenu {
 
     @Override
     public boolean stillValid(Player pPlayer) {
-        return true;
+        return controller != null;
     }
 }
