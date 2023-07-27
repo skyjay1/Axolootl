@@ -34,6 +34,7 @@ public class EnergyInterfaceScreen extends AbstractCyclingScreen<CyclingMenu> {
     private static final int ENERGY_HEIGHT = 108;
     private static final int ENERGY_U = 0;
     private static final int ENERGY_V = 50;
+    private static final int ENERGY_MARGIN = 2;
 
     private static final int TEXT_X = 63;
     private static final int TEXT_Y = 17;
@@ -119,9 +120,15 @@ public class EnergyInterfaceScreen extends AbstractCyclingScreen<CyclingMenu> {
         this.individualEnergy = storage.getEnergyStored();
         // calculate percentages and values
         this.totalEnergyPercent = (float) this.totalEnergy / (float) this.totalCapacity;
-        this.totalEnergyHeight = Mth.floor(this.totalEnergyPercent * ENERGY_HEIGHT);
+        this.totalEnergyHeight = Mth.floor(this.totalEnergyPercent * (ENERGY_HEIGHT - ENERGY_MARGIN * 2));
+        if(this.totalEnergy > 0) {
+            this.totalEnergyHeight = Math.max(1 + ENERGY_MARGIN, totalEnergyHeight);
+        }
         this.individualEnergyPercent = (float) this.storage.getEnergyStored() / (float) this.totalCapacity;
-        this.individualEnergyHeight = Mth.floor(this.individualEnergyPercent * ENERGY_HEIGHT);
+        this.individualEnergyHeight = Mth.floor(this.individualEnergyPercent * (ENERGY_HEIGHT - ENERGY_MARGIN * 2));
+        if(this.storage.getEnergyStored() > 0) {
+            this.individualEnergyHeight = Math.max(1 + ENERGY_MARGIN, individualEnergyHeight);
+        }
         // create components
         this.energyCapacityText = Component.translatable(PREFIX + "energy_capacity", totalCapacity);
         this.energyStorageText = Component.translatable(PREFIX + "energy_storage", totalEnergy, totalCapacity);
@@ -144,9 +151,9 @@ public class EnergyInterfaceScreen extends AbstractCyclingScreen<CyclingMenu> {
         // draw background energy bar
         blit(pPoseStack, x, y, ENERGY_U, ENERGY_V, ENERGY_WIDTH, ENERGY_HEIGHT);
         // draw total energy bar
-        blit(pPoseStack, x, y + ENERGY_HEIGHT - totalEnergyHeight, ENERGY_U + ENERGY_WIDTH, ENERGY_V, ENERGY_WIDTH, totalEnergyHeight);
+        blit(pPoseStack, x, y + (ENERGY_HEIGHT - ENERGY_MARGIN) - totalEnergyHeight, ENERGY_U + ENERGY_WIDTH, ENERGY_V, ENERGY_WIDTH, totalEnergyHeight);
         // draw storage energy bar
-        blit(pPoseStack, x, y + ENERGY_HEIGHT - individualEnergyHeight, ENERGY_U + ENERGY_WIDTH * 2, ENERGY_V, ENERGY_WIDTH, individualEnergyHeight);
+        blit(pPoseStack, x, y + (ENERGY_HEIGHT - ENERGY_MARGIN) - individualEnergyHeight, ENERGY_U + ENERGY_WIDTH * 2, ENERGY_V, ENERGY_WIDTH, individualEnergyHeight);
 
     }
 

@@ -9,6 +9,7 @@ package axolootl.data.aquarium_modifier;
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.condition.ModifierCondition;
 import axolootl.data.aquarium_modifier.condition.TrueModifierCondition;
+import axolootl.util.TankMultiblock;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -35,6 +36,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import java.util.List;
 import java.util.Optional;
@@ -179,14 +181,28 @@ public class AquariumModifier {
      * @return the block pos to duplicate this block state, if any
      */
     protected Optional<BlockPos> findSpreadablePosition(final AquariumModifierContext context) {
+        if (!context.hasTank()) {
+            return Optional.empty();
+        }
+        // prepare to search block positions
+        final BoundingBox bounds = context.getTankSize().boundingBox();
+        final Vec3i spreadDistance = settings.getSpreadSearchDistance();
         final BlockPos origin = context.getPos();
         final BlockState blockState = context.getLevel().getBlockState(origin);
-        final BlockPos fromPos = origin.offset(settings.getSpreadSearchDistance().multiply(-1));
-        final BlockPos toPos = origin.offset(settings.getSpreadSearchDistance());
+        // clamp from and to positions within the tank size bounds
+        BlockPos fromPos = new BlockPos(
+                Math.max(bounds.minX(), origin.getX() - spreadDistance.getX()),
+                Math.max(bounds.minY(), origin.getY() - spreadDistance.getY()),
+                Math.max(bounds.minZ(), origin.getZ() - spreadDistance.getZ()));
+        BlockPos toPos = new BlockPos(
+                Math.min(bounds.maxX(), origin.getX() + spreadDistance.getX()),
+                Math.min(bounds.maxY(), origin.getY() + spreadDistance.getY()),
+                Math.min(bounds.maxZ(), origin.getZ() + spreadDistance.getZ()));
         // iterate block positions until one is found that can support the modifier block state
         for(BlockPos pos : BlockPos.betweenClosed(fromPos, toPos)) {
             // validate replaceable
-            if(!blockState.getMaterial().isReplaceable()) {
+            BlockState replacing = context.getLevel().getBlockState(pos);
+            if(!replacing.getMaterial().isReplaceable()) {
                 continue;
             }
             // validate can survive

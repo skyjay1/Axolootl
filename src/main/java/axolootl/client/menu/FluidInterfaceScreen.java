@@ -41,7 +41,7 @@ public class FluidInterfaceScreen extends CyclingContainerScreen {
     private static final int FLUID_HEIGHT = 72;
     private static final int FLUID_U = 55;
     private static final int FLUID_V = 50;
-    private static final int FLUID_MARGIN = 1;
+    private static final int FLUID_MARGIN = 2;
 
     private static final int TEXT_X = 63;
     private static final int TEXT_Y = 17;
@@ -159,7 +159,7 @@ public class FluidInterfaceScreen extends CyclingContainerScreen {
         // draw background energy bar
         blit(poseStack, x, y, FLUID_U, FLUID_V, FLUID_WIDTH, FLUID_HEIGHT);
         // draw fluid stack
-        renderFluid(poseStack, leftPos + FLUID_X + FLUID_MARGIN, topPos + FLUID_Y + (FLUID_HEIGHT - totalFluidHeight) - FLUID_MARGIN, FLUID_WIDTH - 2, totalFluidHeight, fluidStack);
+        renderFluid(poseStack, leftPos + FLUID_X + FLUID_MARGIN, topPos + FLUID_Y + (FLUID_HEIGHT - totalFluidHeight) - FLUID_MARGIN, FLUID_WIDTH - FLUID_MARGIN * 2, totalFluidHeight, fluidStack);
     }
 
 

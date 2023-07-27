@@ -89,6 +89,8 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlMenu> imp
     protected void init() {
         super.init();
         updateVariantList();
+        // update title position
+        this.titleLabelX = (this.imageWidth - font.width(this.getTitle())) / 2;
         // add scroll button
         this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + 198, topPos + 19, 12, 82, WIDGETS, 244, 0, 12, 15, 15, true, 1.0F / Math.max(1, (variantCountList.size() - ENTRY_COUNT) / ENTRY_COUNT_X), this));
         this.setFocused(this.scrollButton);
@@ -132,8 +134,15 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlMenu> imp
 
     @Override
     protected void renderBgTexture(PoseStack poseStack, float partialTick, int mouseX, int mouseY) {
+        RenderSystem.setShaderTexture(0, BACKGROUND);
+        blit(poseStack, this.leftPos, this.topPos, 0, 0, WIDTH, HEIGHT);
         RenderSystem.setShaderTexture(0, AXOLOOTL_BG);
         blit(poseStack, this.leftPos, this.topPos, 0, 0, WIDTH, HEIGHT);
+        RenderSystem.setShaderTexture(0, SLOTS);
+        blit(poseStack, this.leftPos + AxolootlMenu.INV_X - 1, this.topPos + AxolootlMenu.INV_Y - 1, AxolootlMenu.INV_X - 1, AxolootlMenu.INV_Y - 1, AxolootlMenu.INV_SIZE * 18, 18);
+        // bucket icon
+        blit(poseStack, this.leftPos + AxolootlMenu.INV_X, this.topPos + AxolootlMenu.INV_Y, 240, 0, 16, 16);
+
     }
 
     @Override

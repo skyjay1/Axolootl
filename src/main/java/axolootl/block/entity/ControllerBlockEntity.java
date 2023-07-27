@@ -13,7 +13,6 @@ import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.data.resource_generator.ResourceType;
-import axolootl.entity.AxolootlEntity;
 import axolootl.entity.IAxolootl;
 import axolootl.menu.ControllerMenu;
 import axolootl.util.BreedStatus;
@@ -52,7 +51,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -64,9 +62,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -1047,7 +1043,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
                 // create context
                 final Map<BlockPos, AquariumModifier> contextMap = new HashMap<>(modifierMap);
                 contextMap.remove(entry.getKey());
-                AquariumModifierContext context = new AquariumModifierContext(serverLevel, entry.getKey(), axolootls, contextMap);
+                AquariumModifierContext context = new AquariumModifierContext(serverLevel, entry.getKey(), size, axolootls, contextMap);
                 // validate modifier is active and either does not require power or the tank has sufficient power
                 if(entry.getValue().isActive(context)/* && (!isInsufficientPower() || entry.getValue().getSettings().getEnergyCost() <= 0)*/) {
                     active.add(entry.getKey());
@@ -1059,7 +1055,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
                         // create context to check new modifier immediately
                         contextMap.put(entry.getKey(), entry.getValue());
                         // check if the new modifier is active
-                        if(entry.getValue().isActive(new AquariumModifierContext(serverLevel, b, axolootls, contextMap))) {
+                        if(entry.getValue().isActive(new AquariumModifierContext(serverLevel, b, size, axolootls, contextMap))) {
                             active.add(b);
                         }
                     });
@@ -1773,6 +1769,10 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     public CompoundTag getUpdateTag() {
         CompoundTag tag = new CompoundTag();
         saveAdditional(tag);
+        // write speeds
+        tag.putDouble(KEY_GENERATION_SPEED, generationSpeed);
+        tag.putDouble(KEY_FEED_SPEED, feedSpeed);
+        tag.putDouble(KEY_BREED_SPEED, breedSpeed);
         return tag;
     }
 
@@ -1801,6 +1801,9 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     private static final String KEY_GENERATION_TIME = "GenerationTime";
     private static final String KEY_BREED_TIME = "BreedTime";
     private static final String KEY_FEED_TIME = "FeedTime";
+    private static final String KEY_GENERATION_SPEED = "GenerationSpeed";
+    private static final String KEY_FEED_SPEED = "FeedSpeed";
+    private static final String KEY_BREED_SPEED = "BreedSpeed";
 
     @Override
     public void load(CompoundTag tag) {
@@ -1815,6 +1818,13 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         this.tankStatus = TankStatus.getByName(tag.getString(KEY_TANK_STATUS));
         this.feedStatus = FeedStatus.getByName(tag.getString(KEY_FEED_STATUS));
         this.breedStatus = BreedStatus.getByName(tag.getString(KEY_BREED_STATUS));
+        // read speeds
+        if(tag.contains(KEY_GENERATION_SPEED) && tag.contains(KEY_FEED_SPEED) && tag.contains(KEY_BREED_SPEED)) {
+            this.generationSpeed = tag.getDouble(KEY_GENERATION_SPEED);
+            this.feedSpeed = tag.getDouble(KEY_FEED_SPEED);
+            this.breedSpeed = tag.getDouble(KEY_BREED_SPEED);
+            this.forceCalculateBonuses();
+        }
         // read tickers
         this.resourceGenerationTime = tag.getLong(KEY_GENERATION_TIME);
         this.breedTime = tag.getLong(KEY_BREED_TIME);

@@ -34,12 +34,16 @@ public enum FeedStatus implements StringRepresentable {
 
     private final String name;
     private final boolean active;
+    private final String descriptionKey;
     private final Component description;
+    private final Component descriptionSubtext;
 
     FeedStatus(String name, boolean active) {
         this.name = name;
         this.active = active;
-        this.description = Component.translatable(Axolootl.MODID + ".feed_status." + name);
+        this.descriptionKey = Axolootl.MODID + ".feed_status." + name;
+        this.description = Component.translatable(descriptionKey);
+        this.descriptionSubtext = Component.translatable(descriptionKey + ".description");
     }
 
     public static FeedStatus getByName(final String name) {
@@ -50,8 +54,16 @@ public enum FeedStatus implements StringRepresentable {
         return active;
     }
 
+    public String getTranslationKey() {
+        return descriptionKey;
+    }
+
     public Component getDescription() {
         return description;
+    }
+
+    public Component getDescriptionSubtext() {
+        return descriptionSubtext;
     }
 
     @Override

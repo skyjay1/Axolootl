@@ -26,7 +26,7 @@ public class CyclingContainerScreen extends AbstractCyclingScreen<CyclingContain
 
     protected void renderContainerSlots(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
         RenderSystem.setShaderTexture(0, SLOTS);
-        blit(pPoseStack, this.leftPos + CyclingContainerMenu.INV_X, this.topPos + CyclingContainerMenu.INV_Y, CyclingContainerMenu.INV_X - 1, CyclingContainerMenu.INV_Y - 1, 9 * 18, textureHeight);
+        blit(pPoseStack, this.leftPos + CyclingContainerMenu.INV_X - 1, this.topPos + CyclingContainerMenu.INV_Y - 1, CyclingContainerMenu.INV_X - 1, CyclingContainerMenu.INV_Y - 1, 9 * 18, textureHeight);
     }
 
     @Override

@@ -19,7 +19,8 @@ public class AxolootlEntryButton extends ImageButton {
     public static final int WIDTH = 92;
     public static final int HEIGHT = 20;
 
-    public static final int INTERACT_WIDTH = 20;
+    public static final int INTERACT_WIDTH = 14;
+    public static final int INTERACT_HEIGHT = 14;
 
     private Font font;
     private AxolootlVariant entry;
@@ -29,7 +30,7 @@ public class AxolootlEntryButton extends ImageButton {
     private Component tooltipFailText;
 
     public AxolootlEntryButton(int pX, int pY, Font font, OnPress pOnPress, OnTooltip pOnTooltip) {
-        super(pX, pY, INTERACT_WIDTH, HEIGHT, 236, 143, HEIGHT, AbstractTabScreen.WIDGETS, 256, 256,
+        super(pX, pY, INTERACT_WIDTH, INTERACT_HEIGHT, 242, 143, INTERACT_HEIGHT, AbstractTabScreen.WIDGETS, 256, 256,
                 pOnPress, pOnTooltip, Component.empty());
         this.entry = AxolootlVariant.EMPTY;
         this.font = font;
