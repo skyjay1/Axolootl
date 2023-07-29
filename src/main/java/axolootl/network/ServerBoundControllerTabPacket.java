@@ -83,6 +83,7 @@ public class ServerBoundControllerTabPacket {
                     return;
                 }
                 // open menu
+                //player.closeContainer();
                 NetworkHooks.openScreen(player, oProvider.get().getProvider(), AxRegistry.MenuReg.writeControllerMenu(pos, oProvider.get().getPos(), message.tab, -1));
             });
         }

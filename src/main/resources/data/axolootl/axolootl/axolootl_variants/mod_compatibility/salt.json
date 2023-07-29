@@ -25,22 +25,20 @@
       }
     }
   ],
-  "forge:conditions": [
-    {
-      "type": "forge:not",
-      "value": {
-        "type": "forge:or",
-        "values": [
-          {
-            "type": "forge:tag_empty",
-            "tag": "forge:dusts/salt"
-          },
-          {
-            "type": "forge:tag_empty",
-            "tag": "forge:storage_blocks/salt"
-          }
-        ]
-      }
+  "condition": {
+    "type": "forge:not",
+    "value": {
+      "type": "forge:or",
+      "values": [
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:dusts/salt"
+        },
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:storage_blocks/salt"
+        }
+      ]
     }
-  ]
+  }
 }

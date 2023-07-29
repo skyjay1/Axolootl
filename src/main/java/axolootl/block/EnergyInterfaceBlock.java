@@ -38,21 +38,16 @@ public class EnergyInterfaceBlock extends AbstractInterfaceBlock {
         if (pLevel.isClientSide()) {
             return InteractionResult.SUCCESS;
         } else {
-            BlockEntity blockentity = pLevel.getBlockEntity(pPos);
-            ItemStack itemStack = pPlayer.getItemInHand(pHand);
-            // TODO debug only
-            if(blockentity instanceof EnergyInterfaceBlockEntity be) {
-                LazyOptional<IEnergyStorage> energyStorage = be.getCapability(ForgeCapabilities.ENERGY, null);
-                energyStorage.ifPresent(i -> pPlayer.displayClientMessage(Component.literal("energy: " + i.getEnergyStored()), false));
-            }
             if (pPlayer instanceof ServerPlayer serverPlayer && pLevel.getBlockEntity(pPos) instanceof EnergyInterfaceBlockEntity blockEntity) {
                 // validate controller
                 if (blockEntity.hasTank() && blockEntity.validateController(pLevel)) {
                     blockEntity.setChanged();
                 }
                 // open menu
-                BlockPos controllerPos = blockEntity.getController().isPresent() ? blockEntity.getController().get().getBlockPos() : pPos;
-                NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.ENERGY_INTERFACE.get().getSortedIndex(), -1));
+                if (blockEntity.isMenuAvailable(serverPlayer, blockEntity.getController().orElse(null))) {
+                    BlockPos controllerPos = blockEntity.getController().isPresent() ? blockEntity.getController().get().getBlockPos() : pPos;
+                    NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.ENERGY_INTERFACE.get().getSortedIndex(), -1));
+                }
             }
             return InteractionResult.CONSUME;
         }

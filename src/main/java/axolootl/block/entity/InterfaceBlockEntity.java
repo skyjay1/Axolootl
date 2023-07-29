@@ -121,7 +121,7 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
         }
     }
 
-    public abstract boolean isMenuAvailable(final Player player, final ControllerBlockEntity controller);
+    public abstract boolean isMenuAvailable(final Player player, final @Nullable ControllerBlockEntity controller);
 
     //// CONTAINER ////
 

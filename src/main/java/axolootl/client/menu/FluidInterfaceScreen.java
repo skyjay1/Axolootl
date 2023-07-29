@@ -7,6 +7,8 @@
 package axolootl.client.menu;
 
 import axolootl.block.AbstractInterfaceBlock;
+import axolootl.block.entity.WaterInterfaceBlockEntity;
+import axolootl.menu.AxolootlMenu;
 import axolootl.menu.CyclingContainerMenu;
 import axolootl.util.TankMultiblock;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -43,12 +45,13 @@ public class FluidInterfaceScreen extends CyclingContainerScreen {
     private static final int FLUID_V = 50;
     private static final int FLUID_MARGIN = 2;
 
-    private static final int TEXT_X = 63;
-    private static final int TEXT_Y = 17;
+    private static final int TEXT_X = FLUID_X + FLUID_WIDTH + 4;
+    private static final int TEXT_Y = 25;
+    private static final int TEXT_WIDTH = WIDTH - TEXT_X - 7;
     private static final int TEXT_LINE_SPACING = 8;
-    private int textDeltaY;
 
     // DATA //
+    private WaterInterfaceBlockEntity blockEntity;
     private IFluidHandler storage;
     private FluidStack fluidStack;
     private long volume;
@@ -59,7 +62,7 @@ public class FluidInterfaceScreen extends CyclingContainerScreen {
 
     // COMPONENTS //
     public static final String PREFIX = "gui.controller_tab.axolootl.fluid_interface.";
-    private Component volumetext;
+    private Component volumeText;
     private Component capacityText;
     private Component storageText;
     private Component statusText;
@@ -78,19 +81,25 @@ public class FluidInterfaceScreen extends CyclingContainerScreen {
         if(getMenu().hasTank()) {
             volume = getMenu().getController().get().getSize().orElse(TankMultiblock.Size.EMPTY).getInnerVolume();
         }
-        this.volumetext = Component.translatable(PREFIX + "volume", volume);
+        this.volumeText = Component.translatable(PREFIX + "volume", volume);
+        if(getMenu().getInventory().player.level.getBlockEntity(pMenu.getBlockPos()) instanceof WaterInterfaceBlockEntity be) {
+            this.blockEntity = be;
+        }
     }
 
     @Override
     protected void renderContainerSlots(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
+        int x = this.leftPos + CyclingContainerMenu.INV_X;
+        int y = this.topPos + CyclingContainerMenu.INV_Y + (5 * 18);
         RenderSystem.setShaderTexture(0, SLOTS);
-        blit(pPoseStack, this.leftPos + CyclingContainerMenu.INV_X, this.topPos + CyclingContainerMenu.INV_Y + (5 * 18), CyclingContainerMenu.INV_X - 1, CyclingContainerMenu.INV_Y - 1, textureWidth, textureHeight);
+        blit(pPoseStack, x - 1, y - 1, CyclingContainerMenu.INV_X - 1, CyclingContainerMenu.INV_Y - 1, textureWidth, textureHeight);
+        // bucket icon
+        blit(pPoseStack, x, y - 1, 240, 0, 16, 16);
     }
 
     @Override
     protected void init() {
         super.init();
-        this.textDeltaY = font.lineHeight + TEXT_LINE_SPACING;
         this.containerTick();
     }
 
@@ -101,7 +110,10 @@ public class FluidInterfaceScreen extends CyclingContainerScreen {
         this.fluidStack = this.storage.getFluidInTank(0);
         this.totalCapacity = this.storage.getTankCapacity(0);
         this.totalFluidPercent = (float) this.fluidStack.getAmount() / (float) Math.max(1, this.totalCapacity);
-        this.totalFluidHeight = Mth.clamp(Mth.floor(totalFluidPercent * FLUID_HEIGHT), 1, FLUID_HEIGHT - FLUID_MARGIN * 2);
+        this.totalFluidHeight = Mth.floor(totalFluidPercent * FLUID_HEIGHT);
+        if(!fluidStack.isEmpty()) {
+            this.totalFluidHeight = Mth.clamp(totalFluidHeight, 1, FLUID_HEIGHT - FLUID_MARGIN * 2);
+        }
         // create components
         this.capacityText = Component.translatable(PREFIX + "capacity", totalCapacity);
         this.storageText = Component.translatable(PREFIX + "storage", fluidStack.getAmount(), totalCapacity);
@@ -128,14 +140,18 @@ public class FluidInterfaceScreen extends CyclingContainerScreen {
     }
 
     private String getStatus() {
-        // check for empty
-        if(this.fluidStack.isEmpty() || this.fluidStack.getAmount() < FluidType.BUCKET_VOLUME) {
-            return "empty";
-        }
         // check for paused
         final BlockState blockState = getMenu().getInventory().player.level.getBlockState(getMenu().getBlockPos());
         if(blockState.hasProperty(AbstractInterfaceBlock.POWERED) && blockState.getValue(AbstractInterfaceBlock.POWERED)) {
             return "paused";
+        }
+        // check for obstructed
+        if(blockEntity != null && blockEntity.isObstructed()) {
+            return "obstructed";
+        }
+        // check for empty
+        if(this.fluidStack.isEmpty() || this.fluidStack.getAmount() < FluidType.BUCKET_VOLUME) {
+            return "empty";
         }
         // fallback
         return "active";
@@ -144,11 +160,9 @@ public class FluidInterfaceScreen extends CyclingContainerScreen {
     private void renderDetails(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         int x = this.leftPos + TEXT_X;
         int y = this.topPos + TEXT_Y;
-        this.font.draw(poseStack, volumetext, x, y, 0);
-        y += textDeltaY;
-        this.font.draw(poseStack, storageText, x, y, 0);
-        y += textDeltaY;
-        this.font.draw(poseStack, statusText, x, y, 0);
+        y += renderWrappedText(poseStack, volumeText, x, y, TEXT_WIDTH, 0) + TEXT_LINE_SPACING;
+        y += renderWrappedText(poseStack, storageText, x, y, TEXT_WIDTH, 0) + TEXT_LINE_SPACING;
+        y += renderWrappedText(poseStack, statusText, x, y, TEXT_WIDTH, 0) + TEXT_LINE_SPACING;
     }
 
     private void renderFluidBar(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
@@ -158,8 +172,13 @@ public class FluidInterfaceScreen extends CyclingContainerScreen {
         RenderSystem.setShaderTexture(0, WIDGETS);
         // draw background energy bar
         blit(poseStack, x, y, FLUID_U, FLUID_V, FLUID_WIDTH, FLUID_HEIGHT);
+        blit(poseStack, x, y, FLUID_U + FLUID_WIDTH, FLUID_V, FLUID_WIDTH, FLUID_HEIGHT - totalFluidHeight);
         // draw fluid stack
-        renderFluid(poseStack, leftPos + FLUID_X + FLUID_MARGIN, topPos + FLUID_Y + (FLUID_HEIGHT - totalFluidHeight) - FLUID_MARGIN, FLUID_WIDTH - FLUID_MARGIN * 2, totalFluidHeight, fluidStack);
+        x = leftPos + FLUID_X + FLUID_MARGIN;
+        y = topPos + FLUID_Y + (FLUID_HEIGHT - totalFluidHeight) - FLUID_MARGIN;
+        int width = FLUID_WIDTH - FLUID_MARGIN * 2;
+        fill(poseStack, x, y, x + width, y + totalFluidHeight, 0xFFFFFFFF);
+        renderFluid(poseStack, x, y, width, totalFluidHeight, fluidStack);
     }
 
 
@@ -204,9 +223,9 @@ public class FluidInterfaceScreen extends CyclingContainerScreen {
 
     private void renderHoverActions(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         int x = TEXT_X;
-        int y = TEXT_Y + textDeltaY * 2;
+        int y = TEXT_Y + TEXT_LINE_SPACING * 2 + font.wordWrapHeight(volumeText, TEXT_WIDTH) + font.wordWrapHeight(storageText, TEXT_WIDTH);
         // render detail hover actions
-        if(isHovering(x, y, font.width(statusText), font.lineHeight, mouseX, mouseY)) {
+        if(isHovering(x, y, font.width(statusText), font.wordWrapHeight(statusText, TEXT_WIDTH), mouseX, mouseY)) {
             renderComponentHoverEffect(poseStack, statusText.getStyle(), mouseX, mouseY);
         }
         // render energy bar tooltips

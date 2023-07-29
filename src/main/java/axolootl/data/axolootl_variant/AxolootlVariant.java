@@ -7,6 +7,9 @@
 package axolootl.data.axolootl_variant;
 
 import axolootl.AxRegistry;
+import axolootl.data.axolootl_variant.condition.FalseForgeCondition;
+import axolootl.data.axolootl_variant.condition.ForgeCondition;
+import axolootl.data.axolootl_variant.condition.TrueForgeCondition;
 import axolootl.data.resource_generator.EmptyResourceGenerator;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.data.resource_generator.ResourceType;
@@ -24,6 +27,7 @@ import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.random.WeightedEntry;
@@ -37,16 +41,17 @@ import java.util.Set;
 
 public class AxolootlVariant {
 
-    public static final AxolootlVariant EMPTY = new AxolootlVariant("empty", 0, 0x0, 0x0, 0, ImmutableList.of(), HolderSet.direct(), SimpleWeightedRandomList.empty());
+    public static final AxolootlVariant EMPTY = new AxolootlVariant(FalseForgeCondition.INSTANCE, "empty", 0, 0x0, 0x0, 0, ImmutableList.of(), HolderSet.direct(), SimpleWeightedRandomList.empty());
 
     private static final Codec<HolderSet<Item>> ITEM_HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(ForgeRegistries.Keys.ITEMS);
 
     public static final Codec<AxolootlVariant> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        ForgeCondition.DIRECT_CODEC.optionalFieldOf("condition", TrueForgeCondition.INSTANCE).forGetter(AxolootlVariant::getCondition),
         Codec.STRING.fieldOf("translation_key").forGetter(AxolootlVariant::getTranslationKey),
-        Codec.INT.optionalFieldOf("tier", 1).forGetter(AxolootlVariant::getTier),
+        ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("tier", 1).forGetter(AxolootlVariant::getTier),
         Codec.INT.optionalFieldOf("primary_color", -1).forGetter(AxolootlVariant::getPrimaryColor),
         Codec.INT.optionalFieldOf("secondary_color", -1).forGetter(AxolootlVariant::getSecondaryColor),
-        Codec.INT.optionalFieldOf("energy_cost", 0).forGetter(AxolootlVariant::getEnergyCost),
+        ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("energy_cost", 0).forGetter(AxolootlVariant::getEnergyCost),
         BonusesProvider.CODEC.listOf().optionalFieldOf("food", BonusesProvider.FISH_BONUS_PROVIDERS).forGetter(AxolootlVariant::getFoods),
         ITEM_HOLDER_SET_CODEC.optionalFieldOf("breed_food", HolderSet.direct()).forGetter(AxolootlVariant::getBreedFood),
         ResourceGenerator.WEIGHTED_LIST_CODEC.optionalFieldOf("resource_generator", SimpleWeightedRandomList.empty()).forGetter(AxolootlVariant::getResourceGenerators)
@@ -55,6 +60,8 @@ public class AxolootlVariant {
     public static final Codec<Holder<AxolootlVariant>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, CODEC);
     public static final Codec<HolderSet<AxolootlVariant>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_VARIANTS, CODEC);
 
+    /** The requirements for this object to be enabled **/
+    private final ForgeCondition condition;
     /** The translation key of the object **/
     private final String translationKey;
     /** The axolootl tier **/
@@ -79,8 +86,9 @@ public class AxolootlVariant {
     /** The registry object holder **/
     private Holder<AxolootlVariant> holder;
 
-    public AxolootlVariant(String translationKey, int tier, int primaryColor, int secondaryColor, int energyCost,
+    public AxolootlVariant(ForgeCondition condition, String translationKey, int tier, int primaryColor, int secondaryColor, int energyCost,
                            List<BonusesProvider> foods, HolderSet<Item> breedFood, SimpleWeightedRandomList<ResourceGenerator> resourceGenerators) {
+        this.condition = condition;
         this.translationKey = translationKey;
         this.tier = tier;
         this.primaryColor = primaryColor;
@@ -100,6 +108,10 @@ public class AxolootlVariant {
     //// METHODS ////
 
     /**
+     * Loads the axolootl variant registry.
+     * If you are going to iterate the registry, make sure to check
+     * {@link axolootl.AxRegistry.AxolootlVariantsReg#isValid(ResourceLocation)} or
+     * {@link axolootl.AxRegistry.AxolootlVariantsReg#isValid(RegistryAccess, AxolootlVariant)}
      * @param access the registry access
      * @return the axolootl variant registry
      */
@@ -130,7 +142,7 @@ public class AxolootlVariant {
      */
     public Holder<AxolootlVariant> getHolder(final RegistryAccess registryAccess) {
         if(null == this.holder) {
-            this.holder =  getRegistry(registryAccess).getOrCreateHolderOrThrow(ResourceKey.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, getRegistryName(registryAccess)));;
+            this.holder =  getRegistry(registryAccess).getOrCreateHolderOrThrow(ResourceKey.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, getRegistryName(registryAccess)));
         }
         return this.holder;
     }
@@ -147,6 +159,10 @@ public class AxolootlVariant {
 
     public String getTranslationKey() {
         return translationKey;
+    }
+
+    public ForgeCondition getCondition() {
+        return condition;
     }
 
     public int getTier() {
@@ -205,6 +221,10 @@ public class AxolootlVariant {
             this.description = Component.translatable(getTranslationKey());
         }
         return this.description;
+    }
+
+    public boolean isEnabled(RegistryAccess registryAccess) {
+        return AxRegistry.AxolootlVariantsReg.isValid(registryAccess, this);
     }
 
     //// OVERRIDES ////

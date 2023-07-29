@@ -53,7 +53,7 @@ public class AquariumModifier {
     public static final Codec<AquariumModifier> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("translation_key").forGetter(AquariumModifier::getTranslationKey),
             ModifierSettings.CODEC.fieldOf("settings").forGetter(AquariumModifier::getSettings),
-            Vec3i.CODEC.optionalFieldOf("dimensions", new Vec3i(1, 1, 1)).forGetter(AquariumModifier::getDimensions),
+            ModifierSettings.POSITIVE_VEC3I_CODEC.optionalFieldOf("dimensions", new Vec3i(1, 1, 1)).forGetter(AquariumModifier::getDimensions),
             BLOCK_PREDICATE_LIST_OR_SINGLE_CODEC.optionalFieldOf("block", ImmutableList.of(BlockPredicate.not(BlockPredicate.alwaysTrue()))).forGetter(AquariumModifier::getBlockStatePredicate),
             ModifierCondition.DIRECT_CODEC.optionalFieldOf("condition", TrueModifierCondition.INSTANCE).forGetter(AquariumModifier::getCondition)
     ).apply(instance, AquariumModifier::new));
@@ -199,7 +199,13 @@ public class AquariumModifier {
                 Math.min(bounds.maxY(), origin.getY() + spreadDistance.getY()),
                 Math.min(bounds.maxZ(), origin.getZ() + spreadDistance.getZ()));
         // iterate block positions until one is found that can support the modifier block state
+        int volume = (spreadDistance.getX() * 2 + 1) * (spreadDistance.getY() * 2 + 1) * (spreadDistance.getZ() * 2 + 1);
+        int chance = context.getLevel().getRandom().nextInt(volume);
         for(BlockPos pos : BlockPos.betweenClosed(fromPos, toPos)) {
+            // validate random check
+            if(--chance > 0 && context.getLevel().getRandom().nextInt(chance) != 0) {
+                continue;
+            }
             // validate replaceable
             BlockState replacing = context.getLevel().getBlockState(pos);
             if(!replacing.getMaterial().isReplaceable()) {

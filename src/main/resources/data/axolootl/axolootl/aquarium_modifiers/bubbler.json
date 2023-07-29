@@ -20,7 +20,8 @@
       {
         "type": "axolootl:count",
         "modifier": "axolootl:powered_bubbler",
-        "count": 0
+        "count": 0,
+        "active": true
       }
     ]
   }

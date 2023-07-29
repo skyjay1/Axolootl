@@ -192,6 +192,11 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
         }
     }
 
+    @Override
+    public ItemStack getPickResult() {
+        return asItemStack();
+    }
+
     //// ANIMAL ////
 
     @Override

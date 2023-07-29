@@ -19,6 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.items.IItemHandler;
@@ -82,7 +83,8 @@ public class ServerBoundExtractAxolootlPacket {
                     return;
                 }
                 // validate axolootl interface
-                final AxolootlInterfaceBlockEntity axolootlInterface = (AxolootlInterfaceBlockEntity) player.level.getBlockEntity(menu.getBlockPos());
+                final BlockPos blockPos = menu.getBlockPos();
+                final AxolootlInterfaceBlockEntity axolootlInterface = (AxolootlInterfaceBlockEntity) player.level.getBlockEntity(blockPos);
                 if(null == axolootlInterface) {
                     return;
                 }
@@ -133,6 +135,9 @@ public class ServerBoundExtractAxolootlPacket {
                 if(!itemStack.isEmpty() && !player.getInventory().add(itemStack)) {
                     player.drop(itemStack, false);
                 }
+                // update controller
+                controller.setChanged();
+                player.level.sendBlockUpdated(controllerPos, controller.getBlockState(), controller.getBlockState(), Block.UPDATE_CLIENTS);
             });
         }
         context.setPacketHandled(true);

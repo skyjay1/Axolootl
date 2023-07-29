@@ -913,7 +913,10 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         // query entities that are not already tracked
         final AABB aabb = this.size.aabb();
         final List<LivingEntity> list = serverLevel.getEntitiesOfClass(LivingEntity.class, aabb,
-                entity -> entity instanceof IAxolootl iAxolootl && !trackedAxolootls.containsKey(entity.getUUID()) && iAxolootl.getAxolootlVariantId().isPresent());
+                entity -> entity instanceof IAxolootl iAxolootl
+                        && !trackedAxolootls.containsKey(entity.getUUID())
+                        && iAxolootl.getAxolootlVariantId().isPresent()
+                        && AxRegistry.AxolootlVariantsReg.isValid(iAxolootl.getAxolootlVariantId().get()));
         // add new entities
         list.forEach(e -> {
             this.trackedAxolootls.put(e.getUUID(), ((IAxolootl)e).getAxolootlVariantId().get());
@@ -1035,6 +1038,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         // iterate modifiers and check if they still exist and whether they are active
         final Set<BlockPos> invalid = new HashSet<>();
         final Set<BlockPos> active = new HashSet<>();
+        final Set<BlockPos> wasActive = getActiveAquariumModifiers();
         final Collection<IAxolootl> axolootls = resolveAxolootls(serverLevel);
         final Map<BlockPos, AquariumModifier> modifierMap = ImmutableMap.copyOf(resolveModifiers(serverLevel.registryAccess()));
         for(Map.Entry<BlockPos, AquariumModifier> entry : modifierMap.entrySet()) {
@@ -1043,7 +1047,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
                 // create context
                 final Map<BlockPos, AquariumModifier> contextMap = new HashMap<>(modifierMap);
                 contextMap.remove(entry.getKey());
-                AquariumModifierContext context = new AquariumModifierContext(serverLevel, entry.getKey(), size, axolootls, contextMap);
+                AquariumModifierContext context = new AquariumModifierContext(serverLevel, entry.getKey(), size, axolootls, contextMap, wasActive);
                 // validate modifier is active and either does not require power or the tank has sufficient power
                 if(entry.getValue().isActive(context)/* && (!isInsufficientPower() || entry.getValue().getSettings().getEnergyCost() <= 0)*/) {
                     active.add(entry.getKey());
@@ -1055,7 +1059,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
                         // create context to check new modifier immediately
                         contextMap.put(entry.getKey(), entry.getValue());
                         // check if the new modifier is active
-                        if(entry.getValue().isActive(new AquariumModifierContext(serverLevel, b, size, axolootls, contextMap))) {
+                        if(entry.getValue().isActive(new AquariumModifierContext(serverLevel, b, size, axolootls, contextMap, wasActive))) {
                             active.add(b);
                         }
                     });
@@ -1570,22 +1574,31 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         ItemStack itemStack = iprovider.asItemStack();
         // remove entity
         iprovider.getEntity().discard();
+        // mark changed
         this.forceCalculateBonuses();
+        setChanged();
+        serverLevel.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         return itemStack;
     }
 
     /**
+     * @param serverLevel the server level
      * @param iaxolootl an axolootl to start tracking
      * @return true if the iaxolootl was added
      */
-    public boolean addAxolootl(final IAxolootl iaxolootl) {
+    public boolean addAxolootl(final ServerLevel serverLevel, final IAxolootl iaxolootl) {
+        // load uuid and variant ID
         final UUID uuid = iaxolootl.getEntity().getUUID();
         final Optional<ResourceLocation> oId = iaxolootl.getAxolootlVariantId();
-        if(oId.isEmpty()) {
+        // validate variant ID
+        if(oId.isEmpty() || !AxRegistry.AxolootlVariantsReg.isValid(oId.get())) {
             return false;
         }
         this.trackedAxolootls.put(uuid, oId.get());
+        // mark changed
         this.forceCalculateBonuses();
+        setChanged();
+        serverLevel.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         return true;
     }
 
@@ -1668,8 +1681,14 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         // iterate each known axolootl and either add it to the map or mark it to be removed
         final Registry<AxolootlVariant> registry = AxolootlVariant.getRegistry(registryAccess);
         for(Map.Entry<UUID, ResourceLocation> entry : trackedAxolootls.entrySet()) {
-            Optional<AxolootlVariant> oModifier = registry.getOptional(entry.getValue());
-            oModifier.ifPresentOrElse(m -> builder.put(entry.getKey(), m), () -> invalid.add(entry.getKey()));
+            // validate axolootl
+            if(!AxRegistry.AxolootlVariantsReg.isValid(entry.getValue())) {
+                invalid.add(entry.getKey());
+                continue;
+            }
+            // resolve axolootl variant
+            Optional<AxolootlVariant> oVariant = registry.getOptional(entry.getValue());
+            oVariant.ifPresentOrElse(m -> builder.put(entry.getKey(), m), () -> invalid.add(entry.getKey()));
         }
         // remove invalid axolootls
         invalid.forEach(o -> this.trackedAxolootls.remove(o));

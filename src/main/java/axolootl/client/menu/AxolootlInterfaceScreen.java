@@ -80,7 +80,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlMenu> imp
         // update components
         oController.ifPresent(c -> {
             final int maxCapacity = ControllerBlockEntity.calculateMaxCapacity(c.getSize().orElse(TankMultiblock.Size.EMPTY));
-            ChatFormatting color = (entryCount <= maxCapacity) ? ChatFormatting.BLACK : ChatFormatting.RED;
+            ChatFormatting color = (entryCount <= maxCapacity) ? ChatFormatting.RESET : ChatFormatting.RED;
             this.countText = Component.translatable(PREFIX + "count", Component.literal("" + entryCount).withStyle(color), maxCapacity);
         });
     }
@@ -96,7 +96,12 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlMenu> imp
         this.setFocused(this.scrollButton);
         this.scrollButton.active = getMenu().getVariantCountMap().size() > ENTRY_COUNT;
         // add insert button
-        this.insertButton = addRenderableWidget(new ImageButton(leftPos + 143, topPos + 107, 69, 18, 160, 50, 18, WIDGETS, 256, 256, b -> getMenu().insert(), (b, p, mx, my) -> renderTooltip(p, b.getMessage(), mx, my), Component.translatable(PREFIX + "insert")));
+        final Button.OnPress insertButtonOnPress = b -> {
+          getMenu().insert();
+          updateVariantList();
+          updateEntryButtons();
+        };
+        this.insertButton = addRenderableWidget(new ImageButton(leftPos + 143, topPos + 107, 69, 18, 160, 50, 18, WIDGETS, 256, 256, insertButtonOnPress, (b, p, mx, my) -> renderTooltip(p, b.getMessage(), mx, my), Component.translatable(PREFIX + "insert")));
         // add entry buttons
         this.entryButtons.clear();
         for(int i = 0, x, y; i < ENTRY_COUNT; i++) {
@@ -141,8 +146,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlMenu> imp
         RenderSystem.setShaderTexture(0, SLOTS);
         blit(poseStack, this.leftPos + AxolootlMenu.INV_X - 1, this.topPos + AxolootlMenu.INV_Y - 1, AxolootlMenu.INV_X - 1, AxolootlMenu.INV_Y - 1, AxolootlMenu.INV_SIZE * 18, 18);
         // bucket icon
-        blit(poseStack, this.leftPos + AxolootlMenu.INV_X, this.topPos + AxolootlMenu.INV_Y, 240, 0, 16, 16);
-
+        blit(poseStack, this.leftPos + AxolootlMenu.INV_X, this.topPos + AxolootlMenu.INV_Y - 1, 240, 0, 16, 16);
     }
 
     @Override

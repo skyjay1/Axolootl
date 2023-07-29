@@ -8,16 +8,23 @@ package axolootl.data.aquarium_modifier;
 
 import axolootl.AxRegistry;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Immutable
 public class ModifierSettings {
+
+    public static final Codec<Vec3i> NON_NEGATIVE_VEC3I_CODEC = vec3Codec(0);
+    public static final Codec<Vec3i> POSITIVE_VEC3I_CODEC = vec3Codec(1);
 
     public static final Codec<ModifierSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             TagKey.codec(AxRegistry.Keys.AQUARIUM_MODIFIERS).optionalFieldOf("category").forGetter(ModifierSettings::getCategory),
@@ -25,10 +32,10 @@ public class ModifierSettings {
             Codec.DOUBLE.optionalFieldOf("breed", 0.0D).forGetter(ModifierSettings::getBreedSpeed),
             Codec.DOUBLE.optionalFieldOf("feed", 0.0D).forGetter(ModifierSettings::getFeedSpeed),
             Codec.DOUBLE.optionalFieldOf("spread", 0.0D).forGetter(ModifierSettings::getSpreadSpeed),
-            Vec3i.CODEC.optionalFieldOf("spread_distance", Vec3i.ZERO).forGetter(ModifierSettings::getSpreadSearchDistance),
+            NON_NEGATIVE_VEC3I_CODEC.optionalFieldOf("spread_distance", Vec3i.ZERO).forGetter(ModifierSettings::getSpreadSearchDistance),
             Codec.BOOL.optionalFieldOf("enable_mob_generators", false).forGetter(ModifierSettings::isEnableMobResources),
             Codec.BOOL.optionalFieldOf("enable_mob_breeding", false).forGetter(ModifierSettings::isEnableMobBreeding),
-            Codec.INT.optionalFieldOf("energy_cost", 0).forGetter(ModifierSettings::getEnergyCost),
+            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("energy_cost", 0).forGetter(ModifierSettings::getEnergyCost),
             Codec.BOOL.optionalFieldOf("greedy_energy", false).forGetter(ModifierSettings::isGreedyEnergy)
     ).apply(instance, ModifierSettings::new));
 
@@ -66,6 +73,39 @@ public class ModifierSettings {
         this.enableMobBreeding = enableMobBreeding;
         this.energyCost = energyCost;
         this.greedyEnergy = greedyEnergy;
+    }
+
+    /**
+     * @param min the minimum value
+     * @param max the maximum value
+     * @return a codec that fails when the provided integer is not within the given range
+     */
+    public static Codec<Integer> boundedIntCodec(final int min, final int max) {
+        Function<Integer, DataResult<Integer>> function = (instance) -> {
+            if (instance < min) {
+                return DataResult.error("Value too low. minimum " + min + "; provided [" + instance + "]");
+            } else if(instance > max) {
+                return DataResult.error("Value too high. maximum " + max + "; provided [" + instance + "]");
+            } else {
+                return DataResult.success(instance);
+            }
+        };
+        return Codec.INT.flatXmap(function, function);
+    }
+
+    /**
+     * @param min the minimum XYZ value
+     * @return a codec that fails when the provided vec has any values below the given minimum
+     */
+    public static Codec<Vec3i> vec3Codec(final int min) {
+        Function<Vec3i, DataResult<Vec3i>> function = (instance) -> {
+            if (instance.getX() < min || instance.getY() < min || instance.getZ() < min) {
+                return DataResult.error("Vec3i too low. minimum " + min + "; provided [" + instance.toShortString() + "]");
+            } else {
+                return DataResult.success(instance);
+            }
+        };
+        return Vec3i.CODEC.flatXmap(function, function);
     }
 
     //// GETTERS ////

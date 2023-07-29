@@ -15,6 +15,7 @@ import net.minecraft.world.level.LevelAccessor;
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 @Immutable
 public class AquariumModifierContext {
@@ -24,42 +25,82 @@ public class AquariumModifierContext {
     private final TankMultiblock.Size tankSize;
     private final Collection<IAxolootl> axolootls;
     private final Map<BlockPos, AquariumModifier> modifiers;
+    private final Set<BlockPos> activeModifiers;
 
-    public AquariumModifierContext(LevelAccessor level, BlockPos pos, TankMultiblock.Size tankSize, Collection<IAxolootl> axolootls, Map<BlockPos, AquariumModifier> modifiers) {
+    public AquariumModifierContext(LevelAccessor level, BlockPos pos,
+                                   TankMultiblock.Size tankSize, Collection<IAxolootl> axolootls,
+                                   Map<BlockPos, AquariumModifier> modifiers, Set<BlockPos> activeModifiers) {
         this.level = level;
         this.pos = pos;
         this.tankSize = tankSize;
         this.axolootls = axolootls;
         this.modifiers = modifiers;
+        this.activeModifiers = activeModifiers;
     }
 
     //// GETTERS ////
 
+    /**
+     * @return the level
+     */
     public LevelAccessor getLevel() {
         return level;
     }
 
+    /**
+     * @return the registry access
+     */
     public RegistryAccess getRegistryAccess() {
         return level.registryAccess();
     }
 
+    /**
+     * @return the tank size
+     */
     public TankMultiblock.Size getTankSize() {
         return tankSize;
     }
 
+    /**
+     * @return true if the tank size exists and is not empty
+     */
     public boolean hasTank() {
         return tankSize != null && tankSize != TankMultiblock.Size.EMPTY;
     }
 
+    /**
+     * @return the modifier block position
+     */
     public BlockPos getPos() {
         return pos;
     }
 
+    /**
+     * @return a view of all tracked axolootls
+     */
     public Collection<IAxolootl> getAxolootls() {
         return axolootls;
     }
 
+    /**
+     * @return a view of the aquarium modifiers, not including the one that is being queried
+     */
     public Map<BlockPos, AquariumModifier> getModifiers() {
         return modifiers;
+    }
+
+    /**
+     * @return the block positions of modifiers that were active in the previous tick
+     */
+    public Set<BlockPos> getActiveModifiers() {
+        return activeModifiers;
+    }
+
+    /**
+     * @param pos a block position
+     * @return true if the modifier at the given position was active in the previous tick
+     */
+    public boolean isModifierActive(BlockPos pos) {
+        return activeModifiers.contains(pos);
     }
 }

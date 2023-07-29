@@ -45,10 +45,6 @@ public class AxolootlInterfaceBlockEntity extends InterfaceBlockEntity {
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        // verify availability
-        if(!isMenuAvailable(pPlayer, this.controller)) {
-            return null;
-        }
         return new AxolootlMenu(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.AXOLOOTL_INTERFACE.get().getSortedIndex(), 0);
 
     }

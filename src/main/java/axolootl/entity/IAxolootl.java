@@ -105,13 +105,29 @@ public interface IAxolootl {
     }
 
     /**
+     * @param registryAccess the registry access
      * @return the axolootl variant from the registry, if any
      */
     default Optional<AxolootlVariant> getAxolootlVariant(final RegistryAccess registryAccess) {
+        return getAxolootlVariant(registryAccess, false);
+    }
+
+    /**
+     * @param registryAccess the registry access
+     * @param includeAll true to include disabled axolootl variants
+     * @return the axolootl variant from the registry, if any
+     */
+    default Optional<AxolootlVariant> getAxolootlVariant(final RegistryAccess registryAccess, final boolean includeAll) {
+        // load variant ID
         final Optional<ResourceLocation> oId = getAxolootlVariantId();
         if(oId.isEmpty()) {
             return Optional.empty();
         }
+        // validate variant ID
+        if(!includeAll && !AxRegistry.AxolootlVariantsReg.isValid(oId.get())) {
+            return Optional.empty();
+        }
+        // all checks passed
         return AxolootlVariant.getRegistry(registryAccess).getOptional(oId.get());
     }
 

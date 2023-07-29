@@ -10,6 +10,7 @@ import axolootl.AxRegistry;
 import axolootl.block.entity.ControllerBlockEntity;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
@@ -19,11 +20,20 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public class CyclingContainerMenu extends AbstractControllerMenu {
 
@@ -91,7 +101,7 @@ public class CyclingContainerMenu extends AbstractControllerMenu {
                 this.container = container;
                 this.containerSize = container.getContainerSize();
                 this.containerRows = 1;
-                this.addSlot(new Slot(container, 0, 31, 109));
+                this.addSlot(new FluidItemSlot(container, 0, INV_X, 108, Fluids.WATER));
             }
         };
     }
@@ -152,5 +162,35 @@ public class CyclingContainerMenu extends AbstractControllerMenu {
             return this.container.stillValid(pPlayer);
         }
         return false;
+    }
+
+    //// SLOTS ////
+
+    public static class FluidItemSlot extends Slot {
+
+        private final Set<Fluid> fluids;
+
+        public FluidItemSlot(Container pContainer, int pSlot, int pX, int pY, Fluid... fluids) {
+            super(pContainer, pSlot, pX, pY);
+            this.fluids = Set.of(fluids);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack pStack) {
+            // load capability
+            LazyOptional<IFluidHandlerItem> oHandler = pStack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM);
+            if(!oHandler.isPresent()) {
+                return false;
+            }
+            // resolve capability
+            IFluidHandlerItem handler = oHandler.resolve().get();
+            FluidStack fluidStack = handler.getFluidInTank(0);
+            // validate fluid
+            if(!fluidStack.isEmpty() && !this.fluids.contains(fluidStack.getFluid())) {
+                return false;
+            }
+            // all checks passed
+            return true;
+        }
     }
 }

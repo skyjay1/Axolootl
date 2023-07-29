@@ -21,7 +21,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -43,16 +42,17 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
-import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class WaterInterfaceBlockEntity extends InterfaceBlockEntity {
 
@@ -65,6 +65,9 @@ public class WaterInterfaceBlockEntity extends InterfaceBlockEntity {
 
     private double placeFluidSpeed = 1.0D;
     private long placeFluidTime;
+    private boolean fillTopLayer;
+    private boolean isObstructed;
+    private boolean forceUpdateObstructed;
     private Iterator<BlockPos> placeFluidIterator;
 
     protected FluidTank tank = new FluidTank(FluidType.BUCKET_VOLUME * 12)
@@ -77,6 +80,7 @@ public class WaterInterfaceBlockEntity extends InterfaceBlockEntity {
 
     public WaterInterfaceBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
         super(pType, pPos, pBlockState, 1, 1);
+        forceUpdateObstructed = true;
     }
 
     public static void tick(final Level level, final BlockPos pos, final BlockState state, final WaterInterfaceBlockEntity self) {
@@ -92,8 +96,15 @@ public class WaterInterfaceBlockEntity extends InterfaceBlockEntity {
         final IFluidHandler fluidHandler = self.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(EmptyFluidHandler.INSTANCE);
         final Optional<IItemHandler> itemHandler = self.getCapability(ForgeCapabilities.ITEM_HANDLER).resolve();
         markDirty |= self.consumeFluid(level, itemHandler, fluidHandler);
+        // update obstructed status
+        if(self.forceUpdateObstructed) {
+            self.updateObstructed(level, pos, state, Fluids.WATER, Fluids.FLOWING_WATER);
+            self.forceUpdateObstructed = false;
+            markDirty = true;
+        }
         // verify not powered
-        if(!state.getValue(WaterInterfaceBlock.POWERED)) {
+        if(!state.getValue(WaterInterfaceBlock.POWERED) && !self.isObstructed()) {
+            // validate fluid and amount
             final FluidStack fluidStack = fluidHandler.getFluidInTank(0);
             if(fluidStack.getFluid().isSame(Fluids.WATER) && fluidStack.getAmount() >= FluidType.BUCKET_VOLUME) {
                 // attempt to place fluid
@@ -117,9 +128,6 @@ public class WaterInterfaceBlockEntity extends InterfaceBlockEntity {
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        if(!isMenuAvailable(pPlayer, controller)) {
-            return null;
-        }
         return CyclingContainerMenu.createFluid(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.FLUID_INTERFACE.get().getSortedIndex(), -1);
     }
 
@@ -228,12 +236,52 @@ public class WaterInterfaceBlockEntity extends InterfaceBlockEntity {
 
     //// PLACE FLUID ////
 
+    public boolean fillTopLayer() {
+        return fillTopLayer;
+    }
+
+    public boolean isObstructed() {
+        return isObstructed;
+    }
+
+    public void forceUpdateObstructed() {
+        this.forceUpdateObstructed = true;
+        this.setChanged();
+    }
+
+    /**
+     * Checks if the back of the block is obstructed and cannot place fluids
+     * @param level the level
+     * @param origin the block position
+     * @param fluid the fluid source
+     * @param flowing the flowing fluid
+     * @return true if the obstructed status changed
+     */
+    public boolean updateObstructed(Level level, BlockPos origin, BlockState blockState, Fluid fluid, Fluid flowing) {
+        if(!hasTank()) {
+            return false;
+        }
+        // create bounding box of the area to fill
+        final BoundingBox b = controller.getSize().orElse(TankMultiblock.Size.EMPTY).boundingBox();
+        final BoundingBox bounds = new BoundingBox(b.minX() + 1, b.minY() + 1, b.minZ() + 1, b.maxX() - 1, b.maxY() - (fillTopLayer() ? 1 : 2), b.maxZ() - 1);
+        // determine the position to check
+        BlockPos neighbor = origin.relative(blockState.getValue(HorizontalDirectionalBlock.FACING).getOpposite());
+        // determine if the position is inside the bounds and is either a fluid source or can accept fluid
+        boolean wasObstructed = isObstructed;
+        this.isObstructed = !bounds.isInside(neighbor) || !(isFluidSource(level, neighbor, fluid) || placeFluidBlock(level, neighbor, fluid, flowing, true));
+        return wasObstructed != isObstructed;
+    }
+
     /**
      * @param level the server level
      * @param fluidHandler the fluid handler
      * @return true if there are any changes, such as tickers resetting or fluids changing
      **/
     private boolean tickPlaceFluid(Level level, IFluidHandler fluidHandler) {
+        // validate not obstructed
+        if(isObstructed) {
+            return false;
+        }
         // validate ticker
         if (placeFluidTime > 0) {
             return false;
@@ -250,15 +298,27 @@ public class WaterInterfaceBlockEntity extends InterfaceBlockEntity {
         }
         // find and validate fluid position
         final Optional<BlockPos> oPos = findPlaceablePosition(level, getBlockPos(), Fluids.WATER, Fluids.FLOWING_WATER);
+        // attempt to place fluid
         if(oPos.isEmpty() || !placeFluidBlock(level, oPos.get(), Fluids.WATER, Fluids.FLOWING_WATER, false)) {
             return false;
         }
         // fluid block was placed, remove fluid from handler
         fluidHandler.drain(fluidStack, IFluidHandler.FluidAction.EXECUTE);
         // reset ticker
-        placeFluidTime = 80L * BASE_SPEED_DECREMENT; // TODO balance
+        placeFluidTime = FLUID_UPDATE_INTERVAL * BASE_SPEED_DECREMENT;
         // all checks passed
         return true;
+    }
+
+    private Iterator<BlockPos> createIterator(final Level level, BlockPos origin) {
+        // create bounding box of the area to fill
+        final BoundingBox b = controller.getSize().orElse(TankMultiblock.Size.EMPTY).boundingBox();
+        final BoundingBox bounds = new BoundingBox(b.minX() + 1, b.minY() + 1, b.minZ() + 1, b.maxX() - 1, b.maxY() - (fillTopLayer() ? 1 : 2), b.maxZ() - 1);
+        // determine a valid starting position inside bounds
+        // determine the position to check
+        BlockPos neighbor = origin.relative(level.getBlockState(origin).getValue(HorizontalDirectionalBlock.FACING).getOpposite());
+        // create iterator
+        return new PlaceFluidIterator(origin, neighbor, bounds);
     }
 
     /**
@@ -270,47 +330,16 @@ public class WaterInterfaceBlockEntity extends InterfaceBlockEntity {
      * @return the position to place a fluid, if any
      */
     private Optional<BlockPos> findPlaceablePosition(final Level level, BlockPos origin, Fluid fluid, Fluid flowing) {
-        if(null == placeFluidIterator || !placeFluidIterator.hasNext()) {
-            final TankMultiblock.Size size = controller.getSize().orElse(TankMultiblock.Size.EMPTY);
-            final BoundingBox bounds = size.boundingBox().inflatedBy(-1);
-            // determine a valid starting position inside bounds
-            final Optional<BlockPos> oPos = findNeighborPositionInsideBounds(level, origin, fluid, flowing, bounds, false);
-            if(oPos.isEmpty()) {
-                return Optional.empty();
-            }
-            // create iterator
-            this.placeFluidIterator = new PlaceFluidIterator(origin, oPos.get().immutable(), bounds);
-            // attempt to place at start position for aesthetic reasons
-            if(placeFluidBlock(level, oPos.get(), fluid, flowing, true)) {
-                return oPos;
-            }
+        // create or recreate iterator
+        if((null == placeFluidIterator || !placeFluidIterator.hasNext())) {
+            placeFluidIterator = createIterator(level, origin);
         }
+        // check a specified number of positions for fluids
         int steps = FLUIDS_SCANNED_PER_TICK;
         while(placeFluidIterator.hasNext() && steps-- > 0) {
             BlockPos p = placeFluidIterator.next();
             if(placeFluidBlock(level, p, fluid, flowing, true)) {
                 return Optional.of(p);
-            }
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * Finds an adjacent block that is within the given bounds and can accept the given fluid
-     * @param level the level
-     * @param origin the block position
-     * @param fluid the fluid
-     * @param flowing the flowing fluid
-     * @param bounds the bounds
-     * @param sourceOnly true to only consider source blocks
-     * @return the first block position that was found, if any
-     */
-    private Optional<BlockPos> findNeighborPositionInsideBounds(final Level level, final BlockPos origin, final Fluid fluid, final Fluid flowing, BoundingBox bounds, boolean sourceOnly) {
-        // brute force to determine first position inside tank bounds
-        BlockPos.MutableBlockPos pos = origin.mutable();
-        for(Direction d : Direction.values()) {
-            if(bounds.isInside(pos.setWithOffset(origin, d)) && (isFluidSource(level, pos, fluid) || (!sourceOnly && placeFluidBlock(level, pos, fluid, flowing, true)))) {
-                return Optional.of(pos);
             }
         }
         return Optional.empty();
@@ -369,16 +398,26 @@ public class WaterInterfaceBlockEntity extends InterfaceBlockEntity {
 
     //// NBT ////
 
+    private static final String KEY_FILL_TOP_LAYER = "FillTopLayer";
+    private static final String KEY_FORCE_OBSTRUCTED_UPDATE = "UpdateObstructed";
+    private static final String KEY_OBSTRUCTED = "Obstructed";
+
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        tank.readFromNBT(tag);
+        this.tank.readFromNBT(tag);
+        this.fillTopLayer = tag.getBoolean(KEY_FILL_TOP_LAYER);
+        this.isObstructed = tag.getBoolean(KEY_OBSTRUCTED);
+        this.forceUpdateObstructed = tag.getBoolean(KEY_FORCE_OBSTRUCTED_UPDATE);
     }
 
     @Override
     public void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
-        tank.writeToNBT(tag);
+        this.tank.writeToNBT(tag);
+        tag.putBoolean(KEY_FILL_TOP_LAYER, fillTopLayer);
+        tag.putBoolean(KEY_OBSTRUCTED, isObstructed);
+        tag.putBoolean(KEY_FORCE_OBSTRUCTED_UPDATE, forceUpdateObstructed);
     }
 
     //// CLASSES ////
@@ -391,83 +430,111 @@ public class WaterInterfaceBlockEntity extends InterfaceBlockEntity {
      */
     public static class PlaceFluidIterator implements Iterator<BlockPos> {
 
-        private int layer;
+        /** Used to always skip block positions that were removed with {@link #remove()} **/
+        private final Set<Long> invalidSuperSet;
+        /** Used to track which block positions were already checked in a single layer **/
         private final Set<Long> invalid;
+        /** The start position of the iterator, assumed to be within the bounds **/
         private final BlockPos start;
+        /** The minimum position of the iterator for use in {@link BlockPos#betweenClosed(BlockPos, BlockPos)} **/
         private final BlockPos.MutableBlockPos min;
+        /** The maximum position of the iterator for use in {@link BlockPos#betweenClosed(BlockPos, BlockPos)} **/
         private final BlockPos.MutableBlockPos max;
+        /** The origin block position, assumed to be next to start **/
         private final BlockPos origin;
+        /** The maximum bounds to iterate **/
         private final BoundingBox bounds;
-        private Iterator<BlockPos> betweenClosed;
+
+        /** The most recently calculated position **/
+        private final BlockPos.MutableBlockPos cursor;
+        /** The next position, if any **/
+        private BlockPos.MutableBlockPos next;
+
+        /** The current layer index of the iterator **/
+        private int layer;
+        /** The current BlockPos iterator as created by {@link BlockPos#betweenClosed(BlockPos, BlockPos)}, can be empty **/
+        private Iterator<BlockPos> iterator;
 
         public PlaceFluidIterator(final BlockPos origin, final BlockPos start, final BoundingBox bounds) {
-            this.origin = origin;
-            this.start = start;
+            this.origin = origin.immutable();
+            this.start = start.immutable();
             this.bounds = bounds;
             this.min = start.mutable();
             this.max = start.mutable();
+            this.cursor = start.mutable();
+            this.next = start.mutable();
             this.layer = 0;
+            this.invalidSuperSet = new HashSet<>();
             this.invalid = new HashSet<>();
-            this.betweenClosed = BlockPos.betweenClosed(min, max).iterator();
+            this.iterator = calculateNextIterator();
         }
 
         private boolean isReachedMaxLayer() {
-            return layer >= bounds.getYSpan();
+            int maxLayer = bounds.maxY() - bounds.minY();
+            return layer >= maxLayer;
         }
 
         private boolean isReachedMaxBounds() {
-            return (max.getX() - min.getX() + 1) >= bounds.getXSpan() && (max.getZ() - min.getZ() + 1) >= bounds.getZSpan();
+            return (max.getX() - min.getX()) >= (bounds.maxX() - bounds.minX()) && (max.getZ() - min.getZ()) >= (bounds.maxZ() - bounds.minZ());
         }
 
-        private boolean betweenClosedDone() {
-            return !betweenClosed.hasNext();
+        private Iterator<BlockPos> calculateNextIterator() {
+            // check for max bounds
+            if(isReachedMaxBounds()) {
+                // update layer and invalid set
+                layer++;
+                invalid.clear();
+                // reset min and max
+                min.setWithOffset(start, 0, layer, 0);
+                max.setWithOffset(start, 0, layer, 0);
+                // check for max layer and max bounds
+                if(isReachedMaxLayer()) {
+                    return Collections.emptyIterator();
+                }
+            } else {
+                // increase min and max
+                min.set(Math.max(bounds.minX(), min.getX() - 1), min.getY(), Math.max(bounds.minZ(), min.getZ() - 1));
+                max.set(Math.min(bounds.maxX(), max.getX() + 1), max.getY(), Math.min(bounds.maxZ(), max.getZ() + 1));
+            }
+            // create iterator
+            return BlockPos.betweenClosed(min, max).iterator();
         }
 
-        private boolean isLayerDone() {
-            return isReachedMaxBounds() && betweenClosedDone();
+        private Optional<BlockPos> calculateNext() {
+            while(iterator.hasNext()) {
+                // load next position
+                BlockPos p = iterator.next();
+                // reset iterator if necessary
+                if(!iterator.hasNext()) {
+                    iterator = calculateNextIterator();
+                }
+                // verify position was not already checked
+                long key = p.asLong();
+                if (invalid.contains(key) || invalidSuperSet.contains(key)) continue;
+                // add to set of checked positions
+                invalid.add(key);
+                // return the first position that has not been visited already
+                return Optional.of(p);
+            }
+            // all iterators completed, there is no next element
+            return Optional.empty();
         }
 
         @Override
         public boolean hasNext() {
-            return !isReachedMaxLayer() || !isLayerDone();
+            return next != null;
         }
 
         @Override
         public BlockPos next() {
-            // scan each layer
-            while(!isReachedMaxLayer() || !isLayerDone()) {
-                // calculate progressively larger bounding box
-                while (!isLayerDone()) {
-                    // iterate all positions in bounding box
-                    while(!betweenClosedDone()) {
-                        // load next position
-                        BlockPos p = betweenClosed.next();
-                        // verify position was not already checked
-                        if (invalid.contains(p.asLong())) continue;
-                        // add to set of checked positions
-                        invalid.add(p.asLong());
-                        // return the first position that has not been visited already
-                        return p;
-                    }
-                    // increase min and max
-                    min.set(Math.max(bounds.minX(), min.getX() - 1), min.getY(), Math.max(bounds.minZ(), min.getZ() - 1));
-                    max.set(Math.min(bounds.maxX(), max.getX() + 1), max.getY(), Math.min(bounds.maxZ(), max.getZ() + 1));
-                    // update iterator
-                    betweenClosed = BlockPos.betweenClosed(min, max).iterator();
-                }
-                // increase layer and reset values
-                layer++;
-                min.setWithOffset(start, 0, layer, 0);
-                max.setWithOffset(start, 0, layer, 0);
-                invalid.clear();
-            }
-            // fallback to the start position to avoid returning null here
-            return start;
+            cursor.set(next);
+            calculateNext().ifPresentOrElse(p -> next.set(p), () -> next = null);
+            return cursor;
         }
 
         @Override
         public void remove() {
-            Iterator.super.remove();
+            invalidSuperSet.add(cursor.asLong());
         }
 
         @Override

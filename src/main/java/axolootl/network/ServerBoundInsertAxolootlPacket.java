@@ -16,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MobBucketItem;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.items.IItemHandler;
@@ -101,9 +102,10 @@ public class ServerBoundInsertAxolootlPacket {
                     }
                 }
                 // update controller
+                // sadly there is no way to directly add the axolootl to the controller, so we tell it to search instead
                 controller.findAxolootls(player.getLevel());
-                // re-initialize menu by simulating a tab packet
-                ServerBoundControllerTabPacket.handlePacket(new ServerBoundControllerTabPacket(menu.getTab()), contextSupplier);
+                controller.setChanged();
+                player.level.sendBlockUpdated(controllerPos, controller.getBlockState(), controller.getBlockState(), Block.UPDATE_CLIENTS);
             });
         }
         context.setPacketHandled(true);

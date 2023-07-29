@@ -15,6 +15,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,10 +73,12 @@ public interface ICycleProvider {
      * @return the title with cycle and block pos information
      */
     default Component createCycledTitle(final Component title, final BlockPos pos, final int cycle, final int maxCycle) {
+        String sTitle = StringUtil.truncateStringIfNecessary(title.getString(), 23, true);
+        Component tooltip = Component.empty().append(title).append("\n").append("(" + pos.toShortString() + ")");
         return Component.empty()
-                .append(Component.translatable("gui.axolootl.cycle.tooltip", cycle + 1, maxCycle).withStyle(ChatFormatting.BLUE))
-                .append(" ").append(title.copy().withStyle(ChatFormatting.DARK_GRAY))
-                .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("(" + pos.toShortString() + ")"))));
+                .append(Component.translatable("gui.axolootl.cycle.tooltip", cycle + 1, maxCycle).withStyle(ChatFormatting.DARK_BLUE))
+                .append(" ").append(Component.literal(sTitle).withStyle(ChatFormatting.BLACK))
+                .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)));
     }
 
     /**

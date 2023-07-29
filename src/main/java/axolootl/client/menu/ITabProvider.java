@@ -59,7 +59,7 @@ public interface ITabProvider {
     default List<TabGroupButton> initTabGroups(final AbstractContainerScreen<? extends AbstractControllerMenu> screen) {
         final List<TabGroupButton> list = new ArrayList<>();
         // add previous button
-        int y = -TabButton.HEIGHT + (TabButton.HEIGHT - TabGroupButton.HEIGHT) / 2;
+        int y = -(TabButton.HEIGHT - TabButton.DELTA_SELECTED) + (TabButton.HEIGHT - TabGroupButton.HEIGHT) / 2;
         list.add(addTabGroupButton(0, y, true, b -> {
             setTabGroup(getTabGroup() - 1);
         }));

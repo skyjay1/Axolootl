@@ -31,6 +31,16 @@ import axolootl.block.entity.WaterInterfaceBlockEntity;
 import axolootl.data.aquarium_tab.AquariumTab;
 import axolootl.data.aquarium_tab.IAquariumTab;
 import axolootl.data.aquarium_tab.WorldlyMenuProvider;
+import axolootl.data.axolootl_variant.condition.AndForgeCondition;
+import axolootl.data.axolootl_variant.condition.FalseForgeCondition;
+import axolootl.data.axolootl_variant.condition.ForgeConditionContext;
+import axolootl.data.axolootl_variant.condition.ItemExistsForgeCondition;
+import axolootl.data.axolootl_variant.condition.ModLoadedForgeCondition;
+import axolootl.data.axolootl_variant.condition.NotForgeCondition;
+import axolootl.data.axolootl_variant.condition.OrForgeCondition;
+import axolootl.data.axolootl_variant.condition.TagEmptyForgeCondition;
+import axolootl.data.axolootl_variant.condition.TrueForgeCondition;
+import axolootl.data.axolootl_variant.condition.ForgeCondition;
 import axolootl.data.breeding.AxolootlBreeding;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.axolootl_variant.AxolootlVariant;
@@ -78,6 +88,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
+import net.minecraft.tags.TagManager;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
@@ -101,6 +112,8 @@ import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.ForgeSpawnEggItem;
+import net.minecraftforge.common.crafting.conditions.ConditionContext;
+import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
@@ -116,6 +129,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -154,10 +168,21 @@ public final class AxRegistry {
             .dataPackRegistry(ModifierCondition.DIRECT_CODEC, ModifierCondition.DIRECT_CODEC)
             .hasTags());
 
+    // VARIANT CONDITIONS //
+    private static final DeferredRegister<Codec<? extends ForgeCondition>> FORGE_CONDITION_SERIALIZERS = DeferredRegister.create(Keys.FORGE_CONDITION_SERIALIZERS, "forge");
+    public static final Supplier<IForgeRegistry<Codec<? extends ForgeCondition>>> FORGE_CONDITION_SERIALIZERS_SUPPLIER =
+            FORGE_CONDITION_SERIALIZERS.makeRegistry(() -> new RegistryBuilder<Codec<? extends ForgeCondition>>().hasTags());
+
+    private static final DeferredRegister<ForgeCondition> FORGE_CONDITIONS = DeferredRegister.create(Keys.FORGE_CONDITIONS, "forge");
+    public static final Supplier<IForgeRegistry<ForgeCondition>> FORGE_CONDITION_SUPPLIER = FORGE_CONDITIONS.makeRegistry(() -> new RegistryBuilder<ForgeCondition>()
+            .dataPackRegistry(ForgeCondition.DIRECT_CODEC, ForgeCondition.DIRECT_CODEC)
+            .hasTags());
+
     // AXOLOOTL VARIANTS //
     private static final DeferredRegister<AxolootlVariant> AXOLOOTL_VARIANTS = DeferredRegister.create(Keys.AXOLOOTL_VARIANTS, Axolootl.MODID);
     public static final Supplier<IForgeRegistry<AxolootlVariant>> AXOLOOTL_VARIANTS_SUPPLIER = AXOLOOTL_VARIANTS.makeRegistry(() -> new RegistryBuilder<AxolootlVariant>()
             .dataPackRegistry(AxolootlVariant.CODEC, AxolootlVariant.CODEC)
+            .onClear((owner, stage) -> AxolootlVariantsReg.resetInvalidEntries())
             .hasTags());
 
     // AXOLOOTL BREEDING //
@@ -189,6 +214,7 @@ public final class AxRegistry {
         BlockPredicateTypesReg.register();
         ModifierConditionsReg.register();
         ResourceGeneratorsReg.register();
+        ForgeConditionsReg.register();
         AxolootlVariantsReg.register();
         AquariumModifiersReg.register();
         AquariumTabsReg.register();
@@ -470,6 +496,25 @@ public final class AxRegistry {
 
     }
 
+
+    public static final class ForgeConditionsReg {
+
+        public static void register() {
+            FORGE_CONDITIONS.register(FMLJavaModLoadingContext.get().getModEventBus());
+            FORGE_CONDITION_SERIALIZERS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        }
+
+        public static final RegistryObject<Codec<? extends ForgeCondition>> TRUE = FORGE_CONDITION_SERIALIZERS.register("true", () -> TrueForgeCondition.CODEC);
+        public static final RegistryObject<Codec<? extends ForgeCondition>> FALSE = FORGE_CONDITION_SERIALIZERS.register("false", () -> FalseForgeCondition.CODEC);
+        public static final RegistryObject<Codec<? extends ForgeCondition>> AND = FORGE_CONDITION_SERIALIZERS.register("and", () -> AndForgeCondition.CODEC);
+        public static final RegistryObject<Codec<? extends ForgeCondition>> OR = FORGE_CONDITION_SERIALIZERS.register("or", () -> OrForgeCondition.CODEC);
+        public static final RegistryObject<Codec<? extends ForgeCondition>> NOT = FORGE_CONDITION_SERIALIZERS.register("not", () -> NotForgeCondition.CODEC);
+        public static final RegistryObject<Codec<? extends ForgeCondition>> MOD_LOADED = FORGE_CONDITION_SERIALIZERS.register("mod_loaded", () -> ModLoadedForgeCondition.CODEC);
+        public static final RegistryObject<Codec<? extends ForgeCondition>> TAG_EMPTY = FORGE_CONDITION_SERIALIZERS.register("tag_empty", () -> TagEmptyForgeCondition.CODEC);
+        public static final RegistryObject<Codec<? extends ForgeCondition>> ITEM_EXISTS = FORGE_CONDITION_SERIALIZERS.register("item_exists", () -> ItemExistsForgeCondition.CODEC);
+
+    }
+
     public static final class AquariumModifiersReg {
 
         private static final Set<TagKey<AquariumModifier>> MANDATORY_AQUARIUM_MODIFIERS = new HashSet<>();
@@ -573,6 +618,44 @@ public final class AxRegistry {
             AXOLOOTL_VARIANTS.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
+        private static final Set<ResourceLocation> INVALID = new HashSet<>();
+        private static final Set<ResourceLocation> INVALID_VIEW = Collections.unmodifiableSet(INVALID);
+        private static boolean hasValidated;
+
+        public static void validate(final RegistryAccess access) {
+            // create context
+            final ForgeConditionContext context = new ForgeConditionContext(access);
+            // iterate registry
+            for(Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant> entry : AxolootlVariant.getRegistry(access).entrySet()) {
+                // test each entry
+                if(!entry.getValue().getCondition().test(context)) {
+                    INVALID.add(entry.getKey().location());
+                }
+            }
+            // update flag
+            hasValidated = true;
+        }
+
+        public static boolean isValid(final ResourceLocation id) {
+            return !INVALID.contains(id);
+        }
+
+        public static boolean isValid(final RegistryAccess access, final AxolootlVariant variant) {
+            return variant != AxolootlVariant.EMPTY && isValid(variant.getRegistryName(access));
+        }
+
+        public static Set<ResourceLocation> getInvalidEntries() {
+            return INVALID_VIEW;
+        }
+
+        public static boolean hasValidated() {
+            return hasValidated;
+        }
+
+        private static void resetInvalidEntries() {
+            INVALID.clear();
+            hasValidated = false;
+        }
     }
 
     public static final class AxolootlBreedingReg {
@@ -592,6 +675,8 @@ public final class AxRegistry {
         public static final ResourceKey<? extends Registry<ResourceGenerator>> RESOURCE_GENERATORS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "resource_generators"));
         public static final ResourceKey<Registry<Codec<? extends ModifierCondition>>> MODIFIER_CONDITION_SERIALIZERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "modifier_condition_serializers"));
         public static final ResourceKey<? extends Registry<ModifierCondition>> MODIFIER_CONDITIONS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "modifier_conditions"));
+        public static final ResourceKey<Registry<Codec<? extends ForgeCondition>>> FORGE_CONDITION_SERIALIZERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "variant_condition_serializers"));
+        public static final ResourceKey<? extends Registry<ForgeCondition>> FORGE_CONDITIONS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "variant_conditions"));
 
     }
 }

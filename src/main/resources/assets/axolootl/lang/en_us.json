@@ -112,6 +112,8 @@
   "gui.controller_tab.axolootl.fluid_interface.status.paused.description": "Paused due to redstone signal",
   "gui.controller_tab.axolootl.fluid_interface.status.empty": "Empty",
   "gui.controller_tab.axolootl.fluid_interface.status.empty.description": "Requires min. 1000 mB water",
+  "gui.controller_tab.axolootl.fluid_interface.status.obstructed": "Obstructed",
+  "gui.controller_tab.axolootl.fluid_interface.status.obstructed.description": "Cannot access tank interior",
   "gui.controller_tab.axolootl.fluid_interface.status.active": "Active",
   "gui.controller_tab.axolootl.fluid_interface.status.active.description": "Filling tank with water",
   "gui.controller_tab.axolootl.axolootl_interface.count": "%1$s / %2$s Axolootls",

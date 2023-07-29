@@ -10,10 +10,13 @@ import axolootl.AxRegistry;
 import axolootl.block.entity.AxolootlInterfaceBlockEntity;
 import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.data.axolootl_variant.AxolootlVariant;
+import axolootl.entity.AxolootlEntity;
+import axolootl.item.AxolootlBucketItem;
 import axolootl.network.AxNetwork;
 import axolootl.network.ServerBoundExtractAxolootlPacket;
 import axolootl.network.ServerBoundInsertAxolootlPacket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -21,9 +24,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.MobBucketItem;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class AxolootlMenu extends AbstractControllerMenu {
@@ -96,6 +101,7 @@ public class AxolootlMenu extends AbstractControllerMenu {
             } else {
                 variantCountMap.remove(variant);
             }
+            totalCount = variantCountMap.size();
         }
     }
 
@@ -104,6 +110,17 @@ public class AxolootlMenu extends AbstractControllerMenu {
         if(getInventory().player.level.isClientSide()) {
             // send packet to server
             AxNetwork.CHANNEL.sendToServer(new ServerBoundInsertAxolootlPacket());
+            // calculate axolootls
+            if(controller != null) {
+                for (int i = 0, n = container.getContainerSize(); i < n; i++) {
+                    ItemStack itemStack = container.getItem(i);
+                    // load variant from item stack
+                    Optional<AxolootlVariant> oVariant = AxolootlBucketItem.getVariant(getInventory().player.level.registryAccess(), itemStack);
+                    // add variant to client-side map
+                    oVariant.ifPresent(v -> variantCountMap.put(v, variantCountMap.getOrDefault(v, 0) + 1));
+                }
+            }
+            totalCount = variantCountMap.size();
         }
     }
 

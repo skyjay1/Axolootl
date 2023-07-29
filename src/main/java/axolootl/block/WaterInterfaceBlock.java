@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -46,14 +47,24 @@ public class WaterInterfaceBlock extends AbstractInterfaceBlock {
         } else {
             if (pPlayer instanceof ServerPlayer serverPlayer && pLevel.getBlockEntity(pPos) instanceof WaterInterfaceBlockEntity blockEntity) {
                 // validate controller
-                if(blockEntity.hasTank() && blockEntity.validateController(pLevel)) {
+                if (blockEntity.hasTank() && blockEntity.validateController(pLevel)) {
                     blockEntity.setChanged();
                 }
                 // open menu
-                BlockPos controllerPos = blockEntity.getController().isPresent() ? blockEntity.getController().get().getBlockPos() : pPos;
-                NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.FLUID_INTERFACE.get().getSortedIndex(), -1));
+                if (blockEntity.isMenuAvailable(serverPlayer, blockEntity.getController().orElse(null))) {
+                    BlockPos controllerPos = blockEntity.getController().isPresent() ? blockEntity.getController().get().getBlockPos() : pPos;
+                    NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.FLUID_INTERFACE.get().getSortedIndex(), -1));
+                }
             }
             return InteractionResult.CONSUME;
+        }
+    }
+
+    @Override
+    public void neighborChanged(BlockState blockState, Level level, BlockPos blockPos, Block neighborBlock, BlockPos neighborPos, boolean b) {
+        super.neighborChanged(blockState, level, blockPos, neighborBlock, neighborPos, b);
+        if(level.getBlockEntity(blockPos) instanceof WaterInterfaceBlockEntity blockEntity) {
+            blockEntity.forceUpdateObstructed();
         }
     }
 

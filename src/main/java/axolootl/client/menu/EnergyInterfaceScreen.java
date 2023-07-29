@@ -36,8 +36,9 @@ public class EnergyInterfaceScreen extends AbstractCyclingScreen<CyclingMenu> {
     private static final int ENERGY_V = 50;
     private static final int ENERGY_MARGIN = 2;
 
-    private static final int TEXT_X = 63;
-    private static final int TEXT_Y = 17;
+    private static final int TEXT_X = ENERGY_X + ENERGY_WIDTH + 4;
+    private static final int TEXT_Y = 25;
+    private static final int TEXT_WIDTH = WIDTH - TEXT_X - 7;
     private static final int TEXT_LINE_SPACING = 8;
 
     // DATA //
@@ -120,14 +121,14 @@ public class EnergyInterfaceScreen extends AbstractCyclingScreen<CyclingMenu> {
         this.individualEnergy = storage.getEnergyStored();
         // calculate percentages and values
         this.totalEnergyPercent = (float) this.totalEnergy / (float) this.totalCapacity;
-        this.totalEnergyHeight = Mth.floor(this.totalEnergyPercent * (ENERGY_HEIGHT - ENERGY_MARGIN * 2));
+        this.totalEnergyHeight = Mth.floor(this.totalEnergyPercent * (ENERGY_HEIGHT));
         if(this.totalEnergy > 0) {
-            this.totalEnergyHeight = Math.max(1 + ENERGY_MARGIN, totalEnergyHeight);
+            this.totalEnergyHeight = Mth.clamp(totalEnergyHeight, 1 + ENERGY_MARGIN, ENERGY_HEIGHT - ENERGY_MARGIN);
         }
         this.individualEnergyPercent = (float) this.storage.getEnergyStored() / (float) this.totalCapacity;
-        this.individualEnergyHeight = Mth.floor(this.individualEnergyPercent * (ENERGY_HEIGHT - ENERGY_MARGIN * 2));
+        this.individualEnergyHeight = Mth.floor(this.individualEnergyPercent * (ENERGY_HEIGHT));
         if(this.storage.getEnergyStored() > 0) {
-            this.individualEnergyHeight = Math.max(1 + ENERGY_MARGIN, individualEnergyHeight);
+            this.individualEnergyHeight = Mth.clamp(individualEnergyHeight, 1 + ENERGY_MARGIN, ENERGY_HEIGHT - ENERGY_MARGIN);
         }
         // create components
         this.energyCapacityText = Component.translatable(PREFIX + "energy_capacity", totalCapacity);
@@ -157,39 +158,37 @@ public class EnergyInterfaceScreen extends AbstractCyclingScreen<CyclingMenu> {
 
     }
 
-    private void renderDetails(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    private void renderDetails(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         int x = this.leftPos + TEXT_X;
         int y = this.topPos + TEXT_Y;
-        int deltaY = font.lineHeight + TEXT_LINE_SPACING;
-        this.font.draw(pPoseStack, energyStorageText, x, y, 0);
-        y += deltaY;
-        this.font.draw(pPoseStack, poweredModifiersText, x, y, 0);
-        y += deltaY;
-        this.font.draw(pPoseStack, energyUsagePerTickText, x, y, 0);
-        y += deltaY;
-        this.font.draw(pPoseStack, poweredAxolootlsText, x, y, 0);
-        y += deltaY;
-        this.font.draw(pPoseStack, energyUsagePerAxolootlText, x, y, 0);
+        y += renderWrappedText(poseStack, energyStorageText, x, y, TEXT_WIDTH, 0) + TEXT_LINE_SPACING;
+        y += renderWrappedText(poseStack, poweredModifiersText, x, y, TEXT_WIDTH, 0) + TEXT_LINE_SPACING;
+        y += renderWrappedText(poseStack, energyUsagePerTickText, x, y, TEXT_WIDTH, 0) + TEXT_LINE_SPACING;
+        y += renderWrappedText(poseStack, poweredAxolootlsText, x, y, TEXT_WIDTH, 0) + TEXT_LINE_SPACING;
+        y += renderWrappedText(poseStack, energyUsagePerAxolootlText, x, y, TEXT_WIDTH, 0) + TEXT_LINE_SPACING;
     }
 
     private void renderHoverActions(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        int deltaY = font.lineHeight + TEXT_LINE_SPACING;
         int x = TEXT_X;
-        int y = TEXT_Y + deltaY;
+        int y = TEXT_Y + TEXT_LINE_SPACING + font.wordWrapHeight(energyStorageText, TEXT_WIDTH);
+        int h = font.wordWrapHeight(poweredModifiersText, TEXT_WIDTH);
         // render detail hover actions
-        if(isHovering(x, y, font.width(poweredModifiersText), font.lineHeight, pMouseX, pMouseY)) {
+        if(isHovering(x, y, font.width(poweredModifiersText), h, pMouseX, pMouseY)) {
             renderComponentHoverEffect(pPoseStack, poweredModifiersText.getStyle(), pMouseX, pMouseY);
         }
-        y += deltaY;
-        if(isHovering(x, y, font.width(energyUsagePerTickText), font.lineHeight, pMouseX, pMouseY)) {
+        y += h + TEXT_LINE_SPACING;
+        h = font.wordWrapHeight(energyUsagePerTickText, TEXT_WIDTH);
+        if(isHovering(x, y, font.width(energyUsagePerTickText), h, pMouseX, pMouseY)) {
             renderComponentHoverEffect(pPoseStack, energyUsagePerTickText.getStyle(), pMouseX, pMouseY);
         }
-        y += deltaY;
-        if(isHovering(x, y, font.width(poweredAxolootlsText), font.lineHeight, pMouseX, pMouseY)) {
+        y += h + TEXT_LINE_SPACING;
+        h = font.wordWrapHeight(poweredAxolootlsText, TEXT_WIDTH);
+        if(isHovering(x, y, font.width(poweredAxolootlsText), h, pMouseX, pMouseY)) {
             renderComponentHoverEffect(pPoseStack, poweredAxolootlsText.getStyle(), pMouseX, pMouseY);
         }
-        y += deltaY;
-        if(isHovering(x, y, font.width(energyUsagePerAxolootlText), font.lineHeight, pMouseX, pMouseY)) {
+        y += h + TEXT_LINE_SPACING;
+        h = font.wordWrapHeight(energyUsagePerAxolootlText, TEXT_WIDTH);
+        if(isHovering(x, y, font.width(energyUsagePerAxolootlText), h, pMouseX, pMouseY)) {
             renderComponentHoverEffect(pPoseStack, energyUsagePerAxolootlText.getStyle(), pMouseX, pMouseY);
         }
         // render energy bar tooltips

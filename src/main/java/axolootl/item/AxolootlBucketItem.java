@@ -6,6 +6,7 @@
 
 package axolootl.item;
 
+import axolootl.AxRegistry;
 import axolootl.client.ClientUtil;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.entity.AxolootlEntity;
@@ -16,6 +17,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
@@ -27,8 +29,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class AxolootlBucketItem extends MobBucketItem {
@@ -41,10 +47,18 @@ public class AxolootlBucketItem extends MobBucketItem {
     public void fillItemCategory(CreativeModeTab pCategory, NonNullList<ItemStack> pItems) {
         if (this.allowedIn(pCategory)) {
             ClientUtil.getClientLevel().ifPresentOrElse(level -> {
-                for(ResourceLocation variantId : AxolootlVariant.getRegistry(level.registryAccess()).keySet()) {
+                // create list of variants
+                List<Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant>> variants = new ArrayList<>(AxolootlVariant.getRegistry(level.registryAccess()).entrySet());
+                // remove invalid entries
+                variants.removeIf(e -> !AxRegistry.AxolootlVariantsReg.isValid(e.getKey().location()));
+                // sort by tier, then by name
+                Comparator<Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant>> comparator = Comparator.comparingInt(e -> e.getValue().getTier());
+                variants.sort(comparator.thenComparing(e -> e.getValue().getDescription().getString()));
+                // add each variant to the creative tab
+                for(Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant> variantId : variants) {
                     ItemStack itemStack = new ItemStack(this);
                     CompoundTag tag = new CompoundTag();
-                    tag.putString(AxolootlEntity.KEY_VARIANT_ID, variantId.toString());
+                    tag.putString(AxolootlEntity.KEY_VARIANT_ID, variantId.getKey().location().toString());
                     itemStack.setTag(tag);
                     pItems.add(itemStack);
                 }
@@ -84,22 +98,54 @@ public class AxolootlBucketItem extends MobBucketItem {
         }
     }
 
+    /**
+     * Parses an {@link AxolootlVariant} from an item stack
+     * @param registryAccess the registry access
+     * @param itemStack the item stack
+     * @return the axolootl variant, if any
+     * @see #getVariant(RegistryAccess, ItemStack, boolean)
+     */
     public static Optional<AxolootlVariant> getVariant(final RegistryAccess registryAccess, final ItemStack itemStack) {
+        return getVariant(registryAccess, itemStack, false);
+    }
+
+    /**
+     * Parses an {@link AxolootlVariant} from an item stack
+     * @param registryAccess the registry access
+     * @param itemStack the item stack
+     * @param includeAll true to include variants that are not enabled
+     * @return the axolootl variant, if any
+     */
+    public static Optional<AxolootlVariant> getVariant(final RegistryAccess registryAccess, final ItemStack itemStack, final boolean includeAll) {
         // verify itemstack has ID
         if(!itemStack.hasTag() || !itemStack.getTag().contains(AxolootlEntity.KEY_VARIANT_ID, Tag.TAG_STRING)) {
             return Optional.empty();
         }
-        // load ID
+        // load variant ID
         final ResourceLocation id = new ResourceLocation(itemStack.getTag().getString(AxolootlEntity.KEY_VARIANT_ID));
+        // validate variant ID
+        if(!includeAll && !AxRegistry.AxolootlVariantsReg.isValid(id)) {
+            return Optional.empty();
+        }
         // load variant
         return AxolootlVariant.getRegistry(registryAccess).getOptional(id);
     }
 
+    /**
+     * @param registryAccess the registry access
+     * @param itemStack the item stack to modify
+     * @param variant the variant to write
+     * @return the given item stack with the given variant written to NBT
+     */
     public static ItemStack getWithVariant(final RegistryAccess registryAccess, final ItemStack itemStack, final AxolootlVariant variant) {
-        itemStack.getOrCreateTag().putString(AxolootlEntity.KEY_VARIANT_ID, variant.getRegistryName(registryAccess).toString());
-        return itemStack;
+        return getWithVariant(itemStack, variant.getRegistryName(registryAccess));
     }
 
+    /**
+     * @param itemStack the item stack to modify
+     * @param variant the variant to write
+     * @return the given item stack with the given variant written to NBT
+     */
     public static ItemStack getWithVariant(final ItemStack itemStack, final ResourceLocation variant) {
         itemStack.getOrCreateTag().putString(AxolootlEntity.KEY_VARIANT_ID, variant.toString());
         return itemStack;

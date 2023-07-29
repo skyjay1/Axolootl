@@ -44,12 +44,14 @@ public class AxolootlInterfaceBlock extends WaterloggedHorizontalBlock implement
         } else {
             if (pPlayer instanceof ServerPlayer serverPlayer && pLevel.getBlockEntity(pPos) instanceof AxolootlInterfaceBlockEntity blockEntity) {
                 // validate controller
-                if(blockEntity.hasTank() && blockEntity.validateController(pLevel)) {
+                if (blockEntity.hasTank() && blockEntity.validateController(pLevel)) {
                     blockEntity.setChanged();
                 }
                 // open menu
-                BlockPos controllerPos = blockEntity.getController().isPresent() ? blockEntity.getController().get().getBlockPos() : pPos;
-                NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.AXOLOOTL_INTERFACE.get().getSortedIndex(), -1));
+                if (blockEntity.isMenuAvailable(serverPlayer, blockEntity.getController().orElse(null))) {
+                    BlockPos controllerPos = blockEntity.getController().isPresent() ? blockEntity.getController().get().getBlockPos() : pPos;
+                    NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.AXOLOOTL_INTERFACE.get().getSortedIndex(), -1));
+                }
             }
             return InteractionResult.CONSUME;
         }

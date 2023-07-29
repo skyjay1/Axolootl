@@ -120,6 +120,19 @@ public abstract class AbstractTabScreen<T extends AbstractControllerMenu> extend
         return false;
     }
 
+    /**
+     * @param poseStack the pose stack
+     * @param component the text to render
+     * @param x the text x position
+     * @param y the text y position
+     * @param width the maximum text width
+     * @return the height of the wrapped text
+     */
+    protected int renderWrappedText(PoseStack poseStack, Component component, int x, int y, int width, int color) {
+        font.drawWordWrap(component, x, y, width, color);
+        return font.wordWrapHeight(component, width);
+    }
+
     //// TABS ////
 
     @Override

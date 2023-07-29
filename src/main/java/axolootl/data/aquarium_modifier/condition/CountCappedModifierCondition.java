@@ -30,15 +30,16 @@ public class CountCappedModifierCondition extends CountModifierCondition {
 
     public static final Codec<CountCappedModifierCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             AquariumModifier.HOLDER_SET_CODEC.fieldOf("modifier").forGetter(CountModifierCondition::getModifiers),
-            IntProvider.NON_NEGATIVE_CODEC.fieldOf("count").forGetter(CountModifierCondition::getCount)
+            IntProvider.NON_NEGATIVE_CODEC.fieldOf("count").forGetter(CountModifierCondition::getCount),
+            Codec.BOOL.optionalFieldOf("active", false).forGetter(CountModifierCondition::isRequireActive)
     ).apply(instance, CountCappedModifierCondition::new));
 
     public CountCappedModifierCondition(CountModifierCondition copy) {
-        this(copy.getModifiers(), copy.getCount());
+        this(copy.getModifiers(), copy.getCount(), copy.isRequireActive());
     }
 
-    public CountCappedModifierCondition(HolderSet<AquariumModifier> modifierId, IntProvider count) {
-        super(modifierId, count);
+    public CountCappedModifierCondition(HolderSet<AquariumModifier> modifierId, IntProvider count, boolean requireActive) {
+        super(modifierId, count, requireActive);
     }
 
     @Override

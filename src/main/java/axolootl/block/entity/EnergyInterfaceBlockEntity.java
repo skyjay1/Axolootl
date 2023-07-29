@@ -133,10 +133,6 @@ public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquarium
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        if(!isMenuAvailable(pPlayer, controller)) {
-            // TODO create UI when not connected to controller
-            return null;
-        }
         return CyclingMenu.createEnergy(pContainerId, pPlayerInventory, controllerPos, controller, getBlockPos(), AxRegistry.AquariumTabsReg.ENERGY_INTERFACE.get().getSortedIndex(), -1);
     }
 

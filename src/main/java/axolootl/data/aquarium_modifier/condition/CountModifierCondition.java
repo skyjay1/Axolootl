@@ -11,25 +11,30 @@ import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
 import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.Map;
 
 @Immutable
 public class CountModifierCondition extends ModifierCondition {
 
     public static final Codec<CountModifierCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             AquariumModifier.HOLDER_SET_CODEC.fieldOf("modifier").forGetter(CountModifierCondition::getModifiers),
-            IntProvider.NON_NEGATIVE_CODEC.fieldOf("count").forGetter(CountModifierCondition::getCount)
+            IntProvider.NON_NEGATIVE_CODEC.fieldOf("count").forGetter(CountModifierCondition::getCount),
+            Codec.BOOL.optionalFieldOf("active", false).forGetter(CountModifierCondition::isRequireActive)
     ).apply(instance, CountModifierCondition::new));
 
     private final HolderSet<AquariumModifier> modifierId;
     private final IntProvider count;
+    private final boolean requireActive;
 
-    public CountModifierCondition(HolderSet<AquariumModifier> modifierId, IntProvider count) {
+    public CountModifierCondition(HolderSet<AquariumModifier> modifierId, IntProvider count, boolean requireActive) {
         this.modifierId = modifierId;
         this.count = count;
+        this.requireActive = requireActive;
     }
 
     public HolderSet<AquariumModifier> getModifiers() {
@@ -40,11 +45,15 @@ public class CountModifierCondition extends ModifierCondition {
         return count;
     }
 
+    public boolean isRequireActive() {
+        return requireActive;
+    }
+
     @Override
     public boolean test(AquariumModifierContext context) {
         int count = 0;
-        for(AquariumModifier entry : context.getModifiers().values()) {
-            if(modifierId.contains(entry.getHolder(context.getRegistryAccess()))) {
+        for(Map.Entry<BlockPos, AquariumModifier> entry : context.getModifiers().entrySet()) {
+            if(modifierId.contains(entry.getValue().getHolder(context.getRegistryAccess())) && (!isRequireActive() || context.isModifierActive(entry.getKey()))) {
                 count++;
             }
         }

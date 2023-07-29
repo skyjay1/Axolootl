@@ -22,7 +22,8 @@
       {
         "type": "axolootl:count",
         "modifier": "axolootl:powered_pump",
-        "count": 0
+        "count": 0,
+        "active": true
       }
     ]
   }
