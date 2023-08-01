@@ -12,9 +12,9 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.random.WeightedEntry;
@@ -35,20 +35,20 @@ public class AxolootlBreeding {
 
 
     public static final Codec<AxolootlBreeding> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            AxolootlVariant.HOLDER_SET_CODEC.fieldOf("first").forGetter(AxolootlBreeding::getFirst),
-            AxolootlVariant.HOLDER_SET_CODEC.fieldOf("second").forGetter(AxolootlBreeding::getSecond),
+            AxolootlVariant.HOLDER_CODEC.fieldOf("first").forGetter(AxolootlBreeding::getFirst),
+            AxolootlVariant.HOLDER_CODEC.fieldOf("second").forGetter(AxolootlBreeding::getSecond),
             WEIGHTED_LIST_CODEC.fieldOf("result").forGetter(AxolootlBreeding::getResult)
     ).apply(instance, AxolootlBreeding::new));
 
 
     /** The first axolootl variant **/
-    private final HolderSet<AxolootlVariant> first;
+    private final Holder<AxolootlVariant> first;
     /** The second axolootl variant **/
-    private final HolderSet<AxolootlVariant> second;
+    private final Holder<AxolootlVariant> second;
     /** A weighted list to determine the result, if it is empty the first variant is used instead **/
     private final SimpleWeightedRandomList<Holder<AxolootlVariant>> result;
 
-    public AxolootlBreeding(HolderSet<AxolootlVariant> first, HolderSet<AxolootlVariant> second,
+    public AxolootlBreeding(Holder<AxolootlVariant> first, Holder<AxolootlVariant> second,
                                   SimpleWeightedRandomList<Holder<AxolootlVariant>> result) {
         this.first = first;
         this.second = second;
@@ -92,11 +92,11 @@ public class AxolootlBreeding {
      */
     public boolean matches(final Level level, final AxolootlVariant aFirst, final AxolootlVariant aSecond) {
         // create holders
-        final Holder<AxolootlVariant> hFirst = aFirst.getHolder(level.registryAccess());
-        final Holder<AxolootlVariant> hSecond = aSecond.getHolder(level.registryAccess());
+        final ResourceLocation idFirst = aFirst.getRegistryName(level.registryAccess());
+        final ResourceLocation idSecond = aSecond.getRegistryName(level.registryAccess());
         // check holder sets (order does not matter)
-        return (this.first.contains(hFirst) && this.second.contains(hSecond)
-            || (this.first.contains(hSecond) && this.second.contains(hFirst)));
+        return (this.first.is(idFirst) && this.second.is(idSecond)
+            || (this.first.is(idSecond) && this.second.is(idFirst)));
     }
 
     /**
@@ -107,7 +107,7 @@ public class AxolootlBreeding {
      * @return the axolootl variant according to {@link #sampleResult(RandomSource)}, or {@link #getFirst()} if it failed
      */
     public Holder<AxolootlVariant> getBreedResult(final Level level, final AxolootlVariant aFirst, final AxolootlVariant aSecond, final RandomSource random) {
-         return sampleResult(random).orElse(first.getRandomElement(random).orElseThrow());
+         return sampleResult(random).orElse(getFirst());
     }
 
     /**
@@ -124,11 +124,11 @@ public class AxolootlBreeding {
 
     //// GETTERS ////
 
-    public HolderSet<AxolootlVariant> getFirst() {
+    public Holder<AxolootlVariant> getFirst() {
         return first;
     }
 
-    public HolderSet<AxolootlVariant> getSecond() {
+    public Holder<AxolootlVariant> getSecond() {
         return second;
     }
 

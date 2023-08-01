@@ -77,6 +77,10 @@ repositories {
         name 'CurseMaven'
         url 'https://www.cursemaven.com/'
     }
+    maven {
+        name 'GeckoLib'
+        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+    }
 }
 
 dependencies {
@@ -84,6 +88,9 @@ dependencies {
 	
     // JEI
 	implementation fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
+
+    // GeckoLib
+    implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.19:${project.geckolib_version}")
 
     // Iron Generators
     runtimeOnly fg.deobf("curse.maven:inzhefop-core-${inzhefop_core_project}:${inzhefop_core_file}")

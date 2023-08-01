@@ -8,7 +8,6 @@ package axolootl.client.menu;
 
 import axolootl.block.AbstractInterfaceBlock;
 import axolootl.block.entity.WaterInterfaceBlockEntity;
-import axolootl.menu.AxolootlMenu;
 import axolootl.menu.CyclingContainerMenu;
 import axolootl.util.TankMultiblock;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -168,11 +167,9 @@ public class FluidInterfaceScreen extends CyclingContainerScreen {
     private void renderFluidBar(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         int x = this.leftPos + FLUID_X;
         int y = this.topPos + FLUID_Y;
-        // draw overlaid energy bars
+        // draw background fluid bar
         RenderSystem.setShaderTexture(0, WIDGETS);
-        // draw background energy bar
         blit(poseStack, x, y, FLUID_U, FLUID_V, FLUID_WIDTH, FLUID_HEIGHT);
-        blit(poseStack, x, y, FLUID_U + FLUID_WIDTH, FLUID_V, FLUID_WIDTH, FLUID_HEIGHT - totalFluidHeight);
         // draw fluid stack
         x = leftPos + FLUID_X + FLUID_MARGIN;
         y = topPos + FLUID_Y + (FLUID_HEIGHT - totalFluidHeight) - FLUID_MARGIN;

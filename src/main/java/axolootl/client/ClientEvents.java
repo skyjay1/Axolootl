@@ -7,7 +7,7 @@
 package axolootl.client;
 
 import axolootl.AxRegistry;
-import axolootl.client.entity.AxolootlRenderer;
+import axolootl.client.entity.AxolootlGeoRenderer;
 import axolootl.client.menu.AxolootlInterfaceScreen;
 import axolootl.client.menu.ControllerScreen;
 import axolootl.client.menu.CyclingContainerScreen;
@@ -35,7 +35,7 @@ public final class ClientEvents {
     public static final class ModHandler {
         @SubscribeEvent
         public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event) {
-            event.registerEntityRenderer(AxRegistry.EntityReg.AXOLOOTL.get(), AxolootlRenderer::new);
+            event.registerEntityRenderer(AxRegistry.EntityReg.AXOLOOTL.get(), AxolootlGeoRenderer::new);
         }
 
         @SubscribeEvent
@@ -57,11 +57,14 @@ public final class ClientEvents {
                 }
                 // load variant
                 AxolootlVariant variant = AxolootlBucketItem.getVariant(level.registryAccess(), pStack).orElse(AxolootlVariant.EMPTY);
+                if(!variant.getModelSettings().hasItemModelColors()) {
+                    return -1;
+                }
                 // colors
                 if(pTintIndex == 1) {
-                    return variant.getPrimaryColor();
+                    return variant.getModelSettings().getPrimaryColor();
                 }
-                return variant.getSecondaryColor();
+                return variant.getModelSettings().getSecondaryColor();
             }, AxRegistry.ItemReg.AXOLOOTL_BUCKET.get());
         }
 

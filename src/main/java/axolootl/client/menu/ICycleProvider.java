@@ -111,6 +111,15 @@ public interface ICycleProvider {
     List<CycleButton> getCycleButtons();
 
     /**
+     * @param visible whether the cycle buttons are visible
+     */
+    default void setCycleButtonsVisible(final boolean visible) {
+        for(CycleButton button : getCycleButtons()) {
+            button.visible = visible;
+        }
+    }
+
+    /**
      * @param enabled whether the cycle buttons should be enabled
      */
     default void setCycleButtonsEnabled(final boolean enabled) {

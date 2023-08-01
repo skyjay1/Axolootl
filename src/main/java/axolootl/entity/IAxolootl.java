@@ -76,6 +76,11 @@ public interface IAxolootl {
     Optional<ResourceLocation> getAxolootlVariantId();
 
     /**
+     * @return true if the entity is playing dead
+     */
+    boolean isPlayingDead();
+
+    /**
      * @return the generation speed bonus granted by this axolootl
      */
     default double getGenerationSpeed() {
@@ -94,14 +99,6 @@ public interface IAxolootl {
      */
     default double getBreedSpeed() {
         return 0;
-    }
-
-    /**
-     * @param <T> an entity class that extends {@link LivingEntity}, {@link Bucketable}, and {@link IAxolootl}
-     * @return the entity type of the entity
-     */
-    default <T extends LivingEntity & Bucketable & IAxolootl> EntityType<T> getEntityType() {
-        return (EntityType<T>) AxRegistry.EntityReg.AXOLOOTL.get();
     }
 
     /**

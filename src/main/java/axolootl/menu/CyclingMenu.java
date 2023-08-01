@@ -22,9 +22,6 @@ import java.util.List;
 
 public class CyclingMenu extends AbstractControllerMenu {
 
-    public static final int PLAYER_INV_X = 30;
-    public static final int PLAYER_INV_Y = 140;
-
     public final int cycleCount;
     private final List<BlockPos> sortedCycleList;
     private final boolean hasPlayerSlots;
@@ -59,7 +56,7 @@ public class CyclingMenu extends AbstractControllerMenu {
     }
 
     @Override
-    public int getMaxCycle() {
+    public int getCycleCount() {
         return cycleCount;
     }
 

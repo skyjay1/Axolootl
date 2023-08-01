@@ -9,6 +9,7 @@ package axolootl.integration;
 import axolootl.AxRegistry;
 import axolootl.data.breeding.AxolootlBreeding;
 import axolootl.data.axolootl_variant.AxolootlVariant;
+import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.item.AxolootlBucketItem;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -17,7 +18,6 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.WeightedEntry;
-import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -42,13 +42,13 @@ public class JeiBreedingWrapper {
         this.breeding = breeding;
         this.requiresMonsterium = breeding.getResult().unwrap().stream().anyMatch(wrapper -> wrapper.getData().value().hasMobResources());
         // create inputs
-        this.first = getStacks(breeding.getFirst());
-        this.second = getStacks(breeding.getSecond());
+        this.first = ImmutableList.of(getStack(breeding.getFirst()));
+        this.second = ImmutableList.of(getStack(breeding.getSecond()));
         // create foods
-        this.firstFood = getFoods(breeding.getFirst());
-        this.secondFood = getFoods(breeding.getSecond());
+        this.firstFood = getFood(breeding.getFirst());
+        this.secondFood = getFood(breeding.getSecond());
         // create results
-        double totalWeight = calculateTotalWeight(breeding.getResult());
+        double totalWeight = ResourceGenerator.calculateTotalWeight(breeding.getResult());
         final ImmutableMap.Builder<ItemStack, Double> builder = ImmutableMap.builder();
         for(WeightedEntry.Wrapper<Holder<AxolootlVariant>> entry : breeding.getResult().unwrap()) {
             builder.put(getStack(entry.getData()), entry.getWeight().asInt() / totalWeight);
@@ -93,14 +93,6 @@ public class JeiBreedingWrapper {
         return this.sortedResult;
     }
 
-    private static double calculateTotalWeight(final WeightedRandomList<?> list) {
-        return list.unwrap()
-                .stream()
-                .map(e -> e.getWeight().asInt())
-                .reduce(Integer::sum)
-                .orElse(1).doubleValue();
-    }
-
     /**
      * @param holders a holder set
      * @return all breeding items for the given axolootl variant(s)
@@ -111,6 +103,14 @@ public class JeiBreedingWrapper {
             builder.addAll(holder.get().getBreedFood().stream().map(h -> h.get().getDefaultInstance()).toList());
         }
         return builder.build();
+    }
+
+    /**
+     * @param holder a holder
+     * @return all breeding items for the given axolootl variant(s)
+     */
+    private static List<ItemStack> getFood(final Holder<AxolootlVariant> holder) {
+        return ImmutableList.copyOf(holder.get().getBreedFood().stream().map(h -> h.get().getDefaultInstance()).toList());
     }
 
     /**

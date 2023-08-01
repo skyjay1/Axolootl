@@ -10,41 +10,34 @@ import axolootl.AxRegistry;
 import axolootl.block.entity.AxolootlInterfaceBlockEntity;
 import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.data.axolootl_variant.AxolootlVariant;
-import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
 import axolootl.network.AxNetwork;
 import axolootl.network.ServerBoundExtractAxolootlPacket;
 import axolootl.network.ServerBoundInsertAxolootlPacket;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.MobBucketItem;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public class AxolootlMenu extends AbstractControllerMenu {
+public class AxolootlInterfaceMenu extends AbstractControllerMenu {
 
     public static final int INV_X = 30;
     public static final int INV_Y = 108;
     public static int INV_SIZE = 6;
 
-    public static final int PLAYER_INV_X = 30;
-    public static final int PLAYER_INV_Y = 140;
-
     private Container container;
     private Map<AxolootlVariant, Integer> variantCountMap;
     private int totalCount;
 
-    public AxolootlMenu(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity blockEntity, BlockPos blockPos, int tab, int cycle) {
+    public AxolootlInterfaceMenu(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity blockEntity, BlockPos blockPos, int tab, int cycle) {
         super(AxRegistry.MenuReg.AXOLOOTL.get(), windowId, inv, controllerPos, blockEntity, blockPos, tab, cycle);
         this.variantCountMap = new HashMap<>();
         if(blockEntity.getLevel().getBlockEntity(blockPos) instanceof Container c && c.getContainerSize() == INV_SIZE) {

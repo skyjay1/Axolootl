@@ -9,6 +9,8 @@ package axolootl.data.resource_generator;
 import axolootl.AxRegistry;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -20,6 +22,7 @@ import net.minecraftforge.registries.tags.ITag;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
+import java.util.List;
 
 @Immutable
 public class ItemTagResourceGenerator extends ResourceGenerator {
@@ -28,10 +31,13 @@ public class ItemTagResourceGenerator extends ResourceGenerator {
             .xmap(ItemTagResourceGenerator::new, ItemTagResourceGenerator::getTag).fieldOf("tag").codec();
 
     private final TagKey<Item> tag;
+    private final List<Component> description;
 
     public ItemTagResourceGenerator(TagKey<Item> tag) {
         super(ResourceType.ITEM);
         this.tag = tag;
+        final Component tagComponent = Component.literal("#" + tag.location().toString()).withStyle(ChatFormatting.GRAY);
+        this.description = ImmutableList.of(Component.translatable("axolootl.resource_generator.item_tag", tagComponent));
     }
 
     public TagKey<Item> getTag() {
@@ -56,6 +62,11 @@ public class ItemTagResourceGenerator extends ResourceGenerator {
     @Override
     public Codec<? extends ResourceGenerator> getCodec() {
         return AxRegistry.ResourceGeneratorsReg.TAG.get();
+    }
+
+    @Override
+    public List<Component> getDescription() {
+        return this.description;
     }
 
     @Override

@@ -8,6 +8,7 @@ package axolootl.block.entity;
 
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
+import axolootl.data.aquarium_tab.IAquariumTab;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
@@ -22,7 +23,6 @@ import axolootl.util.TankStatus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterators;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -72,10 +72,12 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -89,7 +91,7 @@ import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
+public class ControllerBlockEntity extends BlockEntity implements MenuProvider, IAquariumControllerProvider {
 
     // CONSTANTS //
     /** The default resource generation speed **/
@@ -157,10 +159,11 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     // TANK //
     @Nullable
     private TankMultiblock.Size size;
-    private final Set<BlockPos> axolootlInputs = new HashSet<>();
-    private final Set<BlockPos> fluidInputs = new HashSet<>();
-    private final Set<BlockPos> energyInputs = new HashSet<>();
-    private final Set<BlockPos> resourceOutputs = new HashSet<>();
+    private final Map<ResourceLocation, Set<BlockPos>> trackedBlocks = new HashMap<>();
+    //private final Set<BlockPos> axolootlInputs = new HashSet<>();
+    //private final Set<BlockPos> fluidInputs = new HashSet<>();
+    //private final Set<BlockPos> energyInputs = new HashSet<>();
+    //private final Set<BlockPos> resourceOutputs = new HashSet<>();
     private final Map<BlockPos, ResourceLocation> aquariumModifiers = new HashMap<>();
     private final Set<BlockPos> activeAquariumModifiers = new HashSet<>();
     private final Map<UUID, ResourceLocation> trackedAxolootls = new HashMap<>();
@@ -176,6 +179,10 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     public ControllerBlockEntity(BlockPos pPos, BlockState pBlockState) {
         this(AxRegistry.BlockEntityReg.CONTROLLER.get(), pPos, pBlockState);
+    }
+
+    public ControllerBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
+        super(pType, pPos, pBlockState);
         this.tankStatus = TankStatus.INCOMPLETE;
         this.feedStatus = FeedStatus.INACTIVE;
         this.breedStatus = BreedStatus.INACTIVE;
@@ -185,57 +192,53 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         this.forceCalculateBonuses = true;
     }
 
-    public ControllerBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
-        super(pType, pPos, pBlockState);
-    }
-
-    public static void tick(final Level level, final BlockPos pos, final BlockState state, final ControllerBlockEntity self) {
+    public static void tick(final Level levelAccessor, final BlockPos pos, final BlockState state, final ControllerBlockEntity self) {
         // verify area loaded
-        if(!(level instanceof ServerLevel serverLevel) || !self.hasTank() || !self.size.isAreaLoaded(level)) {
+        if(!(levelAccessor instanceof ServerLevel level) || !self.hasTank() || !self.size.isAreaLoaded(level)) {
             return;
         }
         boolean markDirty = false;
         // update status
         level.getProfiler().push("axolootlStatus");
-        markDirty |= self.updateStatus(serverLevel);
+        markDirty |= self.updateStatus(level);
         level.getProfiler().pop();
         // active updates
         if(self.hasTank()) {
             // validate tank size
             level.getProfiler().push("aquariumTankSize");
             int blocksToScan = Axolootl.CONFIG.TANK_MULTIBLOCK_UPDATE_CAP.get();
-            markDirty |= self.iterateOutside(serverLevel, Mth.ceil(blocksToScan * OUTSIDE_ITERATOR_SCAN));
-            markDirty |= self.validateInputsOutputs(serverLevel);
+            markDirty |= self.iterateOutside(level, Mth.ceil(blocksToScan * OUTSIDE_ITERATOR_SCAN));
+            markDirty |= self.validateTrackedBlocks(level);
             // search for, validate, and apply modifiers
             level.getProfiler().popPush("aquariumModifiers");
-            markDirty |= self.iterateInside(serverLevel, Mth.ceil(blocksToScan * INSIDE_ITERATOR_SCAN));
-            markDirty |= self.validateUpdateModifiers(serverLevel);
+            markDirty |= self.iterateInside(level, Mth.ceil(blocksToScan * INSIDE_ITERATOR_SCAN));
+            markDirty |= self.validateUpdateModifiers(level);
             level.getProfiler().pop();
         }
         // active updates after validating tank size and modifiers
         if(self.getTankStatus().isActive()) {
             // distribute energy to modifiers
             level.getProfiler().push("aquariumEnergy");
-            markDirty |= self.distributeEnergyToModifiers(serverLevel);
+            markDirty |= self.distributeEnergyToModifiers(level);
             // validate and search for axolootl entities
             level.getProfiler().popPush("aquariumEntities");
-            markDirty |= self.validateAxolootls(serverLevel);
-            markDirty |= self.findAxolootls(serverLevel);
+            markDirty |= self.validateAxolootls(level);
+            markDirty |= self.findAxolootls(level);
             level.getProfiler().popPush("aquariumBonuses");
             if(self.forceCalculateBonuses) {
-                markDirty |= self.applyActiveModifiers(serverLevel);
+                markDirty |= self.applyActiveModifiers(level);
                 self.forceCalculateBonuses = false;
             }
             // update tickers
             level.getProfiler().popPush("aquariumTickers");
-            markDirty |= self.updateTickers(serverLevel);
+            markDirty |= self.updateTickers(level);
             // feed, breed, and generate resources
             level.getProfiler().popPush("aquariumFeed");
-            markDirty |= self.feed(serverLevel);
+            markDirty |= self.feed(level);
             level.getProfiler().popPush("aquariumBreed");
-            markDirty |= self.breed(serverLevel);
+            markDirty |= self.breed(level);
             level.getProfiler().popPush("aquariumResources");
-            markDirty |= self.generateResources(serverLevel);
+            markDirty |= self.generateResources(level);
             level.getProfiler().pop();
         }
         // mark changed and send update
@@ -280,9 +283,9 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     /**
      * Decrements the resource generation, breed, and feed tickers
      * @return true if any ticker was changed
-     * @param serverLevel the server level
+     * @param level the server level
      */
-    private boolean updateTickers(ServerLevel serverLevel) {
+    private boolean updateTickers(ServerLevel level) {
         boolean flag = false;
         if(resourceGenerationTime > 0 && generationSpeed > 0) {
             long tickAmount = getResourceGenerationTickAmount();
@@ -306,9 +309,9 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     /**
      * @return true if any modifier multipliers or flags changed
-     * @param serverLevel the level
+     * @param level the level
      */
-    private boolean applyActiveModifiers(final ServerLevel serverLevel) {
+    private boolean applyActiveModifiers(final ServerLevel level) {
         // calculate generation, feed, and breed speeds
         double generationSpeed = BASE_GENERATION_SPEED;
         double feedSpeed = BASE_FEED_SPEED;
@@ -316,7 +319,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         boolean enableMobResources = false;
         boolean enableMobBreeding = false;
         // iterate active modifiers
-        for(AquariumModifier entry : resolveModifiers(serverLevel.registryAccess(), activePredicate).values()) {
+        for(AquariumModifier entry : resolveModifiers(level.registryAccess(), activePredicate).values()) {
             // add generation speed
             if(tankStatus.isActive()) {
                 generationSpeed += entry.getSettings().getGenerationSpeed();
@@ -333,7 +336,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             }
         }
         // iterate axolootls
-        for(IAxolootl entry : resolveAxolootls(serverLevel)) {
+        for(IAxolootl entry : resolveAxolootls(level)) {
             // add generation speed
             if(tankStatus.isActive()) {
                 generationSpeed += entry.getGenerationSpeed();
@@ -400,10 +403,10 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     // RESOURCES //
 
     /**
-     * @param serverLevel the server level
+     * @param level the server level
      * @return true if there are any changes, such as tickers resetting or the axolootl variant map changing
      **/
-    private boolean generateResources(ServerLevel serverLevel) {
+    private boolean generateResources(ServerLevel level) {
         // validate ticker
         if(resourceGenerationTime > 0) {
             return false;
@@ -412,11 +415,11 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         final List<ItemStack> resources = new ArrayList<>();
         final Set<UUID> invalid = new HashSet<>();
         // resolve axolootls
-        final Collection<IAxolootl> axolootls = resolveAxolootls(serverLevel, i -> !i.getEntity().isBaby());
+        final Collection<IAxolootl> axolootls = resolveAxolootls(level, i -> !i.getEntity().isBaby());
         // iterate over axolootl variants to generate resources
         for(IAxolootl entry : axolootls) {
             // verify variant exists
-            Optional<AxolootlVariant> oVariant = entry.getAxolootlVariant(serverLevel.registryAccess());
+            Optional<AxolootlVariant> oVariant = entry.getAxolootlVariant(level.registryAccess());
             if(oVariant.isEmpty()) {
                 invalid.add(entry.getEntity().getUUID());
                 continue;
@@ -432,7 +435,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             // generate resources
             Collection<ItemStack> generatedResources = gen.getRandomEntries(entry.getEntity(), entry.getEntity().getRandom());
             // remove energy
-            if(!generatedResources.isEmpty() && cost > 0 && transferEnergy(serverLevel, this.getBlockPos(), cost, true) < cost) {
+            if(!generatedResources.isEmpty() && cost > 0 && transferEnergy(level, this.getBlockPos(), cost, true) < cost) {
                 break;
             }
             // add generated resources to list
@@ -506,7 +509,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         BlockEntity blockEntity;
         Optional<IItemHandler> capability;
         // iterate each potential output
-        for(BlockPos pos : this.resourceOutputs) {
+        for(BlockPos pos : this.getResourceOutputs()) {
             blockEntity = this.level.getBlockEntity(pos);
             if(blockEntity != null) {
                 // load item handler capability
@@ -537,9 +540,9 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     /**
      * @return true if the axolootl list, feed ticker, or feed status changed
-     * @param serverLevel the server level
+     * @param level the server level
      */
-    private boolean feed(ServerLevel serverLevel) {
+    private boolean feed(ServerLevel level) {
         // validate ticker
         if(feedTime > 0 || !(feedSpeed > 0)) {
             return false;
@@ -549,14 +552,14 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             return false;
         }
         // resolve axolootls
-        final Collection<IAxolootl> axolootls = resolveAxolootls(serverLevel);
+        final Collection<IAxolootl> axolootls = resolveAxolootls(level);
         // resolve autofeeders
-        final Map<BlockPos, AquariumModifier> modifiers = resolveModifiers(serverLevel.registryAccess(),
+        final Map<BlockPos, AquariumModifier> modifiers = resolveModifiers(level.registryAccess(),
                 activePredicate.and((b, a) -> a.getSettings().getFeedSpeed() > 0));
         // collect inventories
         final ImmutableMap.Builder<BlockPos, IItemHandler> itemHandlerBuilder = ImmutableMap.builder();
         for(BlockPos entry : modifiers.keySet()) {
-            BlockEntity blockEntity = serverLevel.getBlockEntity(entry);
+            BlockEntity blockEntity = level.getBlockEntity(entry);
             if(blockEntity != null) {
                 blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> itemHandlerBuilder.put(entry, handler));
             }
@@ -573,10 +576,10 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         int feedCandidates = 0; // the number of axolootls that need to be fed
         for(IAxolootl axolootl : axolootls) {
             // validate axolootl can accept food
-            if(!axolootl.isFeedCandidate(serverLevel)) continue;
+            if(!axolootl.isFeedCandidate(level)) continue;
             // attempt to feed from each known item handler
             for(IItemHandler handler : itemHandlers.values()) {
-                InteractionResultHolder<Boolean> result = feed(serverLevel, handler, axolootl);
+                InteractionResultHolder<Boolean> result = feed(level, handler, axolootl);
                 nonEmpty |= result.getObject().booleanValue();
                 if(result.getResult().consumesAction()) {
                     hasFed = true;
@@ -598,12 +601,12 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     /**
      * Iterates the item handler inventory and attempts to feed each item to the given axolootl
-     * @param serverLevel the server level
+     * @param level the server level
      * @param handler the item handler
      * @param axolootl the axolootl
      * @return the result of the operation and a flag that is true when there are at least some items in the handler
      */
-    private InteractionResultHolder<Boolean> feed(ServerLevel serverLevel, IItemHandler handler, IAxolootl axolootl) {
+    private InteractionResultHolder<Boolean> feed(ServerLevel level, IItemHandler handler, IAxolootl axolootl) {
         // iterate items in inventory
         int emptySlots = 0;
         for(int i = 0, n = handler.getSlots(); i < n; i++) {
@@ -614,7 +617,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             }
             // attempt to feed this item
             ItemStack food = handler.getStackInSlot(i).copy().split(1);
-            InteractionResult result = axolootl.feed(serverLevel, food);
+            InteractionResult result = axolootl.feed(level, food);
             if(result.consumesAction()) {
                 // remove from item handler
                 handler.extractItem(i, 1, false);
@@ -628,9 +631,9 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     /**
      * @return true if the axolootl list or breed ticker changed
-     * @param serverLevel the server level
+     * @param level the server level
      */
-    private boolean breed(ServerLevel serverLevel) {
+    private boolean breed(ServerLevel level) {
         // validate ticker
         if(breedTime > 0) {
             return false;
@@ -640,15 +643,15 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             return false;
         }
         // resolve axolootls
-        final Collection<IAxolootl> axolootls = resolveAxolootls(serverLevel, a -> enableMobBreeding
-                || !a.getAxolootlVariant(serverLevel.registryAccess()).orElse(AxolootlVariant.EMPTY).hasMobResources());
+        final Collection<IAxolootl> axolootls = resolveAxolootls(level, a -> enableMobBreeding
+                || !a.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY).hasMobResources());
         // resolve breeders
-        final Map<BlockPos, AquariumModifier> modifiers = resolveModifiers(serverLevel.registryAccess(),
+        final Map<BlockPos, AquariumModifier> modifiers = resolveModifiers(level.registryAccess(),
                 activePredicate.and((b, a) -> a.getSettings().getBreedSpeed() > 0 || a.getSettings().isEnableMobBreeding()));
         // collect inventories
         final ImmutableMap.Builder<BlockPos, IItemHandler> itemHandlerBuilder = ImmutableMap.builder();
         for(BlockPos entry : modifiers.keySet()) {
-            BlockEntity blockEntity = serverLevel.getBlockEntity(entry);
+            BlockEntity blockEntity = level.getBlockEntity(entry);
             if(blockEntity != null) {
                 blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> itemHandlerBuilder.put(entry, handler));
             }
@@ -665,14 +668,14 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         int breedCandidates = 0; // the number of axolootls that can breed
         for(IAxolootl axolootl : axolootls) {
             // validate axolootl can breed
-            if (!axolootl.isBreedCandidate(serverLevel, Optional.empty())) continue;
+            if (!axolootl.isBreedCandidate(level, Optional.empty())) continue;
             // iterate each other axolootl
             Optional<IAxolootl> oAxolootl = Optional.of(axolootl);
             for(IAxolootl other : axolootls) {
                 // validate other can breed
-                if (axolootl == other || !other.isBreedCandidate(serverLevel, oAxolootl)) continue;
+                if (axolootl == other || !other.isBreedCandidate(level, oAxolootl)) continue;
                 // attempt to breed from each known item handler
-                InteractionResultHolder<Boolean> result = breed(serverLevel, itemHandlers, axolootl, other);
+                InteractionResultHolder<Boolean> result = breed(level, itemHandlers, axolootl, other);
                 nonEmpty |= result.getObject().booleanValue();
                 if(result.getResult().consumesAction()) {
                     hasBred = true;
@@ -694,15 +697,15 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     /**
      * Iterates the item handler inventory and attempts to feed each item to the given axolootls
-     * @param serverLevel the server level
+     * @param level the server level
      * @param handlers the item handlers
      * @param axolootl the axolootl
      * @return the result of the operation and a flag that is true when there are at least some items in the handler
      */
-    private InteractionResultHolder<Boolean> breed(ServerLevel serverLevel, Map<BlockPos, IItemHandler> handlers, IAxolootl axolootl, IAxolootl other) {
+    private InteractionResultHolder<Boolean> breed(ServerLevel level, Map<BlockPos, IItemHandler> handlers, IAxolootl axolootl, IAxolootl other) {
 
-        final AxolootlVariant variant1 = axolootl.getAxolootlVariant(serverLevel.registryAccess()).orElse(AxolootlVariant.EMPTY);
-        final AxolootlVariant variant2 = other.getAxolootlVariant(serverLevel.registryAccess()).orElse(AxolootlVariant.EMPTY);
+        final AxolootlVariant variant1 = axolootl.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
+        final AxolootlVariant variant2 = other.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
         final HolderSet<Item> breedFood1 = variant1.getBreedFood();
         final HolderSet<Item> breedFood2 = variant2.getBreedFood();
 
@@ -713,7 +716,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         int slot2 = -1;
         for(IItemHandler handler : handlers.values()) {
             // find items matching holder sets
-            Tuple<Integer, Integer> result = findItems(serverLevel, handler, breedFood1, breedFood2);
+            Tuple<Integer, Integer> result = findItems(level, handler, breedFood1, breedFood2);
             // check first item found
             if(slot1 < 0 && result.getA() >= 0) {
                 handler1 = handler;
@@ -747,7 +750,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             insertItem(remainder2, false);
         }
         // try to breed
-        Optional<IAxolootl> oChild = axolootl.breed(serverLevel, other);
+        Optional<IAxolootl> oChild = axolootl.breed(level, other);
         if(oChild.isEmpty() || oChild.get().getAxolootlVariantId().isEmpty()) {
             return InteractionResultHolder.pass(slot1 < 0 && slot2 < 0);
         }
@@ -759,13 +762,13 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     /**
      * Finds the given item in the given inventory
-     * @param serverLevel the server level
+     * @param level the server level
      * @param handler the item handler
      * @param left the first item to search for
      * @param right the second item to search for
      * @return the slots of the items that were found, where -1 means the item was not found
      */
-    private Tuple<Integer, Integer> findItems(ServerLevel serverLevel, final IItemHandler handler, final HolderSet<Item> left, final HolderSet<Item> right) {
+    private Tuple<Integer, Integer> findItems(ServerLevel level, final IItemHandler handler, final HolderSet<Item> left, final HolderSet<Item> right) {
         // iterate items in inventory
         int slotLeft = -1;
         int slotRight = -1;
@@ -792,21 +795,18 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     /**
      *
-     * @param serverLevel the server level
+     * @param level the server level
      * @param blocksToCheck the maximum number of blocks to check
      * @return true if the tank size changed or new inputs/outputs were found
      */
-    private boolean iterateOutside(ServerLevel serverLevel, final int blocksToCheck) {
+    private boolean iterateOutside(ServerLevel level, final int blocksToCheck) {
         // verify iterator exists
         if(null == outsideIterator || null == size) {
             return false;
         }
-        final Set<BlockPos> axolootlInputs = new HashSet<>();
-        final Set<BlockPos> fluidInputs = new HashSet<>();
-        final Set<BlockPos> energyInputs = new HashSet<>();
-        final Set<BlockPos> resourceOutputs = new HashSet<>();
         // iterate each block
         int blocksChecked = 0;
+        boolean isDirty = false;
         while(outsideIterator.hasNext() && blocksChecked++ < blocksToCheck) {
             BlockPos pos = outsideIterator.next();
             // validate no duplicate controllers
@@ -816,73 +816,57 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
                 return true;
             }
             // validate tank block
-            if(!TankMultiblock.AQUARIUM.isTankBlock(serverLevel, pos)) {
+            if(!TankMultiblock.AQUARIUM.isTankBlock(level, pos)) {
                 this.setSize(null);
                 return true;
             }
-            // add to corresponding set, if applicable
-            BlockState blockState = serverLevel.getBlockState(pos);
-            // add fluid input
-            if(blockState.is(FLUID_INPUTS) && !fluidInputs.contains(pos)) {
-                fluidInputs.add(pos.immutable());
-                IAquariumControllerProvider.trySetController(serverLevel, pos, this);
-            }
-            // add energy input
-            if(blockState.is(ENERGY_INPUTS) && !energyInputs.contains(pos)) {
-                energyInputs.add(pos.immutable());
-                IAquariumControllerProvider.trySetController(serverLevel, pos, this);
-            }
-            // add axolootl input
-            if(blockState.is(AXOLOOTL_INPUTS) && !axolootlInputs.contains(pos)) {
-                axolootlInputs.add(pos.immutable());
-                IAquariumControllerProvider.trySetController(serverLevel, pos, this);
-            }
-            // add resource outputs
-            if(blockState.is(RESOURCE_OUTPUTS) && !resourceOutputs.contains(pos)) {
-                resourceOutputs.add(pos.immutable());
-                IAquariumControllerProvider.trySetController(serverLevel, pos, this);
+            // determine applicable tab
+            BlockState blockState = level.getBlockState(pos);
+            Optional<IAquariumTab> oTab = IAquariumTab.forBlock(level, pos, blockState);
+            if(oTab.isPresent()) {
+                // start tracking the block at this position
+                isDirty |= startTrackingBlock(level, AxRegistry.AQUARIUM_TABS_SUPPLIER.get().getKey(oTab.get()), pos);
             }
         }
         // restart iterator after it is finished
         if(!outsideIterator.hasNext() && size != null) {
             outsideIterator = size.outerPositions().iterator();
         }
-        // check any position is not already known
-        boolean isDirty = (!this.fluidInputs.containsAll(fluidInputs) || !this.energyInputs.containsAll(energyInputs)
-            || !this.axolootlInputs.containsAll(axolootlInputs) || !this.resourceOutputs.containsAll(resourceOutputs));
-        // update sets
-        this.fluidInputs.addAll(fluidInputs);
-        this.energyInputs.addAll(energyInputs);
-        this.axolootlInputs.addAll(axolootlInputs);
-        this.resourceOutputs.addAll(resourceOutputs);
         return isDirty;
     }
 
     /**
-     * @param serverLevel the server level
+     * @param level the server level
      * @param blocksToCheck the maximum number of blocks to iterate
      * @return true if the modifier map was changed
      */
-    private boolean iterateInside(ServerLevel serverLevel, final int blocksToCheck) {
+    private boolean iterateInside(ServerLevel level, final int blocksToCheck) {
         // verify iterator exists
         if(null == insideIterator || null == size) {
             return false;
         }
         // check each block for a valid modifier
         int blocksChecked = 0;
-        boolean foundModifiers = false;
+        boolean isDirty = false;
         while(insideIterator.hasNext() && blocksChecked++ < blocksToCheck) {
             BlockPos pos = insideIterator.next();
             // determine applicable modifier
-            Optional<AquariumModifier> oModifier = AquariumModifier.forBlock(serverLevel, pos);
+            Optional<AquariumModifier> oModifier = AquariumModifier.forBlock(level, pos);
             if(oModifier.isPresent()) {
-                ResourceLocation name = oModifier.get().getRegistryName(serverLevel.registryAccess());
+                ResourceLocation name = oModifier.get().getRegistryName(level.registryAccess());
                 // determine if modifier was not previously known
-                foundModifiers |= !this.aquariumModifiers.containsKey(pos) || !this.aquariumModifiers.get(pos).equals(name);
+                isDirty |= !this.aquariumModifiers.containsKey(pos) || !this.aquariumModifiers.get(pos).equals(name);
                 // add modifier to map
                 this.aquariumModifiers.put(pos.immutable(), name);
                 // notify modifier
-                IAquariumControllerProvider.trySetController(serverLevel, pos, this);
+                IAquariumControllerProvider.trySetController(level, pos, this);
+            }
+            // determine applicable tab
+            BlockState blockState = level.getBlockState(pos);
+            Optional<IAquariumTab> oTab = IAquariumTab.forBlock(level, pos, blockState);
+            if(oTab.isPresent()) {
+                // start tracking the block at this position
+                isDirty |= startTrackingBlock(level, AxRegistry.AQUARIUM_TABS_SUPPLIER.get().getKey(oTab.get()), pos);
             }
         }
         // restart iterator after it is finished
@@ -890,29 +874,29 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             insideIterator = size.innerPositions().iterator();
         }
         // report changes
-        if(foundModifiers) {
+        if(isDirty) {
             return this.forceCalculateBonuses = true;
         }
         return false;
     }
 
     /**
-     * @param serverLevel the server level
+     * @param level the server level
      * @return true if the entity list changed
      */
-    public boolean findAxolootls(ServerLevel serverLevel) {
+    public boolean findAxolootls(ServerLevel level) {
         // validate tank exists
         if(null == this.size) {
             return false;
         }
         // validate needs to update this tick
-        if(!forceCalculateAxolootls && serverLevel.getGameTime() % AXOLOOTL_SEARCH_INTERVAL != 0) {
+        if(!forceCalculateAxolootls && level.getGameTime() % AXOLOOTL_SEARCH_INTERVAL != 0) {
             return false;
         }
         this.forceCalculateAxolootls = false;
         // query entities that are not already tracked
         final AABB aabb = this.size.aabb();
-        final List<LivingEntity> list = serverLevel.getEntitiesOfClass(LivingEntity.class, aabb,
+        final List<LivingEntity> list = level.getEntitiesOfClass(LivingEntity.class, aabb,
                 entity -> entity instanceof IAxolootl iAxolootl
                         && !trackedAxolootls.containsKey(entity.getUUID())
                         && iAxolootl.getAxolootlVariantId().isPresent()
@@ -920,7 +904,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         // add new entities
         list.forEach(e -> {
             this.trackedAxolootls.put(e.getUUID(), ((IAxolootl)e).getAxolootlVariantId().get());
-            IAquariumControllerProvider.trySetController(e, serverLevel, this.getBlockPos(), this);
+            IAquariumControllerProvider.trySetController(e, level, this);
         });
         // report changes
         if(!list.isEmpty()) {
@@ -930,23 +914,23 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     /**
-     * @param serverLevel the server level
+     * @param level the server level
      * @return true if the entity list changed
      */
-    private boolean validateAxolootls(ServerLevel serverLevel) {
+    private boolean validateAxolootls(ServerLevel level) {
         // validate tank exists
         if(null == this.size) {
             return false;
         }
         // validate needs to update this tick
-        if(serverLevel.getGameTime() % AXOLOOTL_VALIDATE_INTERVAL != 0) {
+        if(level.getGameTime() % AXOLOOTL_VALIDATE_INTERVAL != 0) {
             return false;
         }
         final Set<UUID> invalid = new HashSet<>();
         final AABB bounds = this.size.aabb();
         // validate each tracked entity
         for(UUID uuid : trackedAxolootls.keySet()) {
-            Entity entity = serverLevel.getEntity(uuid);
+            Entity entity = level.getEntity(uuid);
             if(null == entity || !bounds.intersects(entity.getBoundingBox())) {
                 invalid.add(uuid);
                 IAquariumControllerProvider.tryClearController(entity);
@@ -963,60 +947,38 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     /**
      * Validates that all tracked inputs and outputs are still valid
-     * @param serverLevel the server level
+     * @param level the server level
      * @return true if any input or output set was changed
      */
-    private boolean validateInputsOutputs(ServerLevel serverLevel) {
-        // determine which set to validate this tick, if any
-        int flag = (int) (serverLevel.getGameTime() % 40);
-        Set<BlockPos> invalid;
-        // validate all block positions in the set
-        switch (flag) {
-            case 0:
-                // validate resource outputs
-                invalid = invalidateBlocks(serverLevel, resourceOutputs, p -> serverLevel.getBlockState(p).is(RESOURCE_OUTPUTS));
-                invalid.forEach(p -> {
-                    IAquariumControllerProvider.tryClearController(serverLevel, p);
-                    resourceOutputs.remove(p);
-                });
-                return !invalid.isEmpty();
-            case 1:
-                // validate axolootl inputs
-                invalid = invalidateBlocks(serverLevel, axolootlInputs, p -> serverLevel.getBlockState(p).is(AXOLOOTL_INPUTS));
-                invalid.forEach(p -> {
-                    IAquariumControllerProvider.tryClearController(serverLevel, p);
-                    axolootlInputs.remove(p);
-                });
-                return !invalid.isEmpty();
-            case 2:
-                // validate fluid inputs
-                invalid = invalidateBlocks(serverLevel, fluidInputs, p -> serverLevel.getBlockState(p).is(FLUID_INPUTS));
-                invalid.forEach(p -> {
-                    IAquariumControllerProvider.tryClearController(serverLevel, p);
-                    fluidInputs.remove(p);
-                });
-                return !invalid.isEmpty();
-            case 3:
-                // validate energy inputs
-                invalid = invalidateBlocks(serverLevel, energyInputs, p -> serverLevel.getBlockState(p).is(ENERGY_INPUTS));
-                invalid.forEach(p -> {
-                    IAquariumControllerProvider.tryClearController(serverLevel, p);
-                    energyInputs.remove(p);
-                });
-                return !invalid.isEmpty();
-            default:
-                // do not validate any sets this tick
-                return false;
+    private boolean validateTrackedBlocks(ServerLevel level) {
+        // create sorted list of categories
+        List<ResourceLocation> keySet = new ArrayList<>(this.trackedBlocks.keySet());
+        keySet.sort(ResourceLocation::compareNamespaced);
+        // validate index (this ensures we validate AT MOST one set per tick)
+        int index = (int) (level.getGameTime() % Math.max(this.trackedBlocks.size() + 1, 40));
+        if(index < 0 || index >= keySet.size()) {
+            return false;
         }
+        // validate tab
+        ResourceLocation category = keySet.get(index);
+        IAquariumTab tab = AxRegistry.AQUARIUM_TABS_SUPPLIER.get().getValue(category);
+        if(null == tab) {
+            return false;
+        }
+        // validate all blocks in the selected category
+        Set<BlockPos> invalid = invalidateBlocks(level, this.getTrackedBlocksRaw(keySet.get(index)), p -> tab.isFor(level, p, level.getBlockState(p)));
+        // stop tracking invalid blocks
+        invalid.forEach(p -> stopTrackingBlock(level, category, p));
+        return !invalid.isEmpty();
     }
 
     /**
-     * @param serverLevel the server level
+     * @param level the server level
      * @param positions the block positions to validate
-     * @param predicate the predicate that all valid block positions must pass
+     * @param predicate the predicate to test if the block position is valid
      * @return the block positions that were invalid, if any
      */
-    private Set<BlockPos> invalidateBlocks(ServerLevel serverLevel, Set<BlockPos> positions, Predicate<BlockPos> predicate) {
+    private Set<BlockPos> invalidateBlocks(ServerLevel level, Set<BlockPos> positions, Predicate<BlockPos> predicate) {
         final Set<BlockPos> invalid = new HashSet<>();
         for(BlockPos p : positions) {
             if(!predicate.test(p)) {
@@ -1027,27 +989,27 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     /**
-     * @param serverLevel the server level
+     * @param level the server level
      * @return true if there are any changes to the modifier map or active modifier set
      */
-    private boolean validateUpdateModifiers(ServerLevel serverLevel) {
+    private boolean validateUpdateModifiers(ServerLevel level) {
         // validate modifiers can be checked this tick
-        if(serverLevel.getGameTime() % MODIFIER_VALIDATE_INTERVAL != 0) {
+        if(level.getGameTime() % MODIFIER_VALIDATE_INTERVAL != 0) {
             return false;
         }
         // iterate modifiers and check if they still exist and whether they are active
         final Set<BlockPos> invalid = new HashSet<>();
         final Set<BlockPos> active = new HashSet<>();
         final Set<BlockPos> wasActive = getActiveAquariumModifiers();
-        final Collection<IAxolootl> axolootls = resolveAxolootls(serverLevel);
-        final Map<BlockPos, AquariumModifier> modifierMap = ImmutableMap.copyOf(resolveModifiers(serverLevel.registryAccess()));
+        final Collection<IAxolootl> axolootls = resolveAxolootls(level);
+        final Map<BlockPos, AquariumModifier> modifierMap = ImmutableMap.copyOf(resolveModifiers(level.registryAccess()));
         for(Map.Entry<BlockPos, AquariumModifier> entry : modifierMap.entrySet()) {
             // validate modifier
-            if(entry.getValue().isApplicable(serverLevel, entry.getKey())) {
+            if(entry.getValue().isApplicable(level, entry.getKey())) {
                 // create context
                 final Map<BlockPos, AquariumModifier> contextMap = new HashMap<>(modifierMap);
                 contextMap.remove(entry.getKey());
-                AquariumModifierContext context = new AquariumModifierContext(serverLevel, entry.getKey(), size, axolootls, contextMap, wasActive);
+                AquariumModifierContext context = new AquariumModifierContext(level, entry.getKey(), size, axolootls, contextMap, wasActive);
                 // validate modifier is active and either does not require power or the tank has sufficient power
                 if(entry.getValue().isActive(context)/* && (!isInsufficientPower() || entry.getValue().getSettings().getEnergyCost() <= 0)*/) {
                     active.add(entry.getKey());
@@ -1055,18 +1017,18 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
                     final Optional<BlockPos> oPropogated = entry.getValue().checkAndSpread(context);
                     // add new modifier to map
                     oPropogated.ifPresent(b -> {
-                        aquariumModifiers.put(b, entry.getValue().getRegistryName(serverLevel.registryAccess()));
+                        aquariumModifiers.put(b, entry.getValue().getRegistryName(level.registryAccess()));
                         // create context to check new modifier immediately
                         contextMap.put(entry.getKey(), entry.getValue());
                         // check if the new modifier is active
-                        if(entry.getValue().isActive(new AquariumModifierContext(serverLevel, b, size, axolootls, contextMap, wasActive))) {
+                        if(entry.getValue().isActive(new AquariumModifierContext(level, b, size, axolootls, contextMap, wasActive))) {
                             active.add(b);
                         }
                     });
                 }
             } else {
                 invalid.add(entry.getKey());
-                IAquariumControllerProvider.tryClearController(serverLevel, entry.getKey());
+                IAquariumControllerProvider.tryClearController(level, entry.getKey());
             }
         }
         // remove invalid modifiers
@@ -1143,7 +1105,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     private int transferEnergy(final Level level, final BlockPos targetPos, final int maxAmount, final boolean useVoidStorage) {
         // collect energy handlers
         final Map<BlockPos, IEnergyStorage> energyHandlers = new HashMap<>();
-        for(BlockPos entry : energyInputs) {
+        for(BlockPos entry : getEnergyInputs()) {
             IEnergyStorage storage = resolveEnergyStorageOrVoid(level, entry, false);
             if(storage.canExtract()) {
                 energyHandlers.put(entry, storage);
@@ -1219,12 +1181,10 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         return VoidEnergyStorage.INSTANCE;
     }
 
-    /**
-     * Called when the block is removed from the world
-     * @param level the level
-     */
-    public void onRemoved(ServerLevel level) {
-        clearAllData(level);
+    public void onRemoved() {
+        if(getLevel() instanceof ServerLevel level) {
+            clearAllData(level);
+        }
     }
 
     private void clearAllData(final ServerLevel level) {
@@ -1233,9 +1193,10 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             IAquariumControllerProvider.tryClearController(level, p);
         }
         // remove self from inputs and outputs
-        Iterator<BlockPos> inputsOutputs = Iterators.concat(axolootlInputs.iterator(), fluidInputs.iterator(), energyInputs.iterator(), resourceOutputs.iterator());
-        while(inputsOutputs.hasNext()) {
-            IAquariumControllerProvider.tryClearController(level, inputsOutputs.next());
+        for(Set<BlockPos> set : trackedBlocks.values()) {
+            for(BlockPos p : set) {
+                IAquariumControllerProvider.tryClearController(level, p);
+            }
         }
         // remove self from entities
         for(IAxolootl e : resolveAxolootls(level)) {
@@ -1243,32 +1204,32 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         }
         // clear data
         this.tankStatus = TankStatus.INCOMPLETE;
+        this.trackedBlocks.clear();
         this.trackedAxolootls.clear();
         this.aquariumModifiers.clear();
         this.activeAquariumModifiers.clear();
         this.insideIterator = null;
         this.outsideIterator = null;
-        this.setChanged();
     }
 
     // STATUS //
 
     /**
      * Updates tank, breed, and feed speeds and statuses
-     * @param serverLevel the server level
+     * @param level the server level
      * @return true if any status was changed
      */
-    private boolean updateStatus(ServerLevel serverLevel) {
-        final TankStatus tankStatus = updateTankStatus(serverLevel);
+    private boolean updateStatus(ServerLevel level) {
+        final TankStatus tankStatus = updateTankStatus(level);
         final FeedStatus feedStatus;
         final BreedStatus breedStatus;
         if(!tankStatus.isActive()) {
             breedStatus = BreedStatus.INACTIVE;
             feedStatus = FeedStatus.INACTIVE;
         } else {
-            final Map<BlockPos, AquariumModifier> modifiers = resolveModifiers(serverLevel.registryAccess(), activePredicate);
-            breedStatus = updateBreedStatus(serverLevel, modifiers);
-            feedStatus = updateFeedStatus(serverLevel, modifiers);
+            final Map<BlockPos, AquariumModifier> modifiers = resolveModifiers(level.registryAccess(), activePredicate);
+            breedStatus = updateBreedStatus(level, modifiers);
+            feedStatus = updateFeedStatus(level, modifiers);
         }
         final boolean isDirty = (tankStatus != this.tankStatus || breedStatus != this.breedStatus || feedStatus != this.feedStatus);
         this.tankStatus = tankStatus;
@@ -1280,10 +1241,10 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     /**
      * Calculates tank status
-     * @param serverLevel the server level
+     * @param level the server level
      * @return the TankStatus
      */
-    private TankStatus updateTankStatus(ServerLevel serverLevel) {
+    private TankStatus updateTankStatus(ServerLevel level) {
         // check duplicate controllers
         if(this.isDuplicateFound) {
             return TankStatus.DUPLICATE_CONTROLLERS;
@@ -1293,7 +1254,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             return TankStatus.INCOMPLETE;
         }
         // check missing modifiers
-        if(!this.hasMandatoryModifiers(serverLevel.registryAccess(), true)) {
+        if(!this.hasMandatoryModifiers(level.registryAccess(), true)) {
             return TankStatus.MISSING_MODIFIERS;
         }
         // check low power
@@ -1305,7 +1266,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             return TankStatus.OVERCROWDED;
         }
         // check storage is nonexistent or full
-        if(this.resourceOutputs.isEmpty() || isOutputFull()) {
+        if(this.getResourceOutputs().isEmpty() || isOutputFull()) {
             return TankStatus.STORAGE_FULL;
         }
         // all checks passed
@@ -1314,11 +1275,11 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
 
     /**
      * Updates feed speed and calculates current feed status
-     * @param serverLevel the server level
+     * @param level the server level
      * @param activeModifiers all active aquarium modifiers
      * @return the FeedStatus
      */
-    private FeedStatus updateFeedStatus(ServerLevel serverLevel, final Map<BlockPos, AquariumModifier> activeModifiers) {
+    private FeedStatus updateFeedStatus(ServerLevel level, final Map<BlockPos, AquariumModifier> activeModifiers) {
         // check missing resources
         if(isFeedInputEmpty()) {
             return FeedStatus.MISSING_RESOURCES;
@@ -1343,11 +1304,11 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     /**
      * Updates breed speed and mob breeding flag and calculates current breed status
      *
-     * @param serverLevel the server level
+     * @param level the server level
      * @param activeModifiers all active aquarium modifiers
      * @return the BreedStatus
      */
-    private BreedStatus updateBreedStatus(ServerLevel serverLevel, final Map<BlockPos, AquariumModifier> activeModifiers) {
+    private BreedStatus updateBreedStatus(ServerLevel level, final Map<BlockPos, AquariumModifier> activeModifiers) {
         // check insufficient resources
         if(isBreedInputEmpty()) {
             return BreedStatus.MISSING_RESOURCES;
@@ -1367,7 +1328,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
                 return BreedStatus.MAX_COUNT;
             }
             // check mob breeding
-            final int mobVariants = (int) this.resolveAxolootlVariants(serverLevel.registryAccess()).values().stream().filter(AxolootlVariant::hasMobResources).count();
+            final int mobVariants = (int) this.resolveAxolootlVariants(level.registryAccess()).values().stream().filter(AxolootlVariant::hasMobResources).count();
             final int resourceVariants = this.trackedAxolootls.size() - mobVariants;
             if(mobBreeding) {
                 // check min count of any variant
@@ -1403,8 +1364,9 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             this.insideIterator = size.innerPositions().iterator();
             this.outsideIterator = size.outerPositions().iterator();
             this.forceCalculateBonuses = true;
-        } else if(level instanceof ServerLevel serverLevel) {
-            clearAllData(serverLevel);
+            this.forceCalculateAxolootls = true;
+        } else if(level instanceof ServerLevel level) {
+            clearAllData(level);
         }
         // send update
         if(this.level != null) {
@@ -1507,19 +1469,89 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public Set<BlockPos> getAxolootlInputs() {
-        return ImmutableSet.copyOf(axolootlInputs);
+        return Collections.unmodifiableSet(getTrackedBlocks(AxRegistry.AquariumTabsReg.AXOLOOTL_INTERFACE.getId()));
     }
 
     public Set<BlockPos> getFluidInputs() {
-        return ImmutableSet.copyOf(fluidInputs);
+        return getTrackedBlocks(AxRegistry.AquariumTabsReg.FLUID_INTERFACE.getId());
+    }
+    
+    public Set<BlockPos> getTrackedBlocks(final IAquariumTab category) {
+        return getTrackedBlocks(AxRegistry.AQUARIUM_TABS_SUPPLIER.get().getKey(category));
+    }
+
+    /**
+     * @param category the block category (see {@link IAquariumTab}) and {@link RegistryObject#getId()}
+     * @return an unmodifiable view of the tracked blocks in this category
+     */
+    public Set<BlockPos> getTrackedBlocks(final ResourceLocation category) {
+        return Collections.unmodifiableSet(trackedBlocks.getOrDefault(category, ImmutableSet.of()));
+    }
+
+    /**
+     * Gets or creates the set of tracked blocks for the given category
+     * @param category the block category (see {@link IAquariumTab}) and {@link RegistryObject#getId()}
+     * @return the tracked blocks in this category
+     */
+    private Set<BlockPos> getTrackedBlocksRaw(final ResourceLocation category) {
+        if(!trackedBlocks.containsKey(category)) {
+            trackedBlocks.put(category, new HashSet<>());
+        }
+        return trackedBlocks.get(category);
+    }
+
+    /**
+     * Add the block to the list of tracked blocks for the given category
+     * @param level the level
+     * @param category the block category (see {@link IAquariumTab}) and {@link RegistryObject#getId()}
+     * @param pos the block position to start tracking
+     * @return true if the block was not already being tracked
+     */
+    public boolean startTrackingBlock(final ServerLevel level, final ResourceLocation category, final BlockPos pos) {
+        // validate category
+        if(null == category) {
+            return false;
+        }
+        // load raw block position set
+        Set<BlockPos> set = getTrackedBlocksRaw(category);
+        if(set.contains(pos)) {
+            return false;
+        }
+        // add to set
+        set.add(pos.immutable());
+        // notify block at this position
+        IAquariumControllerProvider.trySetController(level, pos, this);
+        return true;
+    }
+
+    /**
+     * Remove the block from the list of tracked blocks for the given category
+     * @param level the level
+     * @param category the block category (see {@link IAquariumTab}) and {@link RegistryObject#getId()}
+     * @param pos the block position to stop tracking
+     * @return true if the block is no longer being tracked
+     */
+    public boolean stopTrackingBlock(final ServerLevel level, final ResourceLocation category, final BlockPos pos) {
+        // validate category
+        if(null == category) {
+            return false;
+        }
+        // load raw block position set
+        Set<BlockPos> set = getTrackedBlocksRaw(category);
+        if(!set.remove(pos)) {
+            return false;
+        }
+        // notify block at this position
+        IAquariumControllerProvider.tryClearController(level, pos);
+        return true;
     }
 
     public Set<BlockPos> getEnergyInputs() {
-        return ImmutableSet.copyOf(energyInputs);
+        return getTrackedBlocks(AxRegistry.AquariumTabsReg.ENERGY_INTERFACE.getId());
     }
 
     public Set<BlockPos> getResourceOutputs() {
-        return ImmutableSet.copyOf(resourceOutputs);
+        return getTrackedBlocks(AxRegistry.AquariumTabsReg.OUTPUT.getId());
     }
 
     public Map<BlockPos, ResourceLocation> getAquariumModifiers() {
@@ -1556,17 +1588,17 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     /**
-     * @param serverLevel the server level
+     * @param level the server level
      * @param uuid the entity ID
      * @return the itemstack representation of the axolootl if it was removed
      */
-    public ItemStack removeAxolootl(final ServerLevel serverLevel, final UUID uuid) {
+    public ItemStack removeAxolootl(final ServerLevel level, final UUID uuid) {
         ResourceLocation id = trackedAxolootls.remove(uuid);
         if(null == id) {
             return ItemStack.EMPTY;
         }
         // resolve axolootl
-        Entity entity = serverLevel.getEntity(uuid);
+        Entity entity = level.getEntity(uuid);
         if(!(entity instanceof IAxolootl iprovider && !iprovider.getEntity().isDeadOrDying())) {
             return ItemStack.EMPTY;
         }
@@ -1577,16 +1609,16 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         // mark changed
         this.forceCalculateBonuses();
         setChanged();
-        serverLevel.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         return itemStack;
     }
 
     /**
-     * @param serverLevel the server level
+     * @param level the server level
      * @param iaxolootl an axolootl to start tracking
      * @return true if the iaxolootl was added
      */
-    public boolean addAxolootl(final ServerLevel serverLevel, final IAxolootl iaxolootl) {
+    public boolean addAxolootl(final ServerLevel level, final IAxolootl iaxolootl) {
         // load uuid and variant ID
         final UUID uuid = iaxolootl.getEntity().getUUID();
         final Optional<ResourceLocation> oId = iaxolootl.getAxolootlVariantId();
@@ -1598,16 +1630,16 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         // mark changed
         this.forceCalculateBonuses();
         setChanged();
-        serverLevel.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         return true;
     }
 
     /**
-     * @param serverLevel the server level
+     * @param level the server level
      * @param random the random source
      * @return a random position in the tank that has water and no collisions
      */
-    public Optional<BlockPos> findSpawnablePosition(ServerLevel serverLevel, RandomSource random) {
+    public Optional<BlockPos> findSpawnablePosition(ServerLevel level, RandomSource random) {
         // validate tank
         if(!hasTank()) {
             return Optional.empty();
@@ -1620,7 +1652,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             // randomize position
             pos.setWithOffset(size.getOrigin(), 1 + random.nextInt(dimensions.getX() - 2), 1 + random.nextInt(dimensions.getY() - 2), 1 + random.nextInt(dimensions.getZ() - 2));
             // validate position
-            if(serverLevel.getFluidState(pos).is(FluidTags.WATER) && serverLevel.noCollision(AxRegistry.EntityReg.AXOLOOTL.get().getAABB(pos.getX() + 0.5D, pos.getY() + 0.05D, pos.getZ() + 0.5D))) {
+            if(level.getFluidState(pos).is(FluidTags.WATER) && level.noCollision(AxRegistry.EntityReg.AXOLOOTL.get().getAABB(pos.getX() + 0.5D, pos.getY() + 0.05D, pos.getZ() + 0.5D))) {
                 return Optional.of(pos);
             }
         }
@@ -1631,28 +1663,28 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     /**
      * Iterates the tracked axolootl list and attempts to resolve each entity.
      * If the entity cannot be resolved, it is removed from the tracked axolootl list.
-     * @param serverLevel the server level
+     * @param level the server level
      * @return a collection of axolootl entities
      */
-    public Collection<IAxolootl> resolveAxolootls(ServerLevel serverLevel) {
-        return resolveAxolootls(serverLevel, o -> true);
+    public Collection<IAxolootl> resolveAxolootls(ServerLevel level) {
+        return resolveAxolootls(level, o -> true);
     }
 
     /**
      * Iterates the tracked axolootl list and attempts to resolve each entity.
      * If the entity cannot be resolved, it is removed from the tracked axolootl list.
-     * @param serverLevel the server level
+     * @param level the server level
      * @param predicate a predicate for axolootls to resolve
      * @return a collection of axolootl entities
      */
-    public Collection<IAxolootl> resolveAxolootls(final ServerLevel serverLevel, final Predicate<IAxolootl> predicate) {
+    public Collection<IAxolootl> resolveAxolootls(final ServerLevel level, final Predicate<IAxolootl> predicate) {
         // create list builder
         final ImmutableList.Builder<IAxolootl> builder = ImmutableList.builder();
         // create set of modifiers that need to be removed
         final Set<UUID> invalid = new HashSet<>();
         // iterate each known axolootl and either add it to the list or mark it to be removed
         for(UUID uuid : trackedAxolootls.keySet()) {
-            Entity entity = serverLevel.getEntity(uuid);
+            Entity entity = level.getEntity(uuid);
             if(entity instanceof IAxolootl iprovider && !iprovider.getEntity().isDeadOrDying()) {
                 // test against predicate before adding
                 if(predicate.test(iprovider)) {
@@ -1708,7 +1740,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
      */
     public Map<BlockPos, IEnergyStorage> resolveEnergyStorage(final Predicate<IEnergyStorage> predicate) {
         final ImmutableMap.Builder<BlockPos, IEnergyStorage> builder = ImmutableMap.builder();
-        for(BlockPos entry : energyInputs) {
+        for(BlockPos entry : getEnergyInputs()) {
             IEnergyStorage storage = resolveEnergyStorageOrVoid(level, entry, false);
             if(predicate.test(storage)) {
                 builder.put(entry, storage);
@@ -1773,6 +1805,18 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
         return new ControllerMenu(pContainerId, pPlayerInventory, getBlockPos(), this, getBlockPos(), AxRegistry.AquariumTabsReg.CONTROLLER.get().getSortedIndex(), 0);
     }
 
+    //// CONTROLLER PROVIDER ////
+
+    @Override
+    public void setController(Level level, BlockPos pos, ControllerBlockEntity blockEntity) {}
+
+    @Override
+    public void clearController() {}
+
+    @Override
+    public Optional<ControllerBlockEntity> getController() {
+        return Optional.of(this);
+    }
 
     //// BLOCK ENTITY METHODS ////
 
@@ -1810,10 +1854,9 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
     private static final String KEY_MODIFIER = "Modifier";
     private static final String KEY_POS = "Pos";
     private static final String KEY_ACTIVE = "Active";
-    private static final String KEY_FLUID_INPUTS = "FluidInputs";
-    private static final String KEY_ENERGY_INPUTS = "EnergyInputs";
-    private static final String KEY_AXOLOOTL_INPUTS = "AxolootlInputs";
-    private static final String KEY_RESOURCE_OUTPUTS = "ResourceOutputs";
+    private static final String KEY_CATEGORY = "Category";
+    private static final String KEY_TRACKED_BLOCKS = "TrackedBlocks";
+    private static final String KEY_POSITIONS = "Positions";
     private static final String KEY_AXOLOOTLS = "Axolootls";
     private static final String KEY_UUID = "UUID";
     private static final String KEY_VARIANT = "Variant";
@@ -1871,15 +1914,15 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
                 this.activeAquariumModifiers.add(pos);
             }
         }
-        // read sets
-        this.fluidInputs.clear();
-        this.energyInputs.clear();
-        this.axolootlInputs.clear();
-        this.resourceOutputs.clear();
-        this.fluidInputs.addAll(readBlockPosSet(tag, KEY_FLUID_INPUTS));
-        this.energyInputs.addAll(readBlockPosSet(tag, KEY_ENERGY_INPUTS));
-        this.axolootlInputs.addAll(readBlockPosSet(tag, KEY_AXOLOOTL_INPUTS));
-        this.resourceOutputs.addAll(readBlockPosSet(tag, KEY_RESOURCE_OUTPUTS));
+        // read tracked blocks
+        this.trackedBlocks.clear();
+        final ListTag blockList = tag.getList(KEY_TRACKED_BLOCKS, Tag.TAG_COMPOUND);
+        for(int i = 0, n = blockList.size(); i < n; i++) {
+            CompoundTag entryTag = blockList.getCompound(i);
+            ResourceLocation category = new ResourceLocation(entryTag.getString(KEY_CATEGORY));
+            Set<BlockPos> set = new HashSet<>(readBlockPosSet(entryTag, KEY_POSITIONS));
+            this.trackedBlocks.put(category, set);
+        }
     }
 
     @Override
@@ -1916,11 +1959,15 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider {
             modifierList.add(entryTag);
         }
         tag.put(KEY_MODIFIERS, modifierList);
-        // write sets
-        writeBlockPosSet(tag, KEY_FLUID_INPUTS, fluidInputs);
-        writeBlockPosSet(tag, KEY_ENERGY_INPUTS, energyInputs);
-        writeBlockPosSet(tag, KEY_AXOLOOTL_INPUTS, axolootlInputs);
-        writeBlockPosSet(tag, KEY_RESOURCE_OUTPUTS, resourceOutputs);
+        // write tracked blocks
+        ListTag blockList = new ListTag();
+        for(Map.Entry<ResourceLocation, Set<BlockPos>> entry : trackedBlocks.entrySet()) {
+            CompoundTag entryTag = new CompoundTag();
+            entryTag.putString(KEY_CATEGORY, entry.getKey().toString());
+            writeBlockPosSet(entryTag, KEY_POSITIONS, entry.getValue());
+            blockList.add(entryTag);
+        }
+        tag.put(KEY_TRACKED_BLOCKS, blockList);
     }
 
     private static Set<BlockPos> readBlockPosSet(CompoundTag tag, String key) {

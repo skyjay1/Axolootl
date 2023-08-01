@@ -16,6 +16,7 @@ import axolootl.data.axolootl_variant.Bonuses;
 import com.mojang.math.Vector3f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -49,17 +50,26 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.manager.AnimationData;
+import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumControllerProvider {
+public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, IAquariumControllerProvider {
 
     public static final EntityDataSerializer<Optional<ResourceLocation>> OPTIONAL_RESOURCE_LOCATION = EntityDataSerializer.optional(FriendlyByteBuf::writeResourceLocation, FriendlyByteBuf::readResourceLocation);
 
     // DATA //
     private static final EntityDataAccessor<Optional<ResourceLocation>> DATA_VARIANT_ID = SynchedEntityData.defineId(AxolootlEntity.class, OPTIONAL_RESOURCE_LOCATION);
     private static final EntityDataAccessor<Boolean> DATA_ACTIVE_BONUS = SynchedEntityData.defineId(AxolootlEntity.class, EntityDataSerializers.BOOLEAN);
+    @Nullable
+    private AxolootlVariant cachedVariant;
 
     // CONTROLLER PROVIDER //
     @Nullable
@@ -71,18 +81,14 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
     private Bonuses bonuses = Bonuses.EMPTY;
     private long bonusDuration;
 
-    // COLORS //
-    private static final Vector3f VEC3F_ONE = new Vector3f(1, 1, 1);
-    private Vector3f primaryColors;
-    private Vector3f secondaryColors;
-
     // TEXT //
     private Component displayName;
 
+    // GECKOLIB //
+    private AnimationFactory factory = GeckoLibUtil.createFactory(this);
+
     public AxolootlEntity(EntityType<? extends Axolotl> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
-        this.primaryColors = VEC3F_ONE;
-        this.secondaryColors = VEC3F_ONE;
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -171,24 +177,8 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
         super.onSyncedDataUpdated(pKey);
         if(pKey == DATA_VARIANT_ID) {
             this.displayName = null;
-            getAxolootlVariant(level.registryAccess()).ifPresentOrElse(a -> {
-                // set primary color
-                if(a.getPrimaryColor() >= 0) {
-                    this.primaryColors = IAxolootl.unpackColor(a.getPrimaryColor());
-                } else {
-                    this.primaryColors = VEC3F_ONE;
-                }
-                // set secondary color
-                if(a.getSecondaryColor() >= 0) {
-                    this.secondaryColors = IAxolootl.unpackColor(a.getSecondaryColor());
-                } else {
-                    this.secondaryColors = VEC3F_ONE;
-                }
-            }, () -> {
-                // variant is not defined, use fallback colors
-                this.primaryColors = VEC3F_ONE;
-                this.secondaryColors = VEC3F_ONE;
-            });
+            clearCachedVariant();
+            getAxolootlVariant(level.registryAccess());
         }
     }
 
@@ -361,6 +351,19 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
     @Override
     public void setAxolootlVariantId(@Nullable final ResourceLocation id) {
         getEntityData().set(DATA_VARIANT_ID, Optional.ofNullable(id));
+        clearCachedVariant();
+    }
+
+    @Override
+    public Optional<AxolootlVariant> getAxolootlVariant(RegistryAccess registryAccess, boolean includeAll) {
+        if(null == cachedVariant) {
+            cachedVariant = IAxolootl.super.getAxolootlVariant(registryAccess, includeAll).orElse(null);
+        }
+        return Optional.ofNullable(cachedVariant);
+    }
+
+    public void clearCachedVariant() {
+        this.cachedVariant = null;
     }
 
     @Override
@@ -410,10 +413,14 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
             return Optional.empty();
         }
         // load result
-        Holder<AxolootlVariant> oResult = oRecipe.get().getBreedResult(level, selfVariant, otherVariant, this.getRandom());
+        Holder<AxolootlVariant> result = oRecipe.get().getBreedResult(level, selfVariant, otherVariant, this.getRandom());
+        // validate result
+        if(!result.value().isEnabled(level.registryAccess())) {
+            return Optional.empty();
+        }
         // create axolootl
         Animal parent = (other.getEntity() instanceof Animal animal) ? animal : this;
-        return spawnAxolootlFromBreeding(level, parent, oResult);
+        return spawnAxolootlFromBreeding(level, parent, result);
     }
 
     @Override
@@ -455,14 +462,20 @@ public class AxolootlEntity extends Axolotl implements IAxolootl, IAquariumContr
         return this.getEntityData().get(DATA_ACTIVE_BONUS);
     }
 
-    //// COLORS ////
+    //// GECKOLIB ////
 
-    public Vector3f getPrimaryColors() {
-        return primaryColors;
+    protected PlayState animationPredicate(AnimationEvent<AxolootlEntity> event) {
+        return PlayState.CONTINUE;
     }
 
-    public Vector3f getSecondaryColors() {
-        return secondaryColors;
+    @Override
+    public void registerControllers(AnimationData data) {
+        data.addAnimationController(new AnimationController<>(this, "controller", 0, this::animationPredicate));
+    }
+
+    @Override
+    public AnimationFactory getFactory() {
+        return factory;
     }
 
     //// NBT ////

@@ -8,10 +8,13 @@ package axolootl.item;
 
 import axolootl.AxRegistry;
 import axolootl.client.ClientUtil;
+import axolootl.client.item.AxolootlBucketItemModel;
+import axolootl.client.item.AxolootlBucketItemRenderer;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.entity.AxolootlEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
@@ -27,17 +30,29 @@ import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.manager.AnimationData;
+import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class AxolootlBucketItem extends MobBucketItem {
+public class AxolootlBucketItem extends MobBucketItem implements IAnimatable {
+
+    // GECKOLIB //
+    private AnimationFactory factory = GeckoLibUtil.createFactory(this);
 
     public AxolootlBucketItem(Supplier<? extends EntityType<?>> entitySupplier, Supplier<? extends Fluid> fluidSupplier, Supplier<? extends SoundEvent> soundSupplier, Properties properties) {
         super(entitySupplier, fluidSupplier, soundSupplier, properties);
@@ -88,14 +103,32 @@ public class AxolootlBucketItem extends MobBucketItem {
                         pTooltipComponents.add(Component.translatable(getDescriptionId() + ".tooltip.mob_resource_generator").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
                     }
                     // colors
-                    pTooltipComponents.add(Component.translatable(getDescriptionId() + ".tooltip.primary_color", Integer.toHexString(a.getPrimaryColor())).withStyle(ChatFormatting.GRAY));
-                    pTooltipComponents.add(Component.translatable(getDescriptionId() + ".tooltip.secondary_color", Integer.toHexString(a.getSecondaryColor())).withStyle(ChatFormatting.GRAY));
+                    pTooltipComponents.add(Component.translatable(getDescriptionId() + ".tooltip.primary_color", Integer.toHexString(a.getModelSettings().getPrimaryColor())).withStyle(ChatFormatting.GRAY));
+                    pTooltipComponents.add(Component.translatable(getDescriptionId() + ".tooltip.secondary_color", Integer.toHexString(a.getModelSettings().getSecondaryColor())).withStyle(ChatFormatting.GRAY));
+                    // TODO move generator info to a separate UI
+                    pTooltipComponents.add(Component.translatable("axolootl.resource_generator.generates"));
+                    pTooltipComponents.addAll(a.getResourceGeneratorDescription());
                 }
             }, () -> {
                 // add tooltip for unknown variant
                 pTooltipComponents.add(Component.translatable(getDescriptionId() + ".tooltip.unknown").withStyle(ChatFormatting.RED));
             });
         }
+    }
+
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+            final LazyOptional<AxolootlBucketItemRenderer<AxolootlBucketItem>> renderer = LazyOptional.of(() -> new AxolootlBucketItemRenderer<AxolootlBucketItem>(new AxolootlBucketItemModel<>()));
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                final Optional<AxolootlBucketItemRenderer<AxolootlBucketItem>> oRenderer = renderer.resolve();
+                if(oRenderer.isPresent()) {
+                    return oRenderer.get();
+                }
+                return IClientItemExtensions.super.getCustomRenderer();
+            }
+        });
     }
 
     /**
@@ -149,5 +182,21 @@ public class AxolootlBucketItem extends MobBucketItem {
     public static ItemStack getWithVariant(final ItemStack itemStack, final ResourceLocation variant) {
         itemStack.getOrCreateTag().putString(AxolootlEntity.KEY_VARIANT_ID, variant.toString());
         return itemStack;
+    }
+
+    //// GECKOLIB ////
+
+    protected PlayState animationPredicate(AnimationEvent<AxolootlBucketItem> event) {
+        return PlayState.CONTINUE;
+    }
+
+    @Override
+    public void registerControllers(AnimationData data) {
+        data.addAnimationController(new AnimationController<>(this, "controller", 0, this::animationPredicate));
+    }
+
+    @Override
+    public AnimationFactory getFactory() {
+        return factory;
     }
 }

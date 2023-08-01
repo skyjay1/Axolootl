@@ -7,7 +7,10 @@
 package axolootl.data.resource_generator;
 
 import axolootl.AxRegistry;
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
+import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -19,6 +22,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.List;
 
 @Immutable
 public class MobDropsResourceGenerator extends AbstractLootTableResourceGenerator {
@@ -26,8 +30,18 @@ public class MobDropsResourceGenerator extends AbstractLootTableResourceGenerato
     public static final Codec<MobDropsResourceGenerator> CODEC = WEIGHTED_LIST_CODEC
             .xmap(MobDropsResourceGenerator::new, AbstractLootTableResourceGenerator::getList).fieldOf("loot_table").codec();
 
+    private final List<Component> description;
+
     public MobDropsResourceGenerator(SimpleWeightedRandomList<ResourceLocation> list) {
         super(list);
+        this.description = ImmutableList.copyOf(createDescription(list, MobDropsResourceGenerator::createMobLootTableDescription));
+    }
+
+    private static Component createMobLootTableDescription(final ResourceLocation id) {
+        String path = id.getPath();
+        path = path.substring(Math.max(0, path.lastIndexOf("/")));
+        final Component entity = Component.translatable(Util.makeDescriptionId("entity", new ResourceLocation(id.getNamespace(), path)));
+        return Component.translatable("axolootl.resource_generator.mob", entity);
     }
 
     @Override
@@ -45,6 +59,11 @@ public class MobDropsResourceGenerator extends AbstractLootTableResourceGenerato
                 .withParameter(LootContextParams.KILLER_ENTITY, entity)
                 .withParameter(LootContextParams.DIRECT_KILLER_ENTITY, entity)
                 .create(LootContextParamSets.ENTITY);
+    }
+
+    @Override
+    public List<Component> getDescription() {
+        return description;
     }
 
     @Override

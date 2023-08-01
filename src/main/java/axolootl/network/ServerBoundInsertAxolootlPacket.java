@@ -9,10 +9,9 @@ package axolootl.network;
 import axolootl.block.entity.AxolootlInterfaceBlockEntity;
 import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.entity.AxolootlEntity;
-import axolootl.menu.AxolootlMenu;
+import axolootl.menu.AxolootlInterfaceMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MobBucketItem;
@@ -61,7 +60,7 @@ public class ServerBoundInsertAxolootlPacket {
                 // validate player
                 final ServerPlayer player = context.getSender();
                 // validate menu
-                if(!(player.containerMenu instanceof AxolootlMenu menu) || menu.getController().isEmpty()) {
+                if(!(player.containerMenu instanceof AxolootlInterfaceMenu menu) || menu.getController().isEmpty()) {
                     return;
                 }
                 // validate controller

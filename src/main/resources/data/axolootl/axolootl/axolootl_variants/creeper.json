@@ -1,8 +1,6 @@
 {
   "translation_key": "entity.minecraft.creeper",
   "tier": 2,
-  "primary_color": 16711680,
-  "secondary_color": 16449280,
   "breed_food": [
     "minecraft:tnt"
   ],

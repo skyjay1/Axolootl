@@ -1,8 +1,13 @@
 {
   "translation_key": "entity.axolootl.axolootl.basic",
   "tier": 1,
-  "primary_color": 16711680,
-  "secondary_color": 16449280,
+  "model": {
+    "primary_color": 16711680,
+    "secondary_color": 16449280,
+    "texture": "axolootl:textures/entity/axolootl/axolootl_base.png",
+    "primary_texture": "axolootl:textures/entity/axolootl/axolootl_primary.png",
+    "secondary_texture": "axolootl:textures/entity/axolootl/axolootl_secondary.png"
+  },
   "breed_food": {
     "type": "forge:and",
     "values": [

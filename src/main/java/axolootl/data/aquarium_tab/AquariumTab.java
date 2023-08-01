@@ -14,7 +14,11 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullSupplier;
 
@@ -36,6 +40,7 @@ public class AquariumTab implements IAquariumTab {
     protected final LazyOptional<ItemStack> icon;
     protected final LazyOptional<List<IAquariumTab>> before;
     protected final LazyOptional<List<IAquariumTab>> after;
+    protected final Predicate<BlockState> accepts;
 
     protected String descriptionId;
     protected Component title;
@@ -44,12 +49,13 @@ public class AquariumTab implements IAquariumTab {
     public AquariumTab(Predicate<ControllerBlockEntity> availablePredicate,
                        Function<ControllerBlockEntity, WorldlyMenuProvider> menuProvider,
                        NonNullSupplier<ItemStack> icon, NonNullSupplier<List<IAquariumTab>> before,
-                       NonNullSupplier<List<IAquariumTab>> after) {
+                       NonNullSupplier<List<IAquariumTab>> after, Predicate<BlockState> accepts) {
         this.availablePredicate = availablePredicate;
         this.menuProvider = menuProvider;
         this.icon = LazyOptional.of(icon);
         this.before = LazyOptional.of(before);
         this.after = LazyOptional.of(after);
+        this.accepts = accepts;
     }
 
     public static AquariumTab.Builder builder() {
@@ -108,12 +114,18 @@ public class AquariumTab implements IAquariumTab {
         return after.orElse(ImmutableList.of());
     }
 
+    @Override
+    public boolean isFor(LevelAccessor level, BlockPos pos, BlockState blockState) {
+        return accepts.test(blockState);
+    }
+
     public static class Builder {
         private Predicate<ControllerBlockEntity> availablePredicate = c -> true;
         private Function<ControllerBlockEntity, WorldlyMenuProvider> menuProvider = c -> null;
         private NonNullSupplier<ItemStack> icon = () -> ItemStack.EMPTY;
         private NonNullSupplier<List<IAquariumTab>> before = () -> List.of();
         private NonNullSupplier<List<IAquariumTab>> after = () -> List.of();
+        private Predicate<BlockState> accepts = b -> false;
 
         private Builder() {}
 
@@ -129,6 +141,15 @@ public class AquariumTab implements IAquariumTab {
 
         public AquariumTab.Builder icon(NonNullSupplier<ItemStack> icon) {
             this.icon = icon;
+            return this;
+        }
+
+        public AquariumTab.Builder accepts(TagKey<Block> tagKey) {
+            return accepts(b -> b.is(tagKey));
+        }
+
+        public AquariumTab.Builder accepts(Predicate<BlockState> accepts) {
+            this.accepts = accepts;
             return this;
         }
 
@@ -151,7 +172,7 @@ public class AquariumTab implements IAquariumTab {
         }
 
         public AquariumTab build() {
-            return new AquariumTab(availablePredicate, menuProvider, icon, before, after);
+            return new AquariumTab(availablePredicate, menuProvider, icon, before, after, accepts);
         }
     }
 }

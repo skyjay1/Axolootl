@@ -43,7 +43,7 @@ public abstract class ModifierCondition implements Predicate<AquariumModifierCon
 
     /**
      * @param access the registry access
-     * @return the axolootl variant registry
+     * @return the modifier condition registry
      */
     public static Registry<ModifierCondition> getRegistry(final RegistryAccess access) {
         return access.registryOrThrow(AxRegistry.Keys.MODIFIER_CONDITIONS);

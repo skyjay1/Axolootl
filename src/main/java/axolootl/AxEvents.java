@@ -6,29 +6,18 @@
 
 package axolootl;
 
-import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.aquarium_modifier.AquariumModifier;
-import axolootl.data.aquarium_modifier.condition.ModifierCondition;
+import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.breeding.AxolootlBreeding;
-import axolootl.data.resource_generator.ResourceGenerator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
-import net.minecraft.tags.TagManager;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
@@ -59,22 +48,11 @@ public final class AxEvents {
         }
 
         @SubscribeEvent
-        public static void onServerTick(final TickEvent.ServerTickEvent event) {
-            if(event.side != LogicalSide.SERVER || event.phase != TickEvent.Phase.END) {
-                return;
-            }
-        }
-
-        @SubscribeEvent
         public static void onTagsUpdated(final TagsUpdatedEvent event) {
             // validate axolootl variants
             final RegistryAccess registryAccess = event.getRegistryAccess();
-            if(!AxRegistry.AxolootlVariantsReg.hasValidated()) {
-                AxRegistry.AxolootlVariantsReg.validate(registryAccess);
-                Axolootl.LOGGER.debug("Axolootl loaded " + (AxolootlVariant.getRegistry(registryAccess).size() - AxRegistry.AxolootlVariantsReg.getInvalidEntries().size()) + " axolootl variants");
-                Axolootl.LOGGER.debug("Axolootl loaded " + AxolootlBreeding.getRegistry(registryAccess).size() + " axolootl breeding recipes");
-                Axolootl.LOGGER.debug("Axolootl loaded " + AquariumModifier.getRegistry(registryAccess).size() + " aquarium modifiers");
-            }
+            AxRegistry.AxolootlVariantsReg.validate(registryAccess);
+            Axolootl.LOGGER.debug("Axolootl validated " + (AxolootlVariant.getRegistry(registryAccess).size() - AxRegistry.AxolootlVariantsReg.getInvalidEntries().size()) + " axolootl variants");
         }
     }
 

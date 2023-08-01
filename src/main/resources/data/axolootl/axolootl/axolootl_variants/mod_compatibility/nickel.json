@@ -1,8 +1,6 @@
 {
   "translation_key": "entity.axolootl.axolootl.nickel",
   "tier": 2,
-  "primary_color": 11787004,
-  "secondary_color": 15726073,
   "food": [
     {
       "item": "#forge:nuggets/nickel",

@@ -9,12 +9,14 @@ package axolootl.data.resource_generator;
 import axolootl.AxRegistry;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
+import java.util.List;
 
 @Immutable
 public class EmptyResourceGenerator extends ResourceGenerator {
@@ -23,8 +25,11 @@ public class EmptyResourceGenerator extends ResourceGenerator {
 
     public static final Codec<EmptyResourceGenerator> CODEC = Codec.unit(INSTANCE);
 
+    private final List<Component> description;
+
     public EmptyResourceGenerator() {
         super(ResourceType.EMPTY);
+        this.description = ImmutableList.of(getItemDisplayName(ItemStack.EMPTY));
     }
 
     @Override
@@ -35,6 +40,11 @@ public class EmptyResourceGenerator extends ResourceGenerator {
     @Override
     public Codec<? extends ResourceGenerator> getCodec() {
         return AxRegistry.ResourceGeneratorsReg.EMPTY.get();
+    }
+
+    @Override
+    public List<Component> getDescription() {
+        return description;
     }
 
     @Override

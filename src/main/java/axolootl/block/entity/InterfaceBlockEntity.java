@@ -75,12 +75,16 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
 
     @Override
     public Optional<ControllerBlockEntity> getController() {
+        if(getLevel() != null && controllerPos != null && null == controller && validateController(getLevel())) {
+            setChanged();
+        }
         return Optional.ofNullable(controller);
     }
 
     //// SETTERS AND GETTERS ////
 
     /**
+     * Loads or removes the controller block entity
      * @param level the level
      * @return true if the controller changed
      */
@@ -228,11 +232,13 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
     public void load(CompoundTag tag) {
         super.load(tag);
         ContainerHelper.loadAllItems(tag, inventory);
+        controllerPos = readControllerPos(tag);
     }
 
     @Override
     public void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         ContainerHelper.saveAllItems(tag, inventory);
+        writeControllerPos(controllerPos, tag);
     }
 }

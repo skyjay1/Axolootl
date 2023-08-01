@@ -7,6 +7,7 @@
     "minecraft:glass",
     "minecraft:smooth_stone",
     "axolootl:aquarium_controller",
-    "axolootl:aquarium_airlock"
+    "axolootl:aquarium_airlock",
+    "axolootl:aquarium_axolootl_inspector"
   ]
 }

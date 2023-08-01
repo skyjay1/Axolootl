@@ -70,6 +70,9 @@ public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquarium
 
     @Override
     public Optional<ControllerBlockEntity> getController() {
+        if(getLevel() != null && controllerPos != null && null == controller && validateController(getLevel())) {
+            setChanged();
+        }
         return Optional.ofNullable(controller);
     }
 
@@ -162,6 +165,7 @@ public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquarium
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        controllerPos = readControllerPos(tag);
         if(tag.contains(KEY_ENERGY, Tag.TAG_INT)) {
             this.energy.deserializeNBT(tag.get(KEY_ENERGY));
         }
@@ -170,6 +174,7 @@ public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquarium
     @Override
     public void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
+        writeControllerPos(controllerPos, tag);
     }
 
     //// ENERGY STORAGE ////

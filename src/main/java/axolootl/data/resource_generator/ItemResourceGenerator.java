@@ -10,6 +10,7 @@ import axolootl.AxRegistry;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -31,10 +33,12 @@ public class ItemResourceGenerator extends ResourceGenerator {
             .xmap(ItemResourceGenerator::new, ItemResourceGenerator::getList).fieldOf("pool").codec();
 
     private final SimpleWeightedRandomList<ItemStack> list;
+    private final List<Component> description;
 
     public ItemResourceGenerator(final SimpleWeightedRandomList<ItemStack> list) {
         super(ResourceType.ITEM);
         this.list = list;
+        this.description = ImmutableList.copyOf(createDescription(list, ResourceGenerator::getItemDisplayName));
     }
 
     public SimpleWeightedRandomList<ItemStack> getList() {
@@ -54,6 +58,11 @@ public class ItemResourceGenerator extends ResourceGenerator {
     @Override
     public Codec<? extends ResourceGenerator> getCodec() {
         return AxRegistry.ResourceGeneratorsReg.ITEM.get();
+    }
+
+    @Override
+    public List<Component> getDescription() {
+        return description;
     }
 
     @Override

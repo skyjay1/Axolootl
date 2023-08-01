@@ -8,6 +8,7 @@ package axolootl;
 
 import axolootl.block.AirlockBlock;
 import axolootl.block.AutofeederBlock;
+import axolootl.block.AxolootlInspectorBlock;
 import axolootl.block.AxolootlInterfaceBlock;
 import axolootl.block.BreederBlock;
 import axolootl.block.BubblerBlock;
@@ -21,6 +22,7 @@ import axolootl.block.WaterloggedHorizontalBlock;
 import axolootl.block.WaterloggedHorizontalDoubleBlock;
 import axolootl.block.WaterloggedHorizontalMultiBlock;
 import axolootl.block.entity.AutoFeederBlockEntity;
+import axolootl.block.entity.AxolootlInspectorBlockEntity;
 import axolootl.block.entity.AxolootlInterfaceBlockEntity;
 import axolootl.block.entity.BreederBlockEntity;
 import axolootl.block.entity.ControllerBlockEntity;
@@ -71,7 +73,7 @@ import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
 import axolootl.item.MultiBlockItem;
-import axolootl.menu.AxolootlMenu;
+import axolootl.menu.AxolootlInterfaceMenu;
 import axolootl.menu.ControllerMenu;
 import axolootl.menu.CyclingContainerMenu;
 import axolootl.menu.CyclingMenu;
@@ -88,7 +90,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
-import net.minecraft.tags.TagManager;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
@@ -112,8 +113,6 @@ import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.ForgeSpawnEggItem;
-import net.minecraftforge.common.crafting.conditions.ConditionContext;
-import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
@@ -154,6 +153,7 @@ public final class AxRegistry {
             RESOURCE_GENERATOR_SERIALIZERS.makeRegistry(() -> new RegistryBuilder<Codec<? extends ResourceGenerator>>().hasTags());
 
     private static final DeferredRegister<ResourceGenerator> RESOURCE_GENERATORS = DeferredRegister.create(Keys.RESOURCE_GENERATORS, Axolootl.MODID);
+    /** Datapack registry; use {@link ResourceGenerator#getRegistry(RegistryAccess)} to access **/
     public static final Supplier<IForgeRegistry<ResourceGenerator>> RESOURCE_GENERATORS_SUPPLIER = RESOURCE_GENERATORS.makeRegistry(() -> new RegistryBuilder<ResourceGenerator>()
             .dataPackRegistry(ResourceGenerator.DIRECT_CODEC, ResourceGenerator.DIRECT_CODEC)
             .hasTags());
@@ -164,6 +164,7 @@ public final class AxRegistry {
             MODIFIER_CONDITION_SERIALIZERS.makeRegistry(() -> new RegistryBuilder<Codec<? extends ModifierCondition>>().hasTags());
 
     private static final DeferredRegister<ModifierCondition> MODIFIER_CONDITIONS = DeferredRegister.create(Keys.MODIFIER_CONDITIONS, Axolootl.MODID);
+    /** Datapack registry; use {@link ModifierCondition#getRegistry(RegistryAccess)} to access **/
     public static final Supplier<IForgeRegistry<ModifierCondition>> MODIFIER_CONDITION_SUPPLIER = MODIFIER_CONDITIONS.makeRegistry(() -> new RegistryBuilder<ModifierCondition>()
             .dataPackRegistry(ModifierCondition.DIRECT_CODEC, ModifierCondition.DIRECT_CODEC)
             .hasTags());
@@ -174,12 +175,14 @@ public final class AxRegistry {
             FORGE_CONDITION_SERIALIZERS.makeRegistry(() -> new RegistryBuilder<Codec<? extends ForgeCondition>>().hasTags());
 
     private static final DeferredRegister<ForgeCondition> FORGE_CONDITIONS = DeferredRegister.create(Keys.FORGE_CONDITIONS, "forge");
+    /** Datapack registry; use {@link ForgeCondition#getRegistry(RegistryAccess)} to access **/
     public static final Supplier<IForgeRegistry<ForgeCondition>> FORGE_CONDITION_SUPPLIER = FORGE_CONDITIONS.makeRegistry(() -> new RegistryBuilder<ForgeCondition>()
             .dataPackRegistry(ForgeCondition.DIRECT_CODEC, ForgeCondition.DIRECT_CODEC)
             .hasTags());
 
     // AXOLOOTL VARIANTS //
     private static final DeferredRegister<AxolootlVariant> AXOLOOTL_VARIANTS = DeferredRegister.create(Keys.AXOLOOTL_VARIANTS, Axolootl.MODID);
+    /** Datapack registry; use {@link AxolootlVariant#getRegistry(RegistryAccess)} to access **/
     public static final Supplier<IForgeRegistry<AxolootlVariant>> AXOLOOTL_VARIANTS_SUPPLIER = AXOLOOTL_VARIANTS.makeRegistry(() -> new RegistryBuilder<AxolootlVariant>()
             .dataPackRegistry(AxolootlVariant.CODEC, AxolootlVariant.CODEC)
             .onClear((owner, stage) -> AxolootlVariantsReg.resetInvalidEntries())
@@ -187,12 +190,14 @@ public final class AxRegistry {
 
     // AXOLOOTL BREEDING //
     private static final DeferredRegister<AxolootlBreeding> AXOLOOTL_BREEDING = DeferredRegister.create(Keys.AXOLOOTL_BREEDING, Axolootl.MODID);
+    /** Datapack registry; use {@link AxolootlBreeding#getRegistry(RegistryAccess)} to access **/
     public static final Supplier<IForgeRegistry<AxolootlBreeding>> AXOLOOTL_BREEDING_SUPPLIER = AXOLOOTL_BREEDING.makeRegistry(() -> new RegistryBuilder<AxolootlBreeding>()
             .dataPackRegistry(AxolootlBreeding.CODEC, AxolootlBreeding.CODEC)
             .hasTags());
 
     // AQUARIUM MODIFIERS //
     private static final DeferredRegister<AquariumModifier> AQUARIUM_MODIFIERS = DeferredRegister.create(Keys.AQUARIUM_MODIFIERS, Axolootl.MODID);
+    /** Datapack registry; use {@link AquariumModifier#getRegistry(RegistryAccess)} to access **/
     public static final Supplier<IForgeRegistry<AquariumModifier>> AQUARIUM_MODIFIERS_SUPPLIER = AQUARIUM_MODIFIERS.makeRegistry(() -> new RegistryBuilder<AquariumModifier>()
             .dataPackRegistry(AquariumModifier.CODEC, AquariumModifier.CODEC)
             .onClear((owner, stage) -> AquariumModifiersReg.MANDATORY_AQUARIUM_MODIFIERS.clear())
@@ -200,6 +205,7 @@ public final class AxRegistry {
 
     // AQUARIUM TABS //
     private static final DeferredRegister<IAquariumTab> AQUARIUM_TABS = DeferredRegister.create(Keys.AQUARIUM_TABS, Axolootl.MODID);
+    /** Not a datapack registry **/
     public static final Supplier<IForgeRegistry<IAquariumTab>> AQUARIUM_TABS_SUPPLIER = AQUARIUM_TABS.makeRegistry(() -> new RegistryBuilder<IAquariumTab>()
             .onClear((owner, stage) -> AquariumTabsReg.SORTED_TABS.clear())
             .hasTags());
@@ -297,6 +303,7 @@ public final class AxRegistry {
         public static final RegistryObject<Block> AQUARIUM_WATER_INTERFACE = registerWithItem("aquarium_water_interface", () -> new WaterInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> AQUARIUM_ENERGY_INTERFACE = registerWithItem("aquarium_energy_interface", () -> new EnergyInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> AQUARIUM_AXOLOOTL_INTERFACE = registerWithItem("aquarium_axolootl_interface", () -> new AxolootlInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> AQUARIUM_AXOLOOTL_INSPECTOR = registerWithItem("aquarium_axolootl_inspector", () -> new AxolootlInspectorBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> AQUARIUM_OUTPUT = registerWithItem("aquarium_output", () -> new OutputBlock(3, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> LARGE_AQUARIUM_OUTPUT = registerWithItem("large_aquarium_output", () -> new OutputBlock(6, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> AQUARIUM_AIRLOCK = registerWithItem("aquarium_airlock", () -> new AirlockBlock(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().isSuffocating((s, l, p) -> false).requiresCorrectToolForDrops().strength(3.5F, 6.0F)));
@@ -368,6 +375,10 @@ public final class AxRegistry {
                 BlockEntityType.Builder.of(MonsteriumBlockEntity::new, BlockReg.MONSTERIUM.get())
                         .build(null));
 
+        public static final RegistryObject<BlockEntityType<AxolootlInspectorBlockEntity>> AXOLOOTL_INSPECTOR = BLOCK_ENTITY_TYPES.register("axolootl_inspector", () ->
+                BlockEntityType.Builder.of(AxolootlInspectorBlockEntity::new, BlockReg.AQUARIUM_AXOLOOTL_INSPECTOR.get())
+                        .build(null));
+
     }
 
     public static final class EntityReg {
@@ -400,7 +411,8 @@ public final class AxRegistry {
         }
 
         public static final RegistryObject<MenuType<ControllerMenu>> CONTROLLER = MENU_TYPES.register("controller", () -> createForgeMenu(ControllerMenu::new));
-        public static final RegistryObject<MenuType<AxolootlMenu>> AXOLOOTL = MENU_TYPES.register("axolootl", () -> createForgeMenu(AxolootlMenu::new));
+        public static final RegistryObject<MenuType<AxolootlInterfaceMenu>> AXOLOOTL = MENU_TYPES.register("axolootl", () -> createForgeMenu(AxolootlInterfaceMenu::new));
+        public static final RegistryObject<MenuType<CyclingContainerMenu>> INSPECTOR = MENU_TYPES.register("inspector", () -> createForgeMenu(CyclingContainerMenu::createInspector));
         public static final RegistryObject<MenuType<CyclingContainerMenu>> OUTPUT = MENU_TYPES.register("output", () -> createForgeMenu(CyclingContainerMenu::createOutput));
         public static final RegistryObject<MenuType<CyclingMenu>> ENERGY = MENU_TYPES.register("energy", () -> createForgeMenu(CyclingMenu::createEnergy));
         public static final RegistryObject<MenuType<CyclingContainerMenu>> FLUID = MENU_TYPES.register("fluid", () -> createForgeMenu(CyclingContainerMenu::createFluid));
@@ -546,6 +558,7 @@ public final class AxRegistry {
         public static final RegistryObject<IAquariumTab> CONTROLLER = AQUARIUM_TABS.register("controller", () ->
                 AquariumTab.builder()
                         .available(c -> true)
+                        .accepts(b -> b.is(BlockReg.AQUARIUM_CONTROLLER.get()))
                         .menuProvider(c -> new WorldlyMenuProvider(c.getBlockPos(), c))
                         .icon(() -> Items.CONDUIT.getDefaultInstance())
                         .build());
@@ -553,6 +566,7 @@ public final class AxRegistry {
         public static final RegistryObject<IAquariumTab> AXOLOOTL_INTERFACE = AQUARIUM_TABS.register("axolootl_interface", () ->
                 AquariumTab.builder()
                         .available(c -> !c.getAxolootlInputs().isEmpty())
+                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_axolootl_interfaces")))
                         .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getAxolootlInputs()))
                         .icon(() -> Items.AXOLOTL_BUCKET.getDefaultInstance())
                         .before(() -> List.of(AquariumTabsReg.CONTROLLER.get()))
@@ -562,6 +576,7 @@ public final class AxRegistry {
         public static final RegistryObject<IAquariumTab> OUTPUT = AQUARIUM_TABS.register("output", () ->
                 AquariumTab.builder()
                         .available(c -> !c.getResourceOutputs().isEmpty())
+                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_outputs")))
                         .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getResourceOutputs()))
                         .icon(() -> Items.CHEST.getDefaultInstance())
                         .before(() -> List.of(AquariumTabsReg.AXOLOOTL_INTERFACE.get()))
@@ -571,6 +586,7 @@ public final class AxRegistry {
         public static final RegistryObject<IAquariumTab> FOOD_INTERFACE = AQUARIUM_TABS.register("food_interface", () ->
                 AquariumTab.builder()
                         .available(c -> !c.resolveModifiers(c.getLevel().registryAccess(), c.activePredicate.and(c.foodInterfacePredicate)).isEmpty())
+                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_food_interfaces")))
                         .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.resolveModifiers(c.getLevel().registryAccess(), c.activePredicate.and(c.foodInterfacePredicate)).keySet()))
                         .icon(() -> Items.TROPICAL_FISH.getDefaultInstance())
                         .before(() -> List.of(AquariumTabsReg.OUTPUT.get()))
@@ -580,6 +596,7 @@ public final class AxRegistry {
         public static final RegistryObject<IAquariumTab> FLUID_INTERFACE = AQUARIUM_TABS.register("fluid_interface", () ->
                 AquariumTab.builder()
                         .available(c -> !c.getFluidInputs().isEmpty())
+                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_fluid_interfaces")))
                         .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getFluidInputs()))
                         .icon(() -> Items.WATER_BUCKET.getDefaultInstance())
                         .before(() -> List.of(AquariumTabsReg.FOOD_INTERFACE.get()))
@@ -589,9 +606,20 @@ public final class AxRegistry {
         public static final RegistryObject<IAquariumTab> ENERGY_INTERFACE = AQUARIUM_TABS.register("energy_interface", () ->
                 AquariumTab.builder()
                         .available(c -> !c.getEnergyInputs().isEmpty())
+                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_energy_interfaces")))
                         .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getEnergyInputs()))
                         .icon(() -> Items.REDSTONE.getDefaultInstance())
                         .before(() -> List.of(AquariumTabsReg.FLUID_INTERFACE.get()))
+                        .after(() -> List.of(AquariumTabsReg.AXOLOOTL_INSPECTOR.get()))
+                        .build());
+
+        public static final RegistryObject<IAquariumTab> AXOLOOTL_INSPECTOR = AQUARIUM_TABS.register("axolootl_inspector", () ->
+                AquariumTab.builder()
+                        .available(c -> !c.getTrackedBlocks(AquariumTabsReg.AXOLOOTL_INSPECTOR.getId()).isEmpty())
+                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_axolootl_inspectors")))
+                        .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getTrackedBlocks(AquariumTabsReg.AXOLOOTL_INSPECTOR.getId())))
+                        .icon(() -> Items.SPYGLASS.getDefaultInstance())
+                        .before(() -> List.of(AquariumTabsReg.ENERGY_INTERFACE.get()))
                         .build());
 
         /**

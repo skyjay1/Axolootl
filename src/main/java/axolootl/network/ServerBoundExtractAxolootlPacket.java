@@ -6,13 +6,9 @@
 
 package axolootl.network;
 
-import axolootl.AxRegistry;
 import axolootl.block.entity.AxolootlInterfaceBlockEntity;
 import axolootl.block.entity.ControllerBlockEntity;
-import axolootl.data.aquarium_tab.IAquariumTab;
-import axolootl.data.aquarium_tab.WorldlyMenuProvider;
-import axolootl.menu.AbstractControllerMenu;
-import axolootl.menu.AxolootlMenu;
+import axolootl.menu.AxolootlInterfaceMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +20,6 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkHooks;
 
 import java.util.Map;
 import java.util.Optional;
@@ -73,7 +68,7 @@ public class ServerBoundExtractAxolootlPacket {
                 // validate player
                 final ServerPlayer player = context.getSender();
                 // validate menu
-                if(!(player.containerMenu instanceof AxolootlMenu menu) || menu.getController().isEmpty()) {
+                if(!(player.containerMenu instanceof AxolootlInterfaceMenu menu) || menu.getController().isEmpty()) {
                     return;
                 }
                 // validate controller

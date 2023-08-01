@@ -1,7 +1,5 @@
 {
   "translation_key": "item.minecraft.bone",
-  "primary_color": 16711680,
-  "secondary_color": 16449280,
   "breed_food": "minecraft:bone_block",
   "resource_generator": [
     {

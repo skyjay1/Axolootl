@@ -1,8 +1,13 @@
 {
   "translation_key": "entity.axolootl.axolootl.iron",
   "tier": 2,
-  "primary_color": 11787004,
-  "secondary_color": 15726073,
+  "model": {
+    "primary_color": 11787004,
+    "secondary_color": 15726073,
+    "texture": "axolootl:textures/entity/axolootl/axolootl_base.png",
+    "primary_texture": "axolootl:textures/entity/axolootl/axolootl_primary.png",
+    "secondary_texture": "axolootl:textures/entity/axolootl/axolootl_secondary.png"
+  },
   "breed_food": "#forge:storage_blocks/iron",
   "resource_generator": [
     {

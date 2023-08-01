@@ -41,7 +41,7 @@ import java.util.Set;
 
 public class AxolootlVariant {
 
-    public static final AxolootlVariant EMPTY = new AxolootlVariant(FalseForgeCondition.INSTANCE, "empty", 0, 0x0, 0x0, 0, ImmutableList.of(), HolderSet.direct(), SimpleWeightedRandomList.empty());
+    public static final AxolootlVariant EMPTY = new AxolootlVariant(FalseForgeCondition.INSTANCE, "empty", 0, AxolootlModelSettings.EMPTY, 0, ImmutableList.of(), HolderSet.direct(), SimpleWeightedRandomList.empty());
 
     private static final Codec<HolderSet<Item>> ITEM_HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(ForgeRegistries.Keys.ITEMS);
 
@@ -49,8 +49,7 @@ public class AxolootlVariant {
         ForgeCondition.DIRECT_CODEC.optionalFieldOf("condition", TrueForgeCondition.INSTANCE).forGetter(AxolootlVariant::getCondition),
         Codec.STRING.fieldOf("translation_key").forGetter(AxolootlVariant::getTranslationKey),
         ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("tier", 1).forGetter(AxolootlVariant::getTier),
-        Codec.INT.optionalFieldOf("primary_color", -1).forGetter(AxolootlVariant::getPrimaryColor),
-        Codec.INT.optionalFieldOf("secondary_color", -1).forGetter(AxolootlVariant::getSecondaryColor),
+        AxolootlModelSettings.CODEC.optionalFieldOf("model", AxolootlModelSettings.EMPTY).forGetter(AxolootlVariant::getModelSettings),
         ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("energy_cost", 0).forGetter(AxolootlVariant::getEnergyCost),
         BonusesProvider.CODEC.listOf().optionalFieldOf("food", BonusesProvider.FISH_BONUS_PROVIDERS).forGetter(AxolootlVariant::getFoods),
         ITEM_HOLDER_SET_CODEC.optionalFieldOf("breed_food", HolderSet.direct()).forGetter(AxolootlVariant::getBreedFood),
@@ -67,9 +66,7 @@ public class AxolootlVariant {
     /** The axolootl tier **/
     private final int tier;
     /** The primary packed color **/
-    private final int primaryColor;
-    /** The secondary packed color **/
-    private final int secondaryColor;
+    private final AxolootlModelSettings axolootlModelSettings;
     /** The amount of energy that is consumed each time a resource is generated **/
     private final int energyCost;
     /** The map of food to bonuses **/
@@ -83,20 +80,22 @@ public class AxolootlVariant {
 
     /** The translation component **/
     private Component description;
+    /** The resource generator translation component **/
+    private List<Component> resourceGeneratorDescription;
     /** The registry object holder **/
     private Holder<AxolootlVariant> holder;
 
-    public AxolootlVariant(ForgeCondition condition, String translationKey, int tier, int primaryColor, int secondaryColor, int energyCost,
+    public AxolootlVariant(ForgeCondition condition, String translationKey, int tier, AxolootlModelSettings axolootlModelSettings, int energyCost,
                            List<BonusesProvider> foods, HolderSet<Item> breedFood, SimpleWeightedRandomList<ResourceGenerator> resourceGenerators) {
         this.condition = condition;
         this.translationKey = translationKey;
         this.tier = tier;
-        this.primaryColor = primaryColor;
-        this.secondaryColor = secondaryColor;
+        this.axolootlModelSettings = axolootlModelSettings;
         this.energyCost = energyCost;
         this.foods = ImmutableList.copyOf(foods);
         this.breedFood = breedFood;
         this.resourceGenerators = resourceGenerators;
+        this.resourceGeneratorDescription = ImmutableList.copyOf(ResourceGenerator.createDescription(resourceGenerators));
         // build resource type set
         final ImmutableSet.Builder<ResourceType> resourceTypeBuilder = ImmutableSet.builder();
         for(WeightedEntry.Wrapper<ResourceGenerator> item : resourceGenerators.unwrap()) {
@@ -169,12 +168,8 @@ public class AxolootlVariant {
         return tier;
     }
 
-    public int getPrimaryColor() {
-        return primaryColor;
-    }
-
-    public int getSecondaryColor() {
-        return secondaryColor;
+    public AxolootlModelSettings getModelSettings() {
+        return axolootlModelSettings;
     }
 
     public int getEnergyCost() {
@@ -223,6 +218,10 @@ public class AxolootlVariant {
         return this.description;
     }
 
+    public List<Component> getResourceGeneratorDescription() {
+        return resourceGeneratorDescription;
+    }
+
     public boolean isEnabled(RegistryAccess registryAccess) {
         return AxRegistry.AxolootlVariantsReg.isValid(registryAccess, this);
     }
@@ -233,7 +232,7 @@ public class AxolootlVariant {
     public String toString() {
         final StringBuilder builder = new StringBuilder("AxolootlVariant{");
         builder.append(" name=" + translationKey);
-        builder.append(" colors=(" + primaryColor + ", " + secondaryColor + ")");
+        builder.append(" model=" + axolootlModelSettings);
         builder.append(" food_bonuses=" + foods.toString());
         builder.append(" breed_food=" + breedFood.toString());
         builder.append(" generators=" + resourceGenerators.toString());

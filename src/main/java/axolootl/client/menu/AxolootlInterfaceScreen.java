@@ -11,7 +11,7 @@ import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.client.menu.widget.AxolootlEntryButton;
 import axolootl.client.menu.widget.ScrollButton;
 import axolootl.data.axolootl_variant.AxolootlVariant;
-import axolootl.menu.AxolootlMenu;
+import axolootl.menu.AxolootlInterfaceMenu;
 import axolootl.util.TankMultiblock;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -28,14 +28,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MobBucketItem;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
-public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlMenu> implements ScrollButton.IScrollListener {
+public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterfaceMenu> implements ScrollButton.IScrollListener {
 
     // TEXTURES //
     public static final ResourceLocation AXOLOOTL_BG = new ResourceLocation(Axolootl.MODID, "textures/gui/aquarium/axolootl_interface.png");
@@ -63,7 +61,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlMenu> imp
     public static final String PREFIX = "gui.controller_tab.axolootl.axolootl_interface.";
     private Component countText;
 
-    public AxolootlInterfaceScreen(AxolootlMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
+    public AxolootlInterfaceScreen(AxolootlInterfaceMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         this.variantCountList = new ArrayList<>();
         this.entryButtons = new ArrayList<>();
@@ -144,9 +142,9 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlMenu> imp
         RenderSystem.setShaderTexture(0, AXOLOOTL_BG);
         blit(poseStack, this.leftPos, this.topPos, 0, 0, WIDTH, HEIGHT);
         RenderSystem.setShaderTexture(0, SLOTS);
-        blit(poseStack, this.leftPos + AxolootlMenu.INV_X - 1, this.topPos + AxolootlMenu.INV_Y - 1, AxolootlMenu.INV_X - 1, AxolootlMenu.INV_Y - 1, AxolootlMenu.INV_SIZE * 18, 18);
+        blit(poseStack, this.leftPos + AxolootlInterfaceMenu.INV_X - 1, this.topPos + AxolootlInterfaceMenu.INV_Y - 1, AxolootlInterfaceMenu.INV_X - 1, AxolootlInterfaceMenu.INV_Y - 1, AxolootlInterfaceMenu.INV_SIZE * 18, 18);
         // bucket icon
-        blit(poseStack, this.leftPos + AxolootlMenu.INV_X, this.topPos + AxolootlMenu.INV_Y - 1, 240, 0, 16, 16);
+        blit(poseStack, this.leftPos + AxolootlInterfaceMenu.INV_X, this.topPos + AxolootlInterfaceMenu.INV_Y - 1, 240, 0, 16, 16);
     }
 
     @Override

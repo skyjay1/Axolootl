@@ -22,3 +22,9 @@ license="GNU LGPLv3"
     versionRange="[1.19.2,1.19.3)"
     ordering="NONE"
     side="BOTH"
+[[dependencies.axolootl]]
+    modId="geckolib3"
+    mandatory=true
+    versionRange="[3.1.40,)"
+    ordering="NONE"
+    side="BOTH"

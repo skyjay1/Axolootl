@@ -34,11 +34,10 @@ public interface IAquariumControllerProvider {
     /**
      * @param entity an entity
      * @param level the level
-     * @param pos the block position
      * @param blockEntity the controller block entity
      * @return true if the entity is a controller provider and its data was updated
      */
-    public static boolean trySetController(final Entity entity, final Level level, final BlockPos pos, final ControllerBlockEntity blockEntity) {
+    public static boolean trySetController(final Entity entity, final Level level, final ControllerBlockEntity blockEntity) {
         if(entity instanceof IAquariumControllerProvider provider) {
             provider.setController(level, blockEntity.getBlockPos(), blockEntity);
             return true;

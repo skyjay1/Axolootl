@@ -76,9 +76,9 @@ public class ControllerBlock extends HorizontalDirectionalBlock implements Entit
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
             level.updateNeighbourForOutputSignal(pos, this);
-        }
-        if(level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof ControllerBlockEntity controller) {
-            controller.onRemoved(serverLevel);
+            if(level.getBlockEntity(pos) instanceof ControllerBlockEntity blockEntity) {
+                blockEntity.onRemoved();
+            }
         }
         super.onRemove(state, level, pos, newState, isMoving);
     }

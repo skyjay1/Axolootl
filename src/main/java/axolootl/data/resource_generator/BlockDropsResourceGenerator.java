@@ -11,6 +11,8 @@ import axolootl.Axolootl;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -19,6 +21,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
+import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -26,7 +29,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 
 @Immutable
 public class BlockDropsResourceGenerator extends ResourceGenerator {
@@ -38,11 +41,19 @@ public class BlockDropsResourceGenerator extends ResourceGenerator {
 
     private final ItemStack tool;
     private final BlockStateProvider blockProvider;
+    private final List<Component> description;
 
     public BlockDropsResourceGenerator(ItemStack tool, BlockStateProvider blockProvider) {
         super(ResourceType.BLOCK);
         this.tool = tool;
         this.blockProvider = blockProvider;
+        final String descriptionKey = "axolootl.resource_generator.block" + (tool.isEmpty() ? "" : "_with_tool");
+        final Component itemDisplayName = getItemDisplayName(tool);
+        if(blockProvider instanceof WeightedStateProvider provider) {
+            this.description = ImmutableList.copyOf(createDescription(provider.weightedList, b -> Component.translatable(descriptionKey, getBlockName(b), itemDisplayName)));
+        } else {
+            this.description = ImmutableList.of(Component.translatable(descriptionKey, getBlockName(blockProvider.getState(RandomSource.create(), BlockPos.ZERO)), itemDisplayName));
+        }
     }
 
     public ItemStack getTool() {
@@ -51,6 +62,10 @@ public class BlockDropsResourceGenerator extends ResourceGenerator {
 
     public BlockStateProvider getBlockProvider() {
         return blockProvider;
+    }
+
+    private static Component getBlockName(final BlockState blockState) {
+        return Component.translatable(blockState.getBlock().getDescriptionId());
     }
 
     @Override
@@ -92,6 +107,11 @@ public class BlockDropsResourceGenerator extends ResourceGenerator {
                 .withParameter(LootContextParams.ORIGIN, entity.position())
                 .withParameter(LootContextParams.THIS_ENTITY, entity)
                 .create(LootContextParamSets.BLOCK);
+    }
+
+    @Override
+    public List<Component> getDescription() {
+        return description;
     }
 
     @Override

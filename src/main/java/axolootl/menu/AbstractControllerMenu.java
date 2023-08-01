@@ -34,6 +34,9 @@ public abstract class AbstractControllerMenu extends AbstractContainerMenu imple
     protected int tab;
     protected int cycle;
 
+    public static final int PLAYER_INV_X = 30;
+    public static final int PLAYER_INV_Y = 140;
+
     public AbstractControllerMenu(MenuType<?> menuType, int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity blockEntity, BlockPos blockPos, int tab, int cycle) {
         super(menuType, windowId);
         this.inventory = inv;
@@ -75,21 +78,27 @@ public abstract class AbstractControllerMenu extends AbstractContainerMenu imple
 
     public void cycle(final int amount) {
         // validate amount
-        if(amount == 0) {
+        if(amount == 0 || getCycleCount() <= 1) {
             return;
         }
         // increase cycle
-        this.cycle = (this.cycle + getMaxCycle() + amount) % getMaxCycle();
+        this.cycle = (this.cycle + getCycleCount() + amount) % getCycleCount();
         if(this.inventory.player.level.isClientSide() && this.controller != null) {
             // send packet to server to change cycle
             AxNetwork.CHANNEL.sendToServer(new ServerBoundControllerCyclePacket(this.cycle));
         }
     }
 
-    public int getMaxCycle() {
+    /**
+     * @return the number of cycles to iterate
+     */
+    public int getCycleCount() {
         return 1;
     }
 
+    /**
+     * @return the block positions to cycle
+     */
     public List<BlockPos> getSortedCycleList() {
         return List.of(blockPos);
     }

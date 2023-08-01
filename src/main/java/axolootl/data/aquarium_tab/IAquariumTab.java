@@ -10,12 +10,16 @@ import axolootl.AxRegistry;
 import axolootl.block.entity.ControllerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -41,6 +45,14 @@ public interface IAquariumTab {
     Optional<WorldlyMenuProvider> getMenuProvider(final ControllerBlockEntity blockEntity, @Nullable final BlockPos pos);
 
     /**
+     * @param level the level
+     * @param pos the block position
+     * @param blockState the block state
+     * @return true if this tab is applicable to the block at the given position
+     */
+    boolean isFor(final LevelAccessor level, final BlockPos pos, final BlockState blockState);
+
+    /**
      * @return the item stack icon for this tab
      */
     ItemStack getIcon();
@@ -60,6 +72,15 @@ public interface IAquariumTab {
      */
     default int getSortedIndex() {
         return AxRegistry.AquariumTabsReg.getSortedTabs().indexOf(this);
+    }
+
+    public static Optional<IAquariumTab> forBlock(final LevelAccessor level, final BlockPos pos, final BlockState blockState) {
+        for(Map.Entry<ResourceKey<IAquariumTab>, IAquariumTab> entry : AxRegistry.AQUARIUM_TABS_SUPPLIER.get().getEntries()) {
+            if(entry.getValue().isFor(level, pos, blockState)) {
+                return Optional.of(entry.getValue());
+            }
+        }
+        return Optional.empty();
     }
 
     /**

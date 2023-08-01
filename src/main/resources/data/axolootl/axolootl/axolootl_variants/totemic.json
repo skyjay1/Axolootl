@@ -1,8 +1,6 @@
 {
   "translation_key": "entity.axolootl.axolootl.totemic",
   "tier": 6,
-  "primary_color": 11787004,
-  "secondary_color": 15726073,
   "resource_generator": [
     {
       "weight": 1,

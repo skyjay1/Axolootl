@@ -28,7 +28,7 @@ public abstract class AbstractCyclingScreen<T extends AbstractControllerMenu> ex
     public AbstractCyclingScreen(T pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         this.cycleButtons = new ArrayList<>();
-        this.cycledTitle = createCycledTitle(pTitle, getMenu().getBlockPos(), getMenu().getCycle(), getMenu().getMaxCycle());
+        this.cycledTitle = createCycledTitle(pTitle, getMenu().getBlockPos(), getMenu().getCycle(), getMenu().getCycleCount());
     }
 
     @Override
@@ -42,6 +42,7 @@ public abstract class AbstractCyclingScreen<T extends AbstractControllerMenu> ex
         // add cycle buttons
         this.cycleButtons.clear();
         this.cycleButtons.addAll(initCycleButtons(this));
+        this.setCycleButtonsVisible(getMenu().getCycleCount() > 1);
     }
 
     @Override
@@ -74,7 +75,7 @@ public abstract class AbstractCyclingScreen<T extends AbstractControllerMenu> ex
     @Override
     public void cycle(int amount) {
         this.getMenu().cycle(amount);
-        this.cycledTitle = createCycledTitle(getTitle(), getMenu().getBlockPos(), getMenu().getCycle(), getMenu().getMaxCycle());
+        this.cycledTitle = createCycledTitle(getTitle(), getMenu().getBlockPos(), getMenu().getCycle(), getMenu().getCycleCount());
         this.cycledTitleWidth = this.font.width(this.cycledTitle);
     }
 

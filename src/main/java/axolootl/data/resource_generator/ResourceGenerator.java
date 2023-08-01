@@ -11,21 +11,28 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistryCodecs;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.util.random.WeightedEntry;
+import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -69,6 +76,90 @@ public abstract class ResourceGenerator {
     }
 
     /**
+     * @param list a weighted random list
+     * @return the total weight of the list entries
+     */
+    public static double calculateTotalWeight(final WeightedRandomList<?> list) {
+        return list.unwrap()
+                .stream()
+                .map(e -> e.getWeight().asInt())
+                .reduce(Integer::sum)
+                .orElse(1).doubleValue();
+    }
+
+    /**
+     * @param list a weighted random list
+     * @return a list of weighted entries sorted from highest to lowest
+     */
+    public static <T> List<WeightedEntry.Wrapper<T>> calculateSortedWeightedList(final WeightedRandomList<WeightedEntry.Wrapper<T>> list) {
+        List<WeightedEntry.Wrapper<T>> entries = new ArrayList<>(list.unwrap());
+        final Comparator<WeightedEntry.Wrapper<T>> comparator = Comparator.comparingInt(e -> e.getWeight().asInt());
+        entries.sort(comparator.reversed());
+        return entries;
+    }
+
+    public static <T> List<Component> createDescription(final WeightedRandomList<WeightedEntry.Wrapper<T>> list, Function<T, Component> getDisplayName) {
+        final List<Component> components = new ArrayList<>();
+        // check for single element list
+        if(list.unwrap().size() == 1) {
+            return ImmutableList.of(getDisplayName.apply(list.unwrap().get(0).getData()));
+        }
+        // calculate total weight
+        double totalWeight = calculateTotalWeight(list);
+        // iterate sorted wrapper list
+        for(WeightedEntry.Wrapper<T> wrapper : calculateSortedWeightedList(list)) {
+            // calculate percent chance
+            double percentChance = wrapper.getWeight().asInt() / totalWeight;
+            String sPercentChance = String.format("%.1f", percentChance * 100.0D).replaceAll("\\.0+$", "");
+            components.add(Component.translatable("axolootl.resource_generator.weighted_list.entry", sPercentChance, getDisplayName.apply(wrapper.getData())));
+        }
+        return components;
+    }
+
+    public static List<Component> createDescription(final WeightedRandomList<WeightedEntry.Wrapper<ResourceGenerator>> list) {
+        final List<Component> components = new ArrayList<>();
+        // check for empty list
+        if(list.isEmpty()) {
+            return ImmutableList.of(getItemDisplayName(ItemStack.EMPTY));
+        }
+        // check for single element list
+        if(list.unwrap().size() == 1) {
+            return list.unwrap().get(0).getData().getDescription();
+        }
+        // calculate total weight
+        double totalWeight = calculateTotalWeight(list);
+        // iterate sorted wrapper list
+        final Component lootComponent = Component.translatable("axolootl.resource_generator.loot").withStyle(ChatFormatting.ITALIC);
+        for(WeightedEntry.Wrapper<ResourceGenerator> wrapper : calculateSortedWeightedList(list)) {
+            // calculate percent chance
+            double percentChance = wrapper.getWeight().asInt() / totalWeight;
+            String sPercentChance = String.format("%.1f", percentChance * 100.0D).replaceAll("\\.0+$", "");
+            List<Component> generator = wrapper.getData().getDescription();
+            // add percent chance and generator description
+            if(generator.size() == 1) {
+                // add inline description
+                components.add(Component.translatable("axolootl.resource_generator.weighted_list.entry", sPercentChance, generator.get(0)));
+            } else {
+                // add multi-line description
+                components.add(Component.translatable("axolootl.resource_generator.weighted_list.entry", sPercentChance, lootComponent));
+                wrapper.getData().getDescription().forEach(c -> components.add(Component.literal("  ").append(c)));
+            }
+        }
+        return components;
+    }
+
+    /**
+     * @param itemStack the item stack
+     * @return the item stack display name, or "nothing" if it is empty
+     */
+    protected static Component getItemDisplayName(final ItemStack itemStack) {
+        if(itemStack.isEmpty()) {
+            return Component.translatable("axolootl.resource_generator.nothing").withStyle(ChatFormatting.GRAY);
+        }
+        return itemStack.getHoverName();
+    }
+
+    /**
      * @return the primary {@link ResourceType} of the generator
      */
     public ResourceType getResourceType() {
@@ -102,6 +193,11 @@ public abstract class ResourceGenerator {
      * @return the codec for this resource generator, used in the dispatcher
      */
     public abstract Codec<? extends ResourceGenerator> getCodec();
+
+    /**
+     * @return a list of text components that describe this resource generator
+     */
+    public abstract List<Component> getDescription();
 
     /**
      * @param access the registry access

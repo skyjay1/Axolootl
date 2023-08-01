@@ -1,7 +1,5 @@
 {
   "translation_key": "block.minecraft.dirt",
-  "primary_color": 16711680,
-  "secondary_color": 16449280,
   "breed_food": "#minecraft:dirt",
   "resource_generator": [
     {
