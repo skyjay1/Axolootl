@@ -7,42 +7,61 @@
 package axolootl.block.entity;
 
 import axolootl.AxRegistry;
-import axolootl.Axolootl;
+import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
-import axolootl.menu.AxolootlInterfaceMenu;
-import axolootl.menu.CyclingContainerMenu;
+import axolootl.menu.AxolootlInspectorMenu;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public class AxolootlInspectorBlockEntity extends InterfaceBlockEntity {
 
-    public static final TagKey<Item> ITEM_WHITELIST = ForgeRegistries.ITEMS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "axolootl_interface_whitelist"));
-    public static final TagKey<Item> BOOK_WHITELIST = ForgeRegistries.ITEMS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "axolootl_inspector_books"));
-    public static final Supplier<Item> RESULT_ITEM = () -> Items.WRITTEN_BOOK;
+    protected int progress;
+    protected int maxProgress;
 
-    private int progress;
-    private int maxProgress;
-    // TODO add data slots
+    protected final ContainerData dataAccess = new ContainerData() {
+        @Override
+        public int get(int pIndex) {
+            switch (pIndex) {
+                case 0: return AxolootlInspectorBlockEntity.this.progress;
+                case 1: return AxolootlInspectorBlockEntity.this.maxProgress;
+                default: return 0;
+            }
+        }
+
+        @Override
+        public void set(int pIndex, int pValue) {
+            switch (pIndex) {
+                case 0:
+                    AxolootlInspectorBlockEntity.this.progress = pValue;
+                    break;
+                case 1:
+                    AxolootlInspectorBlockEntity.this.maxProgress = pValue;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+    };
 
     public AxolootlInspectorBlockEntity(BlockPos pPos, BlockState pBlockState) {
         this(AxRegistry.BlockEntityReg.AXOLOOTL_INSPECTOR.get(), pPos, pBlockState);
@@ -50,6 +69,7 @@ public class AxolootlInspectorBlockEntity extends InterfaceBlockEntity {
 
     public AxolootlInspectorBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
         super(pType, pPos, pBlockState, 1, 2);
+        this.maxProgress = 130; // TODO balance
     }
 
     public static void tick(final Level level, final BlockPos pos, final BlockState state, final AxolootlInspectorBlockEntity self) {
@@ -60,8 +80,7 @@ public class AxolootlInspectorBlockEntity extends InterfaceBlockEntity {
         }
         boolean markDirty = false;
         markDirty |= self.validateController(level);
-        markDirty |= self.tickDecoding(level);
-        // TODO update progress
+        markDirty |= self.tickInspector(level);
         // mark changed and send update
         if(markDirty) {
             self.setChanged();
@@ -69,46 +88,49 @@ public class AxolootlInspectorBlockEntity extends InterfaceBlockEntity {
         }
     }
 
-    private boolean tickDecoding(final Level level) {
+    private boolean tickInspector(final Level level) {
         int oldProgress = progress;
         int oldMaxProgress = maxProgress;
-        // verify decoding
-        if(isDecodingComplete() || !hasDecodingItems(level)) {
+        boolean hasItems = hasInspectorItems(level);
+        if(!hasItems) {
+            // stop progress
             progress = 0;
-            maxProgress = 0;
-        }
-        // increment decoding
-        if(++progress >= maxProgress) {
+        } else if(progress <= 0) {
+            // start progress
+            progress = 1;
+        } else if(++progress >= maxProgress) {
+            // increment progress and check for completion
             progress = 0;
-            maxProgress = 0;
-            ItemStack result = createResult(level);
-            setItem(1, result);
+            ItemStack input = removeItemNoUpdate(0);
+            setItem(1, input);
         }
         // report changes
         return progress != oldProgress || maxProgress != oldMaxProgress;
     }
 
-    private ItemStack createResult(final Level level) {
-        ItemStack result = new ItemStack(RESULT_ITEM.get());
-        // TODO write to NBT
-        return result;
-    }
-
-    public boolean hasDecodingItems(final Level level) {
-        // validate axolootl
-        ItemStack axolootl = getItem(0);
-        if(axolootl.isEmpty() || AxolootlBucketItem.getVariant(level.registryAccess(), axolootl).isEmpty()) {
+    public boolean hasInspectorItems(final Level level) {
+        // validate input slot
+        ItemStack input = getItem(0);
+        if(input.isEmpty() || AxolootlBucketItem.getVariant(level.registryAccess(), input).isEmpty()) {
             return false;
         }
-        // validate book
-        return getItem(1).is(BOOK_WHITELIST);
+        // validate empty result slot
+        if(!getItem(1).isEmpty()) {
+            return false;
+        }
+        // all checks passed
+        return true;
     }
 
-    public boolean isDecodingComplete() {
-        return getItem(1).is(RESULT_ITEM.get());
+    public boolean isInspectorComplete() {
+        return !getItem(1).isEmpty();
     }
 
     //// MENU PROVIDER ////
+
+    public ContainerData getDataAccess() {
+        return this.dataAccess;
+    }
 
     @Override
     public boolean isMenuAvailable(Player player, ControllerBlockEntity controller) {
@@ -117,7 +139,7 @@ public class AxolootlInspectorBlockEntity extends InterfaceBlockEntity {
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        return CyclingContainerMenu.createInspector(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.AXOLOOTL_INSPECTOR.get().getSortedIndex(), -1);
+        return new AxolootlInspectorMenu(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.AXOLOOTL_INSPECTOR.get().getSortedIndex(), -1);
     }
 
     //// CONTAINER ////
@@ -134,10 +156,7 @@ public class AxolootlInspectorBlockEntity extends InterfaceBlockEntity {
         return new InvWrapper(this) {
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if(slot == 0) {
-                    return stack.is(ITEM_WHITELIST);
-                }
-                return stack.is(BOOK_WHITELIST) || stack.is(RESULT_ITEM.get());
+                return stack.hasTag() && stack.getTag().contains(AxolootlEntity.KEY_VARIANT_ID, Tag.TAG_STRING);
             }
         };
     }

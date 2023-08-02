@@ -7,21 +7,16 @@
 package axolootl.menu;
 
 import axolootl.AxRegistry;
-import axolootl.block.entity.AxolootlInspectorBlockEntity;
-import axolootl.block.entity.AxolootlInterfaceBlockEntity;
 import axolootl.block.entity.ControllerBlockEntity;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -29,13 +24,11 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 public class CyclingContainerMenu extends AbstractControllerMenu {
@@ -103,26 +96,6 @@ public class CyclingContainerMenu extends AbstractControllerMenu {
                 this.containerSize = container.getContainerSize();
                 this.containerRows = 1;
                 this.addSlot(new FluidItemSlot(container, 0, INV_X, 108, Fluids.WATER));
-            }
-        };
-    }
-
-    public static CyclingContainerMenu createInspector(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
-        return new CyclingContainerMenu(AxRegistry.MenuReg.INSPECTOR.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.getTrackedBlocks(AxRegistry.AquariumTabsReg.AXOLOOTL_INSPECTOR.getId())) {
-            @Override
-            protected void addBlockSlots(BlockPos blockPos) {
-                // load block entity
-                if(!(controller.getLevel().getBlockEntity(blockPos) instanceof AxolootlInspectorBlockEntity blockEntity)) {
-                    return;
-                }
-                // load container
-                this.container = blockEntity;
-                this.containerSize = this.container.getContainerSize();
-                this.containerRows = 1;
-                // TODO add data slots
-                // add container slots
-                addSlot(new AxolootlSlot(this.container, 0, INV_X, 90));
-                addSlot(new BookSlot(this.container, 1, INV_X, 47));
             }
         };
     }
@@ -212,30 +185,6 @@ public class CyclingContainerMenu extends AbstractControllerMenu {
             }
             // all checks passed
             return true;
-        }
-    }
-
-    protected static class AxolootlSlot extends Slot {
-
-        public AxolootlSlot(Container pContainer, int pSlot, int pX, int pY) {
-            super(pContainer, pSlot, pX, pY);
-        }
-
-        @Override
-        public boolean mayPlace(ItemStack pStack) {
-            return pStack.is(AxolootlInterfaceBlockEntity.ITEM_WHITELIST);
-        }
-    }
-
-    protected static class BookSlot extends Slot {
-
-        public BookSlot(Container pContainer, int pSlot, int pX, int pY) {
-            super(pContainer, pSlot, pX, pY);
-        }
-
-        @Override
-        public boolean mayPlace(ItemStack pStack) {
-            return pStack.is(AxolootlInspectorBlockEntity.BOOK_WHITELIST);
         }
     }
 }

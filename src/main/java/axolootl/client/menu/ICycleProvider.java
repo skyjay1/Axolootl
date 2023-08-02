@@ -39,14 +39,14 @@ public interface ICycleProvider {
     default List<CycleButton> initCycleButtons(final AbstractContainerScreen<? extends AbstractControllerMenu> screen) {
         final List<CycleButton> list = new ArrayList<>();
         // add left button
-        addCycleButton(7, 4, true, b -> {
+        list.add(addCycleButton(7, 4, true, b -> {
             cycle(-1);
             setCycleButtonsEnabled(false);
-        });
-        addCycleButton(screen.getXSize() - CycleButton.WIDTH - 7, 4, false, b -> {
+        }));
+        list.add(addCycleButton(screen.getXSize() - CycleButton.WIDTH - 7, 4, false, b -> {
             cycle(1);
             setCycleButtonsEnabled(false);
-        });
+        }));
         return list;
     }
 
@@ -73,7 +73,8 @@ public interface ICycleProvider {
      * @return the title with cycle and block pos information
      */
     default Component createCycledTitle(final Component title, final BlockPos pos, final int cycle, final int maxCycle) {
-        String sTitle = StringUtil.truncateStringIfNecessary(title.getString(), 23, true);
+        int maxSize = maxCycle > 1 ? 23 : 36;
+        String sTitle = StringUtil.truncateStringIfNecessary(title.getString(), maxSize, true);
         Component tooltip = Component.empty().append(title).append("\n").append("(" + pos.toShortString() + ")");
         return Component.empty()
                 .append(Component.translatable("gui.axolootl.cycle.tooltip", cycle + 1, maxCycle).withStyle(ChatFormatting.DARK_BLUE))

@@ -54,6 +54,7 @@ public final class AxEvents {
             AxRegistry.AxolootlVariantsReg.validate(registryAccess);
             Axolootl.LOGGER.debug("Axolootl validated " + (AxolootlVariant.getRegistry(registryAccess).size() - AxRegistry.AxolootlVariantsReg.getInvalidEntries().size()) + " axolootl variants");
         }
+
     }
 
     public static final class ModHandler {

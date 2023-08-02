@@ -8,6 +8,7 @@ package axolootl.block;
 
 import axolootl.AxRegistry;
 import axolootl.block.entity.AxolootlInspectorBlockEntity;
+import axolootl.block.entity.ControllerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -17,6 +18,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
@@ -34,6 +37,15 @@ public class AxolootlInspectorBlock extends WaterloggedHorizontalBlock implement
     @Override
     public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
         return AxRegistry.BlockEntityReg.AXOLOOTL_INSPECTOR.get().create(pPos, pState);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {
+        if(pLevel.isClientSide() || !pState.is(this) || pBlockEntityType != AxRegistry.BlockEntityReg.AXOLOOTL_INSPECTOR.get()) {
+            return null;
+        }
+        return (BlockEntityTicker<T>) (BlockEntityTicker<AxolootlInspectorBlockEntity>) (AxolootlInspectorBlockEntity::tick);
     }
 
     @Override
@@ -66,7 +78,7 @@ public class AxolootlInspectorBlock extends WaterloggedHorizontalBlock implement
     @Override
     public int getAnalogOutputSignal(BlockState pState, Level pLevel, BlockPos pPos) {
         if (pLevel.getBlockEntity(pPos) instanceof AxolootlInspectorBlockEntity container) {
-            return container.hasDecodingItems(pLevel) ? 15 : AbstractContainerMenu.getRedstoneSignalFromContainer(container);
+            return container.hasInspectorItems(pLevel) ? 15 : AbstractContainerMenu.getRedstoneSignalFromContainer(container);
         }
         return 0;
     }

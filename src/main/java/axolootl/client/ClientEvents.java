@@ -8,6 +8,7 @@ package axolootl.client;
 
 import axolootl.AxRegistry;
 import axolootl.client.entity.AxolootlGeoRenderer;
+import axolootl.client.menu.AxolootlInspectorScreen;
 import axolootl.client.menu.AxolootlInterfaceScreen;
 import axolootl.client.menu.ControllerScreen;
 import axolootl.client.menu.CyclingContainerScreen;
@@ -71,6 +72,7 @@ public final class ClientEvents {
         private static void onRegisterScreens() {
             MenuScreens.register(AxRegistry.MenuReg.CONTROLLER.get(), ControllerScreen::new);
             MenuScreens.register(AxRegistry.MenuReg.AXOLOOTL.get(), AxolootlInterfaceScreen::new);
+            MenuScreens.register(AxRegistry.MenuReg.INSPECTOR.get(), AxolootlInspectorScreen::new);
             MenuScreens.register(AxRegistry.MenuReg.OUTPUT.get(), CyclingContainerScreen::new);
             MenuScreens.register(AxRegistry.MenuReg.LARGE_OUTPUT.get(), CyclingContainerScreen::new);
             MenuScreens.register(AxRegistry.MenuReg.AUTOFEEDER.get(), CyclingContainerScreen::new);

@@ -30,6 +30,7 @@ import axolootl.block.entity.EnergyInterfaceBlockEntity;
 import axolootl.block.entity.MonsteriumBlockEntity;
 import axolootl.block.entity.OutputInterfaceBlockEntity;
 import axolootl.block.entity.WaterInterfaceBlockEntity;
+import axolootl.capability.AxolootlResearchCapability;
 import axolootl.data.aquarium_tab.AquariumTab;
 import axolootl.data.aquarium_tab.IAquariumTab;
 import axolootl.data.aquarium_tab.WorldlyMenuProvider;
@@ -73,6 +74,7 @@ import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
 import axolootl.item.MultiBlockItem;
+import axolootl.menu.AxolootlInspectorMenu;
 import axolootl.menu.AxolootlInterfaceMenu;
 import axolootl.menu.ControllerMenu;
 import axolootl.menu.CyclingContainerMenu;
@@ -84,18 +86,21 @@ import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -113,9 +118,15 @@ import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.ForgeSpawnEggItem;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.common.extensions.IForgeMenuType;
+import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -129,6 +140,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -217,6 +229,7 @@ public final class AxRegistry {
         EntityReg.register();
         MenuReg.register();
         RecipeReg.register();
+        CapabilityReg.register();
         BlockPredicateTypesReg.register();
         ModifierConditionsReg.register();
         ResourceGeneratorsReg.register();
@@ -412,7 +425,7 @@ public final class AxRegistry {
 
         public static final RegistryObject<MenuType<ControllerMenu>> CONTROLLER = MENU_TYPES.register("controller", () -> createForgeMenu(ControllerMenu::new));
         public static final RegistryObject<MenuType<AxolootlInterfaceMenu>> AXOLOOTL = MENU_TYPES.register("axolootl", () -> createForgeMenu(AxolootlInterfaceMenu::new));
-        public static final RegistryObject<MenuType<CyclingContainerMenu>> INSPECTOR = MENU_TYPES.register("inspector", () -> createForgeMenu(CyclingContainerMenu::createInspector));
+        public static final RegistryObject<MenuType<AxolootlInspectorMenu>> INSPECTOR = MENU_TYPES.register("inspector", () -> createForgeMenu(AxolootlInspectorMenu::new));
         public static final RegistryObject<MenuType<CyclingContainerMenu>> OUTPUT = MENU_TYPES.register("output", () -> createForgeMenu(CyclingContainerMenu::createOutput));
         public static final RegistryObject<MenuType<CyclingMenu>> ENERGY = MENU_TYPES.register("energy", () -> createForgeMenu(CyclingMenu::createEnergy));
         public static final RegistryObject<MenuType<CyclingContainerMenu>> FLUID = MENU_TYPES.register("fluid", () -> createForgeMenu(CyclingContainerMenu::createFluid));
@@ -455,6 +468,43 @@ public final class AxRegistry {
             RECIPE_SERIALIZERS.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
+    }
+
+    public static final class CapabilityReg {
+        public static void register() {
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(CapabilityReg::onRegisterCapabilities);
+            MinecraftForge.EVENT_BUS.addGenericListener(Entity.class, CapabilityReg::onAttachEntityCapabilities);
+            MinecraftForge.EVENT_BUS.addListener(CapabilityReg::onClonePlayer);
+        }
+
+        private static void onRegisterCapabilities(final RegisterCapabilitiesEvent event) {
+            event.register(AxolootlResearchCapability.class);
+        }
+
+
+        private static void onAttachEntityCapabilities(final AttachCapabilitiesEvent<Entity> event) {
+            if(event.getObject() instanceof Player) {
+                event.addCapability(AxolootlResearchCapability.REGISTRY_NAME, AxolootlResearchCapability.provider());
+            }
+        }
+
+        private static void onClonePlayer(final PlayerEvent.Clone event) {
+            cloneCapability(event.getOriginal(), event.getEntity(), Axolootl.AXOLOOTL_RESEARCH_CAPABILITY);
+        }
+
+        private static <C extends Tag, T extends INBTSerializable<C>> void cloneCapability(final Entity original, final Entity clone, final Capability<T> capability) {
+            // revive caps
+            original.reviveCaps();
+            // load capabilities
+            Optional<T> originalCap = original.getCapability(capability).resolve();
+            Optional<T> cloneCap = clone.getCapability(capability).resolve();
+            // clone capability
+            if(originalCap.isPresent() && cloneCap.isPresent()) {
+                cloneCap.get().deserializeNBT(originalCap.get().serializeNBT());
+            }
+            // invalidate caps
+            original.invalidateCaps();
+        }
     }
 
     public static final class BlockPredicateTypesReg {

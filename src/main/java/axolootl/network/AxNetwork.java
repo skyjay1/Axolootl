@@ -24,5 +24,6 @@ public final class AxNetwork {
         CHANNEL.registerMessage(messageId++, ServerBoundControllerCyclePacket.class, ServerBoundControllerCyclePacket::toBytes, ServerBoundControllerCyclePacket::fromBytes, ServerBoundControllerCyclePacket::handlePacket, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(messageId++, ServerBoundExtractAxolootlPacket.class, ServerBoundExtractAxolootlPacket::toBytes, ServerBoundExtractAxolootlPacket::fromBytes, ServerBoundExtractAxolootlPacket::handlePacket, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(messageId++, ServerBoundInsertAxolootlPacket.class, ServerBoundInsertAxolootlPacket::toBytes, ServerBoundInsertAxolootlPacket::fromBytes, ServerBoundInsertAxolootlPacket::handlePacket, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(messageId++, ClientBoundSyncAxolootlResearchCapabilityPacket.class, ClientBoundSyncAxolootlResearchCapabilityPacket::toBytes, ClientBoundSyncAxolootlResearchCapabilityPacket::fromBytes, ClientBoundSyncAxolootlResearchCapabilityPacket::handlePacket, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 }

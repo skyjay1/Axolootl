@@ -74,6 +74,9 @@ public abstract class AbstractCyclingScreen<T extends AbstractControllerMenu> ex
 
     @Override
     public void cycle(int amount) {
+        if(amount <= 0 || getMenu().getCycleCount() <= 1) {
+            return;
+        }
         this.getMenu().cycle(amount);
         this.cycledTitle = createCycledTitle(getTitle(), getMenu().getBlockPos(), getMenu().getCycle(), getMenu().getCycleCount());
         this.cycledTitleWidth = this.font.width(this.cycledTitle);

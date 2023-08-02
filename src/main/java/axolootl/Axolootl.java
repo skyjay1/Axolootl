@@ -6,10 +6,14 @@
 
 package axolootl;
 
+import axolootl.capability.AxolootlResearchCapability;
 import axolootl.network.AxNetwork;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -22,11 +26,16 @@ public class Axolootl {
 
     public static final String MODID = "axolootl";
 
+    // LOGGER //
     public static final Logger LOGGER = LogUtils.getLogger();
 
+    // CONFIG //
     private static final ForgeConfigSpec.Builder CONFIG_BUILDER = new ForgeConfigSpec.Builder();
     public static final AxConfig CONFIG = new AxConfig(CONFIG_BUILDER);
     private static final ForgeConfigSpec CONFIG_SPEC = CONFIG_BUILDER.build();
+
+    // CAPABILITY //
+    public static final Capability<AxolootlResearchCapability> AXOLOOTL_RESEARCH_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
     public Axolootl() {
         // register config
