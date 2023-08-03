@@ -66,9 +66,9 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
 
     private void renderProgress(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         // render progress
+        RenderSystem.setShaderTexture(0, WIDGETS);
+        blit(poseStack, this.leftPos + PROGRESS_X, this.topPos + PROGRESS_Y, 74, 50, PROGRESS_WIDTH, PROGRESS_HEIGHT);
         if(scaledProgress > 0) {
-            RenderSystem.setShaderTexture(0, WIDGETS);
-            blit(poseStack, this.leftPos + PROGRESS_X, this.topPos + PROGRESS_Y, 74, 50, PROGRESS_WIDTH, PROGRESS_HEIGHT);
             blit(poseStack, this.leftPos + PROGRESS_X, this.topPos + PROGRESS_Y, 74, 50 + PROGRESS_HEIGHT, scaledProgress, PROGRESS_HEIGHT);
         }
     }

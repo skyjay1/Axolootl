@@ -8,7 +8,6 @@ package axolootl.item;
 
 import axolootl.AxRegistry;
 import axolootl.client.ClientUtil;
-import axolootl.client.item.AxolootlBucketItemModel;
 import axolootl.client.item.AxolootlBucketItemRenderer;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.entity.AxolootlEntity;
@@ -33,13 +32,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -49,10 +41,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class AxolootlBucketItem extends MobBucketItem implements IAnimatable {
-
-    // GECKOLIB //
-    private AnimationFactory factory = GeckoLibUtil.createFactory(this);
+public class AxolootlBucketItem extends MobBucketItem {
 
     public AxolootlBucketItem(Supplier<? extends EntityType<?>> entitySupplier, Supplier<? extends Fluid> fluidSupplier, Supplier<? extends SoundEvent> soundSupplier, Properties properties) {
         super(entitySupplier, fluidSupplier, soundSupplier, properties);
@@ -119,10 +108,10 @@ public class AxolootlBucketItem extends MobBucketItem implements IAnimatable {
     @Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         consumer.accept(new IClientItemExtensions() {
-            final LazyOptional<AxolootlBucketItemRenderer<AxolootlBucketItem>> renderer = LazyOptional.of(() -> new AxolootlBucketItemRenderer<AxolootlBucketItem>(new AxolootlBucketItemModel<>()));
+            final LazyOptional<AxolootlBucketItemRenderer> renderer = LazyOptional.of(() -> new AxolootlBucketItemRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels(), Minecraft.getInstance().getItemRenderer()));
             @Override
             public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                final Optional<AxolootlBucketItemRenderer<AxolootlBucketItem>> oRenderer = renderer.resolve();
+                final Optional<AxolootlBucketItemRenderer> oRenderer = renderer.resolve();
                 if(oRenderer.isPresent()) {
                     return oRenderer.get();
                 }
@@ -182,21 +171,5 @@ public class AxolootlBucketItem extends MobBucketItem implements IAnimatable {
     public static ItemStack getWithVariant(final ItemStack itemStack, final ResourceLocation variant) {
         itemStack.getOrCreateTag().putString(AxolootlEntity.KEY_VARIANT_ID, variant.toString());
         return itemStack;
-    }
-
-    //// GECKOLIB ////
-
-    protected PlayState animationPredicate(AnimationEvent<AxolootlBucketItem> event) {
-        return PlayState.CONTINUE;
-    }
-
-    @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<>(this, "controller", 0, this::animationPredicate));
-    }
-
-    @Override
-    public AnimationFactory getFactory() {
-        return factory;
     }
 }

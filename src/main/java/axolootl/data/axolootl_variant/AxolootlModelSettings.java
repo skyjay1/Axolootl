@@ -13,7 +13,6 @@ import java.util.Optional;
 @Immutable
 public class AxolootlModelSettings {
 
-    public static final ResourceLocation ITEM_MODEL = new ResourceLocation(Axolootl.MODID, "todo"); // TODO item model
     public static final ResourceLocation ENTITY_MODEL = new ResourceLocation(Axolootl.MODID, "geo/entity/axolootl.geo.json");
     public static final ResourceLocation ENTITY_TEXTURE = new ResourceLocation("minecraft", "textures/entity/axolotl/axolotl_lucy.png");
     public static final ResourceLocation EMPTY_ENTITY_ANIMATIONS = new ResourceLocation(Axolootl.MODID, "animations/entity/axolootl.animation.json");
@@ -22,11 +21,9 @@ public class AxolootlModelSettings {
     public static final ResourceLocation ENTITY_TEXTURE_PRIMARY = new ResourceLocation(Axolootl.MODID, "textures/entity/axolootl/axolootl_primary.png");
     public static final ResourceLocation ENTITY_TEXTURE_SECONDARY = new ResourceLocation(Axolootl.MODID, "textures/entity/axolootl/axolootl_secondary.png");
 
-    public static final AxolootlModelSettings EMPTY = new AxolootlModelSettings(ITEM_MODEL, true, ENTITY_MODEL, Optional.empty(), ENTITY_TEXTURE, Optional.empty(), Optional.empty(), -1, -1);
+    public static final AxolootlModelSettings EMPTY = new AxolootlModelSettings(ENTITY_MODEL, Optional.empty(), ENTITY_TEXTURE, Optional.empty(), Optional.empty(), -1, -1);
 
     public static final Codec<AxolootlModelSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.optionalFieldOf("item", ITEM_MODEL).forGetter(AxolootlModelSettings::getItemModel),
-            Codec.BOOL.optionalFieldOf("item_colors", true).forGetter(AxolootlModelSettings::hasItemModelColors),
             ResourceLocation.CODEC.optionalFieldOf("entity", ENTITY_MODEL).forGetter(AxolootlModelSettings::getEntityGeoModel),
             ResourceLocation.CODEC.optionalFieldOf("animations").forGetter(AxolootlModelSettings::getOptionalEntityGeoAnimations),
             ResourceLocation.CODEC.optionalFieldOf("texture", ENTITY_TEXTURE).forGetter(AxolootlModelSettings::getEntityTexture),
@@ -36,10 +33,6 @@ public class AxolootlModelSettings {
             Codec.INT.optionalFieldOf("secondary_color", -1).forGetter(AxolootlModelSettings::getSecondaryColor)
     ).apply(instance, AxolootlModelSettings::new));
 
-    /** The GeckoLib item geo model **/
-    private final ResourceLocation itemModel;
-    /** True if the item model should be recolored **/
-    private final boolean hasItemModelColors;
     /** The GeckoLib entity geo model **/
     private final ResourceLocation entityGeoModel;
     /** The entity animations, if any **/
@@ -62,12 +55,9 @@ public class AxolootlModelSettings {
     /** The unpacked secondary colors **/
     private final Vector3f secondaryColors;
 
-    public AxolootlModelSettings(ResourceLocation itemModel, boolean hasItemModelColors, ResourceLocation entityGeoModel,
-                                 Optional<ResourceLocation> entityGeoAnimations,
+    public AxolootlModelSettings(ResourceLocation entityGeoModel, Optional<ResourceLocation> entityGeoAnimations,
                                  ResourceLocation entityTexture, Optional<ResourceLocation> entityPrimaryTexture, Optional<ResourceLocation> entitySecondaryTexture,
                                  int primaryColor, int secondaryColor) {
-        this.itemModel = itemModel;
-        this.hasItemModelColors = hasItemModelColors;
         this.entityGeoModel = entityGeoModel;
         this.entityGeoAnimations = entityGeoAnimations.orElse(null);
         this.entityTexture = entityTexture;
@@ -90,14 +80,6 @@ public class AxolootlModelSettings {
     }
 
     //// GETTERS ////
-
-    public boolean hasItemModelColors() {
-        return hasItemModelColors;
-    }
-
-    public ResourceLocation getItemModel() {
-        return itemModel;
-    }
 
     public ResourceLocation getEntityGeoModel() {
         return entityGeoModel;
@@ -162,7 +144,6 @@ public class AxolootlModelSettings {
     public String toString() {
         final StringBuilder builder = new StringBuilder("ModelSettings{");
         builder.append(" colors=(" + getPrimaryColor() + ", " + getSecondaryColor() + ")");
-        builder.append(" item=" + getItemModel().toString());
         builder.append(" entity=" + getEntityGeoModel().toString());
         builder.append(" texture=" + getEntityTexture() + ", " + getOptionalEntityPrimaryTexture().toString() + ", " + getOptionalEntitySecondaryTexture().toString());
         builder.append(" }");
