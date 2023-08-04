@@ -16,6 +16,7 @@ import axolootl.data.resource_generator.ResourceType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -32,23 +33,28 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
 public class AxolootlVariant {
 
-    public static final AxolootlVariant EMPTY = new AxolootlVariant(FalseForgeCondition.INSTANCE, "empty", 0, AxolootlModelSettings.EMPTY, 0, ImmutableList.of(), HolderSet.direct(), SimpleWeightedRandomList.empty());
+    public static final AxolootlVariant EMPTY = new AxolootlVariant(FalseForgeCondition.INSTANCE, "empty", 0, Rarity.COMMON, AxolootlModelSettings.EMPTY, 0, ImmutableList.of(), HolderSet.direct(), SimpleWeightedRandomList.empty());
 
     private static final Codec<HolderSet<Item>> ITEM_HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(ForgeRegistries.Keys.ITEMS);
+
+    private static final Codec<Rarity> RARITY_CODEC = Codec.STRING.xmap(AxolootlVariant::getRarityByName, r -> r.toString().toLowerCase(Locale.ENGLISH));
 
     public static final Codec<AxolootlVariant> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         ForgeCondition.DIRECT_CODEC.optionalFieldOf("condition", TrueForgeCondition.INSTANCE).forGetter(AxolootlVariant::getCondition),
         Codec.STRING.fieldOf("translation_key").forGetter(AxolootlVariant::getTranslationKey),
         ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("tier", 1).forGetter(AxolootlVariant::getTier),
+        RARITY_CODEC.optionalFieldOf("rarity", Rarity.COMMON).forGetter(AxolootlVariant::getRarity),
         AxolootlModelSettings.CODEC.optionalFieldOf("model", AxolootlModelSettings.EMPTY).forGetter(AxolootlVariant::getModelSettings),
         ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("energy_cost", 0).forGetter(AxolootlVariant::getEnergyCost),
         BonusesProvider.CODEC.listOf().optionalFieldOf("food", BonusesProvider.FISH_BONUS_PROVIDERS).forGetter(AxolootlVariant::getFoods),
@@ -65,6 +71,8 @@ public class AxolootlVariant {
     private final String translationKey;
     /** The axolootl tier **/
     private final int tier;
+    /** The axolootl rarity **/
+    private final Rarity rarity;
     /** The primary packed color **/
     private final AxolootlModelSettings axolootlModelSettings;
     /** The amount of energy that is consumed each time a resource is generated **/
@@ -85,11 +93,12 @@ public class AxolootlVariant {
     /** The registry object holder **/
     private Holder<AxolootlVariant> holder;
 
-    public AxolootlVariant(ForgeCondition condition, String translationKey, int tier, AxolootlModelSettings axolootlModelSettings, int energyCost,
+    public AxolootlVariant(ForgeCondition condition, String translationKey, int tier, Rarity rarity, AxolootlModelSettings axolootlModelSettings, int energyCost,
                            List<BonusesProvider> foods, HolderSet<Item> breedFood, SimpleWeightedRandomList<ResourceGenerator> resourceGenerators) {
         this.condition = condition;
         this.translationKey = translationKey;
         this.tier = tier;
+        this.rarity = rarity;
         this.axolootlModelSettings = axolootlModelSettings;
         this.energyCost = energyCost;
         this.foods = ImmutableList.copyOf(foods);
@@ -168,6 +177,10 @@ public class AxolootlVariant {
         return tier;
     }
 
+    public Rarity getRarity() {
+        return rarity;
+    }
+
     public AxolootlModelSettings getModelSettings() {
         return axolootlModelSettings;
     }
@@ -224,6 +237,15 @@ public class AxolootlVariant {
 
     public boolean isEnabled(RegistryAccess registryAccess) {
         return AxRegistry.AxolootlVariantsReg.isValid(registryAccess, this);
+    }
+
+    private static Rarity getRarityByName(final String name) {
+        for(Rarity rarity : Rarity.values()) {
+            if(rarity.toString().toLowerCase(Locale.ENGLISH).equals(name)) {
+                return rarity;
+            }
+        }
+        return Rarity.COMMON;
     }
 
     //// OVERRIDES ////

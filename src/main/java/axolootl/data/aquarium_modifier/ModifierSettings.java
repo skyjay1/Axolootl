@@ -13,7 +13,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -22,6 +21,8 @@ import java.util.function.Function;
 
 @Immutable
 public class ModifierSettings {
+
+    public static final ModifierSettings EMPTY = new ModifierSettings(Optional.empty(), 0, 0, 0, 0, Vec3i.ZERO, false, false, 0, false);
 
     public static final Codec<Vec3i> NON_NEGATIVE_VEC3I_CODEC = vec3Codec(0);
     public static final Codec<Vec3i> POSITIVE_VEC3I_CODEC = vec3Codec(1);
@@ -149,4 +150,5 @@ public class ModifierSettings {
     public boolean isGreedyEnergy() {
         return greedyEnergy;
     }
+
 }

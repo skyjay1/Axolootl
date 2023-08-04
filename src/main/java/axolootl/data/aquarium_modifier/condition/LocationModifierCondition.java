@@ -9,6 +9,7 @@ package axolootl.data.aquarium_modifier.condition;
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import axolootl.util.MatchingStatePredicate;
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.FluidPredicate;
@@ -17,6 +18,7 @@ import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
@@ -28,6 +30,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.util.List;
 import java.util.Optional;
 
 @Immutable
@@ -84,6 +87,8 @@ public class LocationModifierCondition extends ModifierCondition {
     private final FluidPredicate fluid;
     private final BlockPredicate block;
 
+    private final List<Component> description;
+
     public LocationModifierCondition(DoublesPosition position, Vec3i offset,
                                      Optional<ResourceKey<Biome>> biome, Optional<ResourceKey<Structure>> structure,
                                      Optional<ResourceKey<Level>> dimension, Optional<Boolean> smokey,
@@ -97,6 +102,7 @@ public class LocationModifierCondition extends ModifierCondition {
         this.light = light;
         this.fluid = fluid;
         this.block = block;
+        this.description = ImmutableList.of(); // TODO description for location modifier condition
     }
 
 
@@ -150,6 +156,11 @@ public class LocationModifierCondition extends ModifierCondition {
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
         return AxRegistry.ModifierConditionsReg.LOCATION.get();
+    }
+
+    @Override
+    public List<Component> getDescription() {
+        return description;
     }
 
     //// GETTERS ////

@@ -9,11 +9,11 @@ package axolootl.menu;
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
 import axolootl.block.entity.AxolootlInspectorBlockEntity;
-import axolootl.block.entity.AxolootlInterfaceBlockEntity;
 import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
+import axolootl.network.AxNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class AxolootlInspectorMenu extends CyclingContainerMenu {
 
@@ -37,6 +38,7 @@ public class AxolootlInspectorMenu extends CyclingContainerMenu {
 
     private AxolootlInspectorBlockEntity blockEntity;
     private ContainerData data;
+    private boolean isChanged;
 
     public AxolootlInspectorMenu(int windowId, Inventory inv, BlockPos controllerPos,
                                  ControllerBlockEntity controller, BlockPos blockPos,
@@ -61,7 +63,7 @@ public class AxolootlInspectorMenu extends CyclingContainerMenu {
         addDataSlots(this.data);
         // add container slots
         addSlot(new AxolootlSlot(this.container, 0, INV_X, INV_Y));
-        addSlot(new ResultSlot(this.container, 1, INV_X + 48, INV_Y));
+        addSlot(new ResultSlot(this.container, 1, INV_X + 48, INV_Y, this::setChanged));
     }
 
     @Nullable
@@ -69,12 +71,26 @@ public class AxolootlInspectorMenu extends CyclingContainerMenu {
         return blockEntity;
     }
 
+    /**
+     * @return true to show the progress overlay
+     */
     public boolean hasProgress() {
         return this.data.get(0) > 0;
     }
 
+    /**
+     * @return a number between 0 and 1.0 to describe the percentage toward completion
+     */
     public float getProgress() {
         return (float) this.data.get(0) / (float) Math.max(1, this.data.get(1));
+    }
+
+    public boolean isChanged() {
+        return isChanged;
+    }
+
+    public void setChanged(boolean changed) {
+        isChanged = changed;
     }
 
     //// SLOTS ////
@@ -93,8 +109,11 @@ public class AxolootlInspectorMenu extends CyclingContainerMenu {
 
     protected static class ResultSlot extends Slot {
 
-        public ResultSlot(Container pContainer, int pSlot, int pX, int pY) {
+        private final Consumer<Boolean> setChanged;
+
+        public ResultSlot(Container pContainer, int pSlot, int pX, int pY, Consumer<Boolean> setChanged) {
             super(pContainer, pSlot, pX, pY);
+            this.setChanged = setChanged;
         }
 
         @Override
@@ -113,17 +132,16 @@ public class AxolootlInspectorMenu extends CyclingContainerMenu {
         }
 
         protected void addAxolootlResearch(Player player, ResourceLocation id) {
-            // validate server side
-            if(player.level.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
-                return;
-            }
             // load capability
             player.getCapability(Axolootl.AXOLOOTL_RESEARCH_CAPABILITY).ifPresent(c -> {
-                if(c.addAxolootl(id)) {
+                // add variant (on both sides) and send sync (on server)
+                if(c.addAxolootl(id) && player instanceof ServerPlayer serverPlayer) {
                     player.playSound(SoundEvents.PLAYER_LEVELUP);
                     c.syncToClient(serverPlayer);
                 }
             });
+            // set changed
+            this.setChanged.accept(true);
         }
     }
 }

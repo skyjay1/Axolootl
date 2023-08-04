@@ -8,6 +8,7 @@ package axolootl.block;
 
 import axolootl.AxRegistry;
 import axolootl.block.entity.AxolootlInterfaceBlockEntity;
+import axolootl.block.entity.InterfaceBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -50,10 +51,23 @@ public class AxolootlInterfaceBlock extends WaterloggedHorizontalBlock implement
                 // open menu
                 if (blockEntity.isMenuAvailable(serverPlayer, blockEntity.getController().orElse(null))) {
                     BlockPos controllerPos = blockEntity.getController().isPresent() ? blockEntity.getController().get().getBlockPos() : pPos;
-                    NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.AXOLOOTL_INTERFACE.get().getSortedIndex(), -1));
+                    NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.AXOLOOTL_INTERFACE.get().getSortedIndex(), 0));
                 }
             }
             return InteractionResult.CONSUME;
+        }
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.is(newState.getBlock())) {
+            // drop items
+            if(!level.isClientSide() && level.getBlockEntity(pos) instanceof InterfaceBlockEntity blockEntity) {
+                blockEntity.dropAllItems();
+            }
+            // update neighbors
+            level.updateNeighbourForOutputSignal(pos, this);
+            super.onRemove(state, level, pos, newState, isMoving);
         }
     }
 

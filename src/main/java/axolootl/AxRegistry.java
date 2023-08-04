@@ -91,6 +91,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
@@ -434,6 +435,7 @@ public final class AxRegistry {
         public static final RegistryObject<MenuType<CyclingContainerMenu>> BREEDER = MENU_TYPES.register("breeder", () -> createForgeMenu(CyclingContainerMenu::createBreeder));
         public static final RegistryObject<MenuType<CyclingContainerMenu>> MONSTERIUM = MENU_TYPES.register("monsterium", () -> createForgeMenu(CyclingContainerMenu::createMonsterium));
 
+
         public static Consumer<FriendlyByteBuf> writeControllerMenu(final BlockPos controller, final BlockPos block, final int tab, final int cycle) {
             return buf -> {
               buf.writeBlockPos(controller);
@@ -475,6 +477,7 @@ public final class AxRegistry {
             FMLJavaModLoadingContext.get().getModEventBus().addListener(CapabilityReg::onRegisterCapabilities);
             MinecraftForge.EVENT_BUS.addGenericListener(Entity.class, CapabilityReg::onAttachEntityCapabilities);
             MinecraftForge.EVENT_BUS.addListener(CapabilityReg::onClonePlayer);
+            MinecraftForge.EVENT_BUS.addListener(CapabilityReg::onPlayerLoggedIn);
         }
 
         private static void onRegisterCapabilities(final RegisterCapabilitiesEvent event) {
@@ -490,6 +493,12 @@ public final class AxRegistry {
 
         private static void onClonePlayer(final PlayerEvent.Clone event) {
             cloneCapability(event.getOriginal(), event.getEntity(), Axolootl.AXOLOOTL_RESEARCH_CAPABILITY);
+        }
+
+        private static void onPlayerLoggedIn(final PlayerEvent.PlayerLoggedInEvent event) {
+            if(event.getEntity() instanceof ServerPlayer serverPlayer) {
+                serverPlayer.getCapability(Axolootl.AXOLOOTL_RESEARCH_CAPABILITY).ifPresent(c -> c.syncToClient(serverPlayer));
+            }
         }
 
         private static <C extends Tag, T extends INBTSerializable<C>> void cloneCapability(final Entity original, final Entity clone, final Capability<T> capability) {

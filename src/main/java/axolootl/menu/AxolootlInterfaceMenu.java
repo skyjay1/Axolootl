@@ -16,6 +16,7 @@ import axolootl.network.ServerBoundExtractAxolootlPacket;
 import axolootl.network.ServerBoundInsertAxolootlPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -134,6 +135,15 @@ public class AxolootlInterfaceMenu extends AbstractControllerMenu {
 
     public Container getContainer() {
         return container;
+    }
+
+    @Override
+    public void removed(Player pPlayer) {
+        if(container != null) {
+            clearContainer(pPlayer, container);
+            container.setChanged();
+        }
+        super.removed(pPlayer);
     }
 
     //// SLOTS ////

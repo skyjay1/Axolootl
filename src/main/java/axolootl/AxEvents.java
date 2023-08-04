@@ -6,6 +6,7 @@
 
 package axolootl;
 
+import axolootl.command.AxolootlResearchCommand;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.breeding.AxolootlBreeding;
@@ -15,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,6 +31,11 @@ public final class AxEvents {
     }
 
     public static final class ForgeHandler {
+
+        @SubscribeEvent
+        public static void onRegisterCommands(final RegisterCommandsEvent event) {
+            AxolootlResearchCommand.register(event.getDispatcher());
+        }
 
         @SubscribeEvent
         public static void onPlayerLogin(final PlayerEvent.PlayerLoggedInEvent event) {

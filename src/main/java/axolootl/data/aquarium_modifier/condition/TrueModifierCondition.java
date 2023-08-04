@@ -8,9 +8,12 @@ package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.List;
 
 @Immutable
 public class TrueModifierCondition extends ModifierCondition {
@@ -18,6 +21,12 @@ public class TrueModifierCondition extends ModifierCondition {
     public static final TrueModifierCondition INSTANCE = new TrueModifierCondition();
 
     public static final Codec<TrueModifierCondition> CODEC = Codec.unit(INSTANCE);
+
+    private final List<Component> description;
+
+    public TrueModifierCondition() {
+        this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.true"));
+    }
 
     @Override
     public boolean test(AquariumModifierContext aquariumModifierContext) {
@@ -27,6 +36,11 @@ public class TrueModifierCondition extends ModifierCondition {
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
         return AxRegistry.ModifierConditionsReg.TRUE.get();
+    }
+
+    @Override
+    public List<Component> getDescription() {
+        return description;
     }
 
     @Override

@@ -56,16 +56,8 @@ public class ControllerBlock extends HorizontalDirectionalBlock implements Entit
         if (pLevel.isClientSide()) {
             return InteractionResult.SUCCESS;
         } else {
-            BlockEntity blockentity = pLevel.getBlockEntity(pPos);
-            // TODO debug only
-            if(blockentity instanceof ControllerBlockEntity be) {
-                be.setSize(TankMultiblock.AQUARIUM.hasTankStructure(pLevel, pPos).orElse(null));
-                pPlayer.displayClientMessage(Component.literal("Tank: ").append(be.getTankStatus().getDescription()), false);
-                pPlayer.displayClientMessage(Component.literal("Breed: ").append(be.getBreedStatus().getDescription()), false);
-                pPlayer.displayClientMessage(Component.literal("Feed: ").append(be.getFeedStatus().getDescription()), false);
-            }
             // open menu
-            if (pPlayer instanceof ServerPlayer serverPlayer && blockentity instanceof MenuProvider menuProvider) {
+            if (pPlayer instanceof ServerPlayer serverPlayer && pLevel.getBlockEntity(pPos) instanceof MenuProvider menuProvider) {
                 NetworkHooks.openScreen(serverPlayer, menuProvider, AxRegistry.MenuReg.writeControllerMenu(pPos, pPos, AxRegistry.AquariumTabsReg.CONTROLLER.get().getSortedIndex(), 0));
             }
             return InteractionResult.CONSUME;

@@ -10,14 +10,17 @@ import axolootl.AxRegistry;
 import axolootl.entity.IAxolootl;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.util.List;
 import java.util.Optional;
 
 @Immutable
@@ -31,10 +34,18 @@ public class AxolootlCountModifierCondition extends ModifierCondition {
     @Nullable
     private final HolderSet<AxolootlVariant> variant;
     private final IntProvider count;
+    private final List<Component> description;
 
     public AxolootlCountModifierCondition(Optional<HolderSet<AxolootlVariant>> variant, IntProvider count) {
         this.variant = variant.orElse(null);
         this.count = count;
+        if(variant.isPresent()) {
+            this.description = createCountedDescription("axolootl.modifier_condition.axolootl_count", count, variant.get(), AxolootlVariant::getDescription);
+        } else if(count.getMinValue() == count.getMaxValue() && count.getMaxValue() == 1) {
+            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.axolootl_count.any.single", createIntDescription(count)));
+        } else {
+            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.axolootl_count.any.multiple", createIntDescription(count)));
+        }
     }
 
     public IntProvider getCount() {
@@ -66,6 +77,11 @@ public class AxolootlCountModifierCondition extends ModifierCondition {
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
         return AxRegistry.ModifierConditionsReg.AXOLOOTL_COUNT.get();
+    }
+
+    @Override
+    public List<Component> getDescription() {
+        return description;
     }
 
     @Override

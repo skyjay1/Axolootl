@@ -8,6 +8,8 @@ package axolootl.menu;
 
 import axolootl.AxRegistry;
 import axolootl.block.entity.ControllerBlockEntity;
+import axolootl.network.AxNetwork;
+import axolootl.network.ServerBoundActivateControllerPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -27,5 +29,12 @@ public class ControllerMenu extends AbstractControllerMenu {
     @Override
     public boolean stillValid(Player pPlayer) {
         return controller != null;
+    }
+
+    public void activate() {
+        if(getInventory().player.level.isClientSide()) {
+            // send packet to server
+            AxNetwork.CHANNEL.sendToServer(new ServerBoundActivateControllerPacket(getControllerPos()));
+        }
     }
 }

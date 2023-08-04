@@ -9,13 +9,16 @@ package axolootl.data.aquarium_modifier.condition;
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.List;
 import java.util.Map;
 
 @Immutable
@@ -30,11 +33,23 @@ public class CountModifierCondition extends ModifierCondition {
     private final HolderSet<AquariumModifier> modifierId;
     private final IntProvider count;
     private final boolean requireActive;
+    private final List<Component> description;
 
     public CountModifierCondition(HolderSet<AquariumModifier> modifierId, IntProvider count, boolean requireActive) {
         this.modifierId = modifierId;
         this.count = count;
         this.requireActive = requireActive;
+        final List<Component> variantDescription = createHolderSetDescription(modifierId, AquariumModifier::getDescription);
+        if(variantDescription.size() == 1) {
+            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.count.single", createIntDescription(this.count), variantDescription.get(0)));
+        } else {
+            ImmutableList.Builder<Component> builder = ImmutableList.builder();
+            builder.add(Component.translatable("axolootl.modifier_condition.count.single", createIntDescription(this.count)));
+            for(Component c : variantDescription) {
+                builder.add(Component.literal("  ").append(c));
+            }
+            this.description = builder.build();
+        }
     }
 
     public HolderSet<AquariumModifier> getModifiers() {
@@ -63,6 +78,11 @@ public class CountModifierCondition extends ModifierCondition {
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
         return AxRegistry.ModifierConditionsReg.COUNT.get();
+    }
+
+    @Override
+    public List<Component> getDescription() {
+        return description;
     }
 
     @Override

@@ -8,8 +8,10 @@ package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -17,6 +19,7 @@ import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.energy.IEnergyStorage;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.List;
 import java.util.Optional;
 
 @Immutable
@@ -28,9 +31,11 @@ public class EnergyModifierCondition extends ModifierCondition {
     private static final Capability<IEnergyStorage> ENERGY_STORAGE_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
     private final long energy;
+    private final List<Component> description;
 
     public EnergyModifierCondition(long energy) {
         this.energy = energy;
+        this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.energy", energy));
     }
 
     public long getEnergy() {
@@ -54,6 +59,11 @@ public class EnergyModifierCondition extends ModifierCondition {
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
         return AxRegistry.ModifierConditionsReg.ENERGY.get();
+    }
+
+    @Override
+    public List<Component> getDescription() {
+        return description;
     }
 
     @Override

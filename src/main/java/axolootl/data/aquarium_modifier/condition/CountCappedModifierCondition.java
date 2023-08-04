@@ -14,6 +14,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
 import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.util.valueproviders.UniformInt;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.LinkedList;
@@ -39,7 +40,7 @@ public class CountCappedModifierCondition extends CountModifierCondition {
     }
 
     public CountCappedModifierCondition(HolderSet<AquariumModifier> modifierId, IntProvider count, boolean requireActive) {
-        super(modifierId, count, requireActive);
+        super(modifierId, UniformInt.of(Integer.MIN_VALUE, count.getMaxValue()), requireActive);
     }
 
     @Override

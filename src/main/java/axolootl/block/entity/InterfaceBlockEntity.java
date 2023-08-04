@@ -75,8 +75,13 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
 
     @Override
     public Optional<ControllerBlockEntity> getController() {
-        if(getLevel() != null && controllerPos != null && null == controller && validateController(getLevel())) {
-            setChanged();
+        // lazy load controller from position
+        if(controllerPos != null && null == controller && level != null) {
+            if(level.getBlockEntity(controllerPos) instanceof ControllerBlockEntity controller) {
+                setController(level, controllerPos, controller);
+            } else {
+                clearController();
+            }
         }
         return Optional.ofNullable(controller);
     }
@@ -186,7 +191,7 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
         if (this.level.getBlockEntity(this.worldPosition) != this) {
             return false;
         }
-        if(this.controllerPos != null && this.controller != null && this.controller.hasTank()) {
+        if(getController().isPresent() && this.controller.hasTank()) {
             return true;
         }
         return pPlayer.position().closerThan(Vec3.atCenterOf(this.worldPosition), 8);

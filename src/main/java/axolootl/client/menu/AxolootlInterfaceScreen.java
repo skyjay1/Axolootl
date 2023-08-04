@@ -6,9 +6,9 @@
 
 package axolootl.client.menu;
 
+import axolootl.AxRegistry;
 import axolootl.Axolootl;
 import axolootl.block.entity.ControllerBlockEntity;
-import axolootl.client.menu.widget.AxolootlEntryButton;
 import axolootl.client.menu.widget.ScrollButton;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.menu.AxolootlInterfaceMenu;
@@ -16,11 +16,13 @@ import axolootl.util.TankMultiblock;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringUtil;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -46,7 +48,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
     private static final int ENTRY_COUNT = ENTRY_COUNT_X * ENTRY_COUNT_Y;
 
     // WIDGETS //
-    private List<AxolootlEntryButton> entryButtons;
+    private List<EntryButton> entryButtons;
     private Button insertButton;
     private ScrollButton scrollButton;
     private int scrollOffset;
@@ -103,14 +105,14 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
         // add entry buttons
         this.entryButtons.clear();
         for(int i = 0, x, y; i < ENTRY_COUNT; i++) {
-            x = leftPos + ENTRY_X + (i % ENTRY_COUNT_X) * AxolootlEntryButton.WIDTH;
-            y = topPos + ENTRY_Y + (i / ENTRY_COUNT_X) * AxolootlEntryButton.HEIGHT;
+            x = leftPos + ENTRY_X + (i % ENTRY_COUNT_X) * EntryButton.WIDTH;
+            y = topPos + ENTRY_Y + (i / ENTRY_COUNT_X) * EntryButton.HEIGHT;
             final Button.OnPress onPress = b -> {
-                getMenu().extract(((AxolootlEntryButton) b).getEntry());
+                getMenu().extract(((EntryButton) b).getEntry());
                 updateVariantList();
                 updateEntryButtons();
             };
-            this.entryButtons.add(addRenderableWidget(new AxolootlEntryButton(x, y, font, onPress, (b, p, mx, my) -> renderTooltip(p, b.getMessage(), mx, my))));
+            this.entryButtons.add(addRenderableWidget(new EntryButton(x, y, font, onPress, (b, p, mx, my) -> renderTooltip(p, b.getMessage(), mx, my))));
         }
         updateEntryButtons();
         containerTick();
@@ -171,7 +173,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
 
     private void updateEntryButtons() {
         for(int i = 0, n = entryButtons.size(); i < n; i++) {
-            AxolootlEntryButton button = entryButtons.get(i);
+            EntryButton button = entryButtons.get(i);
             int index = i + scrollOffset * ENTRY_COUNT_X;
             if(index < 0 || index >= variantCountList.size()) {
                 button.visible = button.active = false;
@@ -186,7 +188,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
 
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
-        if(isHovering(ENTRY_X, ENTRY_Y, AxolootlEntryButton.WIDTH * ENTRY_COUNT_X, AxolootlEntryButton.HEIGHT * ENTRY_COUNT_Y, pMouseX, pMouseY)) {
+        if(isHovering(ENTRY_X, ENTRY_Y, EntryButton.WIDTH * ENTRY_COUNT_X, EntryButton.HEIGHT * ENTRY_COUNT_Y, pMouseX, pMouseY)) {
             return scrollButton.mouseScrolled(pMouseX, pMouseY, pDelta);
         }
         return super.mouseScrolled(pMouseX, pMouseY, pDelta);
@@ -205,5 +207,58 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
     public void onScroll(ScrollButton button, float percent) {
         this.scrollOffset = Mth.floor(Math.max(0, percent * Math.max(0, variantCountList.size() - ENTRY_COUNT)));
         updateEntryButtons();
+    }
+
+    //// WIDGETS ////
+
+    public static class EntryButton extends ImageButton {
+
+        public static final int WIDTH = 92;
+        public static final int HEIGHT = 20;
+
+        public static final int INTERACT_WIDTH = 14;
+        public static final int INTERACT_HEIGHT = 14;
+
+        private Font font;
+        private AxolootlVariant entry;
+        private int count;
+        private Component text;
+        private Component tooltipText;
+        private Component tooltipFailText;
+
+        public EntryButton(int pX, int pY, Font font, OnPress pOnPress, OnTooltip pOnTooltip) {
+            super(pX, pY, INTERACT_WIDTH, INTERACT_HEIGHT, 242, 143, INTERACT_HEIGHT, WIDGETS, 256, 256,
+                    pOnPress, pOnTooltip, Component.empty());
+            this.entry = AxolootlVariant.EMPTY;
+            this.font = font;
+            this.text = Component.empty();
+            this.tooltipText = Component.translatable(PREFIX + "extract");
+            this.tooltipFailText = Component.translatable(PREFIX + "extract.fail").withStyle(ChatFormatting.RED);
+        }
+
+        public AxolootlVariant getEntry() {
+            return entry;
+        }
+
+        public void update(final Map.Entry<AxolootlVariant, Integer> entry, final boolean isActive) {
+            this.entry = entry.getKey();
+            this.count = entry.getValue();
+            Component axolootlName = Component.translatable("entity.axolootl.axolootl.description", AxRegistry.EntityReg.AXOLOOTL.get().getDescription(), entry.getKey().getDescription());
+            this.tooltipText = Component.translatable(PREFIX + "extract_x", axolootlName);
+            String sText = Component.translatable(PREFIX + "entry", count, entry.getKey().getDescription()).getString();
+            this.text = Component.literal(StringUtil.truncateStringIfNecessary(sText, 15, true));
+            updateActive(isActive);
+        }
+
+        public void updateActive(final boolean isActive) {
+            this.active = isActive && this.count > 0 && this.entry != AxolootlVariant.EMPTY;
+            this.setMessage(this.active ? this.tooltipText : this.tooltipFailText);
+        }
+
+        @Override
+        public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+            this.font.draw(pPoseStack, text, this.x + INTERACT_WIDTH + 4, this.y + (this.height - font.lineHeight) / 2.0F, 0);
+            super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        }
     }
 }

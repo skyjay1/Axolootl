@@ -70,8 +70,13 @@ public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquarium
 
     @Override
     public Optional<ControllerBlockEntity> getController() {
-        if(getLevel() != null && controllerPos != null && null == controller && validateController(getLevel())) {
-            setChanged();
+        // lazy load controller from position
+        if(controllerPos != null && null == controller && level != null) {
+            if(level.getBlockEntity(controllerPos) instanceof ControllerBlockEntity controller) {
+                setController(level, controllerPos, controller);
+            } else {
+                clearController();
+            }
         }
         return Optional.ofNullable(controller);
     }
@@ -130,13 +135,13 @@ public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquarium
     }
 
     public boolean isMenuAvailable(Player player, ControllerBlockEntity controller) {
-        return AxRegistry.AquariumTabsReg.ENERGY_INTERFACE.get().isAvailable(controller);
+        return getController().isPresent() && AxRegistry.AquariumTabsReg.ENERGY_INTERFACE.get().isAvailable(controller);
     }
 
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        return CyclingMenu.createEnergy(pContainerId, pPlayerInventory, controllerPos, controller, getBlockPos(), AxRegistry.AquariumTabsReg.ENERGY_INTERFACE.get().getSortedIndex(), -1);
+        return CyclingMenu.createEnergy(pContainerId, pPlayerInventory, controllerPos, getController().get(), getBlockPos(), AxRegistry.AquariumTabsReg.ENERGY_INTERFACE.get().getSortedIndex(), -1);
     }
 
     //// CLIENT SERVER SYNC ////

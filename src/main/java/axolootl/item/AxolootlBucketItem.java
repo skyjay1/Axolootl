@@ -21,16 +21,19 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MobBucketItem;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -68,6 +71,26 @@ public class AxolootlBucketItem extends MobBucketItem {
                 }
             }, () -> pItems.add(new ItemStack(this)));
         }
+    }
+
+    @Override
+    public Rarity getRarity(ItemStack pStack) {
+        // load current level
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        Level level = null;
+        if(server != null) {
+            level = server.overworld();
+        } else {
+            level = ClientUtil.getClientLevel().orElse(null);
+        }
+        // load axolootl variant
+        if(level != null) {
+            Optional<AxolootlVariant> oVariant = getVariant(level.registryAccess(), pStack);
+            if(oVariant.isPresent()) {
+                return oVariant.get().getRarity();
+            }
+        }
+        return super.getRarity(pStack);
     }
 
     @Override

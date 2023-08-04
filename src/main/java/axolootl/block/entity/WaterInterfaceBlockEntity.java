@@ -127,7 +127,7 @@ public class WaterInterfaceBlockEntity extends InterfaceBlockEntity {
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        return CyclingContainerMenu.createFluid(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.FLUID_INTERFACE.get().getSortedIndex(), -1);
+        return CyclingContainerMenu.createFluid(pContainerId, pPlayerInventory, this.controllerPos, this.getController().get(), this.getBlockPos(), AxRegistry.AquariumTabsReg.FLUID_INTERFACE.get().getSortedIndex(), -1);
     }
 
     //// CONTROLLER PROVIDER ////

@@ -8,13 +8,16 @@ package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.util.List;
 import java.util.Optional;
 
 @Immutable
@@ -28,10 +31,16 @@ public class TimeModifierCondition extends ModifierCondition {
     @Nullable
     private final Long period;
     private final IntProvider range;
+    private final List<Component> description;
 
     public TimeModifierCondition(Optional<Long> period, IntProvider range) {
         this.period = period.orElse(null);
         this.range = range;
+        if(period.isPresent()) {
+            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.time.period", range.getMinValue(), range.getMaxValue(), period.get()));
+        } else {
+            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.time", range.getMinValue(), range.getMaxValue()));
+        }
     }
 
     public Optional<Long> getPeriod() {
@@ -56,6 +65,11 @@ public class TimeModifierCondition extends ModifierCondition {
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
         return AxRegistry.ModifierConditionsReg.TIME.get();
+    }
+
+    @Override
+    public List<Component> getDescription() {
+        return description;
     }
 
     @Override

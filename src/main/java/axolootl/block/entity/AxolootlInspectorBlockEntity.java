@@ -69,7 +69,7 @@ public class AxolootlInspectorBlockEntity extends InterfaceBlockEntity {
 
     public AxolootlInspectorBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
         super(pType, pPos, pBlockState, 1, 2);
-        this.maxProgress = 130; // TODO balance
+        this.maxProgress = 310; // TODO balance
     }
 
     public static void tick(final Level level, final BlockPos pos, final BlockState state, final AxolootlInspectorBlockEntity self) {
@@ -139,7 +139,7 @@ public class AxolootlInspectorBlockEntity extends InterfaceBlockEntity {
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        return new AxolootlInspectorMenu(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.AXOLOOTL_INSPECTOR.get().getSortedIndex(), -1);
+        return new AxolootlInspectorMenu(pContainerId, pPlayerInventory, this.controllerPos, this.getController().get(), this.getBlockPos(), AxRegistry.AquariumTabsReg.AXOLOOTL_INSPECTOR.get().getSortedIndex(), -1);
     }
 
     //// CONTAINER ////

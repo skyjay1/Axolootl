@@ -9,14 +9,18 @@ package axolootl.data.aquarium_modifier.condition;
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
+import net.minecraft.Util;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @Immutable
 public class BlockModifierCondition extends ModifierCondition {
@@ -25,9 +29,11 @@ public class BlockModifierCondition extends ModifierCondition {
             .xmap(BlockModifierCondition::new, BlockModifierCondition::getPredicate).fieldOf("predicate").codec();
 
     private final BlockPredicate predicate;
+    private final List<Component> description;
 
     public BlockModifierCondition(BlockPredicate predicate) {
         this.predicate = predicate;
+        this.description = ImmutableList.copyOf(createDescription(predicate));
     }
 
     public BlockPredicate getPredicate() {
@@ -46,11 +52,27 @@ public class BlockModifierCondition extends ModifierCondition {
     }
 
     @Override
+    public List<Component> getDescription() {
+        return description;
+    }
+
+    @Override
     public String toString() {
         final ResourceLocation id = Registry.BLOCK_PREDICATE_TYPES.getKey(predicate.type());
         if(null == id) {
             return "block {ERROR}";
         }
         return "block {" + id.toString() + "}";
+    }
+
+    protected static List<Component> createDescription(final BlockPredicate blockPredicate) {
+        final List<Component> list = new ArrayList<>();
+        final ResourceLocation id = Registry.BLOCK_PREDICATE_TYPES.getKey(blockPredicate.type());
+        // TODO improve by adding support for each block predicate type
+        if(id != null) {
+            final String key = Util.makeDescriptionId("block_predicate_type", id);
+            list.add(Component.translatable(key));
+        }
+        return list;
     }
 }

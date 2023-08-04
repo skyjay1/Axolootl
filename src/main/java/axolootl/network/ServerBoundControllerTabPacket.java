@@ -24,9 +24,22 @@ import java.util.function.Supplier;
 public class ServerBoundControllerTabPacket {
 
     private int tab;
+    private int cycle;
 
+    /**
+     * @param tab the tab index
+     */
     public ServerBoundControllerTabPacket(final int tab) {
+        this(tab, -1);
+    }
+
+    /**
+     * @param tab the tab index
+     * @param cycle the cycle index, or -1 to automatically determine based on the block position
+     */
+    public ServerBoundControllerTabPacket(final int tab, final int cycle) {
         this.tab = tab;
+        this.cycle = cycle;
     }
 
     /**
@@ -37,7 +50,8 @@ public class ServerBoundControllerTabPacket {
      */
     public static ServerBoundControllerTabPacket fromBytes(final FriendlyByteBuf buf) {
         int tab = buf.readInt();
-        return new ServerBoundControllerTabPacket(tab);
+        int cycle = buf.readInt();
+        return new ServerBoundControllerTabPacket(tab, cycle);
     }
 
     /**
@@ -48,6 +62,7 @@ public class ServerBoundControllerTabPacket {
      */
     public static void toBytes(final ServerBoundControllerTabPacket msg, final FriendlyByteBuf buf) {
         buf.writeInt(msg.tab);
+        buf.writeInt(msg.cycle);
     }
 
     /**
@@ -77,14 +92,17 @@ public class ServerBoundControllerTabPacket {
                 if(!tab.isAvailable(controller)) {
                     return;
                 }
+                // validate cycle
+                if(message.cycle >= menu.getSortedCycleList().size()) {
+                    return;
+                }
                 // validate menu provider
                 final Optional<WorldlyMenuProvider> oProvider = tab.getMenuProvider(controller, null);
                 if(oProvider.isEmpty()) {
                     return;
                 }
                 // open menu
-                //player.closeContainer();
-                NetworkHooks.openScreen(player, oProvider.get().getProvider(), AxRegistry.MenuReg.writeControllerMenu(pos, oProvider.get().getPos(), message.tab, -1));
+                NetworkHooks.openScreen(player, oProvider.get().getProvider(), AxRegistry.MenuReg.writeControllerMenu(pos, oProvider.get().getPos(), message.tab, message.cycle));
             });
         }
         context.setPacketHandled(true);

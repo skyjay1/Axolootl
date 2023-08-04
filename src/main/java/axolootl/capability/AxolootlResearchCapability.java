@@ -24,6 +24,7 @@ import java.util.HashSet;
 public class AxolootlResearchCapability implements INBTSerializable<ListTag> {
 
     public static final ResourceLocation REGISTRY_NAME = new ResourceLocation(Axolootl.MODID, "research");
+    public static final AxolootlResearchCapability EMPTY = new AxolootlResearchCapability();
 
     public Collection<ResourceLocation> axolootls;
     public Collection<ResourceLocation> axolootlsView;
@@ -53,11 +54,64 @@ public class AxolootlResearchCapability implements INBTSerializable<ListTag> {
     }
 
     /**
+     * Adds the axolootl and syncs to client if there were any changes
+     * @param player the server player
+     * @param id the axolootl ID to add
+     * @return true if the collection changed as a result of this operation
+     * @see #addAxolootl(ResourceLocation)
+     */
+    public boolean addAxolootl(final ServerPlayer player, final ResourceLocation id) {
+        if(addAxolootl(id)) {
+            syncToClient(player);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * @param id the axolootl ID to remove
      * @return true if the collection changed as a result of this operation
      */
     public boolean removeAxolootl(final ResourceLocation id) {
         return this.axolootls.remove(id);
+    }
+
+    /**
+     * Removes the axolootl and syncs to client if there were any changes
+     * @param player the server player
+     * @param id the axolootl ID to remove
+     * @return true if the collection changed as a result of this operation
+     * @see #removeAxolootl(ResourceLocation)
+     */
+    public boolean removeAxolootl(final ServerPlayer player, final ResourceLocation id) {
+        if(removeAxolootl(id)) {
+            syncToClient(player);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Removes all axolootls and syncs to the client if there were changes
+     * @param player the server player
+     * @return true if the collection changed as a result of this operation
+     */
+    public boolean clear(final ServerPlayer player) {
+        if(clear()) {
+            syncToClient(player);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Removes all axolootls
+     * @return true if the collection changed as a result of this operation
+     */
+    public boolean clear() {
+        int size = this.axolootls.size();
+        this.axolootls.clear();
+        return size > 0;
     }
 
     /**

@@ -35,7 +35,7 @@ public class AutoFeederBlockEntity extends InterfaceBlockEntity {
     @Override
     public @Nullable AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
         // verify availability
-        if(!isMenuAvailable(pPlayer, this.controller)) {
+        if(getController().isEmpty() || !isMenuAvailable(pPlayer, this.controller)) {
             return super.createMenu(pContainerId, pPlayerInventory, pPlayer);
         }
         return CyclingContainerMenu.createFeeder(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.FOOD_INTERFACE.get().getSortedIndex(), -1);

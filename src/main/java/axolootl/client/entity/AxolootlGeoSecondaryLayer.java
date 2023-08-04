@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LerpingModel;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,6 +42,10 @@ public class AxolootlGeoSecondaryLayer<T extends LivingEntity & LerpingModel & I
         // load colors
         final Vector3f colors = settings.getSecondaryColors();
         renderModel(getEntityModel(), oSecondary.get(), poseStack, multiBufferSource, packedLight, entity, partialTick, colors.x(), colors.y(), colors.z());
+    }
 
+    @Override
+    public RenderType getRenderType(ResourceLocation textureLocation) {
+        return RenderType.entityCutoutNoCull(textureLocation);
     }
 }

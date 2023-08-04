@@ -7,6 +7,7 @@
 package axolootl.data.aquarium_modifier;
 
 import axolootl.AxRegistry;
+import axolootl.data.aquarium_modifier.condition.FalseModifierCondition;
 import axolootl.data.aquarium_modifier.condition.ModifierCondition;
 import axolootl.data.aquarium_modifier.condition.TrueModifierCondition;
 import axolootl.util.TankMultiblock;
@@ -43,6 +44,8 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class AquariumModifier {
+
+    public static final AquariumModifier EMPTY = new AquariumModifier("empty", ModifierSettings.EMPTY, new Vec3i(1, 1, 1), List.of(), FalseModifierCondition.INSTANCE);
 
     public static final Codec<BlockPredicate> BLOCK_PREDICATE_CODEC = Registry.BLOCK_PREDICATE_TYPES.byNameCodec().dispatch(BlockPredicate::type, BlockPredicateType::codec);
     public static final Codec<List<BlockPredicate>> BLOCK_PREDICATE_LIST_CODEC = BLOCK_PREDICATE_CODEC.listOf();

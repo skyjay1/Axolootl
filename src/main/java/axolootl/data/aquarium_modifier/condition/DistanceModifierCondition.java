@@ -14,9 +14,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Vec3i;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.List;
 import java.util.Map;
 
 @Immutable
@@ -31,11 +33,13 @@ public class DistanceModifierCondition extends ModifierCondition {
     private final HolderSet<AquariumModifier> modifier;
     private final IntProvider distance;
     private final Vec3i offset;
+    private final List<Component> description;
 
     public DistanceModifierCondition(HolderSet<AquariumModifier> modifier, IntProvider distance, Vec3i offset) {
         this.modifier = modifier;
         this.distance = distance;
         this.offset = offset;
+        this.description = createCountedDescription("axolootl.modifier_condition.count", distance, modifier, AquariumModifier::getDescription);
     }
 
     public HolderSet<AquariumModifier> getModifier() {
@@ -69,6 +73,11 @@ public class DistanceModifierCondition extends ModifierCondition {
     @Override
     public Codec<? extends ModifierCondition> getCodec() {
         return AxRegistry.ModifierConditionsReg.DISTANCE.get();
+    }
+
+    @Override
+    public List<Component> getDescription() {
+        return description;
     }
 
     @Override

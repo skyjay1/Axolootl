@@ -74,7 +74,7 @@ public abstract class AbstractCyclingScreen<T extends AbstractControllerMenu> ex
 
     @Override
     public void cycle(int amount) {
-        if(amount <= 0 || getMenu().getCycleCount() <= 1) {
+        if(amount == 0 || getMenu().getCycleCount() <= 1) {
             return;
         }
         this.getMenu().cycle(amount);

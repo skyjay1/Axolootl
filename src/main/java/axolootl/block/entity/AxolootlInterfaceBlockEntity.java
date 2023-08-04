@@ -39,12 +39,12 @@ public class AxolootlInterfaceBlockEntity extends InterfaceBlockEntity {
 
     @Override
     public boolean isMenuAvailable(Player player, ControllerBlockEntity controller) {
-        return AxRegistry.AquariumTabsReg.AXOLOOTL_INTERFACE.get().isAvailable(controller);
+        return getController().isPresent() && AxRegistry.AquariumTabsReg.AXOLOOTL_INTERFACE.get().isAvailable(controller);
     }
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        return new AxolootlInterfaceMenu(pContainerId, pPlayerInventory, this.controllerPos, this.controller, this.getBlockPos(), AxRegistry.AquariumTabsReg.AXOLOOTL_INTERFACE.get().getSortedIndex(), 0);
+        return new AxolootlInterfaceMenu(pContainerId, pPlayerInventory, this.controllerPos, this.getController().get(), this.getBlockPos(), AxRegistry.AquariumTabsReg.AXOLOOTL_INTERFACE.get().getSortedIndex(), 0);
 
     }
 
