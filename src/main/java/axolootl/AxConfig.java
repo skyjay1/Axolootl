@@ -20,7 +20,7 @@ public class AxConfig {
         builder.push("options");
         TANK_MULTIBLOCK_UPDATE_CAP = builder
                 .comment("The maximum number of blocks for a single multiblock tank to validate each tick")
-                .defineInRange("tank_multiblock_update_cap", 40, 2, 256);
+                .defineInRange("tank_multiblock_update_cap", 36, 2, 256);
         TANK_CAPACITY_VOLUME_FACTOR = builder
                 .comment("The minimum cubic volume per axolootl, used to determine the maximum capacity")
                 .defineInRange("tank_capacity_volume_factor", 15.0D, 0.0D, 512.0D);
@@ -29,7 +29,7 @@ public class AxConfig {
                 .defineInRange("base_generation_period", 8000L, 1L, 96000L);
         BASE_BREEDING_PERIOD = builder
                 .comment("The base number of ticks in a mob breeding cycle")
-                .defineInRange("base_breeding_period", 24000L, 1L, 96000L);
+                .defineInRange("base_breeding_period", 12000L, 1L, 96000L);
         BASE_FEEDING_PERIOD = builder
                 .comment("The base number of ticks in a mob feeding cycle")
                 .defineInRange("base_feeding_period", 6000L, 1L, 96000L);

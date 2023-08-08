@@ -1,35 +1,50 @@
 package axolootl.client.item;
 
-import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.concurrent.Immutable;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-@Immutable
 public class AxolootlBucketItemSettings {
-
-    public static final AxolootlBucketItemSettings EMPTY = new AxolootlBucketItemSettings(Map.of());
 
     public static final Codec<AxolootlBucketItemSettings> CODEC = Codec.unboundedMap(ResourceLocation.CODEC, ResourceLocation.CODEC)
             .xmap(AxolootlBucketItemSettings::new, AxolootlBucketItemSettings::getVariantToModelMap).fieldOf("values").codec();
 
     private final Map<ResourceLocation, ResourceLocation> variantToModelMap;
+    private final Map<ResourceLocation, ResourceLocation> variantToModelMapView;
 
-    public AxolootlBucketItemSettings(Map<ResourceLocation, ResourceLocation> variantToModelMap) {
-        this.variantToModelMap = ImmutableMap.copyOf(variantToModelMap);
+    public AxolootlBucketItemSettings() {
+        this(Map.of());
     }
 
-    public static AxolootlBucketItemSettings merge(final List<AxolootlBucketItemSettings> list) {
-        final ImmutableMap.Builder<ResourceLocation, ResourceLocation> builder = ImmutableMap.builder();
-        list.forEach(e -> builder.putAll(e.getVariantToModelMap()));
-        return new AxolootlBucketItemSettings(builder.build());
+    public AxolootlBucketItemSettings(Map<ResourceLocation, ResourceLocation> variantToModelMap) {
+        this.variantToModelMap = new HashMap<>(variantToModelMap);
+        this.variantToModelMapView = Collections.unmodifiableMap(this.variantToModelMap);
+    }
+
+    public AxolootlBucketItemSettings merge(final AxolootlBucketItemSettings other) {
+        if(!other.isEmpty()) {
+            this.putAll(other.getVariantToModelMap());
+        }
+        return this;
     }
 
     //// METHODS ////
+
+    public void clear() {
+        this.variantToModelMap.clear();
+    }
+
+    public void put(final ResourceLocation variant, final ResourceLocation model) {
+        this.variantToModelMap.put(variant, model);
+    }
+
+    public void putAll(final Map<ResourceLocation, ResourceLocation> map) {
+        this.variantToModelMap.putAll(map);
+    }
 
     public boolean isEmpty() {
         return this.variantToModelMap.isEmpty();
@@ -41,7 +56,7 @@ public class AxolootlBucketItemSettings {
      * @return an unmodifiable view of the variant to model map
      */
     public Map<ResourceLocation, ResourceLocation> getVariantToModelMap() {
-        return variantToModelMap;
+        return variantToModelMapView;
     }
 
     //// EQUALITY ////

@@ -129,7 +129,7 @@ public abstract class ResourceGenerator {
         // calculate total weight
         double totalWeight = calculateTotalWeight(list);
         // iterate sorted wrapper list
-        final Component lootComponent = Component.translatable("axolootl.resource_generator.loot").withStyle(ChatFormatting.ITALIC);
+        final Component lootComponent = Component.translatable("axolootl.resource_generator.loot");
         for(WeightedEntry.Wrapper<ResourceGenerator> wrapper : calculateSortedWeightedList(list)) {
             // calculate percent chance
             double percentChance = wrapper.getWeight().asInt() / totalWeight;
@@ -154,7 +154,7 @@ public abstract class ResourceGenerator {
      */
     protected static Component getItemDisplayName(final ItemStack itemStack) {
         if(itemStack.isEmpty()) {
-            return Component.translatable("axolootl.resource_generator.nothing").withStyle(ChatFormatting.GRAY);
+            return Component.translatable("axolootl.resource_generator.nothing");
         }
         return itemStack.getHoverName();
     }

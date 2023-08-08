@@ -54,7 +54,7 @@ public final class ClientEvents {
     public static void register() {
         FMLJavaModLoadingContext.get().getModEventBus().register(ModHandler.class);
         MinecraftForge.EVENT_BUS.register(ForgeHandler.class);
-        ClientEvents.ModelHandler.register();
+        AxolootlBucketItemModelLoader.register();
     }
 
     public static final class ModHandler {
@@ -107,96 +107,5 @@ public final class ClientEvents {
 
     public static final class ForgeHandler {
 
-    }
-
-
-
-    public static final class ModelHandler {
-
-        public static void register() {
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(ModelHandler::onRegisterReloadListeners);
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(ModelHandler::onRegisterExtraModels);
-        }
-
-        /** The item model to use for axolootl bucket items when no other model is specified **/
-        private static final ResourceLocation AXOLOOTL_BUCKET_ITEM_FALLBACK = new ResourceLocation(Axolootl.MODID, "item/axolootl_bucket_fallback");
-        /** The instance with the merged values of all registered AxolootlBucketItemSettings **/
-        private static AxolootlBucketItemSettings instance = AxolootlBucketItemSettings.EMPTY;
-        private static final String PATH = "axolootl_bucket";
-
-        public static AxolootlBucketItemSettings instance() {
-            if (instance.isEmpty()) {
-                instance = reload(Minecraft.getInstance().getResourceManager());
-            }
-            return instance;
-        }
-
-        /**
-         * @param variant the axolootl variant ID
-         * @return the model resource location for the given variant
-         */
-        public static ResourceLocation getModelForVariant(ResourceLocation variant) {
-            return instance().getVariantToModelMap().getOrDefault(variant, AXOLOOTL_BUCKET_ITEM_FALLBACK);
-        }
-
-        private static void onRegisterReloadListeners(final RegisterClientReloadListenersEvent event) {
-            event.registerReloadListener(new SimplePreparableReloadListener<AxolootlBucketItemSettings>() {
-                @Override
-                protected AxolootlBucketItemSettings prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler) {
-                    ClientEvents.ModelHandler.instance = AxolootlBucketItemSettings.EMPTY;
-                    return ClientEvents.ModelHandler.reload(pResourceManager);
-                }
-                @Override
-                protected void apply(AxolootlBucketItemSettings pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
-                    ClientEvents.ModelHandler.instance = pObject;
-                }
-            });
-        }
-
-        private static void onRegisterExtraModels(final ModelEvent.RegisterAdditional event) {
-            // register fallback model
-            event.register(ModelHandler.AXOLOOTL_BUCKET_ITEM_FALLBACK);
-            // iterate models and register each one
-            for(ResourceLocation model : ModelHandler.instance().getVariantToModelMap().values()) {
-                event.register(model);
-            }
-        }
-
-        /**
-         * @param manager the resource manager
-         * @return the {@link AxolootlBucketItemSettings} loaded from resources, may be empty
-         */
-        private static AxolootlBucketItemSettings reload(ResourceManager manager) {
-            Gson gson = new Gson();
-            try {
-                // locate the resource
-                Map<ResourceLocation, Resource> resources = manager.listResources(PATH, id -> id.getPath().endsWith(".json"));
-                if(resources.isEmpty()) {
-                    Axolootl.LOGGER.error("Failed to locate AxolootlBucketItemSettings at " + PATH);
-                }
-                final List<AxolootlBucketItemSettings> results = new ArrayList<>();
-                // iterate each resource
-                for(Map.Entry<ResourceLocation, Resource> entry : resources.entrySet()) {
-                    // open the file
-                    try(Reader reader = entry.getValue().openAsReader()) {
-                        // parse from JSON
-                        JsonElement jsonElement = JsonParser.parseReader(reader);
-                        AxolootlBucketItemSettings.CODEC.parse(JsonOps.INSTANCE, jsonElement)
-                                .resultOrPartial(errorMsg -> Axolootl.LOGGER.error("Error deserializing json {} in folder {} from pack {}: {}", entry.getKey(), PATH, entry.getValue().sourcePackId(), errorMsg))
-                                .ifPresent(results::add);
-                    }
-                    catch(Exception e) {
-                        Axolootl.LOGGER.error(String.format(Locale.ENGLISH, "Error reading resource %s in folder %s from pack %s: ", entry.getKey(), PATH, entry.getValue().sourcePackId()), e);
-                    }
-                }
-                // populate instance
-                final AxolootlBucketItemSettings merged = AxolootlBucketItemSettings.merge(results);
-                Axolootl.LOGGER.debug("Parsed AxolootlBucketItemSettings from file: " + merged.toString());
-                return merged;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return AxolootlBucketItemSettings.EMPTY;
-        }
     }
 }

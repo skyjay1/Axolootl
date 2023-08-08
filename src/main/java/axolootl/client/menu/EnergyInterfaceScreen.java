@@ -82,7 +82,7 @@ public class EnergyInterfaceScreen extends AbstractCyclingScreen<CyclingMenu> {
         final ControllerBlockEntity controller = getMenu().getController().get();
         // calculate energy usage per tick
         final RegistryAccess registryAccess = getMenu().getInventory().player.level.registryAccess();
-        final Collection<AquariumModifier> poweredModifierSet = controller.resolveModifiers(registryAccess, controller.activePredicate.and((b, a) -> a.getSettings().getEnergyCost() > 0)).values();
+        final Collection<AquariumModifier> poweredModifierSet = controller.resolveModifiers(registryAccess, ((b, a) -> a.getSettings().getEnergyCost() > 0)).values();
         this.usagePerTick = 0;
         this.poweredModifiers = poweredModifierSet.size();
         for(AquariumModifier modifier : poweredModifierSet) {

@@ -24,6 +24,8 @@ public enum TankStatus implements StringRepresentable {
     LOW_ENERGY("low_energy", true),
     /** Tank is complete but missing required modifiers **/
     MISSING_MODIFIERS("missing_modifiers", false),
+    /** Tank is complete but any of the generation, feed, or breed speed values are negative **/
+    POOR_CONDITIONS("poor_conditions", false),
     /** Tank is complete but entity count exceeds capacity **/
     OVERCROWDED("overcrowded", false),
     /** Tank is complete but output storage is full **/
@@ -56,6 +58,9 @@ public enum TankStatus implements StringRepresentable {
         return NAME_TO_TYPE_MAP.getOrDefault(name, INCOMPLETE);
     }
 
+    /**
+     * @return true if the tank can generate resources and perform updates
+     */
     public boolean isActive() {
         return active;
     }

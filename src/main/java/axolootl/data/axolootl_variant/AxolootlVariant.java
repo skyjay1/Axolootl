@@ -24,6 +24,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -88,6 +89,8 @@ public class AxolootlVariant {
 
     /** The translation component **/
     private Component description;
+    /** The tier text component **/
+    private Component tierDescription;
     /** The resource generator translation component **/
     private List<Component> resourceGeneratorDescription;
     /** The registry object holder **/
@@ -231,6 +234,13 @@ public class AxolootlVariant {
         return this.description;
     }
 
+    public Component getTierDescription() {
+        if(null == this.tierDescription) {
+            this.tierDescription = createTierDescription(this.getTier());
+        }
+        return this.tierDescription;
+    }
+
     public List<Component> getResourceGeneratorDescription() {
         return resourceGeneratorDescription;
     }
@@ -246,6 +256,31 @@ public class AxolootlVariant {
             }
         }
         return Rarity.COMMON;
+    }
+
+    private static Component createTierDescription(int tier) {
+        int value = Math.abs(tier);
+        MutableComponent builder = Component.empty();
+        while(value >= 100) {
+            builder.append(Component.translatable("axolootl.tier." + 100));
+            value -= 100;
+        }
+        while(value >= 50) {
+            builder.append(Component.translatable("axolootl.tier." + 50));
+            value -= 50;
+        }
+        while(value >= 40) {
+            builder.append(Component.translatable("axolootl.tier." + 40));
+            value -= 40;
+        }
+        while(value >= 10) {
+            builder.append(Component.translatable("axolootl.tier." + 10));
+            value -= 10;
+        }
+        if(value > 0 || tier <= 0) {
+            builder.append(Component.translatable("axolootl.tier." + value));
+        }
+        return builder;
     }
 
     //// OVERRIDES ////

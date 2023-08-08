@@ -1,6 +1,6 @@
 package axolootl.client.item;
 
-import axolootl.client.ClientEvents;
+import axolootl.client.AxolootlBucketItemModelLoader;
 import axolootl.entity.AxolootlEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -48,7 +48,7 @@ public class AxolootlBucketItemRenderer extends BlockEntityWithoutLevelRenderer 
         // load variant
         final ResourceLocation variantId = new ResourceLocation(pStack.getTag().getString(AxolootlEntity.KEY_VARIANT_ID));
         // load model
-        final ResourceLocation modelId = ClientEvents.ModelHandler.getModelForVariant(variantId);
+        final ResourceLocation modelId = AxolootlBucketItemModelLoader.getModelForVariant(variantId);
         final BakedModel model = Minecraft.getInstance().getModelManager().getModel(modelId);
         // prepare item model
         final VertexConsumer vertexconsumer = ItemRenderer.getFoilBuffer(pBuffer, RenderType.cutout(), true, pStack.hasFoil());

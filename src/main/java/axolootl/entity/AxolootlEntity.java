@@ -13,6 +13,7 @@ import axolootl.block.entity.IAquariumControllerProvider;
 import axolootl.data.breeding.AxolootlBreeding;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.axolootl_variant.Bonuses;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Vector3f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -33,6 +34,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityEvent;
 import net.minecraft.world.entity.EntityType;
@@ -43,6 +45,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -80,6 +83,7 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
     // BONUSES //
     private Bonuses bonuses = Bonuses.EMPTY;
     private long bonusDuration;
+    private static final FoodProperties EMPTY_FOOD_PROPERTIES = new FoodProperties.Builder().build();
 
     // TEXT //
     private Component displayName;
@@ -378,9 +382,19 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
 
     @Override
     public InteractionResult feed(ServerLevel level, ItemStack food) {
+        // determine bonuses, if any
         final Optional<Bonuses> oBonuses = this.getUseFoodResult(food);
         if(oBonuses.isPresent()) {
+            // update bonuses
             this.setBonuses(oBonuses.get());
+            // add food effects, if any
+            if(food.isEdible()) {
+                for(Pair<MobEffectInstance, Float> pair : Optional.ofNullable(food.getFoodProperties(this)).orElse(EMPTY_FOOD_PROPERTIES).getEffects()) {
+                    if (pair.getFirst() != null && getRandom().nextFloat() < pair.getSecond()) {
+                        addEffect(new MobEffectInstance(pair.getFirst()));
+                    }
+                }
+            }
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;

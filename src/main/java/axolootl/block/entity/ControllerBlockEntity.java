@@ -25,7 +25,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -42,6 +41,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -71,7 +71,6 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
@@ -113,17 +112,6 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
     /** The percentage of allotted blocks to be scanned by the inside iterator in a single tick **/
     public static final double INSIDE_ITERATOR_SCAN = 0.6D;
 
-    // TAGS //
-    public static final TagKey<Block> FLUID_INPUTS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_fluid_interfaces"));
-    public static final TagKey<Block> ENERGY_INPUTS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_energy_interfaces"));
-    public static final TagKey<Block> AXOLOOTL_INPUTS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_axolootl_interfaces"));
-    public static final TagKey<Block> RESOURCE_OUTPUTS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_outputs"));
-
-    // CAPABILITIES //
-    private static final Capability<IItemHandler> ITEM_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
-    private static final Capability<IFluidHandler> FLUID_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
-    private static final Capability<IEnergyStorage> ENERGY_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
-
     // RESOURCES //
     private double generationSpeed;
     private double breedSpeed;
@@ -160,10 +148,6 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
     @Nullable
     private TankMultiblock.Size size;
     private final Map<ResourceLocation, Set<BlockPos>> trackedBlocks = new HashMap<>();
-    //private final Set<BlockPos> axolootlInputs = new HashSet<>();
-    //private final Set<BlockPos> fluidInputs = new HashSet<>();
-    //private final Set<BlockPos> energyInputs = new HashSet<>();
-    //private final Set<BlockPos> resourceOutputs = new HashSet<>();
     private final Map<BlockPos, ResourceLocation> aquariumModifiers = new HashMap<>();
     private final Set<BlockPos> activeAquariumModifiers = new HashSet<>();
     private final Map<UUID, ResourceLocation> trackedAxolootls = new HashMap<>();
@@ -408,7 +392,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
      **/
     private boolean generateResources(ServerLevel level) {
         // validate ticker
-        if(resourceGenerationTime > 0) {
+        if(resourceGenerationTime > 0 || !(generationSpeed > 0)) {
             return false;
         }
         // create resource list
@@ -513,7 +497,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
             blockEntity = this.level.getBlockEntity(pos);
             if(blockEntity != null) {
                 // load item handler capability
-                capability = blockEntity.getCapability(ITEM_CAPABILITY).resolve();
+                capability = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).resolve();
                 // insert items
                 capability.ifPresent(c -> {
                     ItemStack itemStack;
@@ -619,6 +603,8 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
             ItemStack food = handler.getStackInSlot(i).copy().split(1);
             InteractionResult result = axolootl.feed(level, food);
             if(result.consumesAction()) {
+                // play sound
+                axolootl.getEntity().playSound(SoundEvents.GENERIC_EAT, 2.0F, axolootl.getEntity().getVoicePitch());
                 // remove from item handler
                 handler.extractItem(i, 1, false);
                 return new InteractionResultHolder<>(result, true);
@@ -635,7 +621,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
      */
     private boolean breed(ServerLevel level) {
         // validate ticker
-        if(breedTime > 0) {
+        if(breedTime > 0 || !(breedSpeed > 0)) {
             return false;
         }
         // validate entity count
@@ -1162,7 +1148,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
      * @param pos the block position
      * @param useVoidStorage true to transfer the energy into the void, never to be seen again
      * @return the non-null energy storage to represent the given position, may be void
-     * @see {@link VoidEnergyStorage}
+     * @see VoidEnergyStorage
      */
     private IEnergyStorage resolveEnergyStorageOrVoid(final Level level, final BlockPos pos, final boolean useVoidStorage) {
         final BlockEntity blockEntity;
@@ -1171,11 +1157,9 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
             return VoidEnergyStorage.INSTANCE;
         }
         // iterate each direction until an energy storage capability is found that can receive energy
-        for(Direction d : Direction.values()) {
-            Optional<IEnergyStorage> oStorage = blockEntity.getCapability(ForgeCapabilities.ENERGY, d).resolve();
-            if(oStorage.isPresent() && oStorage.get().canReceive()) {
-                return oStorage.get();
-            }
+        Optional<IEnergyStorage> oStorage = blockEntity.getCapability(ForgeCapabilities.ENERGY).resolve();
+        if(oStorage.isPresent() && oStorage.get().canReceive()) {
+            return oStorage.get();
         }
         // all checks failed
         return VoidEnergyStorage.INSTANCE;
@@ -1256,6 +1240,10 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
         // check missing modifiers
         if(!this.hasMandatoryModifiers(level.registryAccess(), true)) {
             return TankStatus.MISSING_MODIFIERS;
+        }
+        // check poor conditions
+        if(this.generationSpeed < 0 || this.feedSpeed < 0 || this.breedSpeed < 0) {
+            return TankStatus.POOR_CONDITIONS;
         }
         // check low power
         if(this.isInsufficientPower()) {

@@ -105,8 +105,8 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
         // add entry buttons
         this.entryButtons.clear();
         for(int i = 0, x, y; i < ENTRY_COUNT; i++) {
-            x = this.leftPos + ENTRY_X + (i % ENTRY_COUNT_X) * EntryButton.WIDTH;
-            y = this.topPos + ENTRY_Y + (i / ENTRY_COUNT_X) * EntryButton.HEIGHT;
+            x = this.leftPos + ENTRY_X + (i % ENTRY_COUNT_X) * EntryButton.WIDTH + 1;
+            y = this.topPos + ENTRY_Y + (i / ENTRY_COUNT_X) * EntryButton.HEIGHT + 1;
             Button.OnPress onPress = b -> {
                 ((EntryButton)b).openDetails(getMinecraft());
             };
@@ -252,7 +252,7 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
             this.icon.getOrCreateTag().putString(AxolootlEntity.KEY_VARIANT_ID, id.toString());
             this.tooltips.clear();
             this.tooltips.add(entry.getValue().getDescription());
-            this.tooltips.add(Component.translatable("entity.axolootl.axolootl.tier", entry.getValue().getTier()).withStyle(ChatFormatting.GRAY));
+            this.tooltips.add(entry.getValue().getTierDescription().copy().withStyle(ChatFormatting.GRAY));
         }
 
         @Override
@@ -267,8 +267,16 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
             if(AxolootlVariant.EMPTY.equals(entry)) {
                 return;
             }
+            // validate level
+            if(null == minecraft.level || null == minecraft.player) {
+                return;
+            }
+            // validate can open
+            if(!AxolootlInspectorDetailsScreen.canOpenDetails(minecraft.player, key)) {
+                return;
+            }
             // open details screen
-            minecraft.pushGuiLayer(new AxolootlInspectorDetailsScreen(key, entry));
+            AxolootlInspectorDetailsScreen.openDetails(minecraft, minecraft.level.registryAccess(), key, entry, icon);
         }
     }
 }

@@ -145,7 +145,7 @@ public class AxolootlModelSettings {
         final StringBuilder builder = new StringBuilder("ModelSettings{");
         builder.append(" colors=(" + getPrimaryColor() + ", " + getSecondaryColor() + ")");
         builder.append(" entity=" + getEntityGeoModel().toString());
-        builder.append(" texture=" + getEntityTexture() + ", " + getOptionalEntityPrimaryTexture().toString() + ", " + getOptionalEntitySecondaryTexture().toString());
+        builder.append(" texture=" + getEntityTexture().toString() + ", " + getOptionalEntityPrimaryTexture().toString() + ", " + getOptionalEntitySecondaryTexture().toString());
         builder.append(" }");
         return builder.toString();
     }

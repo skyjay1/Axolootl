@@ -32,7 +32,7 @@ public class AxolootlInterfaceMenu extends AbstractControllerMenu {
 
     public static final int INV_X = 30;
     public static final int INV_Y = 108;
-    public static int INV_SIZE = 6;
+    public static int INV_SIZE = 5;
 
     private Container container;
     private Map<AxolootlVariant, Integer> variantCountMap;
@@ -46,6 +46,7 @@ public class AxolootlInterfaceMenu extends AbstractControllerMenu {
         } else {
             this.container = new SimpleContainer(INV_SIZE);
         }
+        checkContainerSize(this.container, INV_SIZE);
         // add container slots
         for(int i = 0; i < INV_SIZE; i++) {
             addSlot(new AxolootlSlot(this.container, i, INV_X + i * 18, INV_Y));
@@ -62,13 +63,14 @@ public class AxolootlInterfaceMenu extends AbstractControllerMenu {
         // resolve UUID to variant map
         final Map<UUID, AxolootlVariant> variantMap = new HashMap<>();
         variantMap.putAll(controller.resolveAxolootlVariants(getInventory().player.level.registryAccess()));
-        this.totalCount = variantMap.size();
         // build variant to UUID map
         variantCountMap.clear();
         for(Map.Entry<UUID, AxolootlVariant> entry : variantMap.entrySet()) {
             int count = this.variantCountMap.getOrDefault(entry.getValue(), 0);
             this.variantCountMap.put(entry.getValue(), count + 1);
         }
+        // calculate total count
+        this.totalCount = this.variantCountMap.values().stream().reduce(Integer::sum).orElse(0);
     }
 
     public int getTotalCount() {
@@ -95,7 +97,8 @@ public class AxolootlInterfaceMenu extends AbstractControllerMenu {
             } else {
                 variantCountMap.remove(variant);
             }
-            totalCount = variantCountMap.size();
+            // calculate total count
+            this.totalCount = this.variantCountMap.values().stream().reduce(Integer::sum).orElse(0);
         }
     }
 
@@ -114,7 +117,8 @@ public class AxolootlInterfaceMenu extends AbstractControllerMenu {
                     oVariant.ifPresent(v -> variantCountMap.put(v, variantCountMap.getOrDefault(v, 0) + 1));
                 }
             }
-            totalCount = variantCountMap.size();
+            // calculate total count
+            this.totalCount = this.variantCountMap.values().stream().reduce(Integer::sum).orElse(0);
         }
     }
 

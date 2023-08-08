@@ -10,6 +10,7 @@ import axolootl.AxRegistry;
 import axolootl.Axolootl;
 import axolootl.menu.AxolootlInterfaceMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Inventory;
@@ -19,6 +20,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -34,7 +37,7 @@ public class AxolootlInterfaceBlockEntity extends InterfaceBlockEntity {
     }
 
     public AxolootlInterfaceBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
-        super(pType, pPos, pBlockState, 1, 6);
+        super(pType, pPos, pBlockState, 1, 5);
     }
 
     @Override
@@ -56,5 +59,10 @@ public class AxolootlInterfaceBlockEntity extends InterfaceBlockEntity {
                 return stack.is(ITEM_WHITELIST);
             }
         };
+    }
+
+    @Override
+    protected boolean exposeItemCapability() {
+        return false;
     }
 }

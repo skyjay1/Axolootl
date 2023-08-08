@@ -100,8 +100,7 @@ public class AxolootlBucketItem extends MobBucketItem {
         if(level != null) {
             getVariant(level.registryAccess(), pStack).ifPresentOrElse(a -> {
                 final ResourceLocation id = a.getRegistryName(level.registryAccess());
-                final Component tierLevel = Component.translatable("enchantment.level." + a.getTier());
-                final Component tier = Component.translatable("item.axolootl.axolootl_bucket.tooltip.tier", tierLevel).withStyle(ChatFormatting.GRAY);
+                final Component tier = Component.translatable("item.axolootl.axolootl_bucket.tooltip.tier", a.getTierDescription()).withStyle(ChatFormatting.GRAY);
                 final Component description = a.getDescription().copy().withStyle(ChatFormatting.AQUA)
                         .append(" ").append(tier);
                 // add variant description
@@ -117,9 +116,6 @@ public class AxolootlBucketItem extends MobBucketItem {
                     // colors
                     pTooltipComponents.add(Component.translatable(getDescriptionId() + ".tooltip.primary_color", Integer.toHexString(a.getModelSettings().getPrimaryColor())).withStyle(ChatFormatting.GRAY));
                     pTooltipComponents.add(Component.translatable(getDescriptionId() + ".tooltip.secondary_color", Integer.toHexString(a.getModelSettings().getSecondaryColor())).withStyle(ChatFormatting.GRAY));
-                    // TODO move generator info to a separate UI
-                    pTooltipComponents.add(Component.translatable("axolootl.resource_generator.generates"));
-                    pTooltipComponents.addAll(a.getResourceGeneratorDescription());
                 }
             }, () -> {
                 // add tooltip for unknown variant

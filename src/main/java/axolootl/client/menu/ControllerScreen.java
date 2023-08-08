@@ -92,6 +92,16 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
         this.hasTank = pMenu.getController().isPresent() && pMenu.getController().get().hasTank();
     }
 
+    public static Component toAdditivePercentage(final double value, final ChatFormatting color) {
+        return Component.literal(toAdditivePercentage(value)).withStyle(color);
+    }
+
+    public static String toAdditivePercentage(final double value) {
+        String sign = (value < 0) ? "-" : "+";
+        String sValue = String.format("%.8f", Math.abs(value) * 100.0D).replaceAll("0*$", "").replaceAll("\\.$", "");
+        return sign + sValue + "%";
+    }
+
     private void updateModifierCountMap() {
         if(getMenu().getController().isEmpty() || !hasTank) {
             return;
@@ -197,7 +207,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             this.modifierCountText = Component.translatable(PREFIX + "modifier_count", Component.literal("" + activeCount).withStyle((modifierCount == activeCount ? ChatFormatting.RESET : ChatFormatting.DARK_RED)), modifierCount)
                     .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, modifierCountTooltip)));
         }
-
+        updateEntryButtons();
     }
 
     @Override
@@ -401,6 +411,10 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             // add conditions tooltips
             this.conditionsTooltips.clear();
             conditionsTooltips.add(Component.translatable(PREFIX + "entry.condition").withStyle(ChatFormatting.GOLD));
+            // add energy cost tooltip
+            if(entry.getModifier().getSettings().getEnergyCost() > 0) {
+                conditionsTooltips.add(createBonusTooltip("axolootl.modifier_settings.energy_cost", entry.getActiveCount(), Component.literal("" + entry.getModifier().getSettings().getEnergyCost()).withStyle(ChatFormatting.RED), Component.literal("" + (entry.getModifier().getSettings().getEnergyCost() * entry.getActiveCount())).withStyle(ChatFormatting.RED)));
+            }
             conditionsTooltips.addAll(entry.getModifier().getCondition().getDescription());
         }
 
@@ -449,9 +463,6 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             if(modifier.getSpreadSpeed() > 1.0E-8) {
                 builder.add(createBonusTooltip(PREFIX + "spread_speed", activeCount, toAdditivePercentage(modifier.getSpreadSpeed(), ChatFormatting.BLUE), toAdditivePercentage(modifier.getSpreadSpeed() * activeCount, ChatFormatting.BLUE)));
             }
-            if(modifier.getEnergyCost() > 0) {
-                builder.add(createBonusTooltip(PREFIX + "energy_cost", activeCount, Component.literal("-" + modifier.getEnergyCost()).withStyle(ChatFormatting.RED), Component.literal("-" + (modifier.getEnergyCost() * activeCount)).withStyle(ChatFormatting.RED)));
-            }
             if(modifier.isEnableMobResources()) {
                 builder.add(Component.translatable(PREFIX + "enable_mob_resources").withStyle(ChatFormatting.AQUA, ChatFormatting.ITALIC));
             }
@@ -468,15 +479,6 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             return Component.translatable(key + ".single", single);
         }
 
-        private static Component toAdditivePercentage(final double value, final ChatFormatting color) {
-            return Component.literal(toAdditivePercentage(value)).withStyle(color);
-        }
-
-        private static String toAdditivePercentage(final double value) {
-            String sign = (value < 0) ? "-" : "+";
-            String sValue = String.format("%.8f", value * 100.0D).replaceAll("0*$", "").replaceAll("\\.$", "");
-            return sign + sValue + "%";
-        }
     }
 
     private static class ActivateButton extends ImageButton {

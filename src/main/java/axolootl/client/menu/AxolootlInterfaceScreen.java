@@ -49,7 +49,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
 
     // WIDGETS //
     private List<EntryButton> entryButtons;
-    private Button insertButton;
+    private InsertButton insertButton;
     private ScrollButton scrollButton;
     private int scrollOffset;
 
@@ -101,7 +101,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
           updateVariantList();
           updateEntryButtons();
         };
-        this.insertButton = addRenderableWidget(new ImageButton(leftPos + 143, topPos + 107, 69, 18, 160, 50, 18, WIDGETS, 256, 256, insertButtonOnPress, (b, p, mx, my) -> renderTooltip(p, b.getMessage(), mx, my), Component.translatable(PREFIX + "insert")));
+        this.insertButton = addRenderableWidget(new InsertButton(leftPos + WIDTH - InsertButton.WIDTH - 7, topPos + AxolootlInterfaceMenu.INV_Y - 1, font, insertButtonOnPress, (b, p, mx, my) -> renderTooltip(p, b.getMessage(), mx, my)));
         // add entry buttons
         this.entryButtons.clear();
         for(int i = 0, x, y; i < ENTRY_COUNT; i++) {
@@ -210,6 +210,24 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
     }
 
     //// WIDGETS ////
+
+    private static class InsertButton extends ImageButton {
+        private static final int WIDTH = 92;
+        private static final int HEIGHT = 18;
+
+        private final Font font;
+
+        public InsertButton(int pX, int pY, Font font, OnPress pOnPress, OnTooltip pOnTooltip) {
+            super(pX, pY, WIDTH, HEIGHT, 137, 50, HEIGHT, WIDGETS, 256, 256, pOnPress, pOnTooltip, Component.translatable(PREFIX + "insert"));
+            this.font = font;
+        }
+
+        @Override
+        public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+            super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
+            font.draw(pPoseStack, getMessage(), this.x + (this.width - font.width(getMessage())) / 2.0F, this.y + (this.height - font.lineHeight) / 2.0F, 0);
+        }
+    }
 
     public static class EntryButton extends ImageButton {
 

@@ -213,10 +213,17 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
     @NotNull
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction facing)
     {
-        if (capability == ForgeCapabilities.ITEM_HANDLER) {
+        if (capability == ForgeCapabilities.ITEM_HANDLER && (null == facing || exposeItemCapability())) {
             return holder.cast();
         }
         return super.getCapability(capability, facing);
+    }
+
+    /**
+     * @return true to expose the item handler capability on the appropriate side of the block
+     */
+    protected boolean exposeItemCapability() {
+        return true;
     }
 
     @Override
