@@ -8,21 +8,7 @@
     }
   ],
   "breed_food": "#forge:storage_blocks/tin",
-  "resource_generator": [
-    {
-      "weight": 4,
-      "data": {
-        "type": "axolootl:tag",
-        "tag": "forge:nuggets/tin"
-      }
-    },
-    {
-      "weight": 1,
-      "data": {
-        "type": "axolootl:empty"
-      }
-    }
-  ],
+  "resource_generator": "axolootl:mod_compatibility/tin",
   "condition": {
     "type": "forge:not",
     "value": {

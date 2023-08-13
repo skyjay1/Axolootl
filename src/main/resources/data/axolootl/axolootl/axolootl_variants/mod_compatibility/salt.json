@@ -8,21 +8,7 @@
     }
   ],
   "breed_food": "#forge:storage_blocks/salt",
-  "resource_generator": [
-    {
-      "weight": 4,
-      "data": {
-        "type": "axolootl:tag",
-        "tag": "forge:dusts/salt"
-      }
-    },
-    {
-      "weight": 1,
-      "data": {
-        "type": "axolootl:empty"
-      }
-    }
-  ],
+  "resource_generator": "axolootl:mod_compatibility/salt",
   "condition": {
     "type": "forge:not",
     "value": {

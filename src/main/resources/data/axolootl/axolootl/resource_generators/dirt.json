@@ -1,0 +1,51 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 2,
+      "data": {
+        "type": "axolootl:item",
+        "pool": [
+          {
+            "data": "minecraft:dirt",
+            "weight": 20
+          },
+          {
+            "data": "minecraft:mud",
+            "weight": 15
+          },
+          {
+            "data": "minecraft:grass_block",
+            "weight": 4
+          },
+          {
+            "data": "minecraft:podzol",
+            "weight": 8
+          },
+          {
+            "data": "minecraft:coarse_dirt",
+            "weight": 10
+          },
+          {
+            "data": "minecraft:moss_block",
+            "weight": 10
+          },
+          {
+            "data": "minecraft:rooted_dirt",
+            "weight": 5
+          },
+          {
+            "data": "minecraft:mycelium",
+            "weight": 1
+          }
+        ]
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

@@ -63,12 +63,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.registries.RegistryObject;
@@ -411,7 +407,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
             // verify energy
             int cost = oVariant.get().getEnergyCost();
             // load generator
-            ResourceGenerator gen = oVariant.get().getResourceGenerator(entry.getEntity().getRandom());
+            ResourceGenerator gen = oVariant.get().getResourceGenerator().value();
             // verify mob resources are enabled
             if(gen.is(ResourceType.MOB) && !this.enableMobResources) {
                 continue;

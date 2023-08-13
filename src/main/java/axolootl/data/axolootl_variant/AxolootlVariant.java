@@ -16,7 +16,6 @@ import axolootl.data.resource_generator.ResourceType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -30,9 +29,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.util.RandomSource;
-import net.minecraft.util.random.SimpleWeightedRandomList;
-import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.ItemLike;
@@ -45,7 +41,7 @@ import java.util.Set;
 
 public class AxolootlVariant {
 
-    public static final AxolootlVariant EMPTY = new AxolootlVariant(FalseForgeCondition.INSTANCE, "empty", 0, Rarity.COMMON, AxolootlModelSettings.EMPTY, 0, ImmutableList.of(), HolderSet.direct(), SimpleWeightedRandomList.empty());
+    public static final AxolootlVariant EMPTY = new AxolootlVariant(FalseForgeCondition.INSTANCE, "empty", 0, Rarity.COMMON, AxolootlModelSettings.EMPTY, 0, ImmutableList.of(), HolderSet.direct(), Holder.direct(EmptyResourceGenerator.INSTANCE));
 
     private static final Codec<HolderSet<Item>> ITEM_HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(ForgeRegistries.Keys.ITEMS);
 
@@ -60,7 +56,7 @@ public class AxolootlVariant {
         ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("energy_cost", 0).forGetter(AxolootlVariant::getEnergyCost),
         BonusesProvider.CODEC.listOf().optionalFieldOf("food", BonusesProvider.FISH_BONUS_PROVIDERS).forGetter(AxolootlVariant::getFoods),
         ITEM_HOLDER_SET_CODEC.optionalFieldOf("breed_food", HolderSet.direct()).forGetter(AxolootlVariant::getBreedFood),
-        ResourceGenerator.WEIGHTED_LIST_CODEC.optionalFieldOf("resource_generator", SimpleWeightedRandomList.empty()).forGetter(AxolootlVariant::getResourceGenerators)
+        ResourceGenerator.HOLDER_CODEC.optionalFieldOf("resource_generator", Holder.direct(EmptyResourceGenerator.INSTANCE)).forGetter(AxolootlVariant::getResourceGenerator)
     ).apply(instance, AxolootlVariant::new));
 
     public static final Codec<Holder<AxolootlVariant>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, CODEC);
@@ -82,8 +78,8 @@ public class AxolootlVariant {
     private final List<BonusesProvider> foods;
     /** The set of foods that enable breeding **/
     private final HolderSet<Item> breedFood;
-    /** Any number of resource generators **/
-    private final SimpleWeightedRandomList<ResourceGenerator> resourceGenerators;
+    /** The resource generator **/
+    private final Holder<ResourceGenerator> resourceGenerator;
     /** The resource generator lookup map **/
     private final Set<ResourceType> resourceTypes;
 
@@ -97,7 +93,7 @@ public class AxolootlVariant {
     private Holder<AxolootlVariant> holder;
 
     public AxolootlVariant(ForgeCondition condition, String translationKey, int tier, Rarity rarity, AxolootlModelSettings axolootlModelSettings, int energyCost,
-                           List<BonusesProvider> foods, HolderSet<Item> breedFood, SimpleWeightedRandomList<ResourceGenerator> resourceGenerators) {
+                           List<BonusesProvider> foods, HolderSet<Item> breedFood, Holder<ResourceGenerator> resourceGenerator) {
         this.condition = condition;
         this.translationKey = translationKey;
         this.tier = tier;
@@ -106,14 +102,9 @@ public class AxolootlVariant {
         this.energyCost = energyCost;
         this.foods = ImmutableList.copyOf(foods);
         this.breedFood = breedFood;
-        this.resourceGenerators = resourceGenerators;
-        this.resourceGeneratorDescription = ImmutableList.copyOf(ResourceGenerator.createDescription(resourceGenerators));
-        // build resource type set
-        final ImmutableSet.Builder<ResourceType> resourceTypeBuilder = ImmutableSet.builder();
-        for(WeightedEntry.Wrapper<ResourceGenerator> item : resourceGenerators.unwrap()) {
-            resourceTypeBuilder.addAll(item.getData().getResourceTypes());
-        }
-        this.resourceTypes = resourceTypeBuilder.build();
+        this.resourceGenerator = resourceGenerator;
+        this.resourceGeneratorDescription = ImmutableList.copyOf(resourceGenerator.value().getDescription());
+        this.resourceTypes = ImmutableSet.copyOf(resourceGenerator.value().getResourceTypes());
     }
 
     //// METHODS ////
@@ -219,12 +210,8 @@ public class AxolootlVariant {
         return breedFood;
     }
 
-    public SimpleWeightedRandomList<ResourceGenerator> getResourceGenerators() {
-        return resourceGenerators;
-    }
-
-    public ResourceGenerator getResourceGenerator(final RandomSource random) {
-        return getResourceGenerators().getRandom(random).orElse(WeightedEntry.wrap(EmptyResourceGenerator.INSTANCE, 1)).getData();
+    public Holder<ResourceGenerator> getResourceGenerator() {
+        return resourceGenerator;
     }
 
     public Component getDescription() {
@@ -242,6 +229,9 @@ public class AxolootlVariant {
     }
 
     public List<Component> getResourceGeneratorDescription() {
+        if(null == this.resourceGeneratorDescription) {
+            this.resourceGeneratorDescription = this.resourceGenerator.value().getDescription();
+        }
         return resourceGeneratorDescription;
     }
 
@@ -292,7 +282,7 @@ public class AxolootlVariant {
         builder.append(" model=" + axolootlModelSettings);
         builder.append(" food_bonuses=" + foods.toString());
         builder.append(" breed_food=" + breedFood.toString());
-        builder.append(" generators=" + resourceGenerators.toString());
+        builder.append(" generators=" + resourceGenerator.toString());
         builder.append("}");
         return super.toString();
     }

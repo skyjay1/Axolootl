@@ -9,19 +9,5 @@
     "secondary_texture": "axolootl:textures/entity/axolootl/axolootl_secondary.png"
   },
   "breed_food": "#forge:storage_blocks/iron",
-  "resource_generator": [
-    {
-      "weight": 5,
-      "data": {
-        "type": "axolootl:tag",
-        "tag": "forge:nuggets/iron"
-      }
-    },
-    {
-      "weight": 1,
-      "data": {
-        "type": "axolootl:empty"
-      }
-    }
-  ]
+  "resource_generator": "axolootl:iron"
 }

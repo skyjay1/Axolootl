@@ -46,6 +46,8 @@ public abstract class ResourceGenerator {
     public static final Codec<Holder<ResourceGenerator>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.RESOURCE_GENERATORS, DIRECT_CODEC);
     public static final Codec<HolderSet<ResourceGenerator>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.RESOURCE_GENERATORS, DIRECT_CODEC);
 
+
+
     public static final Codec<List<ResourceGenerator>> DIRECT_LIST_CODEC = DIRECT_CODEC.listOf();
     public static final Codec<List<ResourceGenerator>> DIRECT_LIST_OR_SINGLE_CODEC = Codec.either(DIRECT_CODEC, DIRECT_LIST_CODEC)
             .xmap(either -> either.map(ImmutableList::of, Function.identity()),
@@ -108,15 +110,18 @@ public abstract class ResourceGenerator {
         double totalWeight = calculateTotalWeight(list);
         // iterate sorted wrapper list
         for(WeightedEntry.Wrapper<T> wrapper : calculateSortedWeightedList(list)) {
-            // calculate percent chance
-            double percentChance = wrapper.getWeight().asInt() / totalWeight;
-            String sPercentChance = String.format("%.1f", percentChance * 100.0D).replaceAll("\\.0+$", "");
-            components.add(Component.translatable("axolootl.resource_generator.weighted_list.entry", sPercentChance, getDisplayName.apply(wrapper.getData())));
+            components.add(createChanceDescription(wrapper, totalWeight, getDisplayName));
         }
         return components;
     }
 
-    public static List<Component> createDescription(final WeightedRandomList<WeightedEntry.Wrapper<ResourceGenerator>> list) {
+    public static <T> Component createChanceDescription(WeightedEntry.Wrapper<T> wrapper, final double totalWeight, Function<T, Component> getDisplayName) {
+        double percentChance = wrapper.getWeight().asInt() / Math.max(1.0D, totalWeight);
+        String sPercentChance = String.format("%.1f", percentChance * 100.0D).replaceAll("\\.0+$", "");
+        return Component.translatable("axolootl.resource_generator.weighted_list.entry", sPercentChance, getDisplayName.apply(wrapper.getData()));
+    }
+
+    public static List<Component> createDescription(final WeightedRandomList<WeightedEntry.Wrapper<Holder<ResourceGenerator>>> list) {
         final List<Component> components = new ArrayList<>();
         // check for empty list
         if(list.isEmpty()) {
@@ -124,17 +129,17 @@ public abstract class ResourceGenerator {
         }
         // check for single element list
         if(list.unwrap().size() == 1) {
-            return list.unwrap().get(0).getData().getDescription();
+            return list.unwrap().get(0).getData().value().getDescription();
         }
         // calculate total weight
         double totalWeight = calculateTotalWeight(list);
         // iterate sorted wrapper list
         final Component lootComponent = Component.translatable("axolootl.resource_generator.loot");
-        for(WeightedEntry.Wrapper<ResourceGenerator> wrapper : calculateSortedWeightedList(list)) {
+        for(WeightedEntry.Wrapper<Holder<ResourceGenerator>> wrapper : calculateSortedWeightedList(list)) {
             // calculate percent chance
             double percentChance = wrapper.getWeight().asInt() / totalWeight;
             String sPercentChance = String.format("%.1f", percentChance * 100.0D).replaceAll("\\.0+$", "");
-            List<Component> generator = wrapper.getData().getDescription();
+            List<Component> generator = wrapper.getData().value().getDescription();
             // add percent chance and generator description
             if(generator.size() == 1) {
                 // add inline description
@@ -142,7 +147,7 @@ public abstract class ResourceGenerator {
             } else {
                 // add multi-line description
                 components.add(Component.translatable("axolootl.resource_generator.weighted_list.entry", sPercentChance, lootComponent));
-                wrapper.getData().getDescription().forEach(c -> components.add(Component.literal("  ").append(c)));
+                wrapper.getData().value().getDescription().forEach(c -> components.add(Component.literal("  ").append(c)));
             }
         }
         return components;

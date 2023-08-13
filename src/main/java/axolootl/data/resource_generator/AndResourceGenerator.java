@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderSet;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,26 +26,26 @@ import java.util.Set;
 @Immutable
 public class AndResourceGenerator extends ResourceGenerator {
 
-    public static final Codec<AndResourceGenerator> CODEC = ResourceGenerator.DIRECT_LIST_CODEC
+    public static final Codec<AndResourceGenerator> CODEC = ResourceGenerator.HOLDER_SET_CODEC
             .xmap(AndResourceGenerator::new, AndResourceGenerator::getChildren).fieldOf("values").codec();
 
-    private final List<ResourceGenerator> children;
+    private final HolderSet<ResourceGenerator> children;
     private final Set<ResourceType> resourceTypes;
     private final List<Component> description;
 
-    public AndResourceGenerator(final List<ResourceGenerator> list) {
+    public AndResourceGenerator(final HolderSet<ResourceGenerator> list) {
         super(ResourceType.MULTIPLE);
-        this.children = ImmutableList.copyOf(list);
+        this.children = list;
         // prepare to build resource type set
         final ImmutableSet.Builder<ResourceType> typeBuilder = ImmutableSet.builder();
-        typeBuilder.add(getResourceType());
-        list.forEach(gen -> typeBuilder.addAll(gen.getResourceTypes()));
+        typeBuilder.add(ResourceType.MULTIPLE);
+        list.forEach(entry -> typeBuilder.addAll(entry.value().getResourceTypes()));
         // build resource type set
         this.resourceTypes = typeBuilder.build();
         // prepare to build description
         final List<Component> descriptionBuilder = new ArrayList<>();
-        list.forEach(gen -> {
-            gen.getDescription().forEach(c -> descriptionBuilder.add(Component.literal("  ").append(c)));
+        list.forEach(entry -> {
+            entry.value().getDescription().forEach(c -> descriptionBuilder.add(Component.literal("  ").append(c)));
             descriptionBuilder.add(Component.translatable("axolootl.resource_generator.and.header").withStyle(ChatFormatting.GOLD));
         });
         // remove trailing component
@@ -55,7 +56,7 @@ public class AndResourceGenerator extends ResourceGenerator {
         this.description = ImmutableList.copyOf(descriptionBuilder);
     }
 
-    public List<ResourceGenerator> getChildren() {
+    public HolderSet<ResourceGenerator> getChildren() {
         return children;
     }
 
@@ -68,9 +69,7 @@ public class AndResourceGenerator extends ResourceGenerator {
     public Collection<ItemStack> getRandomEntries(final LivingEntity entity, RandomSource random) {
         // roll each list
         final ImmutableList.Builder<ItemStack> builder = ImmutableList.builder();
-        for(ResourceGenerator generator : children) {
-            builder.addAll(generator.getRandomEntries(entity, random));
-        }
+        getChildren().forEach(entry -> builder.addAll(entry.value().getRandomEntries(entity, random)));
         return builder.build();
     }
 

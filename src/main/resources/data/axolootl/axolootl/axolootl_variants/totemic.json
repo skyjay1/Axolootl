@@ -1,19 +1,5 @@
 {
   "translation_key": "entity.axolootl.axolootl.totemic",
   "tier": 6,
-  "resource_generator": [
-    {
-      "weight": 1,
-      "data": {
-        "type": "axolootl:item",
-        "pool": "minecraft:totem_of_undying"
-      }
-    },
-    {
-      "weight": 10,
-      "data": {
-        "type": "axolootl:empty"
-      }
-    }
-  ]
+  "resource_generator": "axolootl:totemic"
 }

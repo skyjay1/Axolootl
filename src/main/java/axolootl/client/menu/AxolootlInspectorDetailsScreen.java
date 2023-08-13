@@ -142,7 +142,7 @@ public class AxolootlInspectorDetailsScreen extends Screen implements ScrollButt
         for(ParentData entry : this.parentData) {
             Component parentA = createTieredAxolootlName(entry.parentA(), entry.parentA().getRegistryName(access));
             Component parentB = createTieredAxolootlName(entry.parentB(), entry.parentB().getRegistryName(access));
-            Component chance = Component.literal(String.format("%.4f", entry.chance() * 100.0D).replaceAll("0*$", "").replaceAll("\\.$", ""));
+            Component chance = Component.literal(String.format("%.2f", entry.chance() * 100.0D).replaceAll("0*$", "").replaceAll("\\.$", ""));
             this.parentsText.add(Component.translatable(PREFIX + "parents.entry.chance", chance).withStyle(ChatFormatting.DARK_BLUE));
             this.parentsText.add(Component.literal("  ").append(parentA).withStyle(parentA.getStyle()).withStyle(a -> a.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, entry.parentA().getRegistryName(access).toString()))));
             this.parentsText.add(Component.literal("  ").append(parentB).withStyle(parentB.getStyle()).withStyle(a -> a.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, entry.parentB().getRegistryName(access).toString()))));

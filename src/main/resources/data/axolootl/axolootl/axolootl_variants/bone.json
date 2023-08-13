@@ -1,28 +1,5 @@
 {
   "translation_key": "item.minecraft.bone",
   "breed_food": "minecraft:bone_block",
-  "resource_generator": [
-    {
-      "weight": 4,
-      "data": {
-        "type": "axolootl:item",
-        "pool": [
-          {
-            "data": "minecraft:bone_meal",
-            "weight": 3
-          },
-          {
-            "data": "minecraft:bone",
-            "weight": 1
-          }
-        ]
-      }
-    },
-    {
-      "weight": 1,
-      "data": {
-        "type": "axolootl:empty"
-      }
-    }
-  ]
+  "resource_generator": "axolootl:bone"
 }

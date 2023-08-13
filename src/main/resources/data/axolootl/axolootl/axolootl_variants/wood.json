@@ -1,33 +1,5 @@
 {
   "translation_key": "entity.axolootl.axolootl.wood",
   "breed_food": "#minecraft:logs_that_burn",
-  "resource_generator": [
-    {
-      "weight": 1,
-      "data": {
-        "type": "axolootl:tag",
-        "tag": "minecraft:logs_that_burn"
-      }
-    },
-    {
-      "weight": 3,
-      "data": {
-        "type": "axolootl:tag",
-        "tag": "minecraft:planks"
-      }
-    },
-    {
-      "weight": 6,
-      "data": {
-        "type": "axolootl:tag",
-        "tag": "forge:rods/wooden"
-      }
-    },
-    {
-      "weight": 2,
-      "data": {
-        "type": "axolootl:empty"
-      }
-    }
-  ]
+  "resource_generator": "axolootl:wood"
 }

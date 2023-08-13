@@ -25,6 +25,7 @@ public class AxolootlGeoRenderer<T extends LivingEntity & LerpingModel & IAxoloo
         super(context, new AxolootlGeoModel<>());
         this.addLayer(new AxolootlGeoPrimaryLayer<>(this));
         this.addLayer(new AxolootlGeoSecondaryLayer<>(this));
+        this.addLayer(new AxolootlGeoFermiLayer<>(this));
     }
 
     @Override

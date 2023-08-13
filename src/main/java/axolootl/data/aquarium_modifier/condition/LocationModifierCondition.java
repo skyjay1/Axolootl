@@ -12,6 +12,7 @@ import axolootl.util.MatchingStatePredicate;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.critereon.FluidPredicate;
 import net.minecraft.advancements.critereon.LightPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
@@ -31,6 +32,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Immutable
@@ -102,7 +104,37 @@ public class LocationModifierCondition extends ModifierCondition {
         this.light = light;
         this.fluid = fluid;
         this.block = block;
-        this.description = ImmutableList.of(); // TODO description for location modifier condition
+        // create description
+        final ImmutableList.Builder<Component> builder = ImmutableList.builder();
+        // offset
+        if(!Vec3i.ZERO.equals(this.offset)) {
+            builder.add(Component.translatable("axolootl.modifier_condition.location.with_offset", this.offset.getX(), this.offset.getY(), this.offset.getZ()).withStyle(ChatFormatting.ITALIC));
+        }
+        // position
+        if(this.position != DoublesPosition.ANY) {
+            builder.addAll(this.position.getDescription());
+        }
+        // biome
+        if(this.biome != null) {
+            builder.add(Component.translatable("axolootl.modifier_condition.location.biome", Component.literal(this.biome.location().toString()).withStyle(ChatFormatting.GRAY)));
+        }
+        // structure
+        if(this.structure != null) {
+            builder.add(Component.translatable("axolootl.modifier_condition.location.structure", Component.literal(this.structure.location().toString()).withStyle(ChatFormatting.GRAY)));
+        }
+        // dimension
+        if(this.dimension != null) {
+            builder.add(Component.translatable("axolootl.modifier_condition.location.dimension", Component.literal(this.dimension.location().toString()).withStyle(ChatFormatting.GRAY)));
+        }
+        // smokey
+        if(this.smokey != null) {
+            builder.add(Component.translatable("axolootl.modifier_condition.location." + (this.smokey ? "smokey" : "not_smokey")));
+        }
+        // light
+        if(this.light != LightPredicate.ANY) {
+            builder.add(createLightDescription(this.light.composite));
+        }
+        this.description = builder.build();
     }
 
 
@@ -161,6 +193,23 @@ public class LocationModifierCondition extends ModifierCondition {
     @Override
     public List<Component> getDescription() {
         return description;
+    }
+
+    private static Component createLightDescription(final MinMaxBounds.Ints bounds) {
+        // check range
+        if(bounds.getMin() != null && bounds.getMax() != null) {
+            return Component.translatable("axolootl.modifier_condition.location.light.range", bounds.getMin(), bounds.getMax());
+        }
+        // check min only
+        if(bounds.getMin() != null) {
+            return Component.translatable("axolootl.modifier_condition.location.light.min", bounds.getMin());
+        }
+        // check max only
+        if(bounds.getMax() != null) {
+            return Component.translatable("axolootl.modifier_condition.location.light.max", bounds.getMax());
+        }
+        // fallback
+        return Component.empty();
     }
 
     //// GETTERS ////
@@ -227,10 +276,58 @@ public class LocationModifierCondition extends ModifierCondition {
         private final MinMaxBounds.Doubles y;
         private final MinMaxBounds.Doubles z;
 
+        private final List<Component> description;
+
         public DoublesPosition(Optional<MinMaxBounds.Doubles> x, Optional<MinMaxBounds.Doubles> y, Optional<MinMaxBounds.Doubles> z) {
             this.x = x.orElse(MinMaxBounds.Doubles.ANY);
             this.y = y.orElse(MinMaxBounds.Doubles.ANY);
             this.z = z.orElse(MinMaxBounds.Doubles.ANY);
+            // create description
+            final ImmutableList.Builder<Component> builder = ImmutableList.builder();
+            if(!this.x.isAny()) {
+                builder.add(createDescription("x", this.x));
+            }
+            if(!this.y.isAny()) {
+                builder.add(createDescription("y", this.y));
+            }
+            if(!this.z.isAny()) {
+                builder.add(createDescription("z", this.z));
+            }
+            this.description = builder.build();
+        }
+
+        private static Component createDescription(final String axis, final MinMaxBounds.Doubles bounds) {
+            final Component axisText = Component.translatable("axolootl.modifier_condition.location.position." + axis);
+            // check range
+            if(bounds.getMin() != null && bounds.getMax() != null) {
+                return Component.translatable("axolootl.modifier_condition.location.position.range", axisText, bounds.getMin().longValue(), bounds.getMax().longValue());
+            }
+            // check min only
+            if(bounds.getMin() != null) {
+                return Component.translatable("axolootl.modifier_condition.location.position.min", axisText, bounds.getMin().longValue());
+            }
+            // check max only
+            if(bounds.getMax() != null) {
+                return Component.translatable("axolootl.modifier_condition.location.position.max", axisText, bounds.getMax().longValue());
+            }
+            // fallback
+            return Component.empty();
+        }
+
+        public MinMaxBounds.Doubles getX() {
+            return x;
+        }
+
+        public MinMaxBounds.Doubles getY() {
+            return y;
+        }
+
+        public MinMaxBounds.Doubles getZ() {
+            return z;
+        }
+
+        public List<Component> getDescription() {
+            return description;
         }
     }
 }

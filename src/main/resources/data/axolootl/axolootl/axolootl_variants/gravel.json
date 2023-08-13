@@ -1,24 +1,5 @@
 {
   "translation_key": "block.minecraft.gravel",
   "breed_food": "minecraft:gravel",
-  "resource_generator": [
-    {
-      "weight": 4,
-      "data": {
-        "type": "axolootl:block",
-        "block_provider": {
-          "type": "minecraft:simple_state_provider",
-          "state": {
-            "Name": "minecraft:gravel"
-          }
-        }
-      }
-    },
-    {
-      "weight": 1,
-      "data": {
-        "type": "axolootl:empty"
-      }
-    }
-  ]
+  "resource_generator": "axolootl:gravel"
 }

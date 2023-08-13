@@ -38,6 +38,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,6 +46,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class AxolootlBucketItem extends MobBucketItem {
+
+    private static final Map<ResourceLocation, Rarity> RARITY_CACHE = new HashMap<>();
 
     public AxolootlBucketItem(Supplier<? extends EntityType<?>> entitySupplier, Supplier<? extends Fluid> fluidSupplier, Supplier<? extends SoundEvent> soundSupplier, Properties properties) {
         super(entitySupplier, fluidSupplier, soundSupplier, properties);
@@ -75,22 +78,33 @@ public class AxolootlBucketItem extends MobBucketItem {
 
     @Override
     public Rarity getRarity(ItemStack pStack) {
-        // load current level
-        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        Level level = null;
-        if(server != null) {
-            level = server.overworld();
-        } else {
-            level = ClientUtil.getClientLevel().orElse(null);
-        }
-        // load axolootl variant
-        if(level != null) {
-            Optional<AxolootlVariant> oVariant = getVariant(level.registryAccess(), pStack);
-            if(oVariant.isPresent()) {
-                return oVariant.get().getRarity();
-            }
+        if(pStack.hasTag() && pStack.getTag().contains(AxolootlEntity.KEY_VARIANT_ID, Tag.TAG_STRING)) {
+            return getCachedRarity(new ResourceLocation(pStack.getTag().getString(AxolootlEntity.KEY_VARIANT_ID)));
         }
         return super.getRarity(pStack);
+    }
+
+    private static Rarity getCachedRarity(final ResourceLocation id) {
+        if(!RARITY_CACHE.containsKey(id)) {
+            // load current level
+            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+            Level level = null;
+            if(server != null) {
+                level = server.overworld();
+            } else {
+                level = ClientUtil.getClientLevel().orElse(null);
+            }
+            // load axolootl variant
+            if(level != null) {
+                AxolootlVariant.getRegistry(level.registryAccess()).getOptional(id)
+                        .ifPresent(variant -> RARITY_CACHE.put(id, variant.getRarity()));
+            }
+        }
+        return RARITY_CACHE.getOrDefault(id, Rarity.COMMON);
+    }
+
+    public static void clearRarityCache() {
+        RARITY_CACHE.clear();
     }
 
     @Override

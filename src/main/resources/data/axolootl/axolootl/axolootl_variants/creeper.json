@@ -4,19 +4,5 @@
   "breed_food": [
     "minecraft:tnt"
   ],
-  "resource_generator": [
-    {
-      "weight": 5,
-      "data": {
-        "type": "axolootl:mob",
-        "loot_table": "minecraft:entities/creeper"
-      }
-    },
-    {
-      "weight": 1,
-      "data": {
-        "type": "axolootl:empty"
-      }
-    }
-  ]
+  "resource_generator": "axolootl:creeper"
 }
