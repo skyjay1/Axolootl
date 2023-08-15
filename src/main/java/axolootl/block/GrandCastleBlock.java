@@ -17,8 +17,9 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
 public class GrandCastleBlock extends WaterloggedHorizontalMultiBlock {
 
+    public static final int MAX_ENCHANTMENT_LEVEL = 3;
     /** The enchantment level **/
-    public static final IntegerProperty ENCHANTMENT_LEVEL = IntegerProperty.create("level", 0, 3);
+    public static final IntegerProperty ENCHANTMENT_LEVEL = IntegerProperty.create("level", 0, MAX_ENCHANTMENT_LEVEL);
     public static final Enchantment ENCHANTMENT = Enchantments.FISHING_LUCK;
 
     public GrandCastleBlock(Properties pProperties) {

@@ -1,6 +1,13 @@
 {
   "translation_key": "entity.axolootl.axolootl.tin",
   "tier": 2,
+  "model": {
+    "primary_color": "efefef",
+    "secondary_color": "b5b5b5",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
   "food": [
     {
       "item": "#forge:nuggets/tin",

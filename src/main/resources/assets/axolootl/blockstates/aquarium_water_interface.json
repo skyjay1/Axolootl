@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=east": { "model": "axolootl:block/aquarium_water_interface", "y": 90 },
+    "facing=north": { "model": "axolootl:block/aquarium_water_interface" },
+    "facing=south": { "model": "axolootl:block/aquarium_water_interface", "y": 180 },
+    "facing=west": { "model": "axolootl:block/aquarium_water_interface", "y": 270 }
+  }
+}

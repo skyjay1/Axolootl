@@ -1,13 +1,14 @@
 {
   "values": [
-    "#axolootl:aquarium_axolootl_interfaces",
-    "#axolootl:aquarium_energy_interfaces",
-    "#axolootl:aquarium_fluid_interfaces",
-    "#axolootl:aquarium_outputs",
-    "minecraft:glass",
-    "minecraft:smooth_stone",
+    "#axolootl:aquarium_axolootl_interface",
+    "#axolootl:aquarium_axolootl_inspector",
+    "#axolootl:aquarium_energy_interface",
+    "#axolootl:aquarium_fluid_interface",
+    "#axolootl:aquarium_output",
+    "#axolootl:aquarium_floor",
+    "axolootl:aquarium_glass",
+    "axolootl:aquarium_roof",
     "axolootl:aquarium_controller",
-    "axolootl:aquarium_airlock",
-    "axolootl:aquarium_axolootl_inspector"
+    "axolootl:aquarium_airlock"
   ]
 }

@@ -8,6 +8,7 @@ package axolootl.client;
 
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
+import axolootl.block.GrandCastleBlock;
 import axolootl.client.entity.AxolootlGeoRenderer;
 import axolootl.client.item.AxolootlBucketItemSettings;
 import axolootl.client.menu.AxolootlInspectorScreen;
@@ -26,11 +27,16 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.client.renderer.item.ItemPropertyFunction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
@@ -40,6 +46,9 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -62,6 +71,7 @@ public final class ClientEvents {
         @SubscribeEvent
         public static void onCommonSetup(final FMLCommonSetupEvent event) {
             event.enqueueWork(ModHandler::onRegisterScreens);
+            event.enqueueWork(ModHandler::onRegisterItemPropertyOverrides);
         }
 
         @SubscribeEvent
@@ -102,6 +112,15 @@ public final class ClientEvents {
             MenuScreens.register(AxRegistry.MenuReg.MONSTERIUM.get(), CyclingContainerScreen::new);
             MenuScreens.register(AxRegistry.MenuReg.ENERGY.get(), EnergyInterfaceScreen::new);
             MenuScreens.register(AxRegistry.MenuReg.FLUID.get(), FluidInterfaceScreen::new);
+        }
+
+        private static void onRegisterItemPropertyOverrides() {
+            ItemProperties.register(
+                    RegistryObject.create(new ResourceLocation(Axolootl.MODID, "grand_castle"), ForgeRegistries.ITEMS).get(),
+                    new ResourceLocation("level"),
+                    (pStack, pLevel, pEntity, pSeed) -> {
+                        return (float) pStack.getEnchantmentLevel(GrandCastleBlock.ENCHANTMENT) / (float) GrandCastleBlock.MAX_ENCHANTMENT_LEVEL;
+                    });
         }
     }
 

@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "top": "axolootl:block/aquarium_glass",
+    "front": "axolootl:block/large_aquarium_output",
+    "side": "axolootl:block/aquarium_glass"
+  }
+}

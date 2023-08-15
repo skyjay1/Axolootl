@@ -1,0 +1,28 @@
+{
+  "parent": "block/orientable",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "#top"
+  },
+  "elements": [
+    {
+      "from": [ 0, 0, 0 ],
+      "to": [ 16, 16, 16 ],
+      "faces": {
+        "down":  { "texture": "#bottom", "cullface": "down" },
+        "up":    { "tintindex": 0, "texture": "#top", "cullface": "up" },
+        "south": { "tintindex": 0, "texture": "#side", "cullface": "south" },
+        "west":  { "tintindex": 0, "texture": "#side", "cullface": "west" },
+        "east":  { "tintindex": 0, "texture": "#side", "cullface": "east" }
+      }
+    },
+    {
+      "from": [ 0, 0, 0 ],
+      "to": [ 16, 16, 0.002 ],
+      "faces": {
+        "north": { "uv": [ 0, 0, 16, 16 ], "texture": "#front", "cullface": "north" },
+        "south": { "uv": [ 16, 0, 0, 16 ], "texture": "#front" }
+      }
+    }
+  ]
+}

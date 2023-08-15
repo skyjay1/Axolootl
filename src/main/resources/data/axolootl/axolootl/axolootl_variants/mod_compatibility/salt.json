@@ -1,6 +1,11 @@
 {
-  "translation_key": "entity.axolootl.axolootl.nickel",
+  "translation_key": "entity.axolootl.axolootl.salt",
   "tier": 2,
+  "model": {
+    "primary_color": "ffffff",
+    "secondary_color": "cbcbcb",
+    "texture": "axolootl:mod_compatibility/salt"
+  },
   "food": [
     {
       "item": "#forge:dusts/salt",

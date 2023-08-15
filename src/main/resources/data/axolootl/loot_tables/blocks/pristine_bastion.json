@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        },
+        {
+          "block": "axolootl:pristine_bastion",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "width": 1,
+            "height": 1,
+            "depth": 1
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "axolootl:pristine_bastion"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ]
+}

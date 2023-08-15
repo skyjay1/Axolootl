@@ -1,0 +1,8 @@
+{
+  "parent": "axolootl:block/orientable",
+  "textures": {
+    "top": "axolootl:block/aquarium_glass",
+    "front": "axolootl:block/aquarium_axolootl_inspector",
+    "side": "axolootl:block/aquarium_glass"
+  }
+}

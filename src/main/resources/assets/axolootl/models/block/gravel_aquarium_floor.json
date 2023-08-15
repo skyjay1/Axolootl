@@ -1,0 +1,8 @@
+{
+  "parent": "axolootl:block/cube_overlay_top",
+  "textures": {
+    "top": "minecraft:block/gravel",
+    "side": "axolootl:block/aquarium_floor",
+    "overlay": "axolootl:block/aquarium_floor_overlay"
+  }
+}

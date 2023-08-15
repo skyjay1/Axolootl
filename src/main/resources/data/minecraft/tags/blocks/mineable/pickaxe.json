@@ -1,13 +1,17 @@
 {
   "replace": false,
   "values": [
+    "#axolootl:aquarium_floor",
     "axolootl:aquarium_controller",
     "axolootl:aquarium_airlock",
     "axolootl:aquarium_water_interface",
     "axolootl:aquarium_energy_interface",
     "axolootl:aquarium_axolootl_interface",
+    "axolootl:aquarium_axolootl_inspector",
     "axolootl:aquarium_output",
     "axolootl:large_aquarium_output",
+    "axolootl:aquarium_glass",
+    "axolootl:aquarium_roof",
     "axolootl:bubbler",
     "axolootl:powered_bubbler",
     "axolootl:pump",

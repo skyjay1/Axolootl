@@ -173,7 +173,7 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
             AxolootlInspectorScreen.EntryButton button = entryButtons.get(i);
             int index = i + scrollOffset * ENTRY_COUNT_X;
             if(index < 0 || index >= variants.size()) {
-                button.visible = button.active = false;
+                button.visible = false;
                 continue;
             }
             button.visible = true;

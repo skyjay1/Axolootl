@@ -1,5 +1,10 @@
 {
   "translation_key": "item.minecraft.bone",
+  "model": {
+    "primary_color": "bcbcbc",
+    "secondary_color": "8e8d8e",
+    "texture": "axolootl:bone"
+  },
   "breed_food": "minecraft:bone_block",
   "resource_generator": "axolootl:bone"
 }

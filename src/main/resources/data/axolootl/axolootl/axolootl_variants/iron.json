@@ -2,11 +2,9 @@
   "translation_key": "entity.axolootl.axolootl.iron",
   "tier": 2,
   "model": {
-    "primary_color": 11787004,
-    "secondary_color": 15726073,
-    "texture": "axolootl:textures/entity/axolootl/axolootl_base.png",
-    "primary_texture": "axolootl:textures/entity/axolootl/axolootl_primary.png",
-    "secondary_texture": "axolootl:textures/entity/axolootl/axolootl_secondary.png"
+    "primary_color": "e9c8b1",
+    "secondary_color": "a8633a",
+    "texture": "axolootl:iron"
   },
   "breed_food": "#forge:storage_blocks/iron",
   "resource_generator": "axolootl:iron"

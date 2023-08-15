@@ -32,24 +32,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
-public class ControllerBlock extends HorizontalDirectionalBlock implements EntityBlock {
+public class ControllerBlock extends AbstractInterfaceBlock {
 
     public ControllerBlock(Properties pProperties) {
         super(pProperties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
     //// METHODS ////
-
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-        return this.defaultBlockState().setValue(FACING, pContext.getHorizontalDirection().getOpposite());
-    }
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
-        pBuilder.add(FACING);
-    }
 
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
@@ -90,20 +79,5 @@ public class ControllerBlock extends HorizontalDirectionalBlock implements Entit
             return null;
         }
         return (BlockEntityTicker<T>) (BlockEntityTicker<ControllerBlockEntity>) (ControllerBlockEntity::tick);
-    }
-
-    // REDSTONE //
-
-    @Override
-    public boolean hasAnalogOutputSignal(BlockState state) {
-        return true;
-    }
-
-    @Override
-    public int getAnalogOutputSignal(BlockState pState, Level pLevel, BlockPos pPos) {
-        if (pLevel.getBlockEntity(pPos) instanceof ControllerBlockEntity blockEntity) {
-            return blockEntity.getTankStatus().isActive() ? 1 : 0;
-        }
-        return 0;
     }
 }

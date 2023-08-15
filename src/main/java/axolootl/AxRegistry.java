@@ -7,6 +7,8 @@
 package axolootl;
 
 import axolootl.block.AirlockBlock;
+import axolootl.block.AquariumFloorBlock;
+import axolootl.block.AquariumGlassBlock;
 import axolootl.block.AutofeederBlock;
 import axolootl.block.AxolootlInspectorBlock;
 import axolootl.block.AxolootlInterfaceBlock;
@@ -14,6 +16,7 @@ import axolootl.block.BreederBlock;
 import axolootl.block.BubblerBlock;
 import axolootl.block.ControllerBlock;
 import axolootl.block.EnergyInterfaceBlock;
+import axolootl.block.FilledAquariumFloorBlock;
 import axolootl.block.GrandCastleBlock;
 import axolootl.block.MonsteriumBlock;
 import axolootl.block.OutputBlock;
@@ -112,9 +115,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
 import net.minecraft.world.level.material.Fluids;
@@ -314,13 +320,18 @@ public final class AxRegistry {
             BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
-        public static final RegistryObject<Block> AQUARIUM_CONTROLLER = registerWithItem("aquarium_controller", () -> new ControllerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
-        public static final RegistryObject<Block> AQUARIUM_WATER_INTERFACE = registerWithItem("aquarium_water_interface", () -> new WaterInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
-        public static final RegistryObject<Block> AQUARIUM_ENERGY_INTERFACE = registerWithItem("aquarium_energy_interface", () -> new EnergyInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
-        public static final RegistryObject<Block> AQUARIUM_AXOLOOTL_INTERFACE = registerWithItem("aquarium_axolootl_interface", () -> new AxolootlInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
-        public static final RegistryObject<Block> AQUARIUM_AXOLOOTL_INSPECTOR = registerWithItem("aquarium_axolootl_inspector", () -> new AxolootlInspectorBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
-        public static final RegistryObject<Block> AQUARIUM_OUTPUT = registerWithItem("aquarium_output", () -> new OutputBlock(3, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
-        public static final RegistryObject<Block> LARGE_AQUARIUM_OUTPUT = registerWithItem("large_aquarium_output", () -> new OutputBlock(6, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> AQUARIUM_FLOOR = registerWithItem("aquarium_floor", () -> new AquariumFloorBlock(BlockBehaviour.Properties.of(Material.METAL).strength(1.5F, 2.0F)));
+        public static final RegistryObject<Block> SAND_AQUARIUM_FLOOR = registerWithItem("sand_aquarium_floor", () -> new FilledAquariumFloorBlock(() -> new ItemStack(Items.SAND), BlockBehaviour.Properties.of(Material.METAL).sound(SoundType.SAND).strength(1.5F, 2.0F)));
+        public static final RegistryObject<Block> GRAVEL_AQUARIUM_FLOOR = registerWithItem("gravel_aquarium_floor", () -> new FilledAquariumFloorBlock(() -> new ItemStack(Items.GRAVEL), BlockBehaviour.Properties.of(Material.METAL).sound(SoundType.GRAVEL).strength(1.5F, 2.0F)));
+        public static final RegistryObject<Block> AQUARIUM_ROOF = registerWithItem("aquarium_roof", () -> new AquariumGlassBlock(BlockBehaviour.Properties.of(Material.METAL).sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(1.5F, 2.0F)));
+        public static final RegistryObject<Block> AQUARIUM_GLASS = registerWithItem("aquarium_glass", () -> new AquariumGlassBlock(BlockBehaviour.Properties.of(Material.METAL).sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(1.5F, 2.0F)));
+        public static final RegistryObject<Block> AQUARIUM_CONTROLLER = registerWithItem("aquarium_controller", () -> new ControllerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> AQUARIUM_WATER_INTERFACE = registerWithItem("aquarium_water_interface", () -> new WaterInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> AQUARIUM_ENERGY_INTERFACE = registerWithItem("aquarium_energy_interface", () -> new EnergyInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> AQUARIUM_AXOLOOTL_INTERFACE = registerWithItem("aquarium_axolootl_interface", () -> new AxolootlInterfaceBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> AQUARIUM_AXOLOOTL_INSPECTOR = registerWithItem("aquarium_axolootl_inspector", () -> new AxolootlInspectorBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> AQUARIUM_OUTPUT = registerWithItem("aquarium_output", () -> new OutputBlock(3, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(3.5F, 8.0F)));
+        public static final RegistryObject<Block> LARGE_AQUARIUM_OUTPUT = registerWithItem("large_aquarium_output", () -> new OutputBlock(6, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> AQUARIUM_AIRLOCK = registerWithItem("aquarium_airlock", () -> new AirlockBlock(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().isSuffocating((s, l, p) -> false).requiresCorrectToolForDrops().strength(3.5F, 6.0F)));
         public static final RegistryObject<Block> BUBBLER = registerWithItem("bubbler", () -> new BubblerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> POWERED_BUBBLER = registerWithItem("powered_bubbler", () -> new BubblerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
@@ -348,6 +359,14 @@ public final class AxRegistry {
 
         private static RegistryObject<Block> registerWithMultiBlockItem(final String name, final Supplier<Block> supplier) {
             return registerWithItem(name, supplier, block -> ItemReg.register(block.getId().getPath(), () -> new MultiBlockItem(block.get(), new Item.Properties().stacksTo(1).tab(ItemReg.TAB))));
+        }
+
+        private static boolean never(final BlockState blockState, final BlockGetter blockGetter, final BlockPos blockPos, final EntityType<?> entityType) {
+            return false;
+        }
+
+        private static boolean never(final BlockState state, final BlockGetter level, final BlockPos pos) {
+            return false;
         }
 
     }
@@ -627,7 +646,7 @@ public final class AxRegistry {
         public static final RegistryObject<IAquariumTab> AXOLOOTL_INTERFACE = AQUARIUM_TABS.register("axolootl_interface", () ->
                 AquariumTab.builder()
                         .available(c -> !c.getAxolootlInputs().isEmpty())
-                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_axolootl_interfaces")))
+                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_axolootl_interface")))
                         .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getAxolootlInputs()))
                         .icon(() -> Items.AXOLOTL_BUCKET.getDefaultInstance())
                         .before(() -> List.of(AquariumTabsReg.CONTROLLER.get()))
@@ -637,7 +656,7 @@ public final class AxRegistry {
         public static final RegistryObject<IAquariumTab> OUTPUT = AQUARIUM_TABS.register("output", () ->
                 AquariumTab.builder()
                         .available(c -> !c.getResourceOutputs().isEmpty())
-                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_outputs")))
+                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_output")))
                         .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getResourceOutputs()))
                         .icon(() -> Items.CHEST.getDefaultInstance())
                         .before(() -> List.of(AquariumTabsReg.AXOLOOTL_INTERFACE.get()))
@@ -647,7 +666,7 @@ public final class AxRegistry {
         public static final RegistryObject<IAquariumTab> FOOD_INTERFACE = AQUARIUM_TABS.register("food_interface", () ->
                 AquariumTab.builder()
                         .available(c -> !c.resolveModifiers(c.getLevel().registryAccess(), c.activePredicate.and(c.foodInterfacePredicate)).isEmpty())
-                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_food_interfaces")))
+                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_food_interface")))
                         .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.resolveModifiers(c.getLevel().registryAccess(), c.activePredicate.and(c.foodInterfacePredicate)).keySet()))
                         .icon(() -> Items.TROPICAL_FISH.getDefaultInstance())
                         .before(() -> List.of(AquariumTabsReg.OUTPUT.get()))
@@ -657,7 +676,7 @@ public final class AxRegistry {
         public static final RegistryObject<IAquariumTab> FLUID_INTERFACE = AQUARIUM_TABS.register("fluid_interface", () ->
                 AquariumTab.builder()
                         .available(c -> !c.getFluidInputs().isEmpty())
-                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_fluid_interfaces")))
+                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_fluid_interface")))
                         .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getFluidInputs()))
                         .icon(() -> Items.WATER_BUCKET.getDefaultInstance())
                         .before(() -> List.of(AquariumTabsReg.FOOD_INTERFACE.get()))
@@ -667,7 +686,7 @@ public final class AxRegistry {
         public static final RegistryObject<IAquariumTab> ENERGY_INTERFACE = AQUARIUM_TABS.register("energy_interface", () ->
                 AquariumTab.builder()
                         .available(c -> !c.getEnergyInputs().isEmpty())
-                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_energy_interfaces")))
+                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_energy_interface")))
                         .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getEnergyInputs()))
                         .icon(() -> Items.REDSTONE.getDefaultInstance())
                         .before(() -> List.of(AquariumTabsReg.FLUID_INTERFACE.get()))
@@ -677,7 +696,7 @@ public final class AxRegistry {
         public static final RegistryObject<IAquariumTab> AXOLOOTL_INSPECTOR = AQUARIUM_TABS.register("axolootl_inspector", () ->
                 AquariumTab.builder()
                         .available(c -> !c.getTrackedBlocks(AquariumTabsReg.AXOLOOTL_INSPECTOR.getId()).isEmpty())
-                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_axolootl_inspectors")))
+                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_axolootl_inspector")))
                         .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.getTrackedBlocks(AquariumTabsReg.AXOLOOTL_INSPECTOR.getId())))
                         .icon(() -> Items.SPYGLASS.getDefaultInstance())
                         .before(() -> List.of(AquariumTabsReg.ENERGY_INTERFACE.get()))

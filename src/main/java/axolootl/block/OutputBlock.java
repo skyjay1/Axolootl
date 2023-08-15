@@ -49,17 +49,6 @@ public class OutputBlock extends AbstractInterfaceBlock {
         }
     }
 
-
-    @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!level.isClientSide() && !state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof OutputInterfaceBlockEntity blockEntity) {
-            // drop items from inventory
-            blockEntity.dropAllItems();
-            level.updateNeighbourForOutputSignal(pos, this);
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
-    }
-
     //// ENTITY BLOCK ////
 
     @Nullable

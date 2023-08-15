@@ -4,9 +4,9 @@
   "model": {
     "primary_color": 16711680,
     "secondary_color": 16449280,
-    "texture": "axolootl:textures/entity/axolootl/axolootl_base.png",
-    "primary_texture": "axolootl:textures/entity/axolootl/axolootl_primary.png",
-    "secondary_texture": "axolootl:textures/entity/axolootl/axolootl_secondary.png"
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
   },
   "breed_food": {
     "type": "forge:and",

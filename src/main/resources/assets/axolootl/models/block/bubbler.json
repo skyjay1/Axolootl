@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_top",
+  "textures": {
+    "top": "axolootl:block/bubbler",
+    "side": "axolootl:block/aquarium_floor"
+  }
+}

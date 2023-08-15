@@ -6,50 +6,57 @@
 
 package axolootl.block;
 
-import axolootl.block.entity.IAquariumControllerProvider;
+import axolootl.Axolootl;
 import axolootl.block.entity.InterfaceBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.registries.ForgeRegistries;
 
-public abstract class AbstractInterfaceBlock extends HorizontalDirectionalBlock implements EntityBlock {
+public abstract class AbstractInterfaceBlock extends PoweredHorizontalBlock implements EntityBlock {
 
-    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+    public static final TagKey<Block> GLASS = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation("forge", "glass"));
+    public static final TagKey<Block> AQUARIUM = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium"));
 
     public AbstractInterfaceBlock(Properties pProperties) {
         super(pProperties);
-        this.registerDefaultState(this.stateDefinition.any()
-                .setValue(FACING, Direction.NORTH)
-                .setValue(POWERED, false));
     }
 
-    //// METHODS ////
+    // GLASS //
 
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-        return this.defaultBlockState().setValue(FACING, pContext.getHorizontalDirection().getOpposite());
+    public VoxelShape getVisualShape(BlockState pState, BlockGetter pReader, BlockPos pPos, CollisionContext pContext) {
+        return Shapes.empty();
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
-        pBuilder.add(FACING).add(POWERED);
+    public float getShadeBrightness(BlockState pState, BlockGetter pLevel, BlockPos pPos) {
+        return 1.0F;
     }
 
-    // REDSTONE //
+    @Override
+    public boolean propagatesSkylightDown(BlockState pState, BlockGetter pReader, BlockPos pPos) {
+        return true;
+    }
 
     @Override
-    public void onPlace(BlockState blockState, Level level, BlockPos blockPos, BlockState oldState, boolean isMoving) {
-        if (!oldState.is(blockState.getBlock())) {
-            this.checkPoweredState(level, blockPos, blockState);
-        }
+    public boolean skipRendering(BlockState pState, BlockState pAdjacentBlockState, Direction pSide) {
+        return pAdjacentBlockState.is(this) || pAdjacentBlockState.is(GLASS) || pAdjacentBlockState.is(AQUARIUM) || super.skipRendering(pState, pAdjacentBlockState, pSide);
+    }
+
+    @Override
+    public boolean hidesNeighborFace(BlockGetter level, BlockPos pos, BlockState state, BlockState neighborState, Direction dir) {
+        return neighborState.is(Blocks.WATER) || neighborState.is(Blocks.LAVA);
     }
 
     @Override
@@ -63,30 +70,5 @@ public abstract class AbstractInterfaceBlock extends HorizontalDirectionalBlock 
             level.updateNeighbourForOutputSignal(pos, this);
             super.onRemove(state, level, pos, newState, isMoving);
         }
-    }
-
-    @Override
-    public void neighborChanged(BlockState blockState, Level level, BlockPos blockPos, Block neighborBlock, BlockPos neighborPos, boolean b) {
-        this.checkPoweredState(level, blockPos, blockState);
-    }
-
-    private void checkPoweredState(Level level, BlockPos blockPos, BlockState blockState) {
-        boolean powered = level.hasNeighborSignal(blockPos);
-        if (powered != blockState.getValue(POWERED)) {
-            level.setBlock(blockPos, blockState.setValue(POWERED, powered), Block.UPDATE_INVISIBLE | Block.UPDATE_CLIENTS);
-        }
-    }
-
-    @Override
-    public boolean hasAnalogOutputSignal(BlockState state) {
-        return true;
-    }
-
-    @Override
-    public int getAnalogOutputSignal(BlockState pState, Level pLevel, BlockPos pPos) {
-        if (pLevel.getBlockEntity(pPos) instanceof IAquariumControllerProvider blockEntity) {
-            return blockEntity.hasTank() ? 1 : 0;
-        }
-        return 0;
     }
 }
