@@ -1,0 +1,11 @@
+{
+  "translation_key": "item.minecraft.glowstone_dust",
+  "tier": 3,
+  "model": {
+    "primary_color": "fbda74",
+    "secondary_color": "886839",
+    "texture": "axolootl:glowstone"
+  },
+  "breed_food": "#forge:storage_blocks/glowstone",
+  "resource_generator": "axolootl:glowstone"
+}

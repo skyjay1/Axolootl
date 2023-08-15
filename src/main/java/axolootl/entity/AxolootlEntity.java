@@ -191,6 +191,12 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
         return asItemStack();
     }
 
+    @Override
+    public boolean fireImmune() {
+        final Optional<AxolootlVariant> oVariant = getAxolootlVariant(level.registryAccess());
+        return (oVariant.isPresent() && oVariant.get().isFireImmune()) || super.fireImmune();
+    }
+
     //// ANIMAL ////
 
     @Override

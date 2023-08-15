@@ -1,5 +1,12 @@
 {
   "translation_key": "block.minecraft.sand",
+  "model": {
+    "primary_color": "e7e4bb",
+    "secondary_color": "d5c496",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
   "breed_food": "#forge:sandstone",
   "resource_generator": "axolootl:sand"
 }

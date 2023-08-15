@@ -1,0 +1,11 @@
+{
+  "translation_key": "item.minecraft.coal",
+  "tier": 2,
+  "model": {
+    "primary_color": "2d2c2c",
+    "secondary_color": "151515",
+    "texture": "axolootl:coal"
+  },
+  "breed_food": "#forge:storage_blocks/coal",
+  "resource_generator": "axolootl:coal"
+}

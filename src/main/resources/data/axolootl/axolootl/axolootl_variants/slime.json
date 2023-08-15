@@ -1,0 +1,15 @@
+{
+  "translation_key": "entity.minecraft.slime",
+  "tier": 3,
+  "model": {
+    "primary_color": "91ef79",
+    "secondary_color": "51a03e",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
+  "breed_food": [
+    "minecraft:slime_block"
+  ],
+  "resource_generator": "axolootl:slime"
+}

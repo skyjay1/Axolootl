@@ -1,0 +1,32 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:grass_block"
+      }
+    },
+    {
+      "weight": 2,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:dirt"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:rooted_dirt"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

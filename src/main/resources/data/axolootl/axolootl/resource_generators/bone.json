@@ -2,19 +2,17 @@
   "type": "axolootl:select",
   "pool": [
     {
-      "weight": 4,
+      "weight": 3,
       "data": {
         "type": "axolootl:item",
-        "pool": [
-          {
-            "data": "minecraft:bone_meal",
-            "weight": 3
-          },
-          {
-            "data": "minecraft:bone",
-            "weight": 1
-          }
-        ]
+        "item": "minecraft:bone_meal"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:bone"
       }
     },
     {

@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Immutable
 public class SelectResourceGenerator extends ResourceGenerator {
 
     public static final Codec<SelectResourceGenerator> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -40,13 +39,11 @@ public class SelectResourceGenerator extends ResourceGenerator {
     private final SimpleWeightedRandomList<Holder<ResourceGenerator>> children;
     private final IntProvider rolls;
     private final Set<ResourceType> resourceTypes;
-    private final List<Component> description;
 
     public SelectResourceGenerator(final SimpleWeightedRandomList<Holder<ResourceGenerator>> list, final IntProvider rolls) {
         super(ResourceType.MULTIPLE);
         this.children = list;
         this.rolls = rolls;
-        this.description = ImmutableList.copyOf(createDescription(list));
         // prepare to build resource type set
         final ImmutableSet.Builder<ResourceType> typeBuilder = ImmutableSet.builder();
         typeBuilder.add(ResourceType.MULTIPLE);
@@ -86,8 +83,8 @@ public class SelectResourceGenerator extends ResourceGenerator {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    public List<Component> createDescription() {
+        return createDescription(getChildren());
     }
 
     @Override

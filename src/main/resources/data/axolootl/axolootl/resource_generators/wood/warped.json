@@ -1,0 +1,32 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:warped_planks"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:warped_stem"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:tag",
+        "tag": "forge:rods/wooden"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

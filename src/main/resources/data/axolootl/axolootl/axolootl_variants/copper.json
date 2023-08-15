@@ -1,0 +1,11 @@
+{
+  "translation_key": "entity.axolootl.axolootl.copper",
+  "tier": 2,
+  "model": {
+    "primary_color": "d67b5b",
+    "secondary_color": "5eab81",
+    "texture": "axolootl:copper"
+  },
+  "breed_food": "#forge:storage_blocks/copper",
+  "resource_generator": "axolootl:copper"
+}

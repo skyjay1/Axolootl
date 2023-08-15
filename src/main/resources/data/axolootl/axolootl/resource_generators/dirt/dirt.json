@@ -1,0 +1,32 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 3,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:dirt"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:coarse_dirt"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:mud"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

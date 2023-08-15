@@ -1,0 +1,13 @@
+{
+  "translation_key": "entity.minecraft.zombie",
+  "tier": 2,
+  "model": {
+    "primary_color": "679056",
+    "secondary_color": "497135",
+    "texture": "axolootl:zombie"
+  },
+  "breed_food": [
+    "minecraft:rotten_flesh"
+  ],
+  "resource_generator": "axolootl:zombie"
+}

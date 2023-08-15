@@ -7,16 +7,32 @@
       "weight": 1
     },
     {
-      "data": "axolootl:dirt",
-      "weight": 6
+      "data": "axolootl:dirt/dirt",
+      "weight": 4
+    },
+    {
+      "data": "axolootl:dirt/grass",
+      "weight": 2
+    },
+    {
+      "data": "axolootl:dirt/mycelium",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:dirt/podzol",
+      "weight": 2
     },
     {
       "data": "axolootl:stone",
       "weight": 5
     },
     {
-      "data": "axolootl:wood",
-      "weight": 4
+      "data": "axolootl:wood/oak",
+      "weight": 3
+    },
+    {
+      "data": "axolootl:wood/birch",
+      "weight": 3
     },
     {
       "data": "axolootl:sand",

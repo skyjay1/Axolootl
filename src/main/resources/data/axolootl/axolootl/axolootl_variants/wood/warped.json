@@ -1,0 +1,12 @@
+{
+  "translation_key": "block.minecraft.warped_stem",
+  "tier": 1,
+  "model": {
+    "primary_color": "398382",
+    "secondary_color": "1f5752",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
+  "resource_generator": "axolootl:wood/warped"
+}

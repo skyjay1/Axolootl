@@ -1,0 +1,11 @@
+{
+  "translation_key": "entity.axolootl.axolootl.gold",
+  "tier": 3,
+  "model": {
+    "primary_color": "fff79d",
+    "secondary_color": "eea41a",
+    "texture": "axolootl:gold"
+  },
+  "breed_food": "#forge:storage_blocks/gold",
+  "resource_generator": "axolootl:gold"
+}

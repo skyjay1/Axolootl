@@ -1,0 +1,12 @@
+{
+  "translation_key": "block.minecraft.crimson_stem",
+  "tier": 1,
+  "model": {
+    "primary_color": "7e3a56",
+    "secondary_color": "4b2737",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
+  "resource_generator": "axolootl:wood/crimson"
+}

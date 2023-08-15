@@ -1,0 +1,13 @@
+{
+  "translation_key": "entity.axolootl.axolootl.prismarine",
+  "tier": 3,
+  "model": {
+    "primary_color": "6eb9ae",
+    "secondary_color": "468974",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
+  "breed_food": "minecraft:sea_lantern",
+  "resource_generator": "axolootl:prismarine"
+}

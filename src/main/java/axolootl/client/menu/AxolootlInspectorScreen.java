@@ -104,13 +104,14 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
         this.scrollButton.active = variants.size() > ENTRY_COUNT;
         // add entry buttons
         this.entryButtons.clear();
+        final Button.OnTooltip entryButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((EntryButton)b).getTooltips(), Optional.empty(), mx, my);
         for(int i = 0, x, y; i < ENTRY_COUNT; i++) {
             x = this.leftPos + ENTRY_X + (i % ENTRY_COUNT_X) * EntryButton.WIDTH + 1;
             y = this.topPos + ENTRY_Y + (i / ENTRY_COUNT_X) * EntryButton.HEIGHT + 1;
             Button.OnPress onPress = b -> {
                 ((EntryButton)b).openDetails(getMinecraft());
             };
-            this.entryButtons.add(this.addRenderableWidget(new EntryButton(x, y, this.font, this.itemRenderer, onPress, (b, p, mx, my) -> renderTooltip(p, b.getMessage(), mx, my))));
+            this.entryButtons.add(this.addRenderableWidget(new EntryButton(x, y, this.font, this.itemRenderer, onPress, entryButtonOnTooltip)));
         }
         updateEntryButtons();
         containerTick();
@@ -202,7 +203,7 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
 
     @Override
     public void onScroll(ScrollButton button, float percent) {
-        this.scrollOffset = Mth.floor(Math.max(0, percent * Math.max(0, variants.size() - ENTRY_COUNT)));
+        this.scrollOffset = Mth.floor(Math.max(0, percent * Math.max(0, (variants.size() - ENTRY_COUNT) / ENTRY_COUNT_X)));
         updateEntryButtons();
     }
 
@@ -252,7 +253,7 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
             this.icon.getOrCreateTag().putString(AxolootlEntity.KEY_VARIANT_ID, id.toString());
             this.tooltips.clear();
             this.tooltips.add(entry.getValue().getDescription());
-            this.tooltips.add(entry.getValue().getTierDescription().copy().withStyle(ChatFormatting.GRAY));
+            this.tooltips.add(Component.translatable("entity.axolootl.axolootl.tier", entry.getValue().getTierDescription()).withStyle(ChatFormatting.GRAY));
         }
 
         @Override

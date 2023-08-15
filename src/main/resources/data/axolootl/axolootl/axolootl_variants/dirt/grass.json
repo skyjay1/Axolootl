@@ -1,0 +1,10 @@
+{
+  "translation_key": "block.minecraft.grass",
+  "model": {
+    "primary_color": "dbae8c",
+    "secondary_color": "47922d",
+    "texture": "axolootl:dirt/grass"
+  },
+  "breed_food": "#minecraft:dirt",
+  "resource_generator": "axolootl:dirt/grass"
+}

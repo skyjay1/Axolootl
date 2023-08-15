@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-@Immutable
 public class ItemResourceGenerator extends ResourceGenerator {
 
     private static final Codec<SimpleWeightedRandomList<ItemStack>> WEIGHTED_LIST_CODEC = Codec.either(ITEM_OR_STACK_CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(ITEM_OR_STACK_CODEC))
@@ -30,15 +29,13 @@ public class ItemResourceGenerator extends ResourceGenerator {
                     list -> list.unwrap().size() == 1 ? Either.left(list.unwrap().get(0).getData()) : Either.right(list));
 
     public static final Codec<ItemResourceGenerator> CODEC = WEIGHTED_LIST_CODEC
-            .xmap(ItemResourceGenerator::new, ItemResourceGenerator::getList).fieldOf("pool").codec();
+            .xmap(ItemResourceGenerator::new, ItemResourceGenerator::getList).fieldOf("item").codec();
 
     private final SimpleWeightedRandomList<ItemStack> list;
-    private final List<Component> description;
 
     public ItemResourceGenerator(final SimpleWeightedRandomList<ItemStack> list) {
         super(ResourceType.ITEM);
         this.list = list;
-        this.description = ImmutableList.copyOf(createDescription(list, ResourceGenerator::getItemDisplayName));
     }
 
     public SimpleWeightedRandomList<ItemStack> getList() {
@@ -61,8 +58,8 @@ public class ItemResourceGenerator extends ResourceGenerator {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    public List<Component> createDescription() {
+        return createDescription(list, ResourceGenerator::getItemDisplayName);
     }
 
     @Override

@@ -1,0 +1,25 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:tag",
+        "tag": "forge:storage_blocks/glowstone"
+      }
+    },
+    {
+      "weight": 8,
+      "data": {
+        "type": "axolootl:tag",
+        "tag": "forge:dusts/glowstone"
+      }
+    },
+    {
+      "weight": 2,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

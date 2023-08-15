@@ -24,20 +24,16 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 
-@Immutable
 public class ItemTagResourceGenerator extends ResourceGenerator {
 
     public static final Codec<ItemTagResourceGenerator> CODEC = TagKey.codec(ForgeRegistries.Keys.ITEMS)
             .xmap(ItemTagResourceGenerator::new, ItemTagResourceGenerator::getTag).fieldOf("tag").codec();
 
     private final TagKey<Item> tag;
-    private final List<Component> description;
 
     public ItemTagResourceGenerator(TagKey<Item> tag) {
         super(ResourceType.ITEM);
         this.tag = tag;
-        final Component tagComponent = Component.literal("#" + tag.location().toString()).withStyle(ChatFormatting.GRAY);
-        this.description = ImmutableList.of(Component.translatable("axolootl.resource_generator.item_tag", tagComponent));
     }
 
     public TagKey<Item> getTag() {
@@ -65,8 +61,9 @@ public class ItemTagResourceGenerator extends ResourceGenerator {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return this.description;
+    public List<Component> createDescription() {
+        final Component tagComponent = Component.literal("#" + tag.location().toString()).withStyle(ChatFormatting.GRAY);
+        return ImmutableList.of(Component.translatable("axolootl.resource_generator.item_tag", tagComponent));
     }
 
     @Override

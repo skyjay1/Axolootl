@@ -41,7 +41,7 @@ import java.util.Set;
 
 public class AxolootlVariant {
 
-    public static final AxolootlVariant EMPTY = new AxolootlVariant(FalseForgeCondition.INSTANCE, "empty", 0, Rarity.COMMON, AxolootlModelSettings.EMPTY, 0, ImmutableList.of(), HolderSet.direct(), Holder.direct(EmptyResourceGenerator.INSTANCE));
+    public static final AxolootlVariant EMPTY = new AxolootlVariant(FalseForgeCondition.INSTANCE, "empty", 0, false, Rarity.COMMON, AxolootlModelSettings.EMPTY, 0, ImmutableList.of(), HolderSet.direct(), Holder.direct(EmptyResourceGenerator.INSTANCE));
 
     private static final Codec<HolderSet<Item>> ITEM_HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(ForgeRegistries.Keys.ITEMS);
 
@@ -51,6 +51,7 @@ public class AxolootlVariant {
         ForgeCondition.DIRECT_CODEC.optionalFieldOf("condition", TrueForgeCondition.INSTANCE).forGetter(AxolootlVariant::getCondition),
         Codec.STRING.fieldOf("translation_key").forGetter(AxolootlVariant::getTranslationKey),
         ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("tier", 1).forGetter(AxolootlVariant::getTier),
+        Codec.BOOL.optionalFieldOf("fire_immune", false).forGetter(AxolootlVariant::isFireImmune),
         RARITY_CODEC.optionalFieldOf("rarity", Rarity.COMMON).forGetter(AxolootlVariant::getRarity),
         AxolootlModelSettings.CODEC.optionalFieldOf("model", AxolootlModelSettings.EMPTY).forGetter(AxolootlVariant::getModelSettings),
         ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("energy_cost", 0).forGetter(AxolootlVariant::getEnergyCost),
@@ -68,6 +69,8 @@ public class AxolootlVariant {
     private final String translationKey;
     /** The axolootl tier **/
     private final int tier;
+    /** True if the entity is immune to fire **/
+    private final boolean isFireImmune;
     /** The axolootl rarity **/
     private final Rarity rarity;
     /** The primary packed color **/
@@ -87,23 +90,22 @@ public class AxolootlVariant {
     private Component description;
     /** The tier text component **/
     private Component tierDescription;
-    /** The resource generator translation component **/
-    private List<Component> resourceGeneratorDescription;
     /** The registry object holder **/
     private Holder<AxolootlVariant> holder;
 
-    public AxolootlVariant(ForgeCondition condition, String translationKey, int tier, Rarity rarity, AxolootlModelSettings axolootlModelSettings, int energyCost,
+    public AxolootlVariant(ForgeCondition condition, String translationKey, int tier, boolean isFireImmune,
+                           Rarity rarity, AxolootlModelSettings axolootlModelSettings, int energyCost,
                            List<BonusesProvider> foods, HolderSet<Item> breedFood, Holder<ResourceGenerator> resourceGenerator) {
         this.condition = condition;
         this.translationKey = translationKey;
         this.tier = tier;
+        this.isFireImmune = isFireImmune;
         this.rarity = rarity;
         this.axolootlModelSettings = axolootlModelSettings;
         this.energyCost = energyCost;
         this.foods = ImmutableList.copyOf(foods);
         this.breedFood = breedFood;
         this.resourceGenerator = resourceGenerator;
-        this.resourceGeneratorDescription = ImmutableList.copyOf(resourceGenerator.value().getDescription());
         this.resourceTypes = ImmutableSet.copyOf(resourceGenerator.value().getResourceTypes());
     }
 
@@ -171,6 +173,10 @@ public class AxolootlVariant {
         return tier;
     }
 
+    public boolean isFireImmune() {
+        return isFireImmune;
+    }
+
     public Rarity getRarity() {
         return rarity;
     }
@@ -229,10 +235,7 @@ public class AxolootlVariant {
     }
 
     public List<Component> getResourceGeneratorDescription() {
-        if(null == this.resourceGeneratorDescription) {
-            this.resourceGeneratorDescription = this.resourceGenerator.value().getDescription();
-        }
-        return resourceGeneratorDescription;
+        return this.resourceGenerator.value().getDescription();
     }
 
     public boolean isEnabled(RegistryAccess registryAccess) {

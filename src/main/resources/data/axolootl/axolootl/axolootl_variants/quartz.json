@@ -1,0 +1,11 @@
+{
+  "translation_key": "item.minecraft.quartz",
+  "tier": 3,
+  "model": {
+    "primary_color": "723232",
+    "secondary_color": "d4caba",
+    "texture": "axolootl:quartz"
+  },
+  "breed_food": "#forge:storage_blocks/quartz",
+  "resource_generator": "axolootl:quartz"
+}

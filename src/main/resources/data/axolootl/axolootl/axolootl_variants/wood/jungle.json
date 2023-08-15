@@ -1,0 +1,12 @@
+{
+  "translation_key": "block.minecraft.jungle_wood",
+  "tier": 1,
+  "model": {
+    "primary_color": "b88764",
+    "secondary_color": "976a44",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
+  "resource_generator": "axolootl:wood/jungle"
+}

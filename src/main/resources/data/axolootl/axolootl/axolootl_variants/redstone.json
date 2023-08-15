@@ -1,0 +1,11 @@
+{
+  "translation_key": "item.minecraft.redstone",
+  "tier": 3,
+  "model": {
+    "primary_color": "adadad",
+    "secondary_color": "fd5e5e",
+    "texture": "axolootl:redstone"
+  },
+  "breed_food": "#forge:storage_blocks/redstone",
+  "resource_generator": "axolootl:redstone"
+}

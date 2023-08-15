@@ -2,7 +2,7 @@
   "type": "axolootl:select",
   "pool": [
     {
-      "weight": 4,
+      "weight": 3,
       "data": {
         "type": "axolootl:block",
         "block_provider": {

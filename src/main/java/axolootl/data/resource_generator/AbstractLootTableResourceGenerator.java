@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-@Immutable
 public abstract class AbstractLootTableResourceGenerator extends ResourceGenerator {
 
     protected static final Codec<SimpleWeightedRandomList<ResourceLocation>> WEIGHTED_LIST_CODEC = Codec.either(ResourceLocation.CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(ResourceLocation.CODEC))

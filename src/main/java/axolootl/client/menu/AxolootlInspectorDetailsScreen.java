@@ -209,7 +209,7 @@ public class AxolootlInspectorDetailsScreen extends Screen implements ScrollButt
         int y = this.topPos + DETAILS_Y + (16 - font.lineHeight) / 2;
         int deltaY = DETAILS_LINE_SPACING + font.lineHeight;
         this.componentButtons.add(addRenderableWidget(new ComponentButton(x + 16 + 2, y, font.lineHeight, font, getTitle(), componentButtonOnTooltip)));
-        this.componentButtons.add(addRenderableWidget(new ComponentButton(this.leftPos + GENERATOR_X, y, font.lineHeight, font, generatorTitleText, componentButtonOnTooltip)));
+        this.componentButtons.add(addRenderableWidget(new ComponentButton(this.leftPos + GENERATOR_X + GENERATOR_WIDTH - font.width(generatorTitleText) - 4, y, font.lineHeight, font, generatorTitleText, componentButtonOnTooltip)));
         y += deltaY;
         this.componentButtons.add(addRenderableWidget(new ComponentButton(x + 16 + 2, y, font.lineHeight, font, tierText, componentButtonOnTooltip)));
         y += deltaY + 4;

@@ -18,18 +18,14 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 
-@Immutable
 public class EmptyResourceGenerator extends ResourceGenerator {
 
     public static final EmptyResourceGenerator INSTANCE = new EmptyResourceGenerator();
 
     public static final Codec<EmptyResourceGenerator> CODEC = Codec.unit(INSTANCE);
 
-    private final List<Component> description;
-
     public EmptyResourceGenerator() {
         super(ResourceType.EMPTY);
-        this.description = ImmutableList.of(getItemDisplayName(ItemStack.EMPTY));
     }
 
     @Override
@@ -43,8 +39,8 @@ public class EmptyResourceGenerator extends ResourceGenerator {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    protected List<Component> createDescription() {
+        return ImmutableList.of(getItemDisplayName(ItemStack.EMPTY));
     }
 
     @Override

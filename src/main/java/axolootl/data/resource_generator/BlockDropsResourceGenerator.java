@@ -31,7 +31,6 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 
-@Immutable
 public class BlockDropsResourceGenerator extends ResourceGenerator {
 
     public static final Codec<BlockDropsResourceGenerator> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -41,19 +40,11 @@ public class BlockDropsResourceGenerator extends ResourceGenerator {
 
     private final ItemStack tool;
     private final BlockStateProvider blockProvider;
-    private final List<Component> description;
 
     public BlockDropsResourceGenerator(ItemStack tool, BlockStateProvider blockProvider) {
         super(ResourceType.BLOCK);
         this.tool = tool;
         this.blockProvider = blockProvider;
-        final String descriptionKey = "axolootl.resource_generator.block" + (tool.isEmpty() ? "" : "_with_tool");
-        final Component itemDisplayName = getItemDisplayName(tool);
-        if(blockProvider instanceof WeightedStateProvider provider) {
-            this.description = ImmutableList.copyOf(createDescription(provider.weightedList, b -> Component.translatable(descriptionKey, getBlockName(b), itemDisplayName)));
-        } else {
-            this.description = ImmutableList.of(Component.translatable(descriptionKey, getBlockName(blockProvider.getState(RandomSource.create(), BlockPos.ZERO)), itemDisplayName));
-        }
     }
 
     public ItemStack getTool() {
@@ -110,8 +101,15 @@ public class BlockDropsResourceGenerator extends ResourceGenerator {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    protected List<Component> createDescription() {
+        final String descriptionKey = "axolootl.resource_generator.block" + (tool.isEmpty() ? "" : "_with_tool");
+        final Component itemDisplayName = getItemDisplayName(tool);
+        // convert weighted state provider to component
+        if(blockProvider instanceof WeightedStateProvider provider) {
+           return createDescription(provider.weightedList, b -> Component.translatable(descriptionKey, getBlockName(b), itemDisplayName));
+        }
+        // convert the first randomly selected state in the provider to a component
+        return ImmutableList.of(Component.translatable(descriptionKey, getBlockName(blockProvider.getState(RandomSource.create(), BlockPos.ZERO)), itemDisplayName));
     }
 
     @Override

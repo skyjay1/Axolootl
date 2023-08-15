@@ -1,11 +1,11 @@
 {
   "translation_key": "entity.minecraft.creeper",
+  "tier": 2,
   "model": {
     "primary_color": "5bd44b",
     "secondary_color": "1e4e18",
     "texture": "axolootl:creeper"
   },
-  "tier": 2,
   "breed_food": [
     "minecraft:tnt"
   ],

@@ -1,0 +1,32 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:mangrove_planks"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:mangrove_log"
+      }
+    },
+    {
+      "weight": 2,
+      "data": {
+        "type": "axolootl:tag",
+        "tag": "forge:rods/wooden"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

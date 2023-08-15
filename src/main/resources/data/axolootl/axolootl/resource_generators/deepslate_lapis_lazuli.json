@@ -1,0 +1,25 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 12,
+      "data": {
+        "type": "axolootl:tag",
+        "tag": "forge:gems/lapis"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:deepslate_lapis_ore"
+      }
+    },
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

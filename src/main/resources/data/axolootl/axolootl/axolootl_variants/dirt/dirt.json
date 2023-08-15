@@ -1,0 +1,10 @@
+{
+  "translation_key": "block.minecraft.dirt",
+  "model": {
+    "primary_color": "dbae8c",
+    "secondary_color": "966c4a",
+    "texture": "axolootl:dirt/dirt"
+  },
+  "breed_food": "#minecraft:dirt",
+  "resource_generator": "axolootl:dirt/dirt"
+}

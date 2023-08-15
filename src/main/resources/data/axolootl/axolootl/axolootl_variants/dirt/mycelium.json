@@ -1,0 +1,10 @@
+{
+  "translation_key": "block.minecraft.mycelium",
+  "model": {
+    "primary_color": "dbae8c",
+    "secondary_color": "74646a",
+    "texture": "axolootl:dirt/mycelium"
+  },
+  "breed_food": "#minecraft:dirt",
+  "resource_generator": "axolootl:dirt/mycelium"
+}

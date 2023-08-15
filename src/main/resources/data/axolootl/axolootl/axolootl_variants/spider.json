@@ -1,0 +1,13 @@
+{
+  "translation_key": "entity.minecraft.spider",
+  "tier": 2,
+  "model": {
+    "primary_color": "605448",
+    "secondary_color": "3d342d",
+    "texture": "axolootl:spider"
+  },
+  "breed_food": [
+    "minecraft:cobweb"
+  ],
+  "resource_generator": "axolootl:spider"
+}

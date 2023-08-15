@@ -2,23 +2,21 @@
   "type": "axolootl:select",
   "pool": [
     {
-      "weight": 3,
+      "weight": 20,
       "data": {
-        "type": "axolootl:item",
-        "pool": [
-          {
-            "data": "minecraft:sand",
-            "weight": 20
-          },
-          {
-            "data": "minecraft:red_sand",
-            "weight": 1
-          }
-        ]
+        "type": "axolootl:tag",
+        "tag": "forge:sand/colorless"
       }
     },
     {
-      "weight": 1,
+      "weight": 2,
+      "data": {
+        "type": "axolootl:tag",
+        "tag": "forge:sand/red"
+      }
+    },
+    {
+      "weight": 6,
       "data": {
         "type": "axolootl:empty"
       }

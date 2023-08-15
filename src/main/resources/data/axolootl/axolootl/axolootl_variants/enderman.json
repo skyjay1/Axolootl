@@ -1,0 +1,14 @@
+{
+  "translation_key": "entity.minecraft.enderman",
+  "tier": 3,
+  "model": {
+    "primary_color": "282828",
+    "secondary_color": "0f0f0f",
+    "texture": "axolootl:enderman"
+  },
+  "breed_food": [
+    "minecraft:chorus_fruit",
+    "minecraft:popped_chorus_fruit"
+  ],
+  "resource_generator": "axolootl:enderman"
+}

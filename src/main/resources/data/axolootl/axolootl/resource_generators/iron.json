@@ -2,6 +2,13 @@
   "type": "axolootl:select",
   "pool": [
     {
+      "weight": 2,
+      "data": {
+        "type": "axolootl:tag",
+        "tag": "forge:raw_materials/iron"
+      }
+    },
+    {
       "weight": 5,
       "data": {
         "type": "axolootl:tag",

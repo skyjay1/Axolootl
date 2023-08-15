@@ -1,5 +1,10 @@
 {
   "translation_key": "block.minecraft.gravel",
+  "model": {
+    "primary_color": "b0aeae",
+    "secondary_color": "817f7f",
+    "texture": "axolootl:gravel"
+  },
   "breed_food": "minecraft:gravel",
   "resource_generator": "axolootl:gravel"
 }

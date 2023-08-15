@@ -7,12 +7,11 @@
 package axolootl.data.resource_generator;
 
 import axolootl.AxRegistry;
+import axolootl.client.ClientUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
@@ -20,24 +19,30 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.tags.ITag;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
-import javax.annotation.concurrent.Immutable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-@Immutable
 public abstract class ResourceGenerator {
 
     public static final Codec<ResourceGenerator> DIRECT_CODEC = ExtraCodecs.lazyInitializedCodec(() -> AxRegistry.RESOURCE_GENERATOR_SERIALIZERS_SUPPLIER.get().getCodec())
@@ -45,8 +50,6 @@ public abstract class ResourceGenerator {
 
     public static final Codec<Holder<ResourceGenerator>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.RESOURCE_GENERATORS, DIRECT_CODEC);
     public static final Codec<HolderSet<ResourceGenerator>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.RESOURCE_GENERATORS, DIRECT_CODEC);
-
-
 
     public static final Codec<List<ResourceGenerator>> DIRECT_LIST_CODEC = DIRECT_CODEC.listOf();
     public static final Codec<List<ResourceGenerator>> DIRECT_LIST_OR_SINGLE_CODEC = Codec.either(DIRECT_CODEC, DIRECT_LIST_CODEC)
@@ -72,10 +75,67 @@ public abstract class ResourceGenerator {
     private final ResourceType resourceType;
     private final Set<ResourceType> resourceTypes;
 
+    private final List<Component> description;
+
     public ResourceGenerator(ResourceType resourceType) {
         this.resourceType = resourceType;
         this.resourceTypes = ImmutableSet.of(resourceType);
+        this.description = new ArrayList<>();
     }
+
+    /**
+     * @return the primary {@link ResourceType} of the generator
+     */
+    public ResourceType getResourceType() {
+        return this.resourceType;
+    }
+
+    /**
+     * @return any {@link ResourceType}s applicable to the generator
+     */
+    public Set<ResourceType> getResourceTypes() {
+        return this.resourceTypes;
+    }
+
+    /**
+     * @param type a resource type
+     * @return true if the resource type is applicable to this resource generator
+     */
+    public boolean is(final ResourceType type) {
+        return type == this.getResourceType() || this.getResourceTypes().contains(type);
+    }
+
+    /**
+     * Gets or creates the description for this resource generator
+     * @return the list of descriptions
+     */
+    public List<Component> getDescription() {
+        if(this.description.isEmpty()) {
+            this.description.addAll(createDescription());
+        }
+        return this.description;
+    }
+
+    /**
+     * Generates any number of items
+     * @param entity the entity
+     * @param random the random instance
+     * @return a collection of generated items, may be empty
+     */
+    public abstract Collection<ItemStack> getRandomEntries(final LivingEntity entity, final RandomSource random);
+
+    /**
+     * @return the codec for this resource generator, used in the dispatcher
+     */
+    public abstract Codec<? extends ResourceGenerator> getCodec();
+
+    /**
+     * @return a list of text components that describe this resource generator
+     */
+    // TODO use WrappedDescription, each has its own list of icons and descriptions
+    protected abstract List<Component> createDescription();
+
+    //// HELPER METHODS ////
 
     /**
      * @param list a weighted random list
@@ -100,6 +160,13 @@ public abstract class ResourceGenerator {
         return entries;
     }
 
+    /**
+     * @param list a weighted random list of objects
+     * @param getDisplayName a function to convert the object to a component
+     * @param <T> an object
+     * @return a list of components describing each entry in the given list
+     * @see #createChanceDescription(Object, double, double, Function)
+     */
     public static <T> List<Component> createDescription(final WeightedRandomList<WeightedEntry.Wrapper<T>> list, Function<T, Component> getDisplayName) {
         final List<Component> components = new ArrayList<>();
         // check for single element list
@@ -110,17 +177,29 @@ public abstract class ResourceGenerator {
         double totalWeight = calculateTotalWeight(list);
         // iterate sorted wrapper list
         for(WeightedEntry.Wrapper<T> wrapper : calculateSortedWeightedList(list)) {
-            components.add(createChanceDescription(wrapper, totalWeight, getDisplayName));
+            components.add(createChanceDescription(wrapper.getData(), wrapper.getWeight().asInt(), totalWeight, getDisplayName));
         }
         return components;
     }
 
-    public static <T> Component createChanceDescription(WeightedEntry.Wrapper<T> wrapper, final double totalWeight, Function<T, Component> getDisplayName) {
-        double percentChance = wrapper.getWeight().asInt() / Math.max(1.0D, totalWeight);
+    /**
+     * @param entry the entry
+     * @param weight the entry weight
+     * @param totalWeight the total weight of the containing weighted list
+     * @param getDisplayName a function to convert the wrapped type to a component
+     * @param <T> a wrapped type
+     * @return a translatable component that contains the percentage chance and display name of the wrapped entry
+     */
+    public static <T> Component createChanceDescription(T entry, double weight, final double totalWeight, Function<T, Component> getDisplayName) {
+        double percentChance = weight / Math.max(1.0D, totalWeight);
         String sPercentChance = String.format("%.1f", percentChance * 100.0D).replaceAll("\\.0+$", "");
-        return Component.translatable("axolootl.resource_generator.weighted_list.entry", sPercentChance, getDisplayName.apply(wrapper.getData()));
+        return Component.translatable("axolootl.resource_generator.weighted_list.entry", sPercentChance, getDisplayName.apply(entry));
     }
 
+    /**
+     * @param list a weighted random list of resource generators
+     * @return the descriptions for each generator in the given list
+     */
     public static List<Component> createDescription(final WeightedRandomList<WeightedEntry.Wrapper<Holder<ResourceGenerator>>> list) {
         final List<Component> components = new ArrayList<>();
         // check for empty list
@@ -163,46 +242,6 @@ public abstract class ResourceGenerator {
         }
         return itemStack.getHoverName();
     }
-
-    /**
-     * @return the primary {@link ResourceType} of the generator
-     */
-    public ResourceType getResourceType() {
-        return this.resourceType;
-    }
-
-    /**
-     * @return any {@link ResourceType}s applicable to the generator
-     */
-    public Set<ResourceType> getResourceTypes() {
-        return this.resourceTypes;
-    }
-
-    /**
-     * @param type a resource type
-     * @return true if the resource type is applicable to this resource generator
-     */
-    public boolean is(final ResourceType type) {
-        return type == this.getResourceType() || this.getResourceTypes().contains(type);
-    }
-
-    /**
-     * Generates any number of items
-     * @param entity the entity
-     * @param random the random instance
-     * @return a collection of generated items, may be empty
-     */
-    public abstract Collection<ItemStack> getRandomEntries(final LivingEntity entity, final RandomSource random);
-
-    /**
-     * @return the codec for this resource generator, used in the dispatcher
-     */
-    public abstract Codec<? extends ResourceGenerator> getCodec();
-
-    /**
-     * @return a list of text components that describe this resource generator
-     */
-    public abstract List<Component> getDescription();
 
     /**
      * @param access the registry access

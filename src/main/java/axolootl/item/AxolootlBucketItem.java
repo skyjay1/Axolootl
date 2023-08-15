@@ -88,15 +88,18 @@ public class AxolootlBucketItem extends MobBucketItem {
         if(!RARITY_CACHE.containsKey(id)) {
             // load current level
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-            Level level = null;
+            RegistryAccess access = null;
             if(server != null) {
-                level = server.overworld();
+                access = server.registryAccess();
             } else {
-                level = ClientUtil.getClientLevel().orElse(null);
+                final Optional<Level> oLevel = ClientUtil.getClientLevel();
+                if(oLevel.isPresent()) {
+                    access = oLevel.get().registryAccess();
+                }
             }
             // load axolootl variant
-            if(level != null) {
-                AxolootlVariant.getRegistry(level.registryAccess()).getOptional(id)
+            if(access != null) {
+                AxolootlVariant.getRegistry(access).getOptional(id)
                         .ifPresent(variant -> RARITY_CACHE.put(id, variant.getRarity()));
             }
         }

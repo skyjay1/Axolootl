@@ -1,0 +1,32 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 20,
+      "data": {
+        "type": "axolootl:mob",
+        "loot_table": "minecraft:entities/zombie"
+      }
+    },
+    {
+      "weight": 2,
+      "data": {
+        "type": "axolootl:mob",
+        "loot_table": "minecraft:entities/drowned"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:mob",
+        "loot_table": "minecraft:entities/husk"
+      }
+    },
+    {
+      "weight": 5,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

@@ -5,7 +5,7 @@
       "weight": 1,
       "data": {
         "type": "axolootl:item",
-        "pool": "minecraft:totem_of_undying"
+        "item": "minecraft:totem_of_undying"
       }
     },
     {

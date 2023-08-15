@@ -1,0 +1,12 @@
+{
+  "translation_key": "block.minecraft.dark_oak_wood",
+  "tier": 1,
+  "model": {
+    "primary_color": "4f3218",
+    "secondary_color": "3a2411",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
+  "resource_generator": "axolootl:wood/dark_oak"
+}

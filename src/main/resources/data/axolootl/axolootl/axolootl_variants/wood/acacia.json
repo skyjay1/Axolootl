@@ -1,0 +1,12 @@
+{
+  "translation_key": "block.minecraft.acacia_wood",
+  "tier": 1,
+  "model": {
+    "primary_color": "c26d3f",
+    "secondary_color": "99502b",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
+  "resource_generator": "axolootl:wood/acacia"
+}

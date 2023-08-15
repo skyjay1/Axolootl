@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-@Immutable
 public class AndResourceGenerator extends ResourceGenerator {
 
     public static final Codec<AndResourceGenerator> CODEC = ResourceGenerator.HOLDER_SET_CODEC
@@ -31,7 +30,6 @@ public class AndResourceGenerator extends ResourceGenerator {
 
     private final HolderSet<ResourceGenerator> children;
     private final Set<ResourceType> resourceTypes;
-    private final List<Component> description;
 
     public AndResourceGenerator(final HolderSet<ResourceGenerator> list) {
         super(ResourceType.MULTIPLE);
@@ -42,18 +40,6 @@ public class AndResourceGenerator extends ResourceGenerator {
         list.forEach(entry -> typeBuilder.addAll(entry.value().getResourceTypes()));
         // build resource type set
         this.resourceTypes = typeBuilder.build();
-        // prepare to build description
-        final List<Component> descriptionBuilder = new ArrayList<>();
-        list.forEach(entry -> {
-            entry.value().getDescription().forEach(c -> descriptionBuilder.add(Component.literal("  ").append(c)));
-            descriptionBuilder.add(Component.translatable("axolootl.resource_generator.and.header").withStyle(ChatFormatting.GOLD));
-        });
-        // remove trailing component
-        if(descriptionBuilder.size() > 1) {
-            descriptionBuilder.remove(descriptionBuilder.size() - 1);
-        }
-        // build description
-        this.description = ImmutableList.copyOf(descriptionBuilder);
     }
 
     public HolderSet<ResourceGenerator> getChildren() {
@@ -79,8 +65,19 @@ public class AndResourceGenerator extends ResourceGenerator {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    protected List<Component> createDescription() {
+        // prepare to build description
+        final List<Component> descriptionBuilder = new ArrayList<>();
+        this.getChildren().forEach(entry -> {
+            entry.value().createDescription().forEach(c -> descriptionBuilder.add(Component.literal("  ").append(c)));
+            descriptionBuilder.add(Component.translatable("axolootl.resource_generator.and.header").withStyle(ChatFormatting.GOLD));
+        });
+        // remove trailing component
+        if(descriptionBuilder.size() > 1) {
+            descriptionBuilder.remove(descriptionBuilder.size() - 1);
+        }
+        // build description
+        return descriptionBuilder;
     }
 
     @Override

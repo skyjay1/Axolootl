@@ -1,5 +1,12 @@
 {
   "translation_key": "block.minecraft.stone",
+  "model": {
+    "primary_color": "8b898b",
+    "secondary_color": "6a6d6a",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
   "breed_food": [
     "minecraft:cobblestone",
     "minecraft:cobbled_deepslate"

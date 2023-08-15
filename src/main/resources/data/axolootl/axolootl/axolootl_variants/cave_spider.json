@@ -1,0 +1,13 @@
+{
+  "translation_key": "entity.minecraft.cave_spider",
+  "tier": 2,
+  "model": {
+    "primary_color": "394439",
+    "secondary_color": "002e32",
+    "texture": "axolootl:cave_spider"
+  },
+  "breed_food": [
+    "minecraft:cobweb"
+  ],
+  "resource_generator": "axolootl:cave_spider"
+}

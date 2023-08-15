@@ -1,0 +1,10 @@
+{
+  "translation_key": "block.minecraft.podzol",
+  "model": {
+    "primary_color": "dbae8c",
+    "secondary_color": "6b3e14",
+    "texture": "axolootl:dirt/podzol"
+  },
+  "breed_food": "#minecraft:dirt",
+  "resource_generator": "axolootl:dirt/podzol"
+}

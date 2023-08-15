@@ -24,22 +24,18 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import javax.annotation.concurrent.Immutable;
 import java.util.List;
 
-@Immutable
 public class MobDropsResourceGenerator extends AbstractLootTableResourceGenerator {
 
     public static final Codec<MobDropsResourceGenerator> CODEC = WEIGHTED_LIST_CODEC
             .xmap(MobDropsResourceGenerator::new, AbstractLootTableResourceGenerator::getList).fieldOf("loot_table").codec();
 
-    private final List<Component> description;
-
     public MobDropsResourceGenerator(SimpleWeightedRandomList<ResourceLocation> list) {
         super(list);
-        this.description = ImmutableList.copyOf(createDescription(list, MobDropsResourceGenerator::createMobLootTableDescription));
     }
 
     private static Component createMobLootTableDescription(final ResourceLocation id) {
         String path = id.getPath();
-        path = path.substring(Math.max(0, path.lastIndexOf("/")));
+        path = path.substring(Math.max(0, path.lastIndexOf("/") + 1));
         final Component entity = Component.translatable(Util.makeDescriptionId("entity", new ResourceLocation(id.getNamespace(), path)));
         return Component.translatable("axolootl.resource_generator.mob", entity);
     }
@@ -62,8 +58,8 @@ public class MobDropsResourceGenerator extends AbstractLootTableResourceGenerato
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    public List<Component> createDescription() {
+        return createDescription(getList(), MobDropsResourceGenerator::createMobLootTableDescription);
     }
 
     @Override

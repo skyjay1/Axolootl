@@ -1,0 +1,11 @@
+{
+  "translation_key": "block.minecraft.obsidian",
+  "tier": 3,
+  "model": {
+    "primary_color": "271e3d",
+    "secondary_color": "0f0919",
+    "texture": "axolootl:obsidian"
+  },
+  "breed_food": "minecraft:crying_obsidian",
+  "resource_generator": "axolootl:obsidian"
+}

@@ -2,10 +2,10 @@
   "type": "axolootl:select",
   "pool": [
     {
-      "weight": 3,
+      "weight": 4,
       "data": {
         "type": "axolootl:item",
-        "pool": [
+        "item": [
           {
             "data": "minecraft:stone",
             "weight": 1

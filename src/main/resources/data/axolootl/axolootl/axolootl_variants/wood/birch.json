@@ -1,0 +1,12 @@
+{
+  "translation_key": "block.minecraft.birch_wood",
+  "tier": 1,
+  "model": {
+    "primary_color": "d7cb8d",
+    "secondary_color": "a59467",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
+  "resource_generator": "axolootl:wood/birch"
+}

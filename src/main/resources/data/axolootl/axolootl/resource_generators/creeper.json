@@ -2,7 +2,7 @@
   "type": "axolootl:select",
   "pool": [
     {
-      "weight": 5,
+      "weight": 4,
       "data": {
         "type": "axolootl:mob",
         "loot_table": "minecraft:entities/creeper"

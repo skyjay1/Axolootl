@@ -1,0 +1,12 @@
+{
+  "translation_key": "block.minecraft.mangrove_wood",
+  "tier": 1,
+  "model": {
+    "primary_color": "7f4234",
+    "secondary_color": "6f2a2d",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
+  "resource_generator": "axolootl:wood/mangrove"
+}
