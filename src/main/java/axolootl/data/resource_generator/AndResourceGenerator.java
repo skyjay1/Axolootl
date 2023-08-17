@@ -10,15 +10,12 @@ import axolootl.AxRegistry;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
-import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.concurrent.Immutable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -65,19 +62,20 @@ public class AndResourceGenerator extends ResourceGenerator {
     }
 
     @Override
-    protected List<Component> createDescription() {
-        // prepare to build description
-        final List<Component> descriptionBuilder = new ArrayList<>();
-        this.getChildren().forEach(entry -> {
-            entry.value().createDescription().forEach(c -> descriptionBuilder.add(Component.literal("  ").append(c)));
-            descriptionBuilder.add(Component.translatable("axolootl.resource_generator.and.header").withStyle(ChatFormatting.GOLD));
-        });
-        // remove trailing component
-        if(descriptionBuilder.size() > 1) {
-            descriptionBuilder.remove(descriptionBuilder.size() - 1);
+    protected List<ResourceDescriptionGroup> createDescription() {
+        final ImmutableList.Builder<ResourceDescriptionGroup> builder = ImmutableList.builder();
+        // iterate all children
+        for(Holder<ResourceGenerator> entry : this.getChildren()) {
+            // iterate descriptions
+            for(ResourceDescriptionGroup description : entry.value().getDescription()) {
+                // add a copy of the description but always show the weight of the group
+                builder.add(ResourceDescriptionGroup
+                        .builder(description, 1, 1)
+                        .forceShowWeight().build()
+                );
+            }
         }
-        // build description
-        return descriptionBuilder;
+        return builder.build();
     }
 
     @Override

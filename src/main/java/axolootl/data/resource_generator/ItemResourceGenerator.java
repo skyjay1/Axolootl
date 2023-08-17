@@ -10,13 +10,11 @@ import axolootl.AxRegistry;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -58,8 +56,11 @@ public class ItemResourceGenerator extends ResourceGenerator {
     }
 
     @Override
-    public List<Component> createDescription() {
-        return createDescription(list, ResourceGenerator::getItemDisplayName);
+    public List<ResourceDescriptionGroup> createDescription() {
+        return ImmutableList.of(ResourceDescriptionGroup
+                .builder()
+                .ofWeightedList(list)
+        );
     }
 
     @Override

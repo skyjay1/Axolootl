@@ -39,8 +39,8 @@ public class EmptyResourceGenerator extends ResourceGenerator {
     }
 
     @Override
-    protected List<Component> createDescription() {
-        return ImmutableList.of(getItemDisplayName(ItemStack.EMPTY));
+    protected List<ResourceDescriptionGroup> createDescription() {
+        return ImmutableList.of(ResourceDescriptionGroup.builder().ofItem(ItemStack.EMPTY));
     }
 
     @Override

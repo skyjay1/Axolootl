@@ -5,21 +5,30 @@
       "weight": 20,
       "data": {
         "type": "axolootl:mob",
-        "loot_table": "minecraft:entities/zombie"
+        "loot_table": {
+          "id": "minecraft:entities/zombie",
+          "display": "minecraft:zombie_head"
+        }
       }
     },
     {
       "weight": 2,
       "data": {
         "type": "axolootl:mob",
-        "loot_table": "minecraft:entities/drowned"
+        "loot_table": {
+          "id": "minecraft:entities/drowned",
+          "display": "minecraft:zombie_head"
+        }
       }
     },
     {
       "weight": 1,
       "data": {
         "type": "axolootl:mob",
-        "loot_table": "minecraft:entities/husk"
+        "loot_table": {
+          "id": "minecraft:entities/husk",
+          "display": "minecraft:zombie_head"
+        }
       }
     },
     {

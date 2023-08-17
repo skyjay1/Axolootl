@@ -7,7 +7,6 @@
 package axolootl.data.resource_generator;
 
 import axolootl.AxRegistry;
-import axolootl.client.ClientUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Either;
@@ -18,28 +17,25 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.RegistryFileCodec;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.tags.ITag;
-import net.minecraftforge.server.ServerLifecycleHooks;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -75,12 +71,14 @@ public abstract class ResourceGenerator {
     private final ResourceType resourceType;
     private final Set<ResourceType> resourceTypes;
 
-    private final List<Component> description;
+    private final List<ResourceDescriptionGroup> description;
+    private final List<ResourceDescriptionGroup> descriptionView;
 
     public ResourceGenerator(ResourceType resourceType) {
         this.resourceType = resourceType;
         this.resourceTypes = ImmutableSet.of(resourceType);
         this.description = new ArrayList<>();
+        this.descriptionView = Collections.unmodifiableList(this.description);
     }
 
     /**
@@ -109,11 +107,15 @@ public abstract class ResourceGenerator {
      * Gets or creates the description for this resource generator
      * @return the list of descriptions
      */
-    public List<Component> getDescription() {
+    public List<ResourceDescriptionGroup> getDescription() {
         if(this.description.isEmpty()) {
             this.description.addAll(createDescription());
         }
-        return this.description;
+        return this.descriptionView;
+    }
+
+    public List<Component> getDescriptionText() {
+        return createDescriptionText(getDescription());
     }
 
     /**
@@ -130,117 +132,105 @@ public abstract class ResourceGenerator {
     public abstract Codec<? extends ResourceGenerator> getCodec();
 
     /**
-     * @return a list of text components that describe this resource generator
+     * @return a list of resource description groups that describe this resource generator
      */
-    // TODO use WrappedDescription, each has its own list of icons and descriptions
-    protected abstract List<Component> createDescription();
+    protected abstract List<ResourceDescriptionGroup> createDescription();
 
     //// HELPER METHODS ////
+
+    public static List<Component> createDescriptionText(final List<ResourceDescriptionGroup> descriptions) {
+        final ImmutableList.Builder<Component> builder = ImmutableList.builder();
+        final boolean showGroupChance = descriptions.size() > 1;
+        for(ResourceDescriptionGroup group : descriptions) {
+            MutableComponent chanceDescription = null;
+            // add percent chance text
+            if(showGroupChance || group.showChance()) {
+                chanceDescription = group.getChanceDescription().copy();
+                builder.add(chanceDescription);
+            }
+            // create single-line component if possible
+            if(group.getDescriptions().size() == 1 && group.getDescriptions().get(0).getDescriptions().size() <= 1) {
+                ResourceDescription description = group.getDescriptions().get(0);
+                MutableComponent componentBuilder = (chanceDescription != null) ? chanceDescription.append(" ") : Component.empty();
+                // add description percent chance text
+                if(description.showChance()) {
+                    componentBuilder.append(description.getChanceDescription()).append(" ");
+                }
+                // add description text
+                if(description.getDescriptions().isEmpty()) {
+                    componentBuilder.append(getItemDisplayName(description.getItem()));
+                } else {
+                    Component c = description.getDescriptions().get(0);
+                    componentBuilder.append(c).withStyle(c.getStyle());
+                }
+                // add to builder if necessary
+                if(chanceDescription == null) {
+                    builder.add(componentBuilder);
+                }
+            } else {
+                // iterate descriptions in group
+                boolean showDescriptionChance = group.getDescriptions().size() > 1;
+                for(ResourceDescription description : group.getDescriptions()) {
+                    // add description percent chance text
+                    if(showDescriptionChance || description.showChance()) {
+                        builder.add(description.getChanceDescription());
+                    }
+                    // add description text
+                    if(description.getDescriptions().isEmpty()) {
+                        builder.add(Component.literal("  ").append(getItemDisplayName(description.getItem())));
+                    }
+                    for(Component c : description.getDescriptions()) {
+                        builder.add(Component.literal("  ").append(c).withStyle(c.getStyle()));
+                    }
+                }
+            }
+        }
+
+        return builder.build();
+    }
 
     /**
      * @param list a weighted random list
      * @return the total weight of the list entries
      */
-    public static double calculateTotalWeight(final WeightedRandomList<?> list) {
+    public static int calculateTotalWeight(final WeightedRandomList<?> list) {
         return list.unwrap()
                 .stream()
                 .map(e -> e.getWeight().asInt())
                 .reduce(Integer::sum)
-                .orElse(1).doubleValue();
+                .orElse(1).intValue();
+    }
+
+    /**
+     * @param itemStack an item stack
+     * @return the item display name or an indicator that the stack is empty
+     */
+    public static Component getItemDisplayName(final ItemStack itemStack) {
+        if (itemStack.isEmpty()) {
+            return Component.translatable("axolootl.resource_generator.nothing");
+        }
+        return itemStack.getHoverName();
     }
 
     /**
      * @param list a weighted random list
      * @return a list of weighted entries sorted from highest to lowest
      */
-    public static <T> List<WeightedEntry.Wrapper<T>> calculateSortedWeightedList(final WeightedRandomList<WeightedEntry.Wrapper<T>> list) {
-        List<WeightedEntry.Wrapper<T>> entries = new ArrayList<>(list.unwrap());
+    public static <T> List<WeightedEntry.Wrapper<T>> createSortedWeightedList(final WeightedRandomList<WeightedEntry.Wrapper<T>> list) {
         final Comparator<WeightedEntry.Wrapper<T>> comparator = Comparator.comparingInt(e -> e.getWeight().asInt());
-        entries.sort(comparator.reversed());
+        return createSortedWeightedList(list, comparator.reversed());
+    }
+
+    /**
+     * @param list a weighted random list
+     * @param comparator the comparator to sort the list
+     * @param <T> the weighted list wrapped type
+     * @return a list of weighted entries sorted from highest to lowest
+     */
+    public static <T> List<WeightedEntry.Wrapper<T>> createSortedWeightedList(final WeightedRandomList<WeightedEntry.Wrapper<T>> list, Comparator<WeightedEntry.Wrapper<T>> comparator) {
+        List<WeightedEntry.Wrapper<T>> entries = new ArrayList<>(list.unwrap());
+        entries.sort(comparator);
         return entries;
-    }
-
-    /**
-     * @param list a weighted random list of objects
-     * @param getDisplayName a function to convert the object to a component
-     * @param <T> an object
-     * @return a list of components describing each entry in the given list
-     * @see #createChanceDescription(Object, double, double, Function)
-     */
-    public static <T> List<Component> createDescription(final WeightedRandomList<WeightedEntry.Wrapper<T>> list, Function<T, Component> getDisplayName) {
-        final List<Component> components = new ArrayList<>();
-        // check for single element list
-        if(list.unwrap().size() == 1) {
-            return ImmutableList.of(getDisplayName.apply(list.unwrap().get(0).getData()));
-        }
-        // calculate total weight
-        double totalWeight = calculateTotalWeight(list);
-        // iterate sorted wrapper list
-        for(WeightedEntry.Wrapper<T> wrapper : calculateSortedWeightedList(list)) {
-            components.add(createChanceDescription(wrapper.getData(), wrapper.getWeight().asInt(), totalWeight, getDisplayName));
-        }
-        return components;
-    }
-
-    /**
-     * @param entry the entry
-     * @param weight the entry weight
-     * @param totalWeight the total weight of the containing weighted list
-     * @param getDisplayName a function to convert the wrapped type to a component
-     * @param <T> a wrapped type
-     * @return a translatable component that contains the percentage chance and display name of the wrapped entry
-     */
-    public static <T> Component createChanceDescription(T entry, double weight, final double totalWeight, Function<T, Component> getDisplayName) {
-        double percentChance = weight / Math.max(1.0D, totalWeight);
-        String sPercentChance = String.format("%.1f", percentChance * 100.0D).replaceAll("\\.0+$", "");
-        return Component.translatable("axolootl.resource_generator.weighted_list.entry", sPercentChance, getDisplayName.apply(entry));
-    }
-
-    /**
-     * @param list a weighted random list of resource generators
-     * @return the descriptions for each generator in the given list
-     */
-    public static List<Component> createDescription(final WeightedRandomList<WeightedEntry.Wrapper<Holder<ResourceGenerator>>> list) {
-        final List<Component> components = new ArrayList<>();
-        // check for empty list
-        if(list.isEmpty()) {
-            return ImmutableList.of(getItemDisplayName(ItemStack.EMPTY));
-        }
-        // check for single element list
-        if(list.unwrap().size() == 1) {
-            return list.unwrap().get(0).getData().value().getDescription();
-        }
-        // calculate total weight
-        double totalWeight = calculateTotalWeight(list);
-        // iterate sorted wrapper list
-        final Component lootComponent = Component.translatable("axolootl.resource_generator.loot");
-        for(WeightedEntry.Wrapper<Holder<ResourceGenerator>> wrapper : calculateSortedWeightedList(list)) {
-            // calculate percent chance
-            double percentChance = wrapper.getWeight().asInt() / totalWeight;
-            String sPercentChance = String.format("%.1f", percentChance * 100.0D).replaceAll("\\.0+$", "");
-            List<Component> generator = wrapper.getData().value().getDescription();
-            // add percent chance and generator description
-            if(generator.size() == 1) {
-                // add inline description
-                components.add(Component.translatable("axolootl.resource_generator.weighted_list.entry", sPercentChance, generator.get(0)));
-            } else {
-                // add multi-line description
-                components.add(Component.translatable("axolootl.resource_generator.weighted_list.entry", sPercentChance, lootComponent));
-                wrapper.getData().value().getDescription().forEach(c -> components.add(Component.literal("  ").append(c)));
-            }
-        }
-        return components;
-    }
-
-    /**
-     * @param itemStack the item stack
-     * @return the item stack display name, or "nothing" if it is empty
-     */
-    protected static Component getItemDisplayName(final ItemStack itemStack) {
-        if(itemStack.isEmpty()) {
-            return Component.translatable("axolootl.resource_generator.nothing");
-        }
-        return itemStack.getHoverName();
     }
 
     /**

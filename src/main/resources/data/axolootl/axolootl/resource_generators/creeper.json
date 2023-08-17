@@ -5,7 +5,10 @@
       "weight": 4,
       "data": {
         "type": "axolootl:mob",
-        "loot_table": "minecraft:entities/creeper"
+        "loot_table": {
+          "id": "minecraft:entities/creeper",
+          "display": "minecraft:creeper_head"
+        }
       }
     },
     {

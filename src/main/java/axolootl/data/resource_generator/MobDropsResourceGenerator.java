@@ -9,19 +9,22 @@ package axolootl.data.resource_generator;
 import axolootl.AxRegistry;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
-import net.minecraft.Util;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.concurrent.Immutable;
 import java.util.List;
 
 public class MobDropsResourceGenerator extends AbstractLootTableResourceGenerator {
@@ -29,15 +32,8 @@ public class MobDropsResourceGenerator extends AbstractLootTableResourceGenerato
     public static final Codec<MobDropsResourceGenerator> CODEC = WEIGHTED_LIST_CODEC
             .xmap(MobDropsResourceGenerator::new, AbstractLootTableResourceGenerator::getList).fieldOf("loot_table").codec();
 
-    public MobDropsResourceGenerator(SimpleWeightedRandomList<ResourceLocation> list) {
+    public MobDropsResourceGenerator(SimpleWeightedRandomList<Wrapper> list) {
         super(list);
-    }
-
-    private static Component createMobLootTableDescription(final ResourceLocation id) {
-        String path = id.getPath();
-        path = path.substring(Math.max(0, path.lastIndexOf("/") + 1));
-        final Component entity = Component.translatable(Util.makeDescriptionId("entity", new ResourceLocation(id.getNamespace(), path)));
-        return Component.translatable("axolootl.resource_generator.mob", entity);
     }
 
     @Override
@@ -58,8 +54,30 @@ public class MobDropsResourceGenerator extends AbstractLootTableResourceGenerato
     }
 
     @Override
-    public List<Component> createDescription() {
-        return createDescription(getList(), MobDropsResourceGenerator::createMobLootTableDescription);
+    public List<ResourceDescriptionGroup> createDescription() {
+        final ResourceDescriptionGroup.Builder builder = ResourceDescriptionGroup.builder();
+        final int totalWeight = calculateTotalWeight(getList());
+        // iterate each entry
+        for(WeightedEntry.Wrapper<AbstractLootTableResourceGenerator.Wrapper> wrapper : getList().unwrap()) {
+            // check for display item
+            ItemStack itemStack = wrapper.getData().getDisplay();
+            Component description = Component.translatable("axolootl.resource_generator.mob", getDescriptionForLootTable(wrapper.getData().getId()));
+            builder.with(new ResourceDescription(itemStack, wrapper.getWeight().asInt(), totalWeight, ImmutableList.of(description)));
+        }
+        return ImmutableList.of(builder.build());
+    }
+
+    private Component getDescriptionForLootTable(final ResourceLocation lootTableId) {
+        String path = lootTableId.getPath();
+        path = path.substring(Math.max(0, path.lastIndexOf("/") + 1));
+        final ResourceLocation entityId = new ResourceLocation(lootTableId.getNamespace(), path);
+        // query the entity type from the registry (may be null)
+        final EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(entityId);
+        if(null == entityType) {
+            return Component.literal("#" + lootTableId.toString()).withStyle(ChatFormatting.GRAY);
+        }
+        // create description using the name of the registered entity type
+        return entityType.getDescription();
     }
 
     @Override

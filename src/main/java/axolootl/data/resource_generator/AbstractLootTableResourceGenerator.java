@@ -10,6 +10,7 @@ import axolootl.Axolootl;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,27 +20,29 @@ import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootTable;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
 public abstract class AbstractLootTableResourceGenerator extends ResourceGenerator {
 
-    protected static final Codec<SimpleWeightedRandomList<ResourceLocation>> WEIGHTED_LIST_CODEC = Codec.either(ResourceLocation.CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(ResourceLocation.CODEC))
+    protected static final Codec<SimpleWeightedRandomList<Wrapper>> WEIGHTED_LIST_CODEC = Codec.either(Wrapper.CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(Wrapper.CODEC))
             .xmap(either -> either.map(SimpleWeightedRandomList::single, Function.identity()),
                     list -> list.unwrap().size() == 1 ? Either.left(list.unwrap().get(0).getData()) : Either.right(list));
 
-    private final SimpleWeightedRandomList<ResourceLocation> list;
+    private final SimpleWeightedRandomList<AbstractLootTableResourceGenerator.Wrapper> list;
 
-    public AbstractLootTableResourceGenerator(SimpleWeightedRandomList<ResourceLocation> list) {
+    public AbstractLootTableResourceGenerator(SimpleWeightedRandomList<AbstractLootTableResourceGenerator.Wrapper> list) {
         super(ResourceType.MOB);
         this.list = list;
     }
 
-    public SimpleWeightedRandomList<ResourceLocation> getList() {
+    public SimpleWeightedRandomList<AbstractLootTableResourceGenerator.Wrapper> getList() {
         return list;
     }
 
@@ -51,12 +54,12 @@ public abstract class AbstractLootTableResourceGenerator extends ResourceGenerat
             return ImmutableList.of();
         }
         // load loot table
-        final Optional<ResourceLocation> oLootTableId = getList().getRandomValue(random);
+        final Optional<Wrapper> oLootTableId = getList().getRandomValue(random);
         if (oLootTableId.isEmpty()) {
             return ImmutableList.of();
         }
-        final net.minecraft.world.level.storage.loot.LootTable lootTable = server.getLootTables().get(oLootTableId.get());
-        if (lootTable == net.minecraft.world.level.storage.loot.LootTable.EMPTY) {
+        final LootTable lootTable = server.getLootTables().get(oLootTableId.get().getId());
+        if (lootTable == LootTable.EMPTY) {
             Axolootl.LOGGER.warn("[ResourceGenerator#getRandomEntries] Failed to load loot table " + oLootTableId.get());
             return ImmutableList.of();
         }
@@ -76,5 +79,52 @@ public abstract class AbstractLootTableResourceGenerator extends ResourceGenerat
     @Override
     public String toString() {
         return "LootTable: " + list.toString();
+    }
+
+    //// HELPER CLASSES ////
+
+    public static class Wrapper {
+
+        protected static final Codec<AbstractLootTableResourceGenerator.Wrapper> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                ResourceLocation.CODEC.fieldOf("id").forGetter(Wrapper::getId),
+                ITEM_OR_STACK_CODEC.optionalFieldOf("display", ItemStack.EMPTY).forGetter(Wrapper::getDisplay)
+        ).apply(instance, AbstractLootTableResourceGenerator.Wrapper::new));
+
+        protected static final Codec<AbstractLootTableResourceGenerator.Wrapper> CODEC = Codec.either(ResourceLocation.CODEC, DIRECT_CODEC)
+                .xmap(either -> either.map(id -> new Wrapper(id, ItemStack.EMPTY), Function.identity()),
+                        wrapper -> wrapper.getDisplay().isEmpty() ? Either.left(wrapper.getId()) : Either.right(wrapper));
+
+        private final ResourceLocation id;
+        private final ItemStack display;
+
+        public Wrapper(ResourceLocation id, ItemStack display) {
+            this.id = id;
+            this.display = display;
+        }
+
+        //// GETTERS ////
+
+        public ResourceLocation getId() {
+            return id;
+        }
+
+        public ItemStack getDisplay() {
+            return display;
+        }
+
+        //// EQUALITY ////
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Wrapper)) return false;
+            Wrapper wrapper = (Wrapper) o;
+            return Objects.equals(id, wrapper.id) && Objects.equals(display, wrapper.display);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, display);
+        }
     }
 }

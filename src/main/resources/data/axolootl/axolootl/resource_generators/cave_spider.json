@@ -5,7 +5,10 @@
       "weight": 4,
       "data": {
         "type": "axolootl:mob",
-        "loot_table": "minecraft:entities/cave_spider"
+        "loot_table": {
+          "id": "minecraft:entities/cave_spider",
+          "display": "minecraft:spider_eye"
+        }
       }
     },
     {

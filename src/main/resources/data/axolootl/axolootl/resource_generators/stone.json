@@ -2,19 +2,17 @@
   "type": "axolootl:select",
   "pool": [
     {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:stone"
+      }
+    },
+    {
       "weight": 4,
       "data": {
         "type": "axolootl:item",
-        "item": [
-          {
-            "data": "minecraft:stone",
-            "weight": 1
-          },
-          {
-            "data": "minecraft:cobblestone",
-            "weight": 4
-          }
-        ]
+        "item": "minecraft:cobblestone"
       }
     },
     {

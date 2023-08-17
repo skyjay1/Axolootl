@@ -235,7 +235,7 @@ public class AxolootlVariant {
     }
 
     public List<Component> getResourceGeneratorDescription() {
-        return this.resourceGenerator.value().getDescription();
+        return this.resourceGenerator.value().getDescriptionText();
     }
 
     public boolean isEnabled(RegistryAccess registryAccess) {

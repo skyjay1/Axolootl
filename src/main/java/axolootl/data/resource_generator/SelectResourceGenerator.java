@@ -11,9 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.random.WeightedEntry;
@@ -22,8 +20,6 @@ import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.concurrent.Immutable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -83,8 +79,30 @@ public class SelectResourceGenerator extends ResourceGenerator {
     }
 
     @Override
-    public List<Component> createDescription() {
-        return createDescription(getChildren());
+    public List<ResourceDescriptionGroup> createDescription() {
+        // check for empty list
+        if(children.isEmpty()) {
+            return ImmutableList.of(ResourceDescriptionGroup
+                    .builder()
+                    .ofItem(ItemStack.EMPTY));
+        }
+        // check for single element list
+        if(children.unwrap().size() == 1) {
+            return children.unwrap().get(0).getData().value().getDescription();
+        }
+        // iterate children and add their descriptions
+        final ImmutableList.Builder<ResourceDescriptionGroup> builder = ImmutableList.builder();
+        final int totalWeight = calculateTotalWeight(children);
+        for(WeightedEntry.Wrapper<Holder<ResourceGenerator>> child : createSortedWeightedList(children)) {
+            // iterate description groups
+            for(ResourceDescriptionGroup group : child.getData().value().getDescription()) {
+                builder.add(ResourceDescriptionGroup
+                        .builder(group, child.getWeight().asInt(), totalWeight)
+                        .build()
+                );
+            }
+        }
+        return builder.build();
     }
 
     @Override

@@ -11,8 +11,10 @@ import axolootl.Axolootl;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -21,13 +23,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
+import net.minecraft.world.level.levelgen.feature.stateproviders.SimpleStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
-import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 
@@ -101,15 +103,23 @@ public class BlockDropsResourceGenerator extends ResourceGenerator {
     }
 
     @Override
-    protected List<Component> createDescription() {
-        final String descriptionKey = "axolootl.resource_generator.block" + (tool.isEmpty() ? "" : "_with_tool");
-        final Component itemDisplayName = getItemDisplayName(tool);
-        // convert weighted state provider to component
-        if(blockProvider instanceof WeightedStateProvider provider) {
-           return createDescription(provider.weightedList, b -> Component.translatable(descriptionKey, getBlockName(b), itemDisplayName));
+    protected List<ResourceDescriptionGroup> createDescription() {
+        // convert simple block state
+        final Component itemName;
+        if(this.blockProvider instanceof SimpleStateProvider p) {
+            itemName = getItemDisplayName(new ItemStack(p.getState(RandomSource.create(), BlockPos.ZERO).getBlock().asItem()));
+        } else {
+            itemName = Component.translatable("axolootl.resource_generator.block.block");
         }
-        // convert the first randomly selected state in the provider to a component
-        return ImmutableList.of(Component.translatable(descriptionKey, getBlockName(blockProvider.getState(RandomSource.create(), BlockPos.ZERO)), itemDisplayName));
+        final String descriptionKey = "axolootl.resource_generator.block";
+        final MutableComponent description = this.tool.isEmpty()
+                ? Component.translatable(descriptionKey, itemName)
+                : Component.translatable(descriptionKey +"_with_tool", itemName, getItemDisplayName(this.tool));
+        return ImmutableList.of(ResourceDescriptionGroup
+                        .builder()
+                        .withDescriptions(description)
+                        .ofBlockProvider(this.blockProvider)
+        );
     }
 
     @Override
