@@ -17,5 +17,6 @@
         "value": "minecraft:pufferfish"
       }
     ]
-  }
+  },
+  "resource_generator": "axolootl:basic"
 }

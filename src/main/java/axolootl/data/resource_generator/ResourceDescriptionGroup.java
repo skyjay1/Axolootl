@@ -54,7 +54,7 @@ public class ResourceDescriptionGroup {
         this.totalWeight = totalWeight;
         this.forceShowWeight = forceShowWeight;
         this.percentChance = weight / Math.max(1.0D, totalWeight);
-        this.chanceDescription = ResourceDescription.createChanceDescription(this.percentChance);
+        this.chanceDescription = ResourceDescription.createChanceDescription(this.percentChance, true);
     }
 
     /**
@@ -152,6 +152,10 @@ public class ResourceDescriptionGroup {
         public Builder clearDescriptions() {
             this.descriptions.clear();
             return this;
+        }
+
+        public int size() {
+            return builder.size();
         }
 
         /**

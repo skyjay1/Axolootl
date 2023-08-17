@@ -1,0 +1,10 @@
+{
+  "type": "axolootl:and",
+  "values": [
+    "axolootl:bone",
+    "axolootl:coal",
+    "axolootl:wood/acacia",
+    "axolootl:wood/crimson",
+    "axolootl:wood/dark_oak"
+  ]
+}

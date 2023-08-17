@@ -73,6 +73,7 @@ import axolootl.data.resource_generator.EmptyResourceGenerator;
 import axolootl.data.resource_generator.ItemResourceGenerator;
 import axolootl.data.resource_generator.ItemTagResourceGenerator;
 import axolootl.data.resource_generator.MobDropsResourceGenerator;
+import axolootl.data.resource_generator.ReferenceResourceGenerator;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.data.resource_generator.SelectResourceGenerator;
 import axolootl.entity.AxolootlEntity;
@@ -560,6 +561,7 @@ public final class AxRegistry {
         public static final RegistryObject<Codec<? extends ResourceGenerator>> TAG = RESOURCE_GENERATOR_SERIALIZERS.register("tag", () -> ItemTagResourceGenerator.CODEC);
         public static final RegistryObject<Codec<? extends ResourceGenerator>> AND = RESOURCE_GENERATOR_SERIALIZERS.register("and", () -> AndResourceGenerator.CODEC);
         public static final RegistryObject<Codec<? extends ResourceGenerator>> SELECT = RESOURCE_GENERATOR_SERIALIZERS.register("select", () -> SelectResourceGenerator.CODEC);
+        public static final RegistryObject<Codec<? extends ResourceGenerator>> REFERENCE = RESOURCE_GENERATOR_SERIALIZERS.register("reference", () -> ReferenceResourceGenerator.CODEC);
     }
 
     public static final class ModifierConditionsReg {

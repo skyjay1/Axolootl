@@ -62,23 +62,8 @@ public class ResourceDescription {
         this.weight = weight;
         this.totalWeight = totalWeight;
         this.percentChance = weight / Math.max(1.0D, totalWeight);
-        this.chanceDescription = createChanceDescription(this.percentChance);
+        this.chanceDescription = createChanceDescription(this.percentChance, false);
         this.descriptions = ImmutableList.copyOf(descriptions);
-    }
-
-    /**
-     * @param player the player, if any
-     * @param list the tooltip list to modify
-     * @param flag the tooltip flag
-     * @return the modified list
-     */
-    public List<Component> addTooltips(@Nullable final Player player, final List<Component> list, final TooltipFlag flag) {
-        if(this.icon.isEmpty()) {
-            list.add(ResourceGenerator.getItemDisplayName(this.icon));
-            return list;
-        }
-        list.addAll(this.icon.getTooltipLines(player, flag));
-        return list;
     }
 
     //// GETTERS ////
@@ -113,8 +98,13 @@ public class ResourceDescription {
 
     //// HELPER METHODS ////
 
-    public static Component createChanceDescription(final double percentChance) {
+    /**
+     * @param percentChance the percent chance between 0 and 1.0
+     * @param wrapped true to wrap the percent chance in parentheses
+     * @return a component with the percent chance as a string
+     */
+    public static Component createChanceDescription(final double percentChance, final boolean wrapped) {
         final String sPercentChance = String.format("%.1f", percentChance * 100.0D).replaceAll("\\.0+$", "");
-        return Component.translatable("axolootl.resource_description.chance", sPercentChance);
+        return Component.translatable("axolootl.resource_description.chance" + (wrapped ? ".wrapped" : ""), sPercentChance);
     }
 }

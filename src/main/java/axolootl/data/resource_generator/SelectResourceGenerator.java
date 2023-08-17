@@ -90,19 +90,32 @@ public class SelectResourceGenerator extends ResourceGenerator {
         if(children.unwrap().size() == 1) {
             return children.unwrap().get(0).getData().value().getDescription();
         }
-        // iterate children and add their descriptions
-        final ImmutableList.Builder<ResourceDescriptionGroup> builder = ImmutableList.builder();
-        final int totalWeight = calculateTotalWeight(children);
-        for(WeightedEntry.Wrapper<Holder<ResourceGenerator>> child : createSortedWeightedList(children)) {
-            // iterate description groups
+        // calculate total weight
+        int totalWeight = 0;
+        for(WeightedEntry.Wrapper<Holder<ResourceGenerator>> child : children.unwrap()) {
+            int childWeight = child.getWeight().asInt();
             for(ResourceDescriptionGroup group : child.getData().value().getDescription()) {
-                builder.add(ResourceDescriptionGroup
-                        .builder(group, child.getWeight().asInt(), totalWeight)
-                        .build()
-                );
+                int groupWeight = group.getWeight();
+                for(ResourceDescription description : group.getDescriptions()) {
+                    totalWeight += childWeight * groupWeight * description.getWeight();
+                }
             }
         }
-        return builder.build();
+        // create builder to merge groups
+        ResourceDescriptionGroup.Builder merger = ResourceDescriptionGroup.builder();
+        // iterate children
+        for(WeightedEntry.Wrapper<Holder<ResourceGenerator>> child : createSortedWeightedList(children)) {
+            // iterate description groups
+            int childWeight = child.getWeight().asInt();
+            for(ResourceDescriptionGroup group : child.getData().value().getDescription()) {
+                // add modified descriptions using the adjusted total weight
+                int groupWeight = group.getWeight();
+                for(ResourceDescription description : group.getDescriptions()) {
+                    merger.with(new ResourceDescription(description.getItem(), description.getWeight() * childWeight * groupWeight, totalWeight, description.getDescriptions()));
+                }
+            }
+        }
+        return ImmutableList.of(merger.build());
     }
 
     @Override
