@@ -10,6 +10,7 @@ import axolootl.command.AxolootlResearchCommand;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.breeding.AxolootlBreeding;
+import axolootl.data.resource_generator.ResourceGenerator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
@@ -49,6 +50,7 @@ public final class AxEvents {
             if(server != null) {
                 final RegistryAccess registryAccess = server.registryAccess();
                 Axolootl.LOGGER.debug("Axolootl loaded " + (AxolootlVariant.getRegistry(registryAccess).size()) + " axolootl variants");
+                Axolootl.LOGGER.debug("Axolootl loaded " + ResourceGenerator.getRegistry(registryAccess).size() + " resource generators");
                 Axolootl.LOGGER.debug("Axolootl loaded " + AxolootlBreeding.getRegistry(registryAccess).size() + " axolootl breeding recipes");
                 Axolootl.LOGGER.debug("Axolootl loaded " + AquariumModifier.getRegistry(registryAccess).size() + " aquarium modifiers");
             }

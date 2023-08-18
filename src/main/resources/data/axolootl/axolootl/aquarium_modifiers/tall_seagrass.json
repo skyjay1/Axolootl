@@ -1,0 +1,16 @@
+{
+  "translation_key": "block.minecraft.tall_seagrass",
+  "settings": {
+    "generation": 0.01,
+    "spread": 0.00125,
+    "spread_distance": [ 1, 1, 1 ]
+  },
+  "dimensions": [ 1, 2, 1 ],
+  "block": {
+    "type": "axolootl:matching_state",
+    "blocks": "minecraft:tall_seagrass",
+    "state": {
+      "half": "lower"
+    }
+  }
+}

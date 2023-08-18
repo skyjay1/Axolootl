@@ -62,12 +62,14 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
     // COMPONENTS //
     public static final String PREFIX = "gui.controller_tab.axolootl.axolootl_interface.";
     private Component countText;
+    private Component emptyText;
 
     public AxolootlInterfaceScreen(AxolootlInterfaceMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         this.variantCountList = new ArrayList<>();
         this.entryButtons = new ArrayList<>();
         this.countText = pTitle;
+        this.emptyText = Component.translatable(PREFIX + "no_axolootls");
     }
 
     private void updateVariantList() {
@@ -92,7 +94,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
         // update title position
         this.titleLabelX = (this.imageWidth - font.width(this.getTitle())) / 2;
         // add scroll button
-        this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + 198, topPos + 19, 12, 82, WIDGETS, 244, 0, 12, 15, 15, true, 1.0F / Math.max(1, (variantCountList.size() - ENTRY_COUNT) / ENTRY_COUNT_X), this));
+        this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + 199, topPos + 20, 12, 80, WIDGETS, 244, 0, 12, 15, 15, true, 1.0F / Math.max(1, (variantCountList.size() - ENTRY_COUNT) / ENTRY_COUNT_X), this));
         this.setFocused(this.scrollButton);
         this.scrollButton.active = getMenu().getVariantCountMap().size() > ENTRY_COUNT;
         // add insert button
@@ -152,6 +154,11 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        // render empty research text
+        if(entryCount < 1) {
+            int textWidth = font.width(emptyText);
+            font.draw(pPoseStack, emptyText, this.leftPos + ENTRY_X + (ENTRY_COUNT_X * EntryButton.WIDTH - textWidth) / 2.0F, this.topPos + ENTRY_Y + (ENTRY_COUNT_Y * EntryButton.HEIGHT - font.lineHeight) / 2.0F, 0);
+        }
     }
 
     private void updateContainerFlags(final Container container) {

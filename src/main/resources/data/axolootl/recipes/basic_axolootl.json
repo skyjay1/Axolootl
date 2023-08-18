@@ -10,6 +10,6 @@
   ],
   "result": {
     "item": "axolootl:axolootl_bucket",
-    "tag": "{Axolootl:\"axolootl:basic\"}"
+    "nbt": "{Axolootl:\"axolootl:basic\"}"
   }
 }

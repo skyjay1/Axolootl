@@ -6,7 +6,7 @@
 
 package axolootl;
 
-import axolootl.block.AirlockBlock;
+import axolootl.block.AquariumAirlockBlock;
 import axolootl.block.AquariumFloorBlock;
 import axolootl.block.AquariumGlassBlock;
 import axolootl.block.AutofeederBlock;
@@ -333,7 +333,7 @@ public final class AxRegistry {
         public static final RegistryObject<Block> AQUARIUM_AXOLOOTL_INSPECTOR = registerWithItem("aquarium_axolootl_inspector", () -> new AxolootlInspectorBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> AQUARIUM_OUTPUT = registerWithItem("aquarium_output", () -> new OutputBlock(3, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> LARGE_AQUARIUM_OUTPUT = registerWithItem("large_aquarium_output", () -> new OutputBlock(6, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(3.5F, 8.0F)));
-        public static final RegistryObject<Block> AQUARIUM_AIRLOCK = registerWithItem("aquarium_airlock", () -> new AirlockBlock(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().isSuffocating((s, l, p) -> false).requiresCorrectToolForDrops().strength(3.5F, 6.0F)));
+        public static final RegistryObject<Block> AQUARIUM_AIRLOCK = registerWithItem("aquarium_airlock", () -> new AquariumAirlockBlock(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().isSuffocating((s, l, p) -> false).requiresCorrectToolForDrops().strength(3.5F, 6.0F)));
         public static final RegistryObject<Block> BUBBLER = registerWithItem("bubbler", () -> new BubblerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> POWERED_BUBBLER = registerWithItem("powered_bubbler", () -> new BubblerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> PUMP = registerWithItem("pump", () -> new WaterloggedHorizontalDoubleBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));

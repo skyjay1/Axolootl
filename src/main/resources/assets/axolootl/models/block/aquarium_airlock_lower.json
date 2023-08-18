@@ -1,0 +1,10 @@
+{
+  "parent": "axolootl:block/orientable_no_cull_no_top",
+  "textures": {
+    "top": "axolootl:block/aquarium_floor",
+    "bottom": "axolootl:block/aquarium_floor",
+    "front": "axolootl:block/aquarium_airlock_lower",
+    "back": "axolootl:block/aquarium_airlock_lower",
+    "side": "axolootl:block/aquarium_airlock_lower"
+  }
+}

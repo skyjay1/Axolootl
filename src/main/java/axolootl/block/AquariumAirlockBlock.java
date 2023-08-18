@@ -9,7 +9,6 @@ package axolootl.block;
 import axolootl.entity.IAxolootl;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -23,6 +22,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -31,7 +32,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -39,14 +39,15 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 
-public class AirlockBlock extends HorizontalDirectionalBlock {
+public class AquariumAirlockBlock extends Block {
 
+    public static final EnumProperty<Direction.Axis> HORIZONTAL_AXIS = BlockStateProperties.HORIZONTAL_AXIS;
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
 
-    public AirlockBlock(Properties pProperties) {
+    public AquariumAirlockBlock(Properties pProperties) {
         super(pProperties);
         this.registerDefaultState(this.stateDefinition.any()
-                .setValue(FACING, Direction.NORTH)
+                .setValue(HORIZONTAL_AXIS, Direction.Axis.X)
                 .setValue(HALF, DoubleBlockHalf.LOWER));
     }
 
@@ -54,7 +55,7 @@ public class AirlockBlock extends HorizontalDirectionalBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
-        pBuilder.add(FACING).add(HALF);
+        pBuilder.add(HORIZONTAL_AXIS).add(HALF);
     }
 
     @Nullable
@@ -62,7 +63,7 @@ public class AirlockBlock extends HorizontalDirectionalBlock {
         BlockPos blockpos = pContext.getClickedPos();
         Level level = pContext.getLevel();
         if (blockpos.getY() < level.getMaxBuildHeight() - 1 && level.getBlockState(blockpos.above()).canBeReplaced(pContext)) {
-            return this.defaultBlockState().setValue(FACING, pContext.getHorizontalDirection().getOpposite()).setValue(HALF, DoubleBlockHalf.LOWER);
+            return this.defaultBlockState().setValue(HORIZONTAL_AXIS, getHorizontalOpposite(pContext.getHorizontalDirection().getAxis())).setValue(HALF, DoubleBlockHalf.LOWER);
         } else {
             return null;
         }
@@ -76,11 +77,13 @@ public class AirlockBlock extends HorizontalDirectionalBlock {
     @Override
     public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pFacingPos) {
         DoubleBlockHalf half = pState.getValue(HALF);
-        if (pFacing.getAxis() == Direction.Axis.Y && half == DoubleBlockHalf.LOWER == (pFacing == Direction.UP)) {
-            return pFacingState.is(this) && pFacingState.getValue(HALF) != half ? pState.setValue(FACING, pFacingState.getValue(FACING)) : Blocks.AIR.defaultBlockState();
-        } else {
-            return half == DoubleBlockHalf.LOWER && pFacing == Direction.DOWN && !pState.canSurvive(pLevel, pCurrentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+        if(pFacing == Direction.UP && half == DoubleBlockHalf.LOWER && !pFacingState.is(this)) {
+            return Blocks.AIR.defaultBlockState();
         }
+        if(pFacing == Direction.DOWN && half == DoubleBlockHalf.UPPER && !pFacingState.is(this)) {
+            return Blocks.AIR.defaultBlockState();
+        }
+        return pState;
     }
 
     @Override
@@ -133,5 +136,31 @@ public class AirlockBlock extends HorizontalDirectionalBlock {
     @Override
     public boolean shouldDisplayFluidOverlay(BlockState state, BlockAndTintGetter level, BlockPos pos, FluidState fluidState) {
         return true;
+    }
+
+    //// ROTATION ////
+
+    public Direction.Axis getHorizontalOpposite(final Direction.Axis axis) {
+        if(axis == Direction.Axis.X) {
+            return Direction.Axis.Z;
+        }
+        if(axis == Direction.Axis.Z) {
+            return Direction.Axis.X;
+        }
+        throw new IllegalArgumentException("Cannot get horizontal opposite of non-horizontal axis \"" + axis.getSerializedName() + "\"");
+    }
+
+    @Override
+    public BlockState rotate(BlockState pState, Rotation pRot) {
+        final Direction.Axis axis = pState.getValue(HORIZONTAL_AXIS);
+        if(pRot == Rotation.NONE || pRot == Rotation.CLOCKWISE_180) {
+            return pState;
+        }
+        return pState.setValue(HORIZONTAL_AXIS, getHorizontalOpposite(axis));
+    }
+
+    @Override
+    public BlockState mirror(BlockState pState, Mirror pMirror) {
+        return pState;
     }
 }

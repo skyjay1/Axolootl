@@ -2,25 +2,20 @@ package axolootl.command;
 
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
-import axolootl.capability.AxolootlResearchCapability;
 import axolootl.data.axolootl_variant.AxolootlVariant;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,22 +40,20 @@ public class AxolootlResearchCommand {
         // create command
         final LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal(COMMAND)
                 .requires(c -> c.hasPermission(2))
-                .then(Commands.literal("add")
+                .then(Commands.literal("grant")
                         .then(Commands.argument("targets", EntityArgument.players())
+                                .then(Commands.literal("all")
+                                        .executes(context -> addAll(context.getSource(), EntityArgument.getPlayers(context, "targets"))))
                                 .then(Commands.argument("id", ResourceLocationArgument.id())
                                         .suggests(SUGGEST_AXOLOOTL_VARIANT)
                                         .executes(context -> add(context.getSource(), EntityArgument.getPlayers(context, "targets"), ResourceLocationArgument.getId(context, "id"))))))
-                .then(Commands.literal("remove")
+                .then(Commands.literal("revoke")
                         .then(Commands.argument("targets", EntityArgument.players())
+                                .then(Commands.literal("all")
+                                        .executes(context -> removeAll(context.getSource(), EntityArgument.getPlayers(context, "targets"))))
                                 .then(Commands.argument("id", ResourceLocationArgument.id())
                                         .suggests(SUGGEST_AXOLOOTL_VARIANT)
-                                        .executes(context -> remove(context.getSource(), EntityArgument.getPlayers(context, "targets"), ResourceLocationArgument.getId(context, "id"))))))
-                .then(Commands.literal("addall")
-                        .then(Commands.argument("targets", EntityArgument.players())
-                                .executes(context -> addAll(context.getSource(), EntityArgument.getPlayers(context, "targets")))))
-                .then(Commands.literal("removall")
-                        .then(Commands.argument("targets", EntityArgument.players())
-                                .executes(context -> removeAll(context.getSource(), EntityArgument.getPlayers(context, "targets")))));
+                                        .executes(context -> remove(context.getSource(), EntityArgument.getPlayers(context, "targets"), ResourceLocationArgument.getId(context, "id"))))));
         // register command
         dispatcher.register(builder);
     }

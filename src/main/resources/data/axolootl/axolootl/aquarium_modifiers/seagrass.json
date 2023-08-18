@@ -2,23 +2,11 @@
   "translation_key": "block.minecraft.seagrass",
   "settings": {
     "generation": 0.01,
-    "spread": 0.0015,
+    "spread": 0.00125,
     "spread_distance": [ 1, 1, 1 ]
   },
   "block": {
-    "type": "minecraft:any_of",
-    "predicates": [
-      {
-        "type": "minecraft:matching_blocks",
-        "blocks": "minecraft:seagrass"
-      },
-      {
-        "type": "axolootl:matching_state",
-        "blocks": "minecraft:tall_seagrass",
-        "state": {
-          "half": "lower"
-        }
-      }
-    ]
+    "type": "minecraft:matching_blocks",
+    "blocks": "minecraft:seagrass"
   }
 }

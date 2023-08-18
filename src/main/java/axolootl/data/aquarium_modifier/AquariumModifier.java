@@ -13,6 +13,7 @@ import axolootl.data.aquarium_modifier.condition.TrueModifierCondition;
 import axolootl.util.TankMultiblock;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -123,6 +124,11 @@ public class AquariumModifier {
 
     public ResourceLocation getRegistryName(final RegistryAccess registryAccess) {
         return Optional.ofNullable(getRegistry(registryAccess).getKey(this)).orElseThrow(() -> new IllegalStateException("Missing key in AquariumModifier registry for object " + this.toString()));
+    }
+
+    public List<TagKey<AquariumModifier>> getReverseTags(final RegistryAccess access) {
+        final Holder<AquariumModifier> self = getHolder(access);
+        return getRegistry(access).getTags().filter(pair -> pair.getSecond().contains(self)).map(Pair::getFirst).toList();
     }
 
     /**

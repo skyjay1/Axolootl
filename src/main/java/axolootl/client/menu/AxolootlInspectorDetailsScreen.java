@@ -66,13 +66,13 @@ public class AxolootlInspectorDetailsScreen extends Screen implements ScrollButt
     // WIDGET CONSTANTS //
     public static final int WIDTH = 250;
     public static final int HEIGHT = 176;
-    public static final int RESOURCE_DESCRIPTION_X = 128;
-    public static final int RESOURCE_DESCRIPTION_Y = 21;
     public static final int DETAILS_X = 8;
     public static final int DETAILS_Y = 8;
     public static final int DETAILS_LINE_SPACING = 4;
+    public static final int RESOURCE_DESCRIPTION_X = 128;
+    public static final int RESOURCE_DESCRIPTION_Y = 32;
     public static final int RESOURCE_DESCRIPTION_WIDTH = 100;
-    public static final int RESOURCE_DESCRIPTION_HEIGHT = 147;
+    public static final int RESOURCE_DESCRIPTION_HEIGHT = 135;
     public static final int RESOURCE_DESCRIPTION_MARGIN_X = 6;
     public static final int RESOURCE_DESCRIPTION_MARGIN_Y = 6;
     public static final int FOOD_MAX_COUNT = 6;
@@ -192,28 +192,27 @@ public class AxolootlInspectorDetailsScreen extends Screen implements ScrollButt
         final int resourceMaxWidth = RESOURCE_DESCRIPTION_WIDTH - RESOURCE_DESCRIPTION_MARGIN_X;
         this.resourceDescriptionHeight = ResourceDescriptionGroupButton.calculateTotalHeight(this.resourceDescriptionGroups, font, resourceMaxWidth);
         // add scroll button
-        this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + 229, topPos + 22, 12, RESOURCE_DESCRIPTION_HEIGHT - 2, WIDGETS, 244, 0, 12, 15, 15, true,  (float) ResourceDescriptionGroupButton.getHeight(font) / (float) Math.max(1, resourceDescriptionHeight - RESOURCE_DESCRIPTION_HEIGHT), this));
+        this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + RESOURCE_DESCRIPTION_X + RESOURCE_DESCRIPTION_WIDTH + 1, topPos + RESOURCE_DESCRIPTION_Y + 2, 12, RESOURCE_DESCRIPTION_HEIGHT - 2, WIDGETS, 244, 0, 12, 15, 15, true,  (float) ResourceDescriptionGroupButton.getHeight(font) / (float) Math.max(1, resourceDescriptionHeight - RESOURCE_DESCRIPTION_HEIGHT), this));
         this.setFocused(this.scrollButton);
         this.scrollButton.active = this.resourceDescriptionHeight > RESOURCE_DESCRIPTION_HEIGHT;
         // create on tooltip
         final Button.OnTooltip componentButtonOnTooltip = (b, p, mx, my) -> renderComponentHoverEffect(p, b.getMessage().getStyle(), mx, my);
-        // add static component buttons
+        // prepare to add components
         int x = this.leftPos + DETAILS_X;
         int y = this.topPos + DETAILS_Y + (16 - font.lineHeight) / 2;
         int deltaY = DETAILS_LINE_SPACING + font.lineHeight;
-        // add generator title button
-        int generatorTitleX = this.leftPos + RESOURCE_DESCRIPTION_X + RESOURCE_DESCRIPTION_WIDTH - font.width(resourceTitleText) - 4;
+        // add tier text
         this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x + 16 + 2, y, font.lineHeight, font, getTitle(), componentButtonOnTooltip)));
-        this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(generatorTitleX, y, font.lineHeight, font, resourceTitleText, componentButtonOnTooltip)));
-        // add energy cost button, if any
-        if(this.variant.getEnergyCost() > 0) {
-            final Component energyCostText = Component.translatable(PREFIX + "energy_cost", this.variant.getEnergyCost())
-                    .withStyle(ChatFormatting.DARK_RED)
-                    .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(PREFIX + "energy_cost.description", this.variant.getEnergyCost()))));
-            addRenderableWidget(new ItemButton(generatorTitleX - CyclingItemButton.WIDTH, y, false, itemRenderer, new ItemStack(Items.REDSTONE), item -> ImmutableList.of(energyCostText), b -> {}, (b, p, mx, my) -> renderTooltip(p, energyCostText, mx, my)));
-        }
         y += deltaY;
-        this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x + 16 + 2, y, font.lineHeight, font, tierText, componentButtonOnTooltip)));
+        // add loot title text
+        int resourceTitleX = this.leftPos + RESOURCE_DESCRIPTION_X;this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x + 16 + 2, y, font.lineHeight, font, tierText, componentButtonOnTooltip)));
+        this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(resourceTitleX, y, font.lineHeight, font, resourceTitleText, componentButtonOnTooltip)));
+        // add energy cost icon, if any
+        if(this.variant.getEnergyCost() > 0) {
+            final Component energyCostText = Component.translatable(PREFIX + "energy_cost.description", this.variant.getEnergyCost())
+                    .withStyle(ChatFormatting.RED);
+            addRenderableWidget(new ItemButton(resourceTitleX + font.width(resourceTitleText) + 4, y - (16 - DetailsComponentButton.getHeight(font)), false, itemRenderer, new ItemStack(Items.REDSTONE), item -> ImmutableList.of(energyCostText), b -> {}, (b, p, mx, my) -> renderTooltip(p, energyCostText, mx, my)));
+        }
         y += deltaY + 4;
         // add food buttons
         this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x, y, font.lineHeight, font, foodText, componentButtonOnTooltip)));

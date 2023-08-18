@@ -462,15 +462,15 @@ public class WaterInterfaceBlockEntity extends InterfaceBlockEntity {
             this.max = start.mutable();
             this.cursor = start.mutable();
             this.next = start.mutable();
-            this.layer = 0;
+            this.layer = bounds.minY() - start.getY();
             this.invalidSuperSet = new HashSet<>();
             this.invalid = new HashSet<>();
             this.iterator = calculateNextIterator();
         }
 
         private boolean isReachedMaxLayer() {
-            int maxLayer = bounds.maxY() - bounds.minY();
-            return layer >= maxLayer;
+            int maxLayer = (bounds.maxY()  - start.getY());
+            return layer > maxLayer;
         }
 
         private boolean isReachedMaxBounds() {

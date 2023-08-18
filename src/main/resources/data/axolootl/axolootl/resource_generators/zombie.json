@@ -12,7 +12,7 @@
       }
     },
     {
-      "weight": 2,
+      "weight": 1,
       "data": {
         "type": "axolootl:mob",
         "loot_table": {
@@ -32,7 +32,7 @@
       }
     },
     {
-      "weight": 5,
+      "weight": 4,
       "data": {
         "type": "axolootl:empty"
       }

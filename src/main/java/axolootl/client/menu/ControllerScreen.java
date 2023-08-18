@@ -31,6 +31,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Inventory;
@@ -115,7 +116,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
         for(Map.Entry<BlockPos, AquariumModifier> entry : modifierMap.entrySet()) {
             ResourceLocation id = entry.getValue().getRegistryName(access);
             boolean active = controller.activePredicate.test(entry.getKey(), entry.getValue());
-            dataMap.computeIfAbsent(id, r -> new ModifierData(r, entry.getValue())).addCount(active);
+            dataMap.computeIfAbsent(id, r -> new ModifierData(access, r, entry.getValue())).addCount(active);
         }
         // populate and sort list
         this.modifierDataList.clear();
@@ -130,7 +131,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
         // update title position
         this.titleLabelX = (this.imageWidth - font.width(this.getTitle())) / 2;
         // add scroll button
-        this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + 202, topPos + 104, 12, 110, WIDGETS, 244, 0, 12, 15, 15, true, 1.0F / Math.max(1, modifierDataList.size() / ENTRY_COUNT_X), this));
+        this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + 200, topPos + 106, 12, 109, WIDGETS, 244, 0, 12, 15, 15, true, 1.0F / Math.max(1, modifierDataList.size() / ENTRY_COUNT_X), this));
         this.setFocused(this.scrollButton);
         this.scrollButton.active = modifierDataList.size() > ENTRY_COUNT;
         // add activate button
@@ -322,13 +323,19 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
 
     private static class ModifierData {
         private final ResourceLocation id;
+        private final List<ResourceLocation> tags;
         private final AquariumModifier modifier;
         private int activeCount;
         private int count;
 
-        private ModifierData(ResourceLocation id, AquariumModifier modifier) {
+        private ModifierData(RegistryAccess access, ResourceLocation id, AquariumModifier modifier) {
+            this(id, modifier, modifier.getReverseTags(access).stream().map(TagKey::location).toList());
+        }
+
+        private ModifierData(ResourceLocation id, AquariumModifier modifier, List<ResourceLocation> tags) {
             this.id = id;
             this.modifier = modifier;
+            this.tags = tags;
         }
 
         private void addCount(final boolean active) {
@@ -352,6 +359,10 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
 
         public int getCount() {
             return count;
+        }
+
+        public List<ResourceLocation> getTags() {
+            return tags;
         }
     }
 
@@ -382,7 +393,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             this.showBonuses = Component.translatable(PREFIX + "entry.bonuses").withStyle(ChatFormatting.GOLD).append(" ").append(Component.translatable(PREFIX + "entry.show_bonuses").withStyle(ChatFormatting.YELLOW));
             this.showConditions = Component.translatable(PREFIX + "entry.condition").withStyle(ChatFormatting.GOLD).append(" ").append(Component.translatable(PREFIX + "entry.show_condition").withStyle(ChatFormatting.YELLOW));
             this.font = font;
-            this.entry = new ModifierData(new ResourceLocation("empty"), AquariumModifier.EMPTY);
+            this.entry = new ModifierData(new ResourceLocation("empty"), AquariumModifier.EMPTY, ImmutableList.of());
             this.description = Component.empty();
         }
 
@@ -397,6 +408,13 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             this.nameTooltips.clear();
             this.nameTooltips.add(entry.getModifier().getDescription());
             this.nameTooltips.add(Component.literal(entry.getId().toString()).withStyle(ChatFormatting.GRAY));
+            // add tags to name tooltips
+            if(!this.entry.getTags().isEmpty()) {
+                this.nameTooltips.add(Component.empty());
+                for(ResourceLocation tagKey : this.entry.getTags()) {
+                    this.nameTooltips.add(Component.literal("#" + tagKey.toString()).withStyle(ChatFormatting.GRAY));
+                }
+            }
             // add count tooltips
             this.countTooltips.clear();
             final Component activeCountText = Component.literal("" + entry.getActiveCount()).withStyle(hasInactive ? ChatFormatting.RED : ChatFormatting.RESET);
@@ -420,7 +438,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
 
         public List<Component> getTooltips(final PoseStack poseStack, final int mouseX, final int mouseY) {
             // name tooltips
-            if(mouseX < this.x + this.width - font.width(countText) - 4) {
+            if(mouseX < this.x + font.width(description)) {
                 return this.nameTooltips;
             }
             final List<Component> list = new ArrayList<>(countTooltips);
@@ -483,14 +501,14 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
 
     private static class ActivateButton extends ImageButton {
         private static final int WIDTH = 92;
-        private static final int HEIGHT = 20;
+        private static final int HEIGHT = 18;
 
         private final Font font;
         private final Component message;
         private final Component messagePending;
 
         public ActivateButton(int pX, int pY, Font font, OnPress pOnPress, OnTooltip pOnTooltip) {
-            super(pX, pY, WIDTH, HEIGHT, 137, 144, HEIGHT, WIDGETS, 256, 256, pOnPress, pOnTooltip, Component.translatable(PREFIX + "activate"));
+            super(pX, pY, WIDTH, HEIGHT, 137, 50, HEIGHT, WIDGETS, 256, 256, pOnPress, pOnTooltip, Component.translatable(PREFIX + "activate"));
             this.font = font;
             this.message = getMessage();
             this.messagePending = Component.translatable(PREFIX + "activate.pending");

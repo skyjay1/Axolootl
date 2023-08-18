@@ -68,10 +68,12 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
     // COMPONENTS //
     public static final String PREFIX = "gui.controller_tab.axolootl.axolootl_inspector.";
     private Component progressText;
+    private Component emptyResearchText;
 
     public AxolootlInspectorScreen(AxolootlInspectorMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         this.progressText = Component.empty();
+        this.emptyResearchText = Component.translatable(PREFIX + "no_research");
         this.variants = new ArrayList<>();
         this.entryButtons = new ArrayList<>();
     }
@@ -99,7 +101,7 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
         super.init();
         calculateSortedVariants();
         // add scroll button
-        this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + 199, topPos + ENTRY_Y + 1, 12, ENTRY_COUNT_Y * EntryButton.HEIGHT - 2, WIDGETS, 244, 0, 12, 15, 15, true, 1.0F / Math.max(1, (variants.size() - ENTRY_COUNT) / ENTRY_COUNT_X), this));
+        this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + 199, topPos + ENTRY_Y + 1, 12, ENTRY_COUNT_Y * EntryButton.HEIGHT, WIDGETS, 244, 0, 12, 15, 15, true, 1.0F / Math.max(1, (variants.size() - ENTRY_COUNT) / ENTRY_COUNT_X), this));
         this.setFocused(this.scrollButton);
         this.scrollButton.active = variants.size() > ENTRY_COUNT;
         // add entry buttons
@@ -149,6 +151,12 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        // render empty research text
+        if(variants.isEmpty()) {
+            int textWidth = font.width(emptyResearchText);
+            font.draw(pPoseStack, emptyResearchText, this.leftPos + ENTRY_X + (ENTRY_COUNT_X * EntryButton.WIDTH - textWidth) / 2.0F, this.topPos + ENTRY_Y + (ENTRY_COUNT_Y * EntryButton.HEIGHT - font.lineHeight) / 2.0F, 0);
+        }
+        // render hover actions
         renderHoverActions(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
 
@@ -247,7 +255,7 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
         public void update(final Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant> entry, final RegistryAccess access) {
             this.key = entry.getKey().location();
             this.entry = entry.getValue();
-            String axolootlName = StringUtil.truncateStringIfNecessary(entry.getValue().getDescription().getString(), 24, true);
+            String axolootlName = StringUtil.truncateStringIfNecessary(entry.getValue().getDescription().getString(), 13, true);
             this.setMessage(Component.literal(axolootlName));
             ResourceLocation id = entry.getValue().getRegistryName(access);
             this.icon.getOrCreateTag().putString(AxolootlEntity.KEY_VARIANT_ID, id.toString());
@@ -259,8 +267,8 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
         @Override
         public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
             super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
-            this.itemRenderer.renderGuiItem(this.icon, this.x + 2, this.y + (this.height - 16) / 2);
-            this.font.draw(pPoseStack, getMessage(), this.x + 16 + 4, this.y + (this.height - font.lineHeight) / 2.0F, 0);
+            this.itemRenderer.renderGuiItem(this.icon, this.x + 1, this.y + (this.height - 16) / 2);
+            this.font.draw(pPoseStack, getMessage(), this.x + 16 + 3, this.y + (this.height - font.lineHeight) / 2.0F, 0);
         }
 
         public void openDetails(final Minecraft minecraft) {
