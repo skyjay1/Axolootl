@@ -1,10 +1,11 @@
 {
   "translation_key": "block.minecraft.mycelium",
+  "rarity": "uncommon",
   "model": {
     "primary_color": "dbae8c",
     "secondary_color": "74646a",
     "texture": "axolootl:dirt/mycelium"
   },
-  "breed_food": "#minecraft:dirt",
+  "breed_food": "minecraft:moss_block",
   "resource_generator": "axolootl:dirt/mycelium"
 }

@@ -2,21 +2,23 @@
   "translation_key": "entity.axolootl.axolootl.basic",
   "tier": 1,
   "model": {
-    "primary_color": 16711680,
-    "secondary_color": 16449280,
+    "primary_color": 10648150,
+    "secondary_color": 6310971,
     "texture": "axolootl:axolootl_base",
     "primary_texture": "axolootl:axolootl_primary",
     "secondary_texture": "axolootl:axolootl_secondary"
   },
-  "breed_food": {
-    "type": "forge:and",
-    "values": [
-      "#minecraft:fishes",
-      {
-        "type": "forge:not",
-        "value": "minecraft:pufferfish"
-      }
-    ]
-  },
+  "breed_food": [
+    {
+      "type": "forge:and",
+      "values": [
+        "#minecraft:fishes",
+        {
+          "type": "forge:not",
+          "value": "minecraft:pufferfish"
+        }
+      ]
+    }
+  ],
   "resource_generator": "axolootl:basic"
 }

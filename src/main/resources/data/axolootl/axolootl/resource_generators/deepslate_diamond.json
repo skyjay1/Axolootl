@@ -1,0 +1,25 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:diamond"
+      }
+    },
+    {
+      "weight": 2,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:deepslate_diamond_ore"
+      }
+    },
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "translation_key": "entity.axolootl.axolootl.netherite",
+  "tier": 5,
+  "rarity": "rare",
+  "fire_immune": true,
+  "model": {
+    "primary_color": "683d36",
+    "secondary_color": "49241b",
+    "texture": "axolootl:netherite"
+  },
+  "breed_food": "minecraft:ancient_debris",
+  "resource_generator": "axolootl:netherite"
+}

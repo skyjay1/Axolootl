@@ -1,0 +1,21 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:mob",
+        "loot_table": {
+          "id": "minecraft:entities/warden",
+          "display": "minecraft:sculk_catalyst"
+        }
+      }
+    },
+    {
+      "weight": 3,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

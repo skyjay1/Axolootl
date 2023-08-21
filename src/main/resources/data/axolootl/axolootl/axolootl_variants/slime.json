@@ -8,8 +8,6 @@
     "primary_texture": "axolootl:axolootl_primary",
     "secondary_texture": "axolootl:axolootl_secondary"
   },
-  "breed_food": [
-    "minecraft:slime_block"
-  ],
+  "breed_food": "minecraft:slime_block",
   "resource_generator": "axolootl:slime"
 }

@@ -1,0 +1,27 @@
+{
+  "translation_key": "entity.axolootl.axolootl.fluorite",
+  "tier": 3,
+  "model": {
+    "primary_color": "898989",
+    "secondary_color": "c6c6c6",
+    "texture": "axolootl:fluorite"
+  },
+  "breed_food": "#forge:storage_blocks/fluorite",
+  "resource_generator": "axolootl:fluorite_dust",
+  "condition": {
+    "type": "forge:not",
+    "value": {
+      "type": "forge:or",
+      "values": [
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:dusts/fluorite"
+        },
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:storage_blocks/fluorite"
+        }
+      ]
+    }
+  }
+}

@@ -8,7 +8,6 @@ package axolootl.client.menu;
 
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
-import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.client.menu.widget.ScrollButton;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.entity.AxolootlEntity;
@@ -101,7 +100,7 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
         super.init();
         calculateSortedVariants();
         // add scroll button
-        this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + 199, topPos + ENTRY_Y + 1, 12, ENTRY_COUNT_Y * EntryButton.HEIGHT, WIDGETS, 244, 0, 12, 15, 15, true, 1.0F / Math.max(1, (variants.size() - ENTRY_COUNT) / ENTRY_COUNT_X), this));
+        this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + 199, topPos + ENTRY_Y + 1, 12, ENTRY_COUNT_Y * EntryButton.HEIGHT, WIDGETS, 244, 0, 12, 15, 15, true, 1.0F / Math.max(1.0F, (float) (variants.size() - ENTRY_COUNT) / ENTRY_COUNT_X), this));
         this.setFocused(this.scrollButton);
         this.scrollButton.active = variants.size() > ENTRY_COUNT;
         // add entry buttons
@@ -211,7 +210,7 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
 
     @Override
     public void onScroll(ScrollButton button, float percent) {
-        this.scrollOffset = Mth.floor(Math.max(0, percent * Math.max(0, (variants.size() - ENTRY_COUNT) / ENTRY_COUNT_X)));
+        this.scrollOffset = Math.round(Math.max(0.0F, percent * Math.max(0.0F, Mth.ceil((float) (variants.size() - ENTRY_COUNT) / (float) ENTRY_COUNT_X))));
         updateEntryButtons();
     }
 
@@ -255,7 +254,7 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
         public void update(final Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant> entry, final RegistryAccess access) {
             this.key = entry.getKey().location();
             this.entry = entry.getValue();
-            String axolootlName = StringUtil.truncateStringIfNecessary(entry.getValue().getDescription().getString(), 13, true);
+            String axolootlName = StringUtil.truncateStringIfNecessary(entry.getValue().getDescription().getString(), 12, true);
             this.setMessage(Component.literal(axolootlName));
             ResourceLocation id = entry.getValue().getRegistryName(access);
             this.icon.getOrCreateTag().putString(AxolootlEntity.KEY_VARIANT_ID, id.toString());
@@ -281,11 +280,11 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
                 return;
             }
             // validate can open
-            if(!AxolootlInspectorDetailsScreen.canOpenDetails(minecraft.player, key)) {
+            if(!AxolootlDetailsScreen.canOpenDetails(minecraft.player, key)) {
                 return;
             }
             // open details screen
-            AxolootlInspectorDetailsScreen.openDetails(minecraft, minecraft.level.registryAccess(), key, entry, icon);
+            AxolootlDetailsScreen.openDetails(minecraft, minecraft.level.registryAccess(), key, entry, icon);
         }
     }
 }

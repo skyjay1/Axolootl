@@ -71,15 +71,15 @@ public class CyclingContainerMenu extends AbstractControllerMenu {
     }
 
     public static CyclingContainerMenu createFeeder(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
-        return new CyclingContainerMenu(AxRegistry.MenuReg.AUTOFEEDER.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.resolveModifiers(controller.getLevel().registryAccess(), controller.activePredicate.and(controller.foodInterfacePredicate)).keySet());
+        return new CyclingContainerMenu(AxRegistry.MenuReg.AUTOFEEDER.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.resolveModifiers(controller.getLevel().registryAccess(), (b, a) -> AxRegistry.AquariumTabsReg.FOOD_INTERFACE.get().isFor(controller.getLevel(), b, controller.getLevel().getBlockState(b))).keySet());
     }
 
     public static CyclingContainerMenu createBreeder(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
-        return new CyclingContainerMenu(AxRegistry.MenuReg.BREEDER.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.resolveModifiers(controller.getLevel().registryAccess(), controller.activePredicate.and(controller.foodInterfacePredicate)).keySet());
+        return new CyclingContainerMenu(AxRegistry.MenuReg.BREEDER.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.resolveModifiers(controller.getLevel().registryAccess(), (b, a) -> AxRegistry.AquariumTabsReg.FOOD_INTERFACE.get().isFor(controller.getLevel(), b, controller.getLevel().getBlockState(b))).keySet());
     }
 
     public static CyclingContainerMenu createMonsterium(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {
-        return new CyclingContainerMenu(AxRegistry.MenuReg.MONSTERIUM.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.resolveModifiers(controller.getLevel().registryAccess(), controller.activePredicate.and(controller.foodInterfacePredicate)).keySet());
+        return new CyclingContainerMenu(AxRegistry.MenuReg.MONSTERIUM.get(), windowId, inv, controllerPos, controller, blockPos, tab, cycle, controller.resolveModifiers(controller.getLevel().registryAccess(), (b, a) -> AxRegistry.AquariumTabsReg.FOOD_INTERFACE.get().isFor(controller.getLevel(), b, controller.getLevel().getBlockState(b))).keySet());
     }
 
     public static CyclingContainerMenu createFluid(int windowId, Inventory inv, BlockPos controllerPos, ControllerBlockEntity controller, BlockPos blockPos, int tab, int cycle) {

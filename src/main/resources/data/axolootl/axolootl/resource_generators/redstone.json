@@ -2,14 +2,21 @@
   "type": "axolootl:select",
   "pool": [
     {
-      "weight": 6,
+      "weight": 12,
       "data": {
         "type": "axolootl:tag",
         "tag": "forge:dusts/redstone"
       }
     },
     {
-      "weight": 1,
+      "weight": 2,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:redstone_ore"
+      }
+    },
+    {
+      "weight": 3,
       "data": {
         "type": "axolootl:empty"
       }

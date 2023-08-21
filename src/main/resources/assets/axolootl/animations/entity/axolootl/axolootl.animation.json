@@ -1,0 +1,21 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.axolootl.swim_idle": {
+			"loop": true
+		},
+		"animation.axolootl.idle": {
+			"loop": true
+		},
+		"animation.axolootl.play_dead": {
+			"loop": true
+		},
+		"animation.axolootl.swim": {
+			"loop": true
+		},
+		"animation.axolootl.walk": {
+			"loop": true
+		}
+	},
+	"geckolib_format_version": 2
+}

@@ -1,0 +1,28 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 60,
+      "data": {
+        "type": "axolootl:mob",
+        "loot_table": {
+          "id": "minecraft:entities/guardian",
+          "display": "minecraft:prismarine_shard"
+        }
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:wet_sponge"
+      }
+    },
+    {
+      "weight": 20,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

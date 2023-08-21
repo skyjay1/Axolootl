@@ -3,7 +3,7 @@
   "tier": 3,
   "model": {
     "primary_color": "adadad",
-    "secondary_color": "fd5e5e",
+    "secondary_color": "ca0707",
     "texture": "axolootl:redstone"
   },
   "breed_food": "#forge:storage_blocks/redstone",

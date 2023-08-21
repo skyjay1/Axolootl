@@ -1,0 +1,28 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 8,
+      "data": {
+        "type": "axolootl:mob",
+        "loot_table": {
+          "id": "minecraft:entities/drowned",
+          "display": "minecraft:zombie_head"
+        }
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:copper_ingot"
+      }
+    },
+    {
+      "weight": 3,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

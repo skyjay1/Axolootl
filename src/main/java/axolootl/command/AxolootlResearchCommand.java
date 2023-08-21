@@ -103,7 +103,7 @@ public class AxolootlResearchCommand {
     }
 
     private static int remove(final CommandSourceStack context, final Collection<ServerPlayer> targets, final ResourceLocation id) throws CommandSyntaxException {
-// validate ID
+        // validate ID
         if(!AxRegistry.AxolootlVariantsReg.isValid(id)) {
             throw INVALID_VARIANT.create(id);
         }

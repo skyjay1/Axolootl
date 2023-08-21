@@ -5,6 +5,6 @@
     "secondary_color": "47922d",
     "texture": "axolootl:dirt/grass"
   },
-  "breed_food": "#minecraft:dirt",
+  "breed_food": "minecraft:moss_block",
   "resource_generator": "axolootl:dirt/grass"
 }

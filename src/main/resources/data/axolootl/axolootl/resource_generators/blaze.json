@@ -1,0 +1,25 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 3,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:blaze_rod"
+      }
+    },
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:blaze_powder"
+      }
+    },
+    {
+      "weight": 3,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

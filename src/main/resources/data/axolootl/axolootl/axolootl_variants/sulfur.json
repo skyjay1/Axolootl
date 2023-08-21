@@ -1,0 +1,27 @@
+{
+  "translation_key": "entity.axolootl.axolootl.sulfur",
+  "tier": 3,
+  "model": {
+    "primary_color": "898989",
+    "secondary_color": "cece79",
+    "texture": "axolootl:sulfur"
+  },
+  "breed_food": "#forge:storage_blocks/sulfur",
+  "resource_generator": "axolootl:sulfur",
+  "condition": {
+    "type": "forge:not",
+    "value": {
+      "type": "forge:or",
+      "values": [
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:dusts/sulfur"
+        },
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:storage_blocks/sulfur"
+        }
+      ]
+    }
+  }
+}

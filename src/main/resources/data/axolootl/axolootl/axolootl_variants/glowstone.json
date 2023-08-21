@@ -6,6 +6,6 @@
     "secondary_color": "886839",
     "texture": "axolootl:glowstone"
   },
-  "breed_food": "#forge:storage_blocks/glowstone",
+  "breed_food": "#forge:rods/blaze",
   "resource_generator": "axolootl:glowstone"
 }

@@ -94,7 +94,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
         // update title position
         this.titleLabelX = (this.imageWidth - font.width(this.getTitle())) / 2;
         // add scroll button
-        this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + 199, topPos + 20, 12, 80, WIDGETS, 244, 0, 12, 15, 15, true, 1.0F / Math.max(1, (variantCountList.size() - ENTRY_COUNT) / ENTRY_COUNT_X), this));
+        this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + 199, topPos + 20, 12, 80, WIDGETS, 244, 0, 12, 15, 15, true, 1.0F / Math.max(1.0F, (float) (variantCountList.size() - ENTRY_COUNT) / ENTRY_COUNT_X), this));
         this.setFocused(this.scrollButton);
         this.scrollButton.active = getMenu().getVariantCountMap().size() > ENTRY_COUNT;
         // add insert button
@@ -212,7 +212,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
 
     @Override
     public void onScroll(ScrollButton button, float percent) {
-        this.scrollOffset = Mth.floor(Math.max(0, percent * Math.max(0, variantCountList.size() - ENTRY_COUNT)));
+        this.scrollOffset = Math.round(Math.max(0.0F, percent * Math.max(0.0F, Mth.ceil((float) (variantCountList.size() - ENTRY_COUNT) / (float) ENTRY_COUNT_X))));
         updateEntryButtons();
     }
 
@@ -271,7 +271,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
             Component axolootlName = Component.translatable("entity.axolootl.axolootl.description", AxRegistry.EntityReg.AXOLOOTL.get().getDescription(), entry.getKey().getDescription());
             this.tooltipText = Component.translatable(PREFIX + "extract_x", axolootlName);
             String sText = Component.translatable(PREFIX + "entry", count, entry.getKey().getDescription()).getString();
-            this.text = Component.literal(StringUtil.truncateStringIfNecessary(sText, 15, true));
+            this.text = Component.literal(StringUtil.truncateStringIfNecessary(sText, 14, true));
             updateActive(isActive);
         }
 

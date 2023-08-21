@@ -1,0 +1,12 @@
+{
+  "translation_key": "item.minecraft.diamond",
+  "tier": 4,
+  "rarity": "uncommon",
+  "model": {
+    "primary_color": "646464",
+    "secondary_color": "1ed0d6",
+    "texture": "axolootl:deepslate_diamond"
+  },
+  "breed_food": "#forge:storage_blocks/diamond",
+  "resource_generator": "axolootl:deepslate_diamond"
+}

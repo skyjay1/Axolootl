@@ -1,0 +1,32 @@
+{
+  "translation_key": "entity.axolootl.axolootl.uranium",
+  "tier": 4,
+  "rarity": "uncommon",
+  "model": {
+    "primary_color": "e5ffe5",
+    "secondary_color": "4ba04b",
+    "texture": "axolootl:uranium"
+  },
+  "breed_food": "#forge:storage_blocks/uranium",
+  "resource_generator": "axolootl:uranium",
+  "condition": {
+    "type": "forge:not",
+    "value": {
+      "type": "forge:or",
+      "values": [
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:nuggets/uranium"
+        },
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:ingots/uranium"
+        },
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:storage_blocks/uranium"
+        }
+      ]
+    }
+  }
+}

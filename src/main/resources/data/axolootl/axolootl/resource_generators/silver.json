@@ -1,0 +1,18 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 3,
+      "data": {
+        "type": "axolootl:tag",
+        "tag": "forge:nuggets/silver"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

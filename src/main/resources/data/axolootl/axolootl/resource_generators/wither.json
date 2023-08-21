@@ -1,0 +1,18 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:nether_star"
+      }
+    },
+    {
+      "weight": 21,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

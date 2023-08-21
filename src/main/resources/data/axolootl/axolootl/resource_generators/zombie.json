@@ -2,21 +2,11 @@
   "type": "axolootl:select",
   "pool": [
     {
-      "weight": 20,
+      "weight": 5,
       "data": {
         "type": "axolootl:mob",
         "loot_table": {
           "id": "minecraft:entities/zombie",
-          "display": "minecraft:zombie_head"
-        }
-      }
-    },
-    {
-      "weight": 1,
-      "data": {
-        "type": "axolootl:mob",
-        "loot_table": {
-          "id": "minecraft:entities/drowned",
           "display": "minecraft:zombie_head"
         }
       }

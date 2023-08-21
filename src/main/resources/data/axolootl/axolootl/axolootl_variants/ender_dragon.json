@@ -1,0 +1,14 @@
+{
+  "translation_key": "entity.minecraft.ender_dragon",
+  "tier": 5,
+  "rarity": "epic",
+  "fire_immune": true,
+  "model": {
+    "primary_color": "202020",
+    "secondary_color": "cc00fa",
+    "entity": "axolootl:ender_dragon",
+    "texture": "axolootl:ender_dragon"
+  },
+  "breed_food": "minecraft:nether_star",
+  "resource_generator": "axolootl:ender_dragon"
+}

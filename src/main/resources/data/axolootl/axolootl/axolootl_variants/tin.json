@@ -1,0 +1,33 @@
+{
+  "translation_key": "entity.axolootl.axolootl.tin",
+  "tier": 2,
+  "model": {
+    "primary_color": "efefef",
+    "secondary_color": "b5b5b5",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
+  "breed_food": "#forge:storage_blocks/tin",
+  "resource_generator": "axolootl:tin",
+  "condition": {
+    "type": "forge:not",
+    "value": {
+      "type": "forge:or",
+      "values": [
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:nuggets/tin"
+        },
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:ingots/tin"
+        },
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:storage_blocks/tin"
+        }
+      ]
+    }
+  }
+}

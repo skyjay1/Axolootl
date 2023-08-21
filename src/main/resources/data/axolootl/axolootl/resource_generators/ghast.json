@@ -1,0 +1,21 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:mob",
+        "loot_table": {
+          "id": "minecraft:entities/ghast",
+          "display": "minecraft:ghast_tear"
+        }
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

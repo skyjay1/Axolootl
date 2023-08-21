@@ -16,9 +16,9 @@ import java.util.function.Function;
 @Immutable
 public class AxolootlModelSettings {
 
-    public static final ResourceLocation ENTITY_MODEL = new ResourceLocation(Axolootl.MODID, "geo/entity/axolootl.geo.json");
+    public static final ResourceLocation ENTITY_MODEL = new ResourceLocation(Axolootl.MODID, "axolootl");
     public static final ResourceLocation ENTITY_TEXTURE = new ResourceLocation(Axolootl.MODID, "axolotl_lucy");
-    public static final ResourceLocation EMPTY_ENTITY_ANIMATIONS = new ResourceLocation(Axolootl.MODID, "animations/entity/axolootl.animation.json");
+    public static final ResourceLocation EMPTY_ENTITY_ANIMATIONS = new ResourceLocation(Axolootl.MODID, "axolootl");
 
     public static final AxolootlModelSettings EMPTY = new AxolootlModelSettings(ENTITY_MODEL, Optional.empty(), ENTITY_TEXTURE, Optional.empty(), Optional.empty(), -1, -1);
 
@@ -63,8 +63,8 @@ public class AxolootlModelSettings {
     public AxolootlModelSettings(ResourceLocation entityGeoModel, Optional<ResourceLocation> entityGeoAnimations,
                                  ResourceLocation entityTexture, Optional<ResourceLocation> entityPrimaryTexture, Optional<ResourceLocation> entitySecondaryTexture,
                                  int primaryColor, int secondaryColor) {
-        this.entityGeoModel = entityGeoModel;
-        this.entityGeoAnimations = entityGeoAnimations.orElse(null);
+        this.entityGeoModel = new ResourceLocation(entityGeoModel.getNamespace(), "geo/entity/axolootl/" + entityGeoModel.getPath() + ".geo.json");
+        this.entityGeoAnimations = entityGeoAnimations.map(animations -> new ResourceLocation(animations.getNamespace(), "animations/entity/axolootl/" + animations.getPath() + ".animation.json")).orElse(null);
         this.entityTexture = new ResourceLocation(entityTexture.getNamespace(), "textures/entity/axolootl/" + entityTexture.getPath() + ".png");
         this.entityPrimaryTexture = entityPrimaryTexture.map(texture -> new ResourceLocation(texture.getNamespace(), "textures/entity/axolootl/" + texture.getPath() + ".png")).orElse(null);
         this.entitySecondaryTexture = entitySecondaryTexture.map(texture -> new ResourceLocation(texture.getNamespace(), "textures/entity/axolootl/" + texture.getPath() + ".png")).orElse(null);

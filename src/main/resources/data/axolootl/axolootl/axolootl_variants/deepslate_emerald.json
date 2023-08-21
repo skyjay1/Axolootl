@@ -1,0 +1,12 @@
+{
+  "translation_key": "item.minecraft.emerald",
+  "tier": 4,
+  "rarity": "rare",
+  "model": {
+    "primary_color": "646464",
+    "secondary_color": "1ed0d6",
+    "texture": "axolootl:deepslate_emerald"
+  },
+  "breed_food": "#forge:storage_blocks/emerald",
+  "resource_generator": "axolootl:deepslate_emerald"
+}

@@ -1,0 +1,12 @@
+{
+  "translation_key": "entity.minecraft.wither_skeleton",
+  "tier": 4,
+  "rarity": "rare",
+  "model": {
+    "primary_color": "1f1f1f",
+    "secondary_color": "515353",
+    "texture": "axolootl:wither_skeleton"
+  },
+  "breed_food": "minecraft:wither_rose",
+  "resource_generator": "axolootl:wither_skeleton"
+}

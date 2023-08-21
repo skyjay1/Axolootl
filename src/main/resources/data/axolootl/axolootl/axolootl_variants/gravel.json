@@ -5,6 +5,9 @@
     "secondary_color": "817f7f",
     "texture": "axolootl:gravel"
   },
-  "breed_food": "minecraft:gravel",
+  "breed_food": [
+    "minecraft:cobblestone",
+    "minecraft:cobbled_deepslate"
+  ],
   "resource_generator": "axolootl:gravel"
 }

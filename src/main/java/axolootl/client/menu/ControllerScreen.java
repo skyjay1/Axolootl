@@ -30,6 +30,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -112,16 +113,22 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
         final ControllerBlockEntity controller = getMenu().getController().get();
         final Map<BlockPos, AquariumModifier> modifierMap = controller.resolveModifiers(getMenu().getInventory().player.level.registryAccess());
         final Map<ResourceLocation, ModifierData> dataMap = new HashMap<>();
+        // fill data with defaults
+        for(Map.Entry<ResourceKey<AquariumModifier>, AquariumModifier> entry : AquariumModifier.getRegistry(access).entrySet()) {
+            dataMap.put(entry.getKey().location(), new ModifierData(access, entry.getKey().location(), entry.getValue()));
+        }
         // build data
         for(Map.Entry<BlockPos, AquariumModifier> entry : modifierMap.entrySet()) {
             ResourceLocation id = entry.getValue().getRegistryName(access);
             boolean active = controller.activePredicate.test(entry.getKey(), entry.getValue());
-            dataMap.computeIfAbsent(id, r -> new ModifierData(access, r, entry.getValue())).addCount(active);
+            dataMap.get(id).addCount(active);
         }
         // populate and sort list
         this.modifierDataList.clear();
         this.modifierDataList.addAll(dataMap.values());
-        this.modifierDataList.sort(Comparator.comparing(o -> o.getModifier().getDescription().getString()));
+        Comparator<ModifierData> comparator = Comparator.comparing(o -> o.getCount() <= 0, Boolean::compareTo);
+        comparator = comparator.thenComparing(o -> o.getModifier().getDescription().getString());
+        this.modifierDataList.sort(comparator);
     }
 
     @Override
@@ -399,10 +406,11 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
 
         public void update(final ModifierData entry) {
             this.entry = entry;
+            final ChatFormatting existsColor = (entry.getCount() <= 0) ? ChatFormatting.DARK_GRAY : ChatFormatting.RESET;
             Component activeText = Component.literal("" + entry.getActiveCount()).withStyle(hasInactive ? ChatFormatting.DARK_RED : ChatFormatting.RESET);
-            this.countText = Component.translatable(PREFIX + "entry.count", activeText, entry.getCount());
+            this.countText = Component.translatable(PREFIX + "entry.count", activeText, entry.getCount()).withStyle(existsColor);
             final String sDescription = entry.getModifier().getDescription().getString();
-            this.description = Component.literal(StringUtil.truncateStringIfNecessary(sDescription, 38 - font.width(countText) / 6, true)).withStyle(entry.getModifier().getDescription().getStyle());
+            this.description = Component.literal(StringUtil.truncateStringIfNecessary(sDescription, 38 - font.width(countText) / 6, true)).withStyle(entry.getModifier().getDescription().getStyle()).withStyle(existsColor);
             this.hasInactive = entry.getCount() > entry.getActiveCount();
             // add name tooltips
             this.nameTooltips.clear();

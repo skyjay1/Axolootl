@@ -1,0 +1,32 @@
+{
+  "type": "axolootl:and",
+  "values": [
+    {
+      "type": "axolootl:item",
+      "item": {
+        "id": "minecraft:experience_bottle",
+        "Count": 4
+      }
+    },
+    {
+      "type": "axolootl:select",
+      "pool": [
+        {
+          "weight": 1,
+          "data": {
+            "type": "axolootl:item",
+            "item": "minecraft:end_crystal"
+          }
+        },
+        {
+          "weight": 13,
+          "data": {
+            "type": "axolootl:empty"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+

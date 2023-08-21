@@ -3,6 +3,7 @@ package axolootl.client.menu.widget;
 import axolootl.client.menu.AbstractTabScreen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -18,6 +19,7 @@ public class ItemButton extends Button {
     public static final int WIDTH = 16;
     public static final int HEIGHT = 16;
 
+    protected final Font font;
     protected final ItemRenderer itemRenderer;
     protected final Function<ItemStack, List<Component>> getTooltipFromItem;
     protected final ResourceLocation texture;
@@ -29,15 +31,16 @@ public class ItemButton extends Button {
     protected boolean drawTooltip;
     protected ItemStack item;
 
-    public ItemButton(int pX, int pY, boolean drawBackground, ItemRenderer itemRenderer, ItemStack item, Function<ItemStack, List<Component>> getTooltipFromItem, OnPress onPress, OnTooltip onTooltip) {
-        this(pX, pY, drawBackground, itemRenderer, item, getTooltipFromItem, onPress, onTooltip, AbstractTabScreen.SLOTS, 30, 18, 256, 256);
+    public ItemButton(int pX, int pY, boolean drawBackground, Font font, ItemRenderer itemRenderer, ItemStack item, Function<ItemStack, List<Component>> getTooltipFromItem, OnPress onPress, OnTooltip onTooltip) {
+        this(pX, pY, drawBackground, font, itemRenderer, item, getTooltipFromItem, onPress, onTooltip, AbstractTabScreen.SLOTS, 30, 18, 256, 256);
     }
 
-    public ItemButton(int pX, int pY, boolean drawBackground, ItemRenderer itemRenderer, ItemStack item,
+    public ItemButton(int pX, int pY, boolean drawBackground, Font font, ItemRenderer itemRenderer, ItemStack item,
                       Function<ItemStack, List<Component>> getTooltipFromItem, OnPress onPress, OnTooltip onTooltip,
                       ResourceLocation texture, int u, int v, int textureWidth, int textureHeight) {
         super(pX, pY, WIDTH, HEIGHT, Component.empty(), onPress, onTooltip);
         this.drawBackground = drawBackground;
+        this.font = font;
         this.itemRenderer = itemRenderer;
         this.item = item;
         this.getTooltipFromItem = getTooltipFromItem;
@@ -76,6 +79,7 @@ public class ItemButton extends Button {
         modelViewStack.translate(0, 0, 2_000);
         RenderSystem.applyModelViewMatrix();
         this.itemRenderer.renderAndDecorateItem(item, this.x, this.y);
+        this.itemRenderer.renderGuiItemDecorations(font, item, this.x, this.y);
         modelViewStack.popPose();
         RenderSystem.applyModelViewMatrix();
         // render tooltip

@@ -1,0 +1,18 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:phantom_membrane"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

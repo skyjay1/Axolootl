@@ -1,6 +1,7 @@
 {
   "translation_key": "entity.axolootl.axolootl.totemic",
   "tier": 6,
+  "rarity": "epic",
   "model": {
     "primary_color": "f8eea5",
     "secondary_color": "c58742",

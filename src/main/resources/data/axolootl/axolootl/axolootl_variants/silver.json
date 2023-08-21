@@ -1,0 +1,33 @@
+{
+  "translation_key": "entity.axolootl.axolootl.silver",
+  "tier": 3,
+  "model": {
+    "primary_color": "95a0a0",
+    "secondary_color": "5b6b6b",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
+  "breed_food": "#forge:storage_blocks/silver",
+  "resource_generator": "axolootl:silver",
+  "condition": {
+    "type": "forge:not",
+    "value": {
+      "type": "forge:or",
+      "values": [
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:nuggets/silver"
+        },
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:ingots/silver"
+        },
+        {
+          "type": "forge:tag_empty",
+          "tag": "forge:storage_blocks/silver"
+        }
+      ]
+    }
+  }
+}

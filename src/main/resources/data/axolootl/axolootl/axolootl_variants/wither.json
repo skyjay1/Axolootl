@@ -1,0 +1,14 @@
+{
+  "translation_key": "entity.minecraft.wither",
+  "tier": 5,
+  "rarity": "epic",
+  "fire_immune": true,
+  "model": {
+    "primary_color": "1f1f1f",
+    "secondary_color": "515353",
+    "entity": "axolootl:wither",
+    "texture": "axolootl:wither"
+  },
+  "breed_food": "minecraft:wither_skeleton_skull",
+  "resource_generator": "axolootl:wither"
+}

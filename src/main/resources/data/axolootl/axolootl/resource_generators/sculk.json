@@ -1,0 +1,33 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 3,
+      "data": {
+        "type": "axolootl:item",
+        "item": [
+          {
+            "weight": 3,
+            "data": {
+              "id": "minecraft:experience_bottle",
+              "Count": 1
+            }
+          },
+          {
+            "weight": 2,
+            "data": {
+              "id": "minecraft:experience_bottle",
+              "Count": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

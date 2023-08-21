@@ -1,0 +1,12 @@
+{
+  "translation_key": "entity.minecraft.guardian",
+  "tier": 4,
+  "model": {
+    "primary_color": "6e938a",
+    "secondary_color": "ec642a",
+    "entity": "axolootl:guardian",
+    "texture": "axolootl:guardian"
+  },
+  "breed_food": "minecraft:sea_lantern",
+  "resource_generator": "axolootl:guardian"
+}

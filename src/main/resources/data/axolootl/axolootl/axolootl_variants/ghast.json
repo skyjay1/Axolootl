@@ -1,0 +1,12 @@
+{
+  "translation_key": "entity.minecraft.ghast",
+  "tier": 4,
+  "fire_immune": true,
+  "model": {
+    "primary_color": "f9f9f9",
+    "secondary_color": "dddddd",
+    "texture": "axolootl:ghast"
+  },
+  "breed_food": "minecraft:soul_sand",
+  "resource_generator": "axolootl:ghast"
+}

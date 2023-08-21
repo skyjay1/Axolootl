@@ -1,0 +1,21 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:mob",
+        "loot_table": {
+          "id": "minecraft:entities/shulker",
+          "display": "minecraft:shulker_shell"
+        }
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

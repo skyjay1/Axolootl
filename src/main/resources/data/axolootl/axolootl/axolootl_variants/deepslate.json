@@ -1,0 +1,14 @@
+{
+  "translation_key": "block.minecraft.deepslate",
+  "model": {
+    "primary_color": "898989",
+    "secondary_color": "515151",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
+  "breed_food": [
+    "minecraft:obsidian"
+  ],
+  "resource_generator": "axolootl:deepslate"
+}

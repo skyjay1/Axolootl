@@ -1,0 +1,28 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 33,
+      "data": {
+        "type": "axolootl:mob",
+        "loot_table": {
+          "id": "minecraft:entities/wither_skeleton",
+          "display": "minecraft:wither_skeleton_skull"
+        }
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:wither_skeleton_skull"
+      }
+    },
+    {
+      "weight": 12,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

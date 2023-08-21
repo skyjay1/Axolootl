@@ -1,0 +1,18 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 5,
+      "data": {
+        "type": "axolootl:tag",
+        "tag": "forge:dusts/sulfur"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "translation_key": "entity.minecraft.blaze",
+  "tier": 4,
+  "fire_immune": true,
+  "model": {
+    "primary_color": "fff847",
+    "secondary_color": "d17800",
+    "texture": "axolootl:blaze"
+  },
+  "breed_food": "minecraft:lava_bucket",
+  "resource_generator": "axolootl:blaze"
+}

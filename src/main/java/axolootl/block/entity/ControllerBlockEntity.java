@@ -150,7 +150,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
 
     // OTHER //
 
-    public final BiPredicate<BlockPos, AquariumModifier> foodInterfacePredicate = (p, a) -> a.getSettings().isEnableMobBreeding() || a.getSettings().getBreedSpeed() > 0 || a.getSettings().getFeedSpeed() > 0;
+    public final BiPredicate<BlockPos, AquariumModifier> foodInterfacePredicate = (p, a) -> (a.getSettings().isEnableMobBreeding() || a.getSettings().getBreedSpeed() > 0 || a.getSettings().getFeedSpeed() > 0) && this.getLevel().getBlockEntity(p) instanceof MenuProvider;
     public final BiPredicate<BlockPos, AquariumModifier> activePredicate = (p, o) -> this.activeAquariumModifiers.contains(p);
     public final Predicate<IAxolootl> hasMobResourcePredicate = (a) -> {
         final Optional<AxolootlVariant> oVariant = a.getAxolootlVariant(a.getEntity().level.registryAccess());
@@ -625,8 +625,8 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
             return false;
         }
         // resolve axolootls
-        final Collection<IAxolootl> axolootls = resolveAxolootls(level, a -> enableMobBreeding
-                || !a.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY).hasMobResources());
+        final List<IAxolootl> axolootls = ImmutableList.copyOf(resolveAxolootls(level, a -> enableMobBreeding
+                || !a.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY).hasMobResources()));
         // resolve breeders
         final Map<BlockPos, AquariumModifier> modifiers = resolveModifiers(level.registryAccess(),
                 activePredicate.and((b, a) -> a.getSettings().getBreedSpeed() > 0 || a.getSettings().isEnableMobBreeding()));
@@ -648,12 +648,14 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
         boolean hasBred = false; // true when at least one pair was bred
         boolean nonEmpty = false; // true when at least one handler has items
         int breedCandidates = 0; // the number of axolootls that can breed
-        for(IAxolootl axolootl : axolootls) {
+        for(int i = 0, n = axolootls.size(); i < n; i++) {
+            IAxolootl axolootl = axolootls.get(i);
+            Optional<IAxolootl> oAxolootl = Optional.of(axolootl);
             // validate axolootl can breed
             if (!axolootl.isBreedCandidate(level, Optional.empty())) continue;
             // iterate each other axolootl
-            Optional<IAxolootl> oAxolootl = Optional.of(axolootl);
-            for(IAxolootl other : axolootls) {
+            for(int j = i + 1; j < n; j++) {
+                IAxolootl other = axolootls.get(i);
                 // validate other can breed
                 if (axolootl == other || !other.isBreedCandidate(level, oAxolootl)) continue;
                 // attempt to breed from each known item handler
@@ -664,6 +666,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
                     break;
                 }
             }
+            // track breed candidates to use later
             breedCandidates++;
         }
         // update empty flag
@@ -672,7 +675,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
         if(hasBred) {
             this.breedTime = Axolootl.CONFIG.BASE_BREEDING_PERIOD.get() * BASE_SPEED_DECREMENT;
         } else {
-            this.breedTime = 200L * BASE_SPEED_DECREMENT;
+            this.breedTime = 400L * BASE_SPEED_DECREMENT;
         }
         return true;
     }

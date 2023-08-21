@@ -53,8 +53,11 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
+import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.builder.AnimationBuilder;
+import software.bernie.geckolib3.core.builder.RawAnimation;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
@@ -90,6 +93,11 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
 
     // GECKOLIB //
     private AnimationFactory factory = GeckoLibUtil.createFactory(this);
+    private final AnimationBuilder ANIM_IDLE = new AnimationBuilder().loop("animation.axolootl.idle");
+    private final AnimationBuilder ANIM_WALK = new AnimationBuilder().loop("animation.axolootl.walk");
+    private final AnimationBuilder ANIM_SWIM = new AnimationBuilder().loop("animation.axolootl.swim");
+    private final AnimationBuilder ANIM_SWIM_IDLE = new AnimationBuilder().loop("animation.axolootl.swim_idle");
+    private final AnimationBuilder ANIM_PLAY_DEAD = new AnimationBuilder().loop("animation.axolootl.play_dead");
 
     public AxolootlEntity(EntityType<? extends Axolotl> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -485,6 +493,28 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
     //// GECKOLIB ////
 
     protected PlayState animationPredicate(AnimationEvent<AxolootlEntity> event) {
+        // play dead animation
+        if(this.isPlayingDead()) {
+            event.getController().setAnimation(ANIM_PLAY_DEAD);
+            return PlayState.CONTINUE;
+        }
+        // other animations
+        final boolean isMoving = event.isMoving();
+        if (this.isInWaterOrBubble()) {
+            if (isMoving) {
+                event.getController().setAnimation(ANIM_SWIM);
+            } else {
+                event.getController().setAnimation(ANIM_SWIM_IDLE);
+            }
+        } else {
+            if (this.isOnGround()) {
+                if (isMoving) {
+                    event.getController().setAnimation(ANIM_WALK);
+                } else {
+                    event.getController().setAnimation(ANIM_IDLE);
+                }
+            }
+        }
         return PlayState.CONTINUE;
     }
 

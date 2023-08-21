@@ -1,0 +1,25 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:deepslate"
+      }
+    },
+    {
+      "weight": 4,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:cobbled_deepslate"
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

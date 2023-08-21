@@ -13,14 +13,18 @@ import axolootl.data.breeding.AxolootlBreeding;
 import axolootl.data.resource_generator.ResourceGenerator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
@@ -68,5 +72,16 @@ public final class AxEvents {
 
     public static final class ModHandler {
 
+        @SubscribeEvent
+        public static void onCommonSetup(final FMLCommonSetupEvent event) {
+            event.enqueueWork(ModHandler::registerDispenserBehavior);
+        }
+
+        private static void registerDispenserBehavior() {
+            final DispenseItemBehavior axolotlBucketBehavior = DispenserBlock.DISPENSER_REGISTRY.get(Items.AXOLOTL_BUCKET);
+            if(axolotlBucketBehavior != null) {
+                DispenserBlock.registerBehavior(AxRegistry.ItemReg.AXOLOOTL_BUCKET.get(), axolotlBucketBehavior);
+            }
+        }
     }
 }

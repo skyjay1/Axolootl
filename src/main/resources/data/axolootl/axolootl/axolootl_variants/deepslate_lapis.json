@@ -1,0 +1,12 @@
+{
+  "translation_key": "item.minecraft.lapis_lazuli",
+  "tier": 2,
+  "rarity": "uncommon",
+  "model": {
+    "primary_color": "646464",
+    "secondary_color": "1033bb",
+    "texture": "axolootl:deepslate_lapis"
+  },
+  "breed_food": "#forge:storage_blocks/lapis",
+  "resource_generator": "axolootl:deepslate_lapis_lazuli"
+}

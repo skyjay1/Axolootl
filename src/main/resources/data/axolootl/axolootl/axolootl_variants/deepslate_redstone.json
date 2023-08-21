@@ -1,0 +1,12 @@
+{
+  "translation_key": "item.minecraft.redstone",
+  "tier": 3,
+  "rarity": "uncommon",
+  "model": {
+    "primary_color": "646464",
+    "secondary_color": "ca0707",
+    "texture": "axolootl:deepslate_redstone"
+  },
+  "breed_food": "#forge:storage_blocks/redstone",
+  "resource_generator": "axolootl:deepslate_redstone"
+}

@@ -6,8 +6,6 @@
     "secondary_color": "1e4e18",
     "texture": "axolootl:creeper"
   },
-  "breed_food": [
-    "minecraft:tnt"
-  ],
+  "breed_food": "minecraft:tnt",
   "resource_generator": "axolootl:creeper"
 }

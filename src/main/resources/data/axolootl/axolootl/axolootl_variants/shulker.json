@@ -1,0 +1,15 @@
+{
+  "translation_key": "entity.minecraft.shulker",
+  "tier": 4,
+  "rarity": "rare",
+  "model": {
+    "primary_color": "976a97",
+    "secondary_color": "7f5a7f",
+    "texture": "axolootl:shulker"
+  },
+  "breed_food": [
+    "minecraft:chorus_fruit",
+    "minecraft:popped_chorus_fruit"
+  ],
+  "resource_generator": "axolootl:shulker"
+}

@@ -6,8 +6,6 @@
     "secondary_color": "002e32",
     "texture": "axolootl:cave_spider"
   },
-  "breed_food": [
-    "minecraft:cobweb"
-  ],
+  "breed_food": "minecraft:cobweb",
   "resource_generator": "axolootl:cave_spider"
 }

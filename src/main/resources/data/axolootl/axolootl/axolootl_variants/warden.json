@@ -1,0 +1,13 @@
+{
+  "translation_key": "entity.minecraft.warden",
+  "tier": 5,
+  "rarity": "epic",
+  "fire_immune": true,
+  "model": {
+    "primary_color": "111b21",
+    "secondary_color": "034150",
+    "texture": "axolootl:warden"
+  },
+  "breed_food": "minecraft:sculk_shrieker",
+  "resource_generator": "axolootl:warden"
+}

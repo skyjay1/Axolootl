@@ -1,0 +1,25 @@
+{
+  "type": "axolootl:select",
+  "pool": [
+    {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:item",
+        "item": "minecraft:netherite_scrap"
+      }
+    },
+    {
+      "weight": 5,
+      "data": {
+        "type": "axolootl:tag",
+        "tag": "forge:ingots/gold"
+      }
+    },
+    {
+      "weight": 16,
+      "data": {
+        "type": "axolootl:empty"
+      }
+    }
+  ]
+}

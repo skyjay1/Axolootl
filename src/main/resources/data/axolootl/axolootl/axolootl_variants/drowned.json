@@ -1,0 +1,13 @@
+{
+  "translation_key": "entity.minecraft.drowned",
+  "tier": 2,
+  "model": {
+    "primary_color": "4ca682",
+    "secondary_color": "506e6a",
+    "texture": "axolootl:drowned"
+  },
+  "breed_food": [
+    "minecraft:rotten_flesh"
+  ],
+  "resource_generator": "axolootl:drowned"
+}

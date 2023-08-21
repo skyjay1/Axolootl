@@ -151,6 +151,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -665,11 +666,12 @@ public final class AxRegistry {
                         .after(() -> List.of(AquariumTabsReg.FOOD_INTERFACE.get()))
                         .build());
 
+        private static final TagKey<Block> FOOD_INTERFACE_TAG_KEY = ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_food_interface"));
         public static final RegistryObject<IAquariumTab> FOOD_INTERFACE = AQUARIUM_TABS.register("food_interface", () ->
                 AquariumTab.builder()
-                        .available(c -> !c.resolveModifiers(c.getLevel().registryAccess(), c.activePredicate.and(c.foodInterfacePredicate)).isEmpty())
-                        .accepts(ForgeRegistries.BLOCKS.tags().createTagKey(new ResourceLocation(Axolootl.MODID, "aquarium_food_interface")))
-                        .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.resolveModifiers(c.getLevel().registryAccess(), c.activePredicate.and(c.foodInterfacePredicate)).keySet()))
+                        .available(c -> !c.resolveModifiers(c.getLevel().registryAccess(), createFoodInterfacePredicate(c)).isEmpty())
+                        .accepts(FOOD_INTERFACE_TAG_KEY)
+                        .menuProvider(c -> IAquariumTab.getFirstMenuProvider(c.getLevel(), c.resolveModifiers(c.getLevel().registryAccess(), createFoodInterfacePredicate(c)).keySet()))
                         .icon(() -> Items.TROPICAL_FISH.getDefaultInstance())
                         .before(() -> List.of(AquariumTabsReg.OUTPUT.get()))
                         .after(() -> List.of(AquariumTabsReg.FLUID_INTERFACE.get()))
@@ -719,6 +721,10 @@ public final class AxRegistry {
          */
         public static int getTabCount() {
             return AxRegistry.AQUARIUM_TABS_SUPPLIER.get().getKeys().size();
+        }
+
+        private static BiPredicate<BlockPos, AquariumModifier> createFoodInterfacePredicate(final ControllerBlockEntity blockEntity) {
+            return blockEntity.activePredicate.and((b, a) -> blockEntity.getLevel().getBlockState(b).is(FOOD_INTERFACE_TAG_KEY));
         }
     }
 

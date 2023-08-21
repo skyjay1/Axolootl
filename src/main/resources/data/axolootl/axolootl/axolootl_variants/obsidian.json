@@ -6,6 +6,6 @@
     "secondary_color": "0f0919",
     "texture": "axolootl:obsidian"
   },
-  "breed_food": "minecraft:crying_obsidian",
+  "breed_food": "minecraft:glowstone",
   "resource_generator": "axolootl:obsidian"
 }

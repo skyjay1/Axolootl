@@ -1,0 +1,12 @@
+{
+  "translation_key": "block.minecraft.sculk",
+  "tier": 4,
+  "rarity": "rare",
+  "model": {
+    "primary_color": "24323a",
+    "secondary_color": "009295",
+    "texture": "axolootl:sculk"
+  },
+  "breed_food": "minecraft:sculk_vein",
+  "resource_generator": "axolootl:sculk"
+}

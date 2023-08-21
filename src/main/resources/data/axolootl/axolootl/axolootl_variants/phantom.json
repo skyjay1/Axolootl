@@ -1,0 +1,15 @@
+{
+  "translation_key": "entity.minecraft.phantom",
+  "tier": 4,
+  "model": {
+    "primary_color": "5061a4",
+    "secondary_color": "c09c85",
+    "entity": "axolootl:phantom",
+    "texture": "axolootl:phantom"
+  },
+  "breed_food": [
+    "minecraft:chorus_fruit",
+    "minecraft:popped_chorus_fruit"
+  ],
+  "resource_generator": "axolootl:phantom"
+}
