@@ -8,6 +8,7 @@ package axolootl.client.menu;
 
 import axolootl.Axolootl;
 import axolootl.block.entity.ControllerBlockEntity;
+import axolootl.client.menu.widget.ComponentButton;
 import axolootl.client.menu.widget.ScrollButton;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.ModifierSettings;
@@ -187,13 +188,39 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
         final TankStatus tankStatus = controller.getTankStatus();
         final BreedStatus breedStatus = controller.getBreedStatus();
         final FeedStatus feedStatus = controller.getFeedStatus();
-        // create status text and tooltips
+        // create tank status text and tooltip
+        final long generateTimeRemaining = controller.estimateRemainingResourceGenerationTime();
+        final MutableComponent tankStatusTooltip = tankStatus.getDescriptionSubtext().copy();
+        if(generateTimeRemaining >= 0) {
+            final String sTimeRemaining = String.format("%.1f", (double) generateTimeRemaining / 20.0D);
+            tankStatusTooltip.append("\n").append(Component.translatable(PREFIX + "status.seconds_remaining.generate_resources", sTimeRemaining).withStyle(ChatFormatting.GRAY));
+        } else {
+            tankStatusTooltip.withStyle(ChatFormatting.RED);
+        }
         tankStatusText = Component.translatable(PREFIX + "tank_status", tankStatus.getDescription(), Math.round(controller.getGenerationSpeed() * 100.0D))
-                .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tankStatus.getDescriptionSubtext().copy().withStyle(tankStatus.isActive() ? ChatFormatting.RESET : ChatFormatting.RED))));
+                .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tankStatusTooltip)));
+        // create feed status text and tooltip
+        final long feedTimeRemaining = controller.estimateRemainingFeedTime();
+        final MutableComponent feedStatusTooltip = feedStatus.getDescriptionSubtext().copy();
+        if(feedTimeRemaining >= 0) {
+            final String sTimeRemaining = String.format("%.1f", (double) feedTimeRemaining / 20.0D);
+            feedStatusTooltip.append("\n").append(Component.translatable(PREFIX + "status.seconds_remaining.feed", sTimeRemaining).withStyle(ChatFormatting.GRAY));
+        } else {
+            feedStatusTooltip.withStyle(ChatFormatting.RED);
+        }
         feedStatusText = Component.translatable(PREFIX + "feed_status", feedStatus.getDescription(), Math.round(controller.getFeedSpeed() * 100.0D))
-                .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, feedStatus.getDescriptionSubtext().copy().withStyle(feedStatus.isActive() ? ChatFormatting.RESET : ChatFormatting.RED))));
+                .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, feedStatusTooltip)));
+        // create breed status text and tooltip
+        final long breedTimeRemaining = controller.estimateRemainingBreedTime();
+        final MutableComponent breedStatusTooltip = breedStatus.getDescriptionSubtext().copy();
+        if(breedTimeRemaining >= 0) {
+            final String sTimeRemaining = String.format("%.1f", (double) breedTimeRemaining / 20.0D);
+            breedStatusTooltip.append("\n").append(Component.translatable(PREFIX + "status.seconds_remaining.breed", sTimeRemaining).withStyle(ChatFormatting.GRAY));
+        } else {
+            feedStatusTooltip.withStyle(ChatFormatting.RED);
+        }
         breedStatusText = Component.translatable(PREFIX + "breed_status", breedStatus.getDescription(), Math.round(controller.getBreedSpeed() * 100.0D))
-                .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, breedStatus.getDescriptionSubtext().copy().withStyle(breedStatus.isActive() ? ChatFormatting.RESET : ChatFormatting.RED))));
+                .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, breedStatusTooltip)));
         // verify size
         Optional<TankMultiblock.Size> size = controller.getSize();
         if(size.isEmpty()) {

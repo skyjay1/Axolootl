@@ -230,6 +230,7 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         }
         y += CyclingItemButton.HEIGHT + deltaY;
         // add parent info
+        // TODO change the layout to be (chance%) [item1] [item2] where the parents are represented by item stack buttons
         this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x, y, font.lineHeight, font, parentsTitleText, componentButtonOnTooltip)));
         y += deltaY;
         for(Component entry : parentsText) {

@@ -67,6 +67,10 @@ import axolootl.data.aquarium_modifier.condition.RandomChanceModifierCondition;
 import axolootl.data.aquarium_modifier.condition.TimeModifierCondition;
 import axolootl.data.aquarium_modifier.condition.TrueModifierCondition;
 import axolootl.data.aquarium_modifier.condition.WeatherModifierCondition;
+import axolootl.data.breeding.AxolootlBreedingWrapper;
+import axolootl.data.breeding_modifier.AddAxolootlBreedingModifier;
+import axolootl.data.breeding_modifier.AxolootlBreedingModifier;
+import axolootl.data.breeding_modifier.RemoveAxolootlBreedingModifier;
 import axolootl.data.resource_generator.AndResourceGenerator;
 import axolootl.data.resource_generator.BlockDropsResourceGenerator;
 import axolootl.data.resource_generator.EmptyResourceGenerator;
@@ -146,6 +150,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -215,6 +220,18 @@ public final class AxRegistry {
     /** Datapack registry; use {@link AxolootlBreeding#getRegistry(RegistryAccess)} to access **/
     public static final Supplier<IForgeRegistry<AxolootlBreeding>> AXOLOOTL_BREEDING_SUPPLIER = AXOLOOTL_BREEDING.makeRegistry(() -> new RegistryBuilder<AxolootlBreeding>()
             .dataPackRegistry(AxolootlBreeding.CODEC, AxolootlBreeding.CODEC)
+            .onClear((owner, stage) -> AxolootlBreedingReg.WRAPPERS.clear())
+            .hasTags());
+
+    // AXOLOOTL BREEDING MODIFIERS //
+    private static final DeferredRegister<Codec<? extends AxolootlBreedingModifier>> AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS = DeferredRegister.create(Keys.AXOLOOTL_BREEDING_MODIFIER_SERIALIZERS, Axolootl.MODID);
+    public static final Supplier<IForgeRegistry<Codec<? extends AxolootlBreedingModifier>>> AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS_SUPPLIER =
+            AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS.makeRegistry(() -> new RegistryBuilder<Codec<? extends AxolootlBreedingModifier>>().hasTags());
+
+    private static final DeferredRegister<AxolootlBreedingModifier> AXOLOOTL_BREEDING_MODIFIERS = DeferredRegister.create(Keys.AXOLOOTL_BREEDING_MODIFIERS, Axolootl.MODID);
+    /** Datapack registry; use {@link AxolootlBreedingModifier#getRegistry(RegistryAccess)} to access **/
+    public static final Supplier<IForgeRegistry<AxolootlBreedingModifier>> AXOLOOTL_BREEDING_MODIFIERS_SUPPLIER = AXOLOOTL_BREEDING_MODIFIERS.makeRegistry(() -> new RegistryBuilder<AxolootlBreedingModifier>()
+            .dataPackRegistry(AxolootlBreedingModifier.DIRECT_CODEC, AxolootlBreedingModifier.DIRECT_CODEC)
             .hasTags());
 
     // AQUARIUM MODIFIERS //
@@ -248,6 +265,7 @@ public final class AxRegistry {
         AquariumModifiersReg.register();
         AquariumTabsReg.register();
         AxolootlBreedingReg.register();
+        AxolootlBreedingModifierReg.register();
         FMLJavaModLoadingContext.get().getModEventBus().addListener(AxRegistry::onCommonSetup);
     }
 
@@ -776,15 +794,49 @@ public final class AxRegistry {
 
     public static final class AxolootlBreedingReg {
 
+        private static final Map<ResourceLocation, AxolootlBreedingWrapper> WRAPPERS = new HashMap<>();
+
         public static void register() {
             AXOLOOTL_BREEDING.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
+        public static AxolootlBreedingWrapper getWrapper(final RegistryAccess access, final AxolootlBreeding entry) {
+            // load registry
+            final Registry<AxolootlBreeding> breedingRegistry = AxolootlBreeding.getRegistry(access);
+            final ResourceLocation key = breedingRegistry.getKey(entry);
+            if(null == key) {
+                throw new IllegalArgumentException("Attempted to create AxolootlBreedingWrapper for unregistered AxolootlBreeding object " + entry.toString());
+            }
+            // create value if it does not exist
+            if(!WRAPPERS.containsKey(key)) {
+                // collect modifiers
+                final List<AxolootlBreedingModifier> modifiers = AxolootlBreedingModifier.getRegistry(access)
+                        .stream()
+                        .filter(modifier -> key.equals(modifier.getTarget()))
+                        .toList();
+                // add wrapper to map
+                WRAPPERS.put(key, new AxolootlBreedingWrapper(access, entry, modifiers));
+            }
+            return WRAPPERS.get(key);
+        }
+    }
+
+    public static final class AxolootlBreedingModifierReg {
+
+        public static void register() {
+            AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS.register(FMLJavaModLoadingContext.get().getModEventBus());
+            AXOLOOTL_BREEDING_MODIFIERS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        }
+
+        public static final RegistryObject<Codec<? extends AxolootlBreedingModifier>> ADD = AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS.register("add", () -> AddAxolootlBreedingModifier.CODEC);
+        public static final RegistryObject<Codec<? extends AxolootlBreedingModifier>> REMOVE = AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS.register("remove", () -> RemoveAxolootlBreedingModifier.CODEC);
     }
 
     public static final class Keys {
         public static final ResourceKey<Registry<AxolootlVariant>> AXOLOOTL_VARIANTS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "axolootl_variants"));
         public static final ResourceKey<Registry<AxolootlBreeding>> AXOLOOTL_BREEDING = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "breeding"));
+        public static final ResourceKey<Registry<Codec<? extends AxolootlBreedingModifier>>> AXOLOOTL_BREEDING_MODIFIER_SERIALIZERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "breeding_modifier_serializers"));
+        public static final ResourceKey<? extends Registry<AxolootlBreedingModifier>> AXOLOOTL_BREEDING_MODIFIERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "breeding_modifiers"));
         public static final ResourceKey<Registry<AquariumModifier>> AQUARIUM_MODIFIERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "aquarium_modifiers"));
         public static final ResourceKey<Registry<IAquariumTab>> AQUARIUM_TABS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "aquarium_tabs"));
         public static final ResourceKey<Registry<Codec<? extends ResourceGenerator>>> RESOURCE_GENERATOR_SERIALIZERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "resource_generator_serializers"));

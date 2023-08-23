@@ -29,6 +29,16 @@ public class AxolootlGeoRenderer<T extends LivingEntity & LerpingModel & IAxoloo
     }
 
     @Override
+    public float getWidthScale(T animatable) {
+        return animatable.getScale() * super.getWidthScale(animatable);
+    }
+
+    @Override
+    public float getHeightScale(T animatable) {
+        return animatable.getScale() * super.getHeightScale(animatable);
+    }
+
+    @Override
     public RenderType getRenderType(T animatable, float partialTick, PoseStack poseStack, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, ResourceLocation texture) {
         return RenderType.entityCutoutNoCull(getTextureLocation(animatable));
     }

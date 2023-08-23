@@ -10,6 +10,7 @@ import axolootl.AxRegistry;
 import axolootl.data.breeding.AxolootlBreeding;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.resource_generator.ResourceGenerator;
+import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -42,8 +43,8 @@ public class JeiBreedingWrapper {
         this.breeding = breeding;
         this.requiresMonsterium = breeding.getResult().unwrap().stream().anyMatch(wrapper -> wrapper.getData().value().hasMobResources());
         // create inputs
-        this.first = ImmutableList.of(getStack(breeding.getFirst()));
-        this.second = ImmutableList.of(getStack(breeding.getSecond()));
+        this.first = ImmutableList.of(getStack(breeding.getFirst(), false));
+        this.second = ImmutableList.of(getStack(breeding.getSecond(), false));
         // create foods
         this.firstFood = getFood(breeding.getFirst());
         this.secondFood = getFood(breeding.getSecond());
@@ -51,7 +52,7 @@ public class JeiBreedingWrapper {
         double totalWeight = ResourceGenerator.calculateTotalWeight(breeding.getResult());
         final ImmutableMap.Builder<ItemStack, Double> builder = ImmutableMap.builder();
         for(WeightedEntry.Wrapper<Holder<AxolootlVariant>> entry : breeding.getResult().unwrap()) {
-            builder.put(getStack(entry.getData()), entry.getWeight().asInt() / totalWeight);
+            builder.put(getStack(entry.getData(), true), entry.getWeight().asInt() / totalWeight);
         }
         this.result = builder.build();
         // create sorted results
@@ -123,36 +124,43 @@ public class JeiBreedingWrapper {
                         .map(a -> a.getHolder(JeiAddon.getRegistryAccess())).toList(), Function.identity());
         final ImmutableList.Builder<ItemStack> builder = ImmutableList.builder();
         for(Holder<AxolootlVariant> entry : variants) {
-            builder.add(getStack(entry));
+            builder.add(getStack(entry, true));
         }
         return builder.build();
     }
 
     /**
      * @param holder a holder
+     * @param baby true to create a stack with a baby entity
      * @return item stack representations of the axolootl variants for the holder
      */
-    private static ItemStack getStack(final Holder<AxolootlVariant> holder) {
+    private static ItemStack getStack(final Holder<AxolootlVariant> holder, final boolean baby) {
         final Optional<ResourceKey<AxolootlVariant>> oKey = holder.unwrapKey();
         if(oKey.isEmpty()) {
-            return getStack(holder.get());
+            return getStack(holder.get(), baby);
         }
-        return getStack(oKey.get().location());
+        return getStack(oKey.get().location(), baby);
     }
 
     /**
      * @param variant the axolootl variant
+     * @param baby true to create a stack with a baby entity
      * @return item stack representations of the axolootl variant
      */
-    private static ItemStack getStack(final AxolootlVariant variant) {
-        return getStack(variant.getRegistryName(JeiAddon.getRegistryAccess()));
+    private static ItemStack getStack(final AxolootlVariant variant, final boolean baby) {
+        return getStack(variant.getRegistryName(JeiAddon.getRegistryAccess()), baby);
     }
 
     /**
      * @param key the axolootl variant ID
+     * @param baby true to create a stack with a baby entity
      * @return item stack representations of the axolootl variant with the given ID
      */
-    private static ItemStack getStack(final ResourceLocation key) {
-        return AxolootlBucketItem.getWithVariant(new ItemStack(AxRegistry.ItemReg.AXOLOOTL_BUCKET.get()), key);
+    private static ItemStack getStack(final ResourceLocation key, final boolean baby) {
+        ItemStack stack = AxolootlBucketItem.getWithVariant(new ItemStack(AxRegistry.ItemReg.AXOLOOTL_BUCKET.get()), key);
+        if(baby) {
+            stack.getOrCreateTag().putInt(AxolootlEntity.KEY_AGE, AxolootlEntity.BABY_AGE);
+        }
+        return stack;
     }
 }

@@ -9,16 +9,11 @@
     "secondary_texture": "axolootl:axolootl_secondary"
   },
   "breed_food": [
-    {
-      "type": "forge:and",
-      "values": [
-        "#minecraft:fishes",
-        {
-          "type": "forge:not",
-          "value": "minecraft:pufferfish"
-        }
-      ]
-    }
+    "minecraft:cod",
+    "minecraft:cooked_cod",
+    "minecraft:salmon",
+    "minecraft:cooked_salmon",
+    "minecraft:tropical_fish"
   ],
   "resource_generator": "axolootl:basic"
 }

@@ -43,6 +43,12 @@ public interface IAxolootl {
     boolean isFeedCandidate(ServerLevel level);
 
     /**
+     * @param level the level
+     * @return true if the axolootl can generate resources
+     */
+    boolean isResourceGenerationCandidate(ServerLevel level);
+
+    /**
      * Feeds the entity using the given food
      * @param level the server level
      * @param food a copy of the food item stack

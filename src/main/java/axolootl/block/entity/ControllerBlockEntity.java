@@ -398,6 +398,10 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
         final Collection<IAxolootl> axolootls = resolveAxolootls(level, i -> !i.getEntity().isBaby());
         // iterate over axolootl variants to generate resources
         for(IAxolootl entry : axolootls) {
+            // verify axolootl can generate resources
+            if(!entry.isResourceGenerationCandidate(level)) {
+                continue;
+            }
             // verify variant exists
             Optional<AxolootlVariant> oVariant = entry.getAxolootlVariant(level.registryAccess());
             if(oVariant.isEmpty()) {
@@ -1443,16 +1447,58 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
         return enableMobBreeding;
     }
 
+    /**
+     * @return the remaining resource generation time, to be modified by {@link #getGenerationSpeed()}
+     * @see #estimateRemainingResourceGenerationTime()
+     **/
     public long getResourceGenerationTime() {
         return resourceGenerationTime;
     }
 
+    /**
+     * @return the remaining breed time, to be modified by {@link #getBreedSpeed()}
+     * @see #estimateRemainingBreedTime()
+     **/
     public long getBreedTime() {
         return breedTime;
     }
 
+    /**
+     * @return the remaining feed time, to be modified by {@link #getFeedSpeed()}
+     * @see #estimateRemainingFeedTime()
+     **/
     public long getFeedTime() {
         return feedTime;
+    }
+
+    /**
+     * @return the estimated number of ticks until the next feed cycle, or -1 if feeding is not enabled
+     */
+    public long estimateRemainingFeedTime() {
+        if(!(feedStatus.isActive() && feedSpeed > 0)) {
+            return -1;
+        }
+        return (long) Math.floor(feedTime / (feedSpeed * BASE_SPEED_DECREMENT));
+    }
+
+    /**
+     * @return the estimated number of ticks until the next breed cycle, or -1 if breeding is not enabled
+     */
+    public long estimateRemainingBreedTime() {
+        if(!(breedStatus.isActive() && breedSpeed > 0)) {
+            return -1;
+        }
+        return (long) Math.floor(breedTime / (breedSpeed * BASE_SPEED_DECREMENT));
+    }
+
+    /**
+     * @return the estimated number of ticks until the next resource generation cycle, or -1 if resource generation is not enabled
+     */
+    public long estimateRemainingResourceGenerationTime() {
+        if(!(tankStatus.isActive() && generationSpeed > 0)) {
+            return -1;
+        }
+        return (long) Math.floor(resourceGenerationTime / (generationSpeed * BASE_SPEED_DECREMENT));
     }
 
     public Set<BlockPos> getAxolootlInputs() {
@@ -1469,7 +1515,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
 
     /**
      * @param category the block category (see {@link IAquariumTab}) and {@link RegistryObject#getId()}
-     * @return an unmodifiable view of the tracked blocks in this category
+     * @return an unmodifiable view of the tracked blocks in this category, may be empty
      */
     public Set<BlockPos> getTrackedBlocks(final ResourceLocation category) {
         return Collections.unmodifiableSet(trackedBlocks.getOrDefault(category, ImmutableSet.of()));
@@ -1804,10 +1850,6 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
     public Optional<ControllerBlockEntity> getController() {
         return Optional.of(this);
     }
-
-    //// BLOCK ENTITY METHODS ////
-
-    // TODO
 
     //// CLIENT SERVER SYNC ////
 

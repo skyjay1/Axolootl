@@ -41,11 +41,11 @@ public interface ICycleProvider {
         // add left button
         list.add(addCycleButton(7, 4, true, b -> {
             cycle(-1);
-            setCycleButtonsEnabled(false);
+            setCycleButtonsVisible(false);
         }));
         list.add(addCycleButton(screen.getXSize() - CycleButton.WIDTH - 7, 4, false, b -> {
             cycle(1);
-            setCycleButtonsEnabled(false);
+            setCycleButtonsVisible(false);
         }));
         return list;
     }

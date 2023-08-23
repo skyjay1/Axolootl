@@ -10,11 +10,10 @@ import axolootl.AxRegistry;
 import axolootl.Axolootl;
 import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.block.entity.IAquariumControllerProvider;
-import axolootl.data.breeding.AxolootlBreeding;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.axolootl_variant.Bonuses;
+import axolootl.data.breeding.AxolootlBreedingWrapper;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.math.Vector3f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -53,11 +52,9 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
-import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.builder.RawAnimation;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
@@ -70,6 +67,7 @@ import java.util.Optional;
 public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, IAquariumControllerProvider {
 
     public static final EntityDataSerializer<Optional<ResourceLocation>> OPTIONAL_RESOURCE_LOCATION = EntityDataSerializer.optional(FriendlyByteBuf::writeResourceLocation, FriendlyByteBuf::readResourceLocation);
+    public static final int BABY_AGE = -24000;
 
     // DATA //
     private static final EntityDataAccessor<Optional<ResourceLocation>> DATA_VARIANT_ID = SynchedEntityData.defineId(AxolootlEntity.class, OPTIONAL_RESOURCE_LOCATION);
@@ -395,6 +393,11 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
     }
 
     @Override
+    public boolean isResourceGenerationCandidate(ServerLevel level) {
+        return !this.isBaby();
+    }
+
+    @Override
     public InteractionResult feed(ServerLevel level, ItemStack food) {
         // determine bonuses, if any
         final Optional<Bonuses> oBonuses = this.getUseFoodResult(food);
@@ -424,7 +427,7 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
         if(other.isPresent()) {
             final AxolootlVariant selfVariant = this.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
             final AxolootlVariant otherVariant = other.get().getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
-            return AxolootlBreeding.getBreedingRecipe(level, selfVariant, otherVariant).isPresent();
+            return AxolootlBreedingWrapper.getBreedingRecipe(level, selfVariant, otherVariant).isPresent();
         }
         // all checks passed
         return true;
@@ -435,7 +438,7 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
         // load recipe
         final AxolootlVariant selfVariant = this.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
         final AxolootlVariant otherVariant = other.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
-        final Optional<AxolootlBreeding> oRecipe = AxolootlBreeding.getBreedingRecipe(level, selfVariant, otherVariant);
+        final Optional<AxolootlBreedingWrapper> oRecipe = AxolootlBreedingWrapper.getBreedingRecipe(level, selfVariant, otherVariant);
         // verify recipe
         if(oRecipe.isEmpty()) {
             return Optional.empty();
@@ -532,6 +535,7 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
 
     private static final String KEY_BONUSES = "Bonuses";
     private static final String KEY_BONUS_DURATION = "BonusDuration";
+    public static final String KEY_AGE = "Age";
 
     @Override
     public void addAdditionalSaveData(CompoundTag pCompound) {

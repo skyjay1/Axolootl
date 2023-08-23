@@ -12,16 +12,15 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.RegistryCodecs;
+import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
-import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.world.level.Level;
 
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
 public class AxolootlBreeding {
@@ -33,13 +32,14 @@ public class AxolootlBreeding {
             .xmap(either -> either.map(SimpleWeightedRandomList::single, Function.identity()),
                     list -> list.unwrap().size() == 1 ? Either.left(list.unwrap().get(0).getData()) : Either.right(list));
 
-
     public static final Codec<AxolootlBreeding> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             AxolootlVariant.HOLDER_CODEC.fieldOf("first").forGetter(AxolootlBreeding::getFirst),
             AxolootlVariant.HOLDER_CODEC.fieldOf("second").forGetter(AxolootlBreeding::getSecond),
             WEIGHTED_LIST_CODEC.fieldOf("result").forGetter(AxolootlBreeding::getResult)
     ).apply(instance, AxolootlBreeding::new));
 
+    public static final Codec<Holder<AxolootlBreeding>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AXOLOOTL_BREEDING, CODEC);
+    public static final Codec<HolderSet<AxolootlBreeding>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_BREEDING, CODEC);
 
     /** The first axolootl variant **/
     private final Holder<AxolootlVariant> first;
@@ -67,23 +67,6 @@ public class AxolootlBreeding {
 
     /**
      * @param level the level
-     * @param first the first variant
-     * @param second the second variant
-     * @return the axolotl breeding recipe for the given variants, if any
-     */
-    public static Optional<AxolootlBreeding> getBreedingRecipe(final Level level, final AxolootlVariant first, final AxolootlVariant second) {
-        if(AxolootlVariant.EMPTY.equals(first) || AxolootlVariant.EMPTY.equals(second)) {
-            return Optional.empty();
-        }
-        return getRegistry(level.registryAccess()).entrySet()
-                .stream()
-                .filter(e -> e.getValue().matches(level, first, second))
-                .map(Map.Entry::getValue)
-                .findFirst();
-    }
-
-    /**
-     * @param level the level
      * @param aFirst the first variant
      * @param aSecond the second variant
      * @return true if both variants match the variants defined in this object
@@ -97,29 +80,6 @@ public class AxolootlBreeding {
         // check holder sets (order does not matter)
         return (this.first.is(idFirst) && this.second.is(idSecond)
             || (this.first.is(idSecond) && this.second.is(idFirst)));
-    }
-
-    /**
-     * @param level the level
-     * @param aFirst the first variant
-     * @param aSecond the second variant
-     * @param random a random source
-     * @return the axolootl variant according to {@link #sampleResult(RandomSource)}, or {@link #getFirst()} if it failed
-     */
-    public Holder<AxolootlVariant> getBreedResult(final Level level, final AxolootlVariant aFirst, final AxolootlVariant aSecond, final RandomSource random) {
-         return sampleResult(random).orElse(getFirst());
-    }
-
-    /**
-     * @param random a random source
-     * @return a random element from the result set
-     */
-    public Optional<Holder<AxolootlVariant>> sampleResult(final RandomSource random) {
-        final Optional<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> oVariant = getResult().getRandom(random);
-        if(oVariant.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(oVariant.get().getData());
     }
 
     //// GETTERS ////

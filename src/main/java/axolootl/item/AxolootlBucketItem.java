@@ -67,13 +67,26 @@ public class AxolootlBucketItem extends MobBucketItem {
                 // add each variant to the creative tab
                 for(Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant> variantId : variants) {
                     ItemStack itemStack = new ItemStack(this);
+                    // create itemstack with tag for this variant
                     CompoundTag tag = new CompoundTag();
                     tag.putString(AxolootlEntity.KEY_VARIANT_ID, variantId.getKey().location().toString());
                     itemStack.setTag(tag);
                     pItems.add(itemStack);
+                    // create itemstack with tag for this variant as a baby
+                    ItemStack babyItemStack = itemStack.copy();
+                    itemStack.getTag().putInt(AxolootlEntity.KEY_AGE, AxolootlEntity.BABY_AGE);
+                    pItems.add(babyItemStack);
                 }
             }, () -> pItems.add(new ItemStack(this)));
         }
+    }
+
+    @Override
+    public String getDescriptionId(ItemStack pStack) {
+        if(pStack.hasTag() && pStack.getTag().contains(AxolootlEntity.KEY_AGE, Tag.TAG_INT) && pStack.getTag().getInt(AxolootlEntity.KEY_AGE) < 0) {
+            return super.getDescriptionId(pStack) + ".baby";
+        }
+        return super.getDescriptionId(pStack);
     }
 
     @Override
@@ -115,6 +128,7 @@ public class AxolootlBucketItem extends MobBucketItem {
         super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
         final Level level = (pLevel != null) ? pLevel : Minecraft.getInstance().level;
         if(level != null) {
+            // add tooltips for variant
             getVariant(level.registryAccess(), pStack).ifPresentOrElse(a -> {
                 final ResourceLocation id = a.getRegistryName(level.registryAccess());
                 final Component tier = Component.translatable("item.axolootl.axolootl_bucket.tooltip.tier", a.getTierDescription()).withStyle(ChatFormatting.GRAY);
@@ -138,6 +152,10 @@ public class AxolootlBucketItem extends MobBucketItem {
                 // add tooltip for unknown variant
                 pTooltipComponents.add(Component.translatable(getDescriptionId() + ".tooltip.unknown").withStyle(ChatFormatting.RED));
             });
+            // add tooltip for age
+            if(pIsAdvanced.isAdvanced() && pStack.hasTag() && pStack.getTag().contains(AxolootlEntity.KEY_AGE, Tag.TAG_INT)) {
+                pTooltipComponents.add(Component.translatable(getDescriptionId() + ".tooltip.age", pStack.getTag().getInt(AxolootlEntity.KEY_AGE)).withStyle(ChatFormatting.GRAY));
+            }
         }
     }
 
