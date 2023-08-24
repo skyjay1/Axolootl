@@ -1,0 +1,22 @@
+{
+  "first": "axolootl:dirt/dirt",
+  "second": "axolootl:dirt/dirt",
+  "result": [
+    {
+      "data": "axolootl:dirt/dirt",
+      "weight": 24
+    },
+    {
+      "data": "axolootl:dirt/grass",
+      "weight": 20
+    },
+    {
+      "data": "axolootl:dirt/podzol",
+      "weight": 16
+    },
+    {
+      "data": "axolootl:dirt/mycelium",
+      "weight": 1
+    }
+  ]
+}

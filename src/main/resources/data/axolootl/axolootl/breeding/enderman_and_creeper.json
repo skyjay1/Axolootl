@@ -1,0 +1,18 @@
+{
+  "first": "axolootl:enderman",
+  "second": "axolootl:creeper",
+  "result": [
+    {
+      "data": "axolootl:enderman",
+      "weight": 2
+    },
+    {
+      "data": "axolootl:creeper",
+      "weight": 2
+    },
+    {
+      "data": "axolootl:shulker",
+      "weight": 3
+    }
+  ]
+}

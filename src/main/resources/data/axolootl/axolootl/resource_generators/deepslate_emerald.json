@@ -2,10 +2,25 @@
   "type": "axolootl:select",
   "pool": [
     {
-      "weight": 6,
+      "weight": 4,
       "data": {
         "type": "axolootl:item",
-        "item": "minecraft:emerald"
+        "item": [
+          {
+            "weight": 1,
+            "data": {
+              "id": "minecraft:emerald",
+              "Count": 1
+            }
+          },
+          {
+            "weight": 2,
+            "data": {
+              "id": "minecraft:emerald",
+              "Count": 3
+            }
+          }
+        ]
       }
     },
     {

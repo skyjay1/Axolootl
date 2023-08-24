@@ -1,0 +1,18 @@
+{
+  "first": "axolootl:blaze",
+  "second": "axolootl:enderman",
+  "result": [
+    {
+      "data": "axolootl:blaze",
+      "weight": 4
+    },
+    {
+      "data": "axolootl:enderman",
+      "weight": 3
+    },
+    {
+      "data": "axolootl:ender_dragon",
+      "weight": 1
+    }
+  ]
+}

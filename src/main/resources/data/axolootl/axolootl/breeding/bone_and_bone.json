@@ -1,0 +1,22 @@
+{
+  "first": "axolootl:bone",
+  "second": "axolootl:bone",
+  "result": [
+    {
+      "data": "axolootl:bone",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:zombie",
+      "weight": 5
+    },
+    {
+      "data": "axolootl:creeper",
+      "weight": 4
+    },
+    {
+      "data": "axolootl:spider",
+      "weight": 4
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "first": "axolootl:enderman",
+  "second": "axolootl:netherrack",
+  "result": [
+    {
+      "data": "axolootl:enderman",
+      "weight": 3
+    },
+    {
+      "data": "axolootl:wither_skeleton",
+      "weight": 2
+    },
+    {
+      "data": "axolootl:ghast",
+      "weight": 3
+    }
+  ]
+}

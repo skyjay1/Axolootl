@@ -1,0 +1,26 @@
+{
+  "first": "axolootl:stone",
+  "second": "axolootl:stone",
+  "result": [
+    {
+      "data": "axolootl:stone",
+      "weight": 2
+    },
+    {
+      "data": "axolootl:copper",
+      "weight": 5
+    },
+    {
+      "data": "axolootl:iron",
+      "weight": 4
+    },
+    {
+      "data": "axolootl:deepslate",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:netherrack",
+      "weight": 2
+    }
+  ]
+}

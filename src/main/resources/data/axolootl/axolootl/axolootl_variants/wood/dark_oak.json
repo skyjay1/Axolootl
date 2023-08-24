@@ -8,5 +8,6 @@
     "primary_texture": "axolootl:axolootl_primary",
     "secondary_texture": "axolootl:axolootl_secondary"
   },
+  "breed_food": "minecraft:dark_oak_wood",
   "resource_generator": "axolootl:wood/dark_oak"
 }

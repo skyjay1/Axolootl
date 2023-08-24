@@ -1,0 +1,14 @@
+{
+  "first": "axolootl:spider",
+  "second": "axolootl:stone",
+  "result": [
+    {
+      "data": "axolootl:spider",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:slime",
+      "weight": 4
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "first": "axolootl:stone",
+  "second": "axolootl:sand",
+  "result": [
+    {
+      "data": "axolootl:stone",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:sand",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:salt",
+      "weight": 4
+    }
+  ]
+}

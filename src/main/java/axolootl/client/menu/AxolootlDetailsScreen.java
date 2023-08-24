@@ -16,6 +16,7 @@ import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.axolootl_variant.Bonuses;
 import axolootl.data.axolootl_variant.BonusesProvider;
 import axolootl.data.breeding.AxolootlBreeding;
+import axolootl.data.breeding.AxolootlBreedingWrapper;
 import axolootl.data.resource_generator.ResourceDescription;
 import axolootl.data.resource_generator.ResourceDescriptionGroup;
 import axolootl.data.resource_generator.ResourceGenerator;
@@ -82,6 +83,7 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
     private final List<DetailsComponentButton> componentButtons;
     private final List<CyclingItemButton> foodButtons;
     private final List<CyclingItemButton> breedFoodButtons;
+    private final List<ParentDataButton> parentButtons;
     private final List<ResourceDescriptionGroupButton> resourceDescriptionGroupButtons;
     private final List<ResourceDescriptionButton> resourceDescriptionButtons;
     private ScrollButton scrollButton;
@@ -107,7 +109,6 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
     private final Component foodText;
     private final Component breedFoodText;
     private final Component parentsTitleText;
-    private final List<Component> parentsText;
 
     public AxolootlDetailsScreen(final ResourceLocation id, final AxolootlVariant variant, final ItemStack icon, final RegistryAccess access) {
         super(createAxolootlName(variant, id));
@@ -116,11 +117,11 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         this.itemStack = icon;
         this.componentButtons = new ArrayList<>();
         this.foodButtons = new ArrayList<>();
+        this.parentButtons = new ArrayList<>();
         this.breedFoodButtons = new ArrayList<>();
         this.resourceDescriptionGroupButtons = new ArrayList<>();
         this.resourceDescriptionButtons = new ArrayList<>();
         this.resourceDescriptionGroups = new ArrayList<>(variant.getResourceGenerator().value().getDescription());
-        this.parentsText = new ArrayList<>();
         this.parentData = calculateParentData(this.variant, access);
         this.ticksOpen = 0;
         // determine food and breed food item stacks
@@ -140,18 +141,6 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         this.parentsTitleText = Component.translatable(PREFIX + "parents")
                 .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(PREFIX + "parents.description"))));
         this.tierText = Component.translatable("entity.axolootl.axolootl.tier", variant.getTierDescription());
-        // create parents data text
-        if(this.parentData.isEmpty()) {
-            this.parentsText.add(Component.translatable(PREFIX + "parents.entry.none"));
-        }
-        for(ParentData entry : this.parentData) {
-            Component parentA = createTieredAxolootlName(entry.parentA(), entry.parentA().getRegistryName(access));
-            Component parentB = createTieredAxolootlName(entry.parentB(), entry.parentB().getRegistryName(access));
-            Component chance = Component.literal(String.format("%.2f", entry.chance() * 100.0D).replaceAll("0*$", "").replaceAll("\\.$", ""));
-            this.parentsText.add(Component.translatable(PREFIX + "parents.entry.chance", chance).withStyle(ChatFormatting.DARK_BLUE));
-            this.parentsText.add(Component.literal("  ").append(parentA).withStyle(parentA.getStyle()).withStyle(a -> a.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, entry.parentA().getRegistryName(access).toString()))));
-            this.parentsText.add(Component.literal("  ").append(parentB).withStyle(parentB.getStyle()).withStyle(a -> a.withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, entry.parentB().getRegistryName(access).toString()))));
-        }
     }
 
     private static Component createAxolootlName(final AxolootlVariant variant, final ResourceLocation id) {
@@ -230,12 +219,13 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         }
         y += CyclingItemButton.HEIGHT + deltaY;
         // add parent info
-        // TODO change the layout to be (chance%) [item1] [item2] where the parents are represented by item stack buttons
         this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x, y, font.lineHeight, font, parentsTitleText, componentButtonOnTooltip)));
         y += deltaY;
-        for(Component entry : parentsText) {
-            this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x, y, font.lineHeight, font, entry, componentButtonOnTooltip)));
-            y += font.lineHeight + 1;
+        final Button.OnTooltip parentButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((ParentDataButton)b).getTooltips(mx, my), Optional.empty(), mx, my);
+        for(ParentData entry : parentData) {
+            ParentDataButton button = addRenderableWidget(new ParentDataButton(x, y, font, itemRenderer, this::getTooltipFromItem, parentButtonOnTooltip));
+            this.parentButtons.add(button);
+            y += ParentDataButton.HEIGHT + 1;
         }
         // add resource description buttons
         x = this.leftPos + RESOURCE_DESCRIPTION_X + RESOURCE_DESCRIPTION_MARGIN_X;
@@ -247,6 +237,7 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
             this.resourceDescriptionGroupButtons.add(button);
             y += button.getTotalHeight() + RESOURCE_DESCRIPTION_MARGIN_Y;
         }
+        updateParentDataButtons();
         updateResourceDescriptionButtons();
     }
 
@@ -328,6 +319,20 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         }
         for(CyclingItemButton button : breedFoodButtons) {
             button.tick(ticksOpen);
+        }
+    }
+
+    private void updateParentDataButtons() {
+        final RegistryAccess access = getMinecraft().level.registryAccess();
+        for(int i = 0, n = parentButtons.size(); i < n; i++) {
+            ParentDataButton button = parentButtons.get(i);
+            int index = i;
+            if(index > parentData.size()) {
+                button.visible = false;
+                continue;
+            }
+            button.visible = true;
+            button.update(access, parentData.get(index));
         }
     }
 
@@ -474,11 +479,12 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         final List<ParentData> list = new ArrayList<>();
         // iterate breeding recipes
         for(AxolootlBreeding breeding : breedingRegistry) {
+            final AxolootlBreedingWrapper breedingWrapper = AxRegistry.AxolootlBreedingReg.getWrapper(access, breeding);
             // iterate results of each recipe to check for the given variant
-            for(WeightedEntry.Wrapper<Holder<AxolootlVariant>> wrapper : breeding.getResult().unwrap()) {
+            for(WeightedEntry.Wrapper<Holder<AxolootlVariant>> wrapper : breedingWrapper.getResult().unwrap()) {
                 if(wrapper.getData().is(variantId)) {
-                    // result variant matches, calculate parents and percentage chance
-                    double totalWeight = ResourceGenerator.calculateTotalWeight(breeding.getResult());
+                    // result variant matches, resolve parents and calculate percentage chance
+                    double totalWeight = ResourceGenerator.calculateTotalWeight(breedingWrapper.getResult());
                     list.add(new ParentData(breeding.getFirst().value(), breeding.getSecond().value(), wrapper.getWeight().asInt() / totalWeight));
                 }
             }
@@ -524,29 +530,7 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         }
 
         public DetailsComponentButton(int pX, int pY, int width, int height, Font font, Component pMessage, OnTooltip onTooltip) {
-            super(pX, pY, width, height, font, pMessage, b -> ((DetailsComponentButton)b).onPressComponent(), onTooltip);
-        }
-
-        private void onPressComponent() {
-            // validate click event
-            final ClickEvent event = getMessage().getStyle().getClickEvent();
-            if(null == event || event.getAction() != ClickEvent.Action.CHANGE_PAGE) {
-                return;
-            }
-            ResourceLocation id = new ResourceLocation(event.getValue());
-            Minecraft minecraft = Minecraft.getInstance();
-            // validate level and player
-            if(null == minecraft.level || null == minecraft.player) {
-                return;
-            }
-            // validate axolootl research
-            if(!canOpenDetails(minecraft.player, id)) {
-                return;
-            }
-            // open details
-            final RegistryAccess access = minecraft.level.registryAccess();
-            minecraft.popGuiLayer();
-            openDetails(minecraft, access, id);
+            super(pX, pY, width, height, font, pMessage, b -> {}, onTooltip);
         }
     }
 
@@ -613,6 +597,119 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
                 height += RESOURCE_DESCRIPTION_MARGIN_Y;
             }
             return height;
+        }
+    }
+
+    private static class ParentDataButton extends ItemButton {
+
+        public final int TEXT_WIDTH = 35;
+        public final int WIDTH = TEXT_WIDTH + (ItemButton.WIDTH + 2) * 2;
+
+        private ParentData entry;
+        private ItemStack parentA;
+        private ItemStack parentB;
+        private OnPress onPressParentA;
+        private OnPress onPressParentB;
+
+        private final Component clickToViewText;
+        private List<Component> chanceTooltip;
+
+        public ParentDataButton(int pX, int pY, Font font, ItemRenderer itemRenderer, Function<ItemStack, List<Component>> getTooltipFromItem, OnTooltip onTooltip) {
+            super(pX, pY, true, font, itemRenderer, ItemStack.EMPTY, getTooltipFromItem, b -> {}, onTooltip);
+            this.entry = new ParentData(AxolootlVariant.EMPTY, AxolootlVariant.EMPTY, 0);
+            this.parentA = ItemStack.EMPTY;
+            this.parentB = ItemStack.EMPTY;
+            this.width = WIDTH;
+            this.onPressParentA = b -> {};
+            this.onPressParentB = b -> {};
+            this.clickToViewText = Component.translatable(PREFIX + "parents.entry.tooltip").withStyle(ChatFormatting.YELLOW);
+            this.chanceTooltip = new ArrayList<>();
+        }
+
+        public void update(RegistryAccess access, ParentData entry) {
+            this.entry = entry;
+            // create onPress
+            this.onPressParentA = b -> tryOpenDetails(access, entry.parentA().getRegistryName(access));
+            this.onPressParentB = b -> tryOpenDetails(access, entry.parentB().getRegistryName(access));
+            // create item stacks
+            this.parentA = AxolootlBucketItem.getWithVariant(access, new ItemStack(AxRegistry.ItemReg.AXOLOOTL_BUCKET.get()), entry.parentA());
+            this.parentB = AxolootlBucketItem.getWithVariant(access, new ItemStack(AxRegistry.ItemReg.AXOLOOTL_BUCKET.get()), entry.parentB());
+            // create chance text
+            Component chance = Component.literal(String.format("%.1f", entry.chance() * 100.0D).replaceAll("\\.0$", ""));
+            this.setMessage(Component.translatable(PREFIX + "parents.entry.chance", chance).withStyle(ChatFormatting.DARK_BLUE));
+            // create chance tooltip
+            final Component parentAText = Component.translatable(PREFIX + "parents.entry.axolootl_tier", entry.parentA().getDescription(), entry.parentA().getTierDescription())
+                    .withStyle(entry.parentA().getRarity().getStyleModifier());
+            final Component parentBText = Component.translatable(PREFIX + "parents.entry.axolootl_tier", entry.parentB().getDescription(), entry.parentB().getTierDescription())
+                    .withStyle(entry.parentB().getRarity().getStyleModifier());
+            this.chanceTooltip.clear();
+            this.chanceTooltip.add(Component.translatable(PREFIX + "parents.entry.chance.description", chance, parentAText, parentBText));
+        }
+
+        public List<Component> getTooltips(double mouseX, double mouseY) {
+            final double x = mouseX - this.x;
+            if(x > TEXT_WIDTH + ItemButton.WIDTH + 2) {
+                return withInsertedText(getTooltipFromItem.apply(parentB), this.clickToViewText);
+            } else if(x > TEXT_WIDTH) {
+                return withInsertedText(getTooltipFromItem.apply(parentA), this.clickToViewText);
+            } else {
+                return chanceTooltip;
+            }
+        }
+
+        private List<Component> withInsertedText(final List<Component> list, final Component inserted) {
+            int index = list.size() > 1 ? 2 : 0;
+            list.add(index, inserted);
+            return list;
+        }
+
+        @Override
+        public void onClick(double pMouseX, double pMouseY) {
+            final double x = pMouseX - this.x;
+            if(x > TEXT_WIDTH + ItemButton.WIDTH + 2) {
+                this.onPressParentB.onPress(this);
+            } else if(x > TEXT_WIDTH) {
+                this.onPressParentA.onPress(this);
+            } else {
+                super.onClick(pMouseX, pMouseY);
+            }
+        }
+
+        @Override
+        public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+            // render background
+            if(drawBackground) {
+                renderBackground(pPoseStack, this.x + TEXT_WIDTH, this.y);
+                renderBackground(pPoseStack, this.x + TEXT_WIDTH + ItemButton.WIDTH + 2, this.y);
+            }
+            // render text
+            this.font.draw(pPoseStack, getMessage(), this.x, this.y + (HEIGHT - font.lineHeight) / 2.0F, 0);
+            // render items
+            if(!this.parentA.isEmpty()) {
+                renderItem(this.parentA, this.x + TEXT_WIDTH, this.y);
+            }
+            if(!this.parentB.isEmpty()) {
+                renderItem(this.parentB, this.x + TEXT_WIDTH + ItemButton.WIDTH + 2, this.y);
+            }
+            // render tooltip
+            if (drawTooltip && this.isHoveredOrFocused()) {
+                this.renderToolTip(pPoseStack, pMouseX, pMouseY);
+            }
+        }
+
+        private void tryOpenDetails(final RegistryAccess access, final ResourceLocation target) {
+            Minecraft minecraft = Minecraft.getInstance();
+            // validate level and player
+            if(null == minecraft.level || null == minecraft.player) {
+                return;
+            }
+            // validate axolootl research
+            if(!canOpenDetails(minecraft.player, target)) {
+                return;
+            }
+            // open details
+            minecraft.popGuiLayer();
+            openDetails(minecraft, access, target);
         }
     }
 

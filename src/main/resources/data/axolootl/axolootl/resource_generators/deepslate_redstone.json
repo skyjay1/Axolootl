@@ -4,8 +4,23 @@
     {
       "weight": 12,
       "data": {
-        "type": "axolootl:tag",
-        "tag": "forge:dusts/redstone"
+        "type": "axolootl:item",
+        "item": [
+          {
+            "weight": 1,
+            "data": {
+              "id": "minecraft:redstone_dust",
+              "Count": 1
+            }
+          },
+          {
+            "weight": 2,
+            "data": {
+              "id": "minecraft:redstone_dust",
+              "Count": 3
+            }
+          }
+        ]
       }
     },
     {

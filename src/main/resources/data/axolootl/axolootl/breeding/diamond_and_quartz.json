@@ -1,0 +1,18 @@
+{
+  "first": "axolootl:diamond",
+  "second": "axolootl:quartz",
+  "result": [
+    {
+      "data": "axolootl:diamond",
+      "weight": 6
+    },
+    {
+      "data": "axolootl:quartz",
+      "weight": 6
+    },
+    {
+      "data": "axolootl:netherite",
+      "weight": 1
+    }
+  ]
+}

@@ -2,10 +2,25 @@
   "type": "axolootl:select",
   "pool": [
     {
-      "weight": 12,
+      "weight": 4,
       "data": {
-        "type": "axolootl:tag",
-        "tag": "forge:gems/lapis"
+        "type": "axolootl:item",
+        "item": [
+          {
+            "weight": 1,
+            "data": {
+              "id": "minecraft:lapis_lazuli",
+              "Count": 1
+            }
+          },
+          {
+            "weight": 2,
+            "data": {
+              "id": "minecraft:lapis_lazuli",
+              "Count": 3
+            }
+          }
+        ]
       }
     },
     {

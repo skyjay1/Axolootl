@@ -1,0 +1,18 @@
+{
+  "first": "axolootl:slime",
+  "second": "axolootl:spider",
+  "result": [
+    {
+      "data": "axolootl:slime",
+      "weight": 3
+    },
+    {
+      "data": "axolootl:spider",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:phantom",
+      "weight": 3
+    }
+  ]
+}

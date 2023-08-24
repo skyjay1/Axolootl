@@ -1,0 +1,14 @@
+{
+  "first": "axolootl:zombie",
+  "second": "axolootl:bone",
+  "result": [
+    {
+      "data": "axolootl:zombie",
+      "weight": 5
+    },
+    {
+      "data": "axolootl:drowned",
+      "weight": 4
+    }
+  ]
+}

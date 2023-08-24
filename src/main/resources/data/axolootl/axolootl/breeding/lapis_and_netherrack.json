@@ -1,0 +1,22 @@
+{
+  "first": "axolootl:lapis",
+  "second": "axolootl:netherrack",
+  "result": [
+    {
+      "data": "axolootl:lapis",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:netherrack",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:glowstone",
+      "weight": 3
+    },
+    {
+      "data": "axolootl:quartz",
+      "weight": 3
+    }
+  ]
+}

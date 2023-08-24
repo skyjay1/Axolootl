@@ -1,0 +1,18 @@
+{
+  "first": "axolootl:copper",
+  "second": "axolootl:stone",
+  "result": [
+    {
+      "data": "axolootl:copper",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:stone",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:iron",
+      "weight": 6
+    }
+  ]
+}

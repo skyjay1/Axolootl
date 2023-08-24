@@ -2,21 +2,14 @@
   "type": "axolootl:select",
   "pool": [
     {
-      "weight": 5,
+      "weight": 4,
       "data": {
         "type": "axolootl:tag",
         "tag": "forge:dusts/prismarine"
       }
     },
     {
-      "weight": 2,
-      "data": {
-        "type": "axolootl:tag",
-        "tag": "forge:gems/prismarine"
-      }
-    },
-    {
-      "weight": 2,
+      "weight": 1,
       "data": {
         "type": "axolootl:empty"
       }

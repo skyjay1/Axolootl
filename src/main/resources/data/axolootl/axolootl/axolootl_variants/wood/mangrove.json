@@ -8,5 +8,6 @@
     "primary_texture": "axolootl:axolootl_primary",
     "secondary_texture": "axolootl:axolootl_secondary"
   },
+  "breed_food": "minecraft:mangrove_wood",
   "resource_generator": "axolootl:wood/mangrove"
 }

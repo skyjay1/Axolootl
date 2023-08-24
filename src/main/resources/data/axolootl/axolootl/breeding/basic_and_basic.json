@@ -1,0 +1,30 @@
+{
+  "first": "axolootl:basic",
+  "second": "axolootl:basic",
+  "result": [
+    {
+      "data": "axolootl:basic",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:dirt/dirt",
+      "weight": 5
+    },
+    {
+      "data": "axolootl:wood/oak",
+      "weight": 4
+    },
+    {
+      "data": "axolootl:stone",
+      "weight": 4
+    },
+    {
+      "data": "axolootl:gravel",
+      "weight": 2
+    },
+    {
+      "data": "axolootl:bone",
+      "weight": 3
+    }
+  ]
+}

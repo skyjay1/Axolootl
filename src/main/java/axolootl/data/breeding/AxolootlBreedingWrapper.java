@@ -74,7 +74,11 @@ public class AxolootlBreedingWrapper {
             return Optional.empty();
         }
         // get or create wrapper
-        return Optional.of(AxRegistry.AxolootlBreedingReg.getWrapper(level.registryAccess(), match.get()));
+        final AxolootlBreedingWrapper wrapper = AxRegistry.AxolootlBreedingReg.getWrapper(level.registryAccess(), match.get());
+        if(wrapper.getResult().unwrap().isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(wrapper);
     }
 
     /**

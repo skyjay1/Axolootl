@@ -1,0 +1,18 @@
+{
+  "first": "axolootl:wood/oak",
+  "second": "axolootl:netherrack",
+  "result": [
+    {
+      "data": "axolootl:wood/oak",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:wood/crimson",
+      "weight": 2
+    },
+    {
+      "data": "axolootl:wood/warped",
+      "weight": 2
+    }
+  ]
+}

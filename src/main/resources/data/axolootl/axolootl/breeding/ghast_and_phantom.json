@@ -1,0 +1,18 @@
+{
+  "first": "axolootl:ghast",
+  "second": "axolootl:phantom",
+  "result": [
+    {
+      "data": "axolootl:ghast",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:phantom",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:blaze",
+      "weight": 2
+    }
+  ]
+}

@@ -2,7 +2,7 @@
   "type": "axolootl:select",
   "pool": [
     {
-      "weight": 33,
+      "weight": 39,
       "data": {
         "type": "axolootl:mob",
         "loot_table": {
@@ -19,7 +19,7 @@
       }
     },
     {
-      "weight": 12,
+      "weight": 6,
       "data": {
         "type": "axolootl:empty"
       }

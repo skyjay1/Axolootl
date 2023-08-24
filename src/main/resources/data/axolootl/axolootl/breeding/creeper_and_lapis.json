@@ -1,0 +1,14 @@
+{
+  "first": "axolootl:creeper",
+  "second": "axolootl:lapis",
+  "result": [
+    {
+      "data": "axolootl:creeper",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:enderman",
+      "weight": 4
+    }
+  ]
+}

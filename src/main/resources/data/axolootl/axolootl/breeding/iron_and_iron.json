@@ -1,0 +1,22 @@
+{
+  "first": "axolootl:iron",
+  "second": "axolootl:iron",
+  "result": [
+    {
+      "data": "axolootl:iron",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:tin",
+      "weight": 3
+    },
+    {
+      "data": "axolootl:nickel",
+      "weight": 3
+    },
+    {
+      "data": "axolootl:obsidian",
+      "weight": 5
+    }
+  ]
+}

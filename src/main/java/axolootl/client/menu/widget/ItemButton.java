@@ -38,7 +38,7 @@ public class ItemButton extends Button {
     public ItemButton(int pX, int pY, boolean drawBackground, Font font, ItemRenderer itemRenderer, ItemStack item,
                       Function<ItemStack, List<Component>> getTooltipFromItem, OnPress onPress, OnTooltip onTooltip,
                       ResourceLocation texture, int u, int v, int textureWidth, int textureHeight) {
-        super(pX, pY, WIDTH, HEIGHT, Component.empty(), onPress, onTooltip);
+        super(pX, pY, WIDTH, HEIGHT, item.getHoverName(), onPress, onTooltip);
         this.drawBackground = drawBackground;
         this.font = font;
         this.itemRenderer = itemRenderer;
@@ -68,24 +68,35 @@ public class ItemButton extends Button {
     public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         // draw slot
         if (drawBackground) {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, this.texture);
-            RenderSystem.enableDepthTest();
-            blit(pPoseStack, this.x, this.y, this.textureU, this.textureV, this.width, this.height, this.textureWidth, this.textureHeight);
+            renderBackground(pPoseStack, this.x, this.y);
         }
+        // render item
+        if(!this.item.isEmpty()) {
+            renderItem(this.item, this.x, this.y);
+        }
+        // render tooltip
+        if (drawTooltip && this.isHoveredOrFocused()) {
+            this.renderToolTip(pPoseStack, pMouseX, pMouseY);
+        }
+    }
+
+    protected void renderBackground(final PoseStack poseStack, final int x, final int y) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, this.texture);
+        RenderSystem.enableDepthTest();
+        blit(poseStack, x, y, this.textureU, this.textureV, WIDTH, HEIGHT, this.textureWidth, this.textureHeight);
+    }
+
+    protected void renderItem(final ItemStack itemStack, final int x, final int y) {
         // render item
         PoseStack modelViewStack = RenderSystem.getModelViewStack();
         modelViewStack.pushPose();
         modelViewStack.translate(0, 0, 2_000);
         RenderSystem.applyModelViewMatrix();
-        this.itemRenderer.renderAndDecorateItem(item, this.x, this.y);
-        this.itemRenderer.renderGuiItemDecorations(font, item, this.x, this.y);
+        this.itemRenderer.renderAndDecorateItem(itemStack, x, y);
+        this.itemRenderer.renderGuiItemDecorations(font, itemStack, x, y);
         modelViewStack.popPose();
         RenderSystem.applyModelViewMatrix();
-        // render tooltip
-        if (drawTooltip && this.isHoveredOrFocused()) {
-            this.renderToolTip(pPoseStack, pMouseX, pMouseY);
-        }
     }
 
 }

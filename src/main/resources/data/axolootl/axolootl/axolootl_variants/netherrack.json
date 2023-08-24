@@ -1,0 +1,17 @@
+{
+  "translation_key": "block.minecraft.netherrack",
+  "model": {
+    "primary_color": "854242",
+    "secondary_color": "511515",
+    "texture": "axolootl:axolootl_base",
+    "primary_texture": "axolootl:axolootl_primary",
+    "secondary_texture": "axolootl:axolootl_secondary"
+  },
+  "breed_food": [
+    "minecraft:nether_bricks",
+    "minecraft:cracked_nether_bricks",
+    "minecraft:chiseled_nether_bricks",
+    "minecraft:red_nether_bricks"
+  ],
+  "resource_generator": "axolootl:netherrack"
+}

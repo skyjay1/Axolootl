@@ -5,7 +5,22 @@
       "weight": 4,
       "data": {
         "type": "axolootl:item",
-        "item": "minecraft:diamond"
+        "item": [
+          {
+            "weight": 1,
+            "data": {
+              "id": "minecraft:diamond",
+              "Count": 1
+            }
+          },
+          {
+            "weight": 2,
+            "data": {
+              "id": "minecraft:diamond",
+              "Count": 2
+            }
+          }
+        ]
       }
     },
     {

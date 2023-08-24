@@ -1,0 +1,18 @@
+{
+  "first": "axolootl:copper",
+  "second": "axolootl:drowned",
+  "result": [
+    {
+      "data": "axolootl:copper",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:drowned",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:prismarine",
+      "weight": 4
+    }
+  ]
+}

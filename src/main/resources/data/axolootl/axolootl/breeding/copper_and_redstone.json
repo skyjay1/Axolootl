@@ -1,0 +1,18 @@
+{
+  "first": "axolootl:copper",
+  "second": "axolootl:redstone",
+  "result": [
+    {
+      "data": "axolootl:copper",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:redstone",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:gold",
+      "weight": 4
+    }
+  ]
+}

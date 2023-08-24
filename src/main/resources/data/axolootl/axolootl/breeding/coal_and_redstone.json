@@ -1,0 +1,30 @@
+{
+  "first": "axolootl:coal",
+  "second": "axolootl:redstone",
+  "result": [
+    {
+      "data": "axolootl:coal",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:redstone",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:fluorite_dust",
+      "weight": 3
+    },
+    {
+      "data": "axolootl:fluorite_gem",
+      "weight": 3
+    },
+    {
+      "data": "axolootl:fluorite_nugget",
+      "weight": 3
+    },
+    {
+      "data": "axolootl:sulfur",
+      "weight": 3
+    }
+  ]
+}
