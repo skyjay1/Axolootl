@@ -7,8 +7,8 @@
 package axolootl.integration;
 
 import axolootl.AxRegistry;
-import axolootl.data.breeding.AxolootlBreeding;
 import axolootl.data.axolootl_variant.AxolootlVariant;
+import axolootl.data.breeding.AxolootlBreedingWrapper;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class JeiBreedingWrapper {
+public class JeiBreedingRecipe {
 
-    private final AxolootlBreeding breeding;
+    private final AxolootlBreedingWrapper wrapper;
     private final boolean requiresMonsterium;
     private final List<ItemStack> first;
     private final List<ItemStack> firstFood;
@@ -39,19 +39,19 @@ public class JeiBreedingWrapper {
     private final Map<ItemStack, Double> result;
     private final List<Map.Entry<ItemStack, Double>> sortedResult;
 
-    public JeiBreedingWrapper(AxolootlBreeding breeding) {
-        this.breeding = breeding;
-        this.requiresMonsterium = breeding.getResult().unwrap().stream().anyMatch(wrapper -> wrapper.getData().value().hasMobResources());
+    public JeiBreedingRecipe(AxolootlBreedingWrapper wrapper) {
+        this.wrapper = wrapper;
+        this.requiresMonsterium = wrapper.getResult().unwrap().stream().anyMatch(w -> w.getData().value().hasMobResources());
         // create inputs
-        this.first = ImmutableList.of(getStack(breeding.getFirst(), false));
-        this.second = ImmutableList.of(getStack(breeding.getSecond(), false));
+        this.first = ImmutableList.of(getStack(wrapper.getBreeding().getFirst(), false));
+        this.second = ImmutableList.of(getStack(wrapper.getBreeding().getSecond(), false));
         // create foods
-        this.firstFood = getFood(breeding.getFirst());
-        this.secondFood = getFood(breeding.getSecond());
+        this.firstFood = getFood(wrapper.getBreeding().getFirst());
+        this.secondFood = getFood(wrapper.getBreeding().getSecond());
         // create results
-        double totalWeight = ResourceGenerator.calculateTotalWeight(breeding.getResult());
+        double totalWeight = ResourceGenerator.calculateTotalWeight(wrapper.getResult());
         final ImmutableMap.Builder<ItemStack, Double> builder = ImmutableMap.builder();
-        for(WeightedEntry.Wrapper<Holder<AxolootlVariant>> entry : breeding.getResult().unwrap()) {
+        for(WeightedEntry.Wrapper<Holder<AxolootlVariant>> entry : wrapper.getResult().unwrap()) {
             builder.put(getStack(entry.getData(), true), entry.getWeight().asInt() / totalWeight);
         }
         this.result = builder.build();
@@ -62,8 +62,8 @@ public class JeiBreedingWrapper {
         this.sortedResult = ImmutableList.copyOf(list);
     }
 
-    public AxolootlBreeding getBreeding() {
-        return breeding;
+    public AxolootlBreedingWrapper getWrapper() {
+        return wrapper;
     }
 
     public boolean requiresMonsterium() {

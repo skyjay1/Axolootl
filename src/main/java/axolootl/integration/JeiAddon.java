@@ -9,7 +9,9 @@ package axolootl.integration;
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
 import axolootl.data.breeding.AxolootlBreeding;
+import axolootl.data.breeding.AxolootlBreedingWrapper;
 import axolootl.entity.AxolootlEntity;
+import com.google.common.collect.ImmutableList;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.recipe.RecipeType;
@@ -27,7 +29,7 @@ public class JeiAddon implements IModPlugin {
 
     public static final ResourceLocation UID = new ResourceLocation(Axolootl.MODID, "jei");
 
-    public static final RecipeType<JeiBreedingWrapper> BREEDING_TYPE = RecipeType.create(Axolootl.MODID, "breeding", JeiBreedingWrapper.class);
+    public static final RecipeType<JeiBreedingRecipe> BREEDING_TYPE = RecipeType.create(Axolootl.MODID, "breeding", JeiBreedingRecipe.class);
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -46,9 +48,20 @@ public class JeiAddon implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
+        // load registry
         final RegistryAccess registryAccess = getRegistryAccess();
         final Registry<AxolootlBreeding> registry = AxolootlBreeding.getRegistry(registryAccess);
-        registration.addRecipes(BREEDING_TYPE, registry.stream().map(JeiBreedingWrapper::new).toList());
+        final ImmutableList.Builder<JeiBreedingRecipe> builder = ImmutableList.builder();
+        // collect non-empty breeding wrappers
+        for(AxolootlBreeding entry : registry) {
+            AxolootlBreedingWrapper wrapper = AxRegistry.AxolootlBreedingReg.getWrapper(registryAccess, entry);
+            if(!wrapper.getResult().isEmpty()) {
+                // create jei recipe from wrapper
+                builder.add(new JeiBreedingRecipe(wrapper));
+            }
+        }
+        // add recipes
+        registration.addRecipes(BREEDING_TYPE, builder.build());
     }
 
     @Override

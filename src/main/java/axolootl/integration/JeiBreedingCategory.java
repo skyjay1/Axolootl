@@ -27,7 +27,7 @@ import net.minecraft.world.item.Items;
 
 import java.util.Map;
 
-public class JeiBreedingCategory implements IRecipeCategory<JeiBreedingWrapper> {
+public class JeiBreedingCategory implements IRecipeCategory<JeiBreedingRecipe> {
 
     protected static final ResourceLocation TEXTURE = new ResourceLocation(Axolootl.MODID, "textures/gui/jei/breeding.png");
 
@@ -68,7 +68,7 @@ public class JeiBreedingCategory implements IRecipeCategory<JeiBreedingWrapper> 
     }
 
     @Override
-    public RecipeType<JeiBreedingWrapper> getRecipeType() {
+    public RecipeType<JeiBreedingRecipe> getRecipeType() {
         return JeiAddon.BREEDING_TYPE;
     }
 
@@ -88,7 +88,7 @@ public class JeiBreedingCategory implements IRecipeCategory<JeiBreedingWrapper> 
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, JeiBreedingWrapper recipe, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, JeiBreedingRecipe recipe, IFocusGroup focuses) {
         // add input slots
         builder.addSlot(RecipeIngredientRole.INPUT, INPUTS_X, INPUTS_Y)
                 .addItemStacks(recipe.getFirst());
@@ -125,7 +125,7 @@ public class JeiBreedingCategory implements IRecipeCategory<JeiBreedingWrapper> 
     }
 
     @Override
-    public void draw(JeiBreedingWrapper recipe, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX, double mouseY) {
+    public void draw(JeiBreedingRecipe recipe, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX, double mouseY) {
         // draw inputs
         this.inputs.draw(stack, INPUTS_X - 1, INPUTS_Y - 1);
         // prepare to draw percentages
@@ -146,7 +146,7 @@ public class JeiBreedingCategory implements IRecipeCategory<JeiBreedingWrapper> 
         }
     }
 
-    public int getOutputOffsetX(JeiBreedingWrapper recipe) {
+    public int getOutputOffsetX(JeiBreedingRecipe recipe) {
         return Math.min(5, recipe.getResult().size()) * ITEM_WIDTH / 2;
     }
 

@@ -2,6 +2,13 @@
   "type": "axolootl:and",
   "values": [
     {
+      "type": "axolootl:mob",
+      "loot_table": {
+        "id": "minecraft:entities/ender_dragon",
+        "display": "minecraft:experience_bottle"
+      }
+    },
+    {
       "type": "axolootl:item",
       "item": {
         "id": "minecraft:experience_bottle",

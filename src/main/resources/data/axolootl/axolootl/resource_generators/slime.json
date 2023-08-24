@@ -2,6 +2,16 @@
   "type": "axolootl:select",
   "pool": [
     {
+      "weight": 1,
+      "data": {
+        "type": "axolootl:mob",
+        "loot_table": {
+          "id": "minecraft:entities/slime",
+          "display": "minecraft:slime_ball"
+        }
+      }
+    },
+    {
       "weight": 5,
       "data": {
         "type": "axolootl:tag",

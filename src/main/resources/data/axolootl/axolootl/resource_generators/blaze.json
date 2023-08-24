@@ -2,6 +2,16 @@
   "type": "axolootl:select",
   "pool": [
     {
+      "weight": 2,
+      "data": {
+        "type": "axolootl:mob",
+        "loot_table": {
+          "id": "minecraft:entities/blaze",
+          "display": "minecraft:blaze_rod"
+        }
+      }
+    },
+    {
       "weight": 3,
       "data": {
         "type": "axolootl:item",

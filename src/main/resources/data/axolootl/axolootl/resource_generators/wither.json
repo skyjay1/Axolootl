@@ -4,6 +4,16 @@
     {
       "weight": 1,
       "data": {
+        "type": "axolootl:mob",
+        "loot_table": {
+          "id": "minecraft:entities/wither",
+          "display": "minecraft:nether_star"
+        }
+      }
+    },
+    {
+      "weight": 1,
+      "data": {
         "type": "axolootl:item",
         "item": "minecraft:nether_star"
       }
