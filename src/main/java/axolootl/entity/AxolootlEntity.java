@@ -434,7 +434,7 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
     }
 
     @Override
-    public Optional<IAxolootl> breed(ServerLevel level, IAxolootl other) {
+    public Optional<IAxolootl> breed(ServerLevel level, IAxolootl other, boolean enableMobBreeding) {
         // load recipe
         final AxolootlVariant selfVariant = this.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
         final AxolootlVariant otherVariant = other.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
@@ -446,7 +446,7 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
         // load result
         Holder<AxolootlVariant> result = oRecipe.get().getBreedResult(level, selfVariant, otherVariant, this.getRandom());
         // validate result
-        if(!result.value().isEnabled(level.registryAccess())) {
+        if(!result.value().isEnabled(level.registryAccess()) || (result.value().hasMobResources() && !enableMobBreeding)) {
             return Optional.empty();
         }
         // create axolootl

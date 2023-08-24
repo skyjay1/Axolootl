@@ -742,7 +742,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
             insertItem(remainder2, false);
         }
         // try to breed
-        Optional<IAxolootl> oChild = axolootl.breed(level, other);
+        Optional<IAxolootl> oChild = axolootl.breed(level, other, enableMobBreeding);
         if(oChild.isEmpty() || oChild.get().getAxolootlVariantId().isEmpty()) {
             return InteractionResultHolder.pass(slot1 < 0 && slot2 < 0);
         }

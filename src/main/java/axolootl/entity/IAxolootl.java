@@ -67,9 +67,10 @@ public interface IAxolootl {
      * Breeds the entity with another entity
      * @param level the server level
      * @param other the other axolootl
+     * @param enableMobBreeding true to enable breeding axolootls that generate mob resources
      * @return an interaction result with the updated item stack
      */
-    Optional<IAxolootl> breed(ServerLevel level, final IAxolootl other);
+    Optional<IAxolootl> breed(ServerLevel level, final IAxolootl other, final boolean enableMobBreeding);
 
     /**
      * @param id the axolootl variant ID, can be null
