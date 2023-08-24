@@ -3,10 +3,6 @@
   "second": "axolootl:stone",
   "result": [
     {
-      "data": "axolootl:stone",
-      "weight": 2
-    },
-    {
       "data": "axolootl:copper",
       "weight": 5
     },

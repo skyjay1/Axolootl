@@ -3,16 +3,8 @@
   "second": "axolootl:iron",
   "result": [
     {
-      "data": "axolootl:coal",
-      "weight": 1
-    },
-    {
-      "data": "axolootl:iron",
-      "weight": 1
-    },
-    {
       "data": "axolootl:redstone",
-      "weight": 3
+      "weight": 1
     }
   ]
 }

@@ -3,14 +3,6 @@
   "second": "axolootl:redstone",
   "result": [
     {
-      "data": "axolootl:coal",
-      "weight": 1
-    },
-    {
-      "data": "axolootl:redstone",
-      "weight": 1
-    },
-    {
       "data": "axolootl:fluorite_dust",
       "weight": 3
     },

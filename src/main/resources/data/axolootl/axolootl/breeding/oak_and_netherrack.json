@@ -3,16 +3,12 @@
   "second": "axolootl:netherrack",
   "result": [
     {
-      "data": "axolootl:wood/oak",
+      "data": "axolootl:wood/crimson",
       "weight": 1
     },
     {
-      "data": "axolootl:wood/crimson",
-      "weight": 2
-    },
-    {
       "data": "axolootl:wood/warped",
-      "weight": 2
+      "weight": 1
     }
   ]
 }

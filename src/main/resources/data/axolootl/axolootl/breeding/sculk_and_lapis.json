@@ -3,14 +3,6 @@
   "second": "axolootl:lapis",
   "result": [
     {
-      "data": "axolootl:sculk",
-      "weight": 4
-    },
-    {
-      "data": "axolootl:lapis",
-      "weight": 3
-    },
-    {
       "data": "axolootl:warden",
       "weight": 1
     }

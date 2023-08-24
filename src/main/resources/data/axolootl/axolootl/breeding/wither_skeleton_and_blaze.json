@@ -3,14 +3,6 @@
   "second": "axolootl:blaze",
   "result": [
     {
-      "data": "axolootl:wither_skeleton",
-      "weight": 4
-    },
-    {
-      "data": "axolootl:blaze",
-      "weight": 3
-    },
-    {
       "data": "axolootl:wither",
       "weight": 1
     }

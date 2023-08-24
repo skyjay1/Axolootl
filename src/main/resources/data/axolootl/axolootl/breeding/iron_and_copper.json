@@ -3,16 +3,8 @@
   "second": "axolootl:copper",
   "result": [
     {
-      "data": "axolootl:iron",
-      "weight": 1
-    },
-    {
-      "data": "axolootl:copper",
-      "weight": 1
-    },
-    {
       "data": "axolootl:silver",
-      "weight": 5
+      "weight": 1
     }
   ]
 }

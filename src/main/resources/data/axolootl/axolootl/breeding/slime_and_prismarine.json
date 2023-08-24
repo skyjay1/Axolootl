@@ -3,12 +3,8 @@
   "second": "axolootl:prismarine",
   "result": [
     {
-      "data": "axolootl:slime",
-      "weight": 3
-    },
-    {
       "data": "axolootl:guardian",
-      "weight": 2
+      "weight": 1
     }
   ]
 }

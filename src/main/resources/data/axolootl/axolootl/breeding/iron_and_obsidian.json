@@ -3,20 +3,12 @@
   "second": "axolootl:obsidian",
   "result": [
     {
-      "data": "axolootl:iron",
-      "weight": 1
-    },
-    {
-      "data": "axolootl:obsidian",
-      "weight": 1
-    },
-    {
       "data": "axolootl:lead",
-      "weight": 3
+      "weight": 1
     },
     {
       "data": "axolootl:osmium",
-      "weight": 3
+      "weight": 1
     }
   ]
 }

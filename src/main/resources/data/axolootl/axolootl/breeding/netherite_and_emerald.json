@@ -3,14 +3,6 @@
   "second": "axolootl:emerald",
   "result": [
     {
-      "data": "axolootl:netherite",
-      "weight": 2
-    },
-    {
-      "data": "axolootl:emerald",
-      "weight": 3
-    },
-    {
       "data": "axolootl:totemic",
       "weight": 1
     }

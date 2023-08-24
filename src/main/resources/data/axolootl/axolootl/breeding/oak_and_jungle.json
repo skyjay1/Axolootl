@@ -3,16 +3,8 @@
   "second": "axolootl:wood/jungle",
   "result": [
     {
-      "data": "axolootl:wood/oak",
-      "weight": 1
-    },
-    {
-      "data": "axolootl:wood/jungle",
-      "weight": 1
-    },
-    {
       "data": "axolootl:wood/mangrove",
-      "weight": 3
+      "weight": 1
     }
   ]
 }

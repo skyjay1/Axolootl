@@ -3,10 +3,6 @@
   "second": "axolootl:wood/oak",
   "result": [
     {
-      "data": "axolootl:wood/oak",
-      "weight": 1
-    },
-    {
       "data": "axolootl:wood/birch",
       "weight": 4
     },

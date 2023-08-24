@@ -3,16 +3,8 @@
   "second": "axolootl:deepslate",
   "result": [
     {
-      "data": "axolootl:obsidian",
-      "weight": 1
-    },
-    {
-      "data": "axolootl:deepslate",
-      "weight": 1
-    },
-    {
       "data": "axolootl:sculk",
-      "weight": 2
+      "weight": 1
     }
   ]
 }

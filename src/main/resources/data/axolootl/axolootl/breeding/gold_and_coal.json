@@ -3,14 +3,6 @@
   "second": "axolootl:coal",
   "result": [
     {
-      "data": "axolootl:gold",
-      "weight": 2
-    },
-    {
-      "data": "axolootl:coal",
-      "weight": 2
-    },
-    {
       "data": "axolootl:diamond",
       "weight": 1
     }

@@ -3,16 +3,8 @@
   "second": "axolootl:bone",
   "result": [
     {
-      "data": "axolootl:stone",
-      "weight": 1
-    },
-    {
-      "data": "axolootl:bone",
-      "weight": 1
-    },
-    {
       "data": "axolootl:coal",
-      "weight": 3
+      "weight": 1
     }
   ]
 }

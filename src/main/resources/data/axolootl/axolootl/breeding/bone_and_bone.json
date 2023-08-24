@@ -3,10 +3,6 @@
   "second": "axolootl:bone",
   "result": [
     {
-      "data": "axolootl:bone",
-      "weight": 1
-    },
-    {
       "data": "axolootl:zombie",
       "weight": 5
     },

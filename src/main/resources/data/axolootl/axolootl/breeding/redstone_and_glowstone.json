@@ -3,16 +3,8 @@
   "second": "axolootl:glowstone",
   "result": [
     {
-      "data": "axolootl:redstone",
-      "weight": 1
-    },
-    {
-      "data": "axolootl:glowstone",
-      "weight": 1
-    },
-    {
       "data": "axolootl:emerald",
-      "weight": 2
+      "weight": 1
     }
   ]
 }

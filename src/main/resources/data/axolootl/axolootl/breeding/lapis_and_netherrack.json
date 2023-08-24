@@ -3,14 +3,6 @@
   "second": "axolootl:netherrack",
   "result": [
     {
-      "data": "axolootl:lapis",
-      "weight": 1
-    },
-    {
-      "data": "axolootl:netherrack",
-      "weight": 1
-    },
-    {
       "data": "axolootl:glowstone",
       "weight": 3
     },
