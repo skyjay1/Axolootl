@@ -71,6 +71,7 @@ import axolootl.data.breeding.AxolootlBreedingWrapper;
 import axolootl.data.breeding_modifier.AddAxolootlBreedingModifier;
 import axolootl.data.breeding_modifier.AxolootlBreedingModifier;
 import axolootl.data.breeding_modifier.RemoveAxolootlBreedingModifier;
+import axolootl.data.breeding_modifier.SequenceAxolootlBreedingModifier;
 import axolootl.data.resource_generator.AndResourceGenerator;
 import axolootl.data.resource_generator.BlockDropsResourceGenerator;
 import axolootl.data.resource_generator.EmptyResourceGenerator;
@@ -830,6 +831,7 @@ public final class AxRegistry {
 
         public static final RegistryObject<Codec<? extends AxolootlBreedingModifier>> ADD = AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS.register("add", () -> AddAxolootlBreedingModifier.CODEC);
         public static final RegistryObject<Codec<? extends AxolootlBreedingModifier>> REMOVE = AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS.register("remove", () -> RemoveAxolootlBreedingModifier.CODEC);
+        public static final RegistryObject<Codec<? extends AxolootlBreedingModifier>> SEQUENCE = AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS.register("sequence", () -> SequenceAxolootlBreedingModifier.CODEC);
     }
 
     public static final class Keys {

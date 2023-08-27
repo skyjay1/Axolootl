@@ -14,8 +14,10 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.WeightedEntry;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.List;
 
+@Immutable
 public class RemoveAxolootlBreedingModifier extends AxolootlBreedingModifier {
 
     public static final Codec<RemoveAxolootlBreedingModifier> CODEC = RecordCodecBuilder.create(instance -> codecStart(instance)
@@ -25,12 +27,17 @@ public class RemoveAxolootlBreedingModifier extends AxolootlBreedingModifier {
     private final WeightedEntryPredicate predicate;
 
     public RemoveAxolootlBreedingModifier(final ResourceLocation target, WeightedEntryPredicate predicate) {
-        super(target, Phase.REMOVE);
+        super(target);
         this.predicate = predicate;
     }
 
     @Override
-    public void apply(final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> list) {
+    public void apply(final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> list, final Phase phase) {
+        // verify phase
+        if(phase != Phase.REMOVE) {
+            return;
+        }
+        // remove values
         list.removeIf(predicate);
     }
 

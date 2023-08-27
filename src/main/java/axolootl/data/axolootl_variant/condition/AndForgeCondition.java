@@ -8,7 +8,7 @@ import java.util.List;
 
 public class AndForgeCondition extends ForgeCondition {
 
-    public static final Codec<AndForgeCondition> CODEC = LIST_OR_SINGLE_CODEC
+    public static final Codec<AndForgeCondition> CODEC = LIST_CODEC
             .xmap(AndForgeCondition::new, AndForgeCondition::getChildren).fieldOf("values").codec();
 
     private final List<ForgeCondition> children;

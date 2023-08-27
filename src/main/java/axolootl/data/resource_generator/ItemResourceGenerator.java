@@ -7,6 +7,7 @@
 package axolootl.data.resource_generator;
 
 import axolootl.AxRegistry;
+import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -22,7 +23,7 @@ import java.util.function.Function;
 
 public class ItemResourceGenerator extends ResourceGenerator {
 
-    private static final Codec<SimpleWeightedRandomList<ItemStack>> WEIGHTED_LIST_CODEC = Codec.either(ITEM_OR_STACK_CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(ITEM_OR_STACK_CODEC))
+    private static final Codec<SimpleWeightedRandomList<ItemStack>> WEIGHTED_LIST_CODEC = Codec.either(AxCodecUtils.ITEM_OR_STACK_CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(AxCodecUtils.ITEM_OR_STACK_CODEC))
             .xmap(either -> either.map(SimpleWeightedRandomList::single, Function.identity()),
                     list -> list.unwrap().size() == 1 ? Either.left(list.unwrap().get(0).getData()) : Either.right(list));
 

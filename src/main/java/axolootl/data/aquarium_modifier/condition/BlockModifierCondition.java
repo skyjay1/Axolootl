@@ -7,8 +7,8 @@
 package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
-import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
+import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import net.minecraft.Util;
@@ -25,7 +25,7 @@ import java.util.List;
 @Immutable
 public class BlockModifierCondition extends ModifierCondition {
 
-    public static final Codec<BlockModifierCondition> CODEC = AquariumModifier.BLOCK_PREDICATE_CODEC
+    public static final Codec<BlockModifierCondition> CODEC = AxCodecUtils.BLOCK_PREDICATE_CODEC
             .xmap(BlockModifierCondition::new, BlockModifierCondition::getPredicate).fieldOf("predicate").codec();
 
     private final BlockPredicate predicate;

@@ -9,9 +9,8 @@ package axolootl.data.breeding_modifier;
 import axolootl.AxRegistry;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.breeding.AxolootlBreeding;
-import com.google.common.collect.ImmutableList;
+import axolootl.util.AxCodecUtils;
 import com.mojang.datafixers.Products;
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
@@ -25,10 +24,12 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.random.WeightedEntry;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.function.Function;
 
 // TODO test to make sure ADD and REMOVE work as expected
+@Immutable
 public abstract class AxolootlBreedingModifier {
 
     public static final Codec<AxolootlBreedingModifier> DIRECT_CODEC = ExtraCodecs.lazyInitializedCodec(() -> AxRegistry.AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS_SUPPLIER.get().getCodec())
@@ -37,26 +38,21 @@ public abstract class AxolootlBreedingModifier {
     public static final Codec<Holder<AxolootlBreedingModifier>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AXOLOOTL_BREEDING_MODIFIERS, DIRECT_CODEC);
     public static final Codec<HolderSet<AxolootlBreedingModifier>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_BREEDING_MODIFIERS, DIRECT_CODEC);
 
-    public static final Codec<List<AxolootlBreedingModifier>> DIRECT_LIST_CODEC = DIRECT_CODEC.listOf();
-    public static final Codec<List<AxolootlBreedingModifier>> DIRECT_LIST_OR_SINGLE_CODEC = Codec.either(DIRECT_CODEC, DIRECT_LIST_CODEC)
-            .xmap(either -> either.map(ImmutableList::of, Function.identity()),
-                    list -> list.size() == 1 ? Either.left(list.get(0)) : Either.right(list));
+    public static final Codec<List<AxolootlBreedingModifier>> DIRECT_LIST_CODEC = AxCodecUtils.listOrElementCodec(DIRECT_CODEC);
 
     /** The predicate for the {@link AxolootlBreeding} object to target **/
     private final ResourceLocation target;
-    /** The phase to run this modifier **/
-    private final Phase phase;
 
-    public AxolootlBreedingModifier(ResourceLocation target, Phase phase) {
+    public AxolootlBreedingModifier(ResourceLocation target) {
         this.target = target;
-        this.phase = phase;
     }
 
     /**
      * Applies the breeding modifier
      * @param list the mutable list of weighted entries
+     * @param phase the modifier phase
      */
-    public abstract void apply(final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> list);
+    public abstract void apply(final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> list, final Phase phase);
 
     /**
      * @return the breeding modifier codec
@@ -85,10 +81,6 @@ public abstract class AxolootlBreedingModifier {
         return target;
     }
 
-    public Phase getPhase() {
-        return phase;
-    }
-
     //// CLASSES ////
 
     public static enum Phase implements StringRepresentable {
@@ -101,10 +93,21 @@ public abstract class AxolootlBreedingModifier {
         /** Catch-all for anything that needs to run after standard phases **/
         POST("post");
 
+        public static final Codec<Phase> CODEC = Codec.STRING.xmap(Phase::getByName, Phase::getSerializedName);
+
         private final String name;
 
         private Phase(String name) {
             this.name = name;
+        }
+
+        public static Phase getByName(final String name) {
+            for(Phase phase : values()) {
+                if(phase.getSerializedName().equals(name)) {
+                    return phase;
+                }
+            }
+            return PRE;
         }
 
         @Override

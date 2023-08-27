@@ -28,26 +28,28 @@ import java.util.Optional;
 public class AxolootlBreedingWrapper {
 
     private final AxolootlBreeding breeding;
-    private final Map<AxolootlBreedingModifier.Phase, Collection<AxolootlBreedingModifier>> modifiers;
     private final SimpleWeightedRandomList<Holder<AxolootlVariant>> result;
 
     public AxolootlBreedingWrapper(final RegistryAccess access, AxolootlBreeding breeding, List<AxolootlBreedingModifier> modifiers) {
         this.breeding = breeding;
-        this.modifiers = new EnumMap<>(AxolootlBreedingModifier.Phase.class);
-        // add each modifier to the map
-        for(AxolootlBreedingModifier modifier : modifiers) {
-            this.modifiers.computeIfAbsent(modifier.getPhase(), stage -> new ArrayList<>()).add(modifier);
-        }
         // initialize wrapped result
         final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> builder = new ArrayList<>(breeding.getResult().unwrap());
         // before everything
-        this.modifiers.getOrDefault(AxolootlBreedingModifier.Phase.PRE, ImmutableList.of()).forEach(m -> m.apply(builder));
-        // add stage
-        this.modifiers.getOrDefault(AxolootlBreedingModifier.Phase.ADD, ImmutableList.of()).forEach(m -> m.apply(builder));
-        // remove stage
-        this.modifiers.getOrDefault(AxolootlBreedingModifier.Phase.REMOVE, ImmutableList.of()).forEach(m -> m.apply(builder));
+        for(AxolootlBreedingModifier modifier : modifiers) {
+            modifier.apply(builder, AxolootlBreedingModifier.Phase.PRE);
+        }
+        // add
+        for(AxolootlBreedingModifier modifier : modifiers) {
+            modifier.apply(builder, AxolootlBreedingModifier.Phase.ADD);
+        }
+        // remove
+        for(AxolootlBreedingModifier modifier : modifiers) {
+            modifier.apply(builder, AxolootlBreedingModifier.Phase.REMOVE);
+        }
         // after everything
-        this.modifiers.getOrDefault(AxolootlBreedingModifier.Phase.POST, ImmutableList.of()).forEach(m -> m.apply(builder));
+        for(AxolootlBreedingModifier modifier : modifiers) {
+            modifier.apply(builder, AxolootlBreedingModifier.Phase.POST);
+        }
         // remove invalid results
         builder.removeIf(wrapper -> !AxRegistry.AxolootlVariantsReg.isValid(access, wrapper.getData().value()));
         // build the list
@@ -75,6 +77,7 @@ public class AxolootlBreedingWrapper {
         }
         // get or create wrapper
         final AxolootlBreedingWrapper wrapper = AxRegistry.AxolootlBreedingReg.getWrapper(level.registryAccess(), match.get());
+        // verify post-processed recipe results are not empty
         if(wrapper.getResult().unwrap().isEmpty()) {
             return Optional.empty();
         }
@@ -108,10 +111,6 @@ public class AxolootlBreedingWrapper {
 
     public AxolootlBreeding getBreeding() {
         return breeding;
-    }
-
-    public Map<AxolootlBreedingModifier.Phase, Collection<AxolootlBreedingModifier>> getModifiers() {
-        return ImmutableMap.copyOf(modifiers);
     }
 
     public SimpleWeightedRandomList<Holder<AxolootlVariant>> getResult() {

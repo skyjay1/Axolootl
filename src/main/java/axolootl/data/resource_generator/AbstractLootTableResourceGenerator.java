@@ -7,12 +7,11 @@
 package axolootl.data.resource_generator;
 
 import axolootl.Axolootl;
+import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.Util;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RandomSource;
@@ -22,9 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
 
-import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -87,7 +84,7 @@ public abstract class AbstractLootTableResourceGenerator extends ResourceGenerat
 
         protected static final Codec<AbstractLootTableResourceGenerator.Wrapper> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 ResourceLocation.CODEC.fieldOf("id").forGetter(Wrapper::getId),
-                ITEM_OR_STACK_CODEC.optionalFieldOf("display", ItemStack.EMPTY).forGetter(Wrapper::getDisplay)
+                AxCodecUtils.ITEM_OR_STACK_CODEC.optionalFieldOf("display", ItemStack.EMPTY).forGetter(Wrapper::getDisplay)
         ).apply(instance, AbstractLootTableResourceGenerator.Wrapper::new));
 
         protected static final Codec<AbstractLootTableResourceGenerator.Wrapper> CODEC = Codec.either(ResourceLocation.CODEC, DIRECT_CODEC)

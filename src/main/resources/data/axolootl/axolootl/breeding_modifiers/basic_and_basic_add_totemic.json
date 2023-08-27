@@ -1,0 +1,10 @@
+{
+  "type": "axolootl:add",
+  "target": "axolootl:basic_and_basic",
+  "values": [
+    {
+      "data": "axolootl:totemic",
+      "weight": 1
+    }
+  ]
+}

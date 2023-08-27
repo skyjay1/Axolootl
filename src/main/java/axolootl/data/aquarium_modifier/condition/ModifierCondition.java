@@ -8,6 +8,7 @@ package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
+import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -39,10 +40,7 @@ public abstract class ModifierCondition implements Predicate<AquariumModifierCon
     public static final Codec<Holder<ModifierCondition>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.MODIFIER_CONDITIONS, DIRECT_CODEC);
     public static final Codec<HolderSet<ModifierCondition>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.MODIFIER_CONDITIONS, DIRECT_CODEC);
 
-    public static final Codec<List<ModifierCondition>> LIST_CODEC = DIRECT_CODEC.listOf();
-    public static final Codec<List<ModifierCondition>> LIST_OR_SINGLE_CODEC = Codec.either(DIRECT_CODEC, LIST_CODEC)
-            .xmap(either -> either.map(ImmutableList::of, Function.identity()),
-                    list -> list.size() == 1 ? Either.left(list.get(0)) : Either.right(list));
+    public static final Codec<List<ModifierCondition>> LIST_CODEC = AxCodecUtils.listOrElementCodec(DIRECT_CODEC);
 
     public abstract Codec<? extends ModifierCondition> getCodec();
 

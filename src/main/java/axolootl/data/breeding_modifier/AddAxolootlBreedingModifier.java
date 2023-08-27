@@ -16,8 +16,10 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.WeightedEntry;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.List;
 
+@Immutable
 public class AddAxolootlBreedingModifier extends AxolootlBreedingModifier {
 
     public static final Codec<AddAxolootlBreedingModifier> CODEC = RecordCodecBuilder.create(instance -> codecStart(instance)
@@ -27,21 +29,21 @@ public class AddAxolootlBreedingModifier extends AxolootlBreedingModifier {
     private final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> values;
 
     public AddAxolootlBreedingModifier(final ResourceLocation target, List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> values) {
-        super(target, AxolootlBreedingModifier.Phase.ADD);
+        super(target);
         this.values = ImmutableList.copyOf(values);
     }
 
-    /**
-     * Applies the breeding modifier
-     * @param list the mutable list of weighted entries
-     */
-    public void apply(final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> list) {
+    @Override
+    public void apply(final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> list, final Phase phase) {
+        // verify phase
+        if(phase != Phase.ADD) {
+            return;
+        }
+        // add values
         list.addAll(getValues());
     }
 
-    /**
-     * @return the breeding modifier codec
-     */
+    @Override
     public Codec<? extends AxolootlBreedingModifier> getCodec() {
         return AxRegistry.AxolootlBreedingModifierReg.ADD.get();
     }

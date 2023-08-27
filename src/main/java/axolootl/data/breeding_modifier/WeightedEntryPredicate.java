@@ -17,10 +17,12 @@ import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+@Immutable
 public class WeightedEntryPredicate implements Predicate<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> {
 
     public static final Codec<WeightedEntryPredicate> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(

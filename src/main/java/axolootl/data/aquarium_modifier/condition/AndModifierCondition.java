@@ -20,7 +20,7 @@ import java.util.List;
 @Immutable
 public class AndModifierCondition extends ModifierCondition {
 
-    public static final Codec<AndModifierCondition> CODEC = LIST_OR_SINGLE_CODEC
+    public static final Codec<AndModifierCondition> CODEC = LIST_CODEC
             .xmap(AndModifierCondition::new, AndModifierCondition::getChildren).fieldOf("children").codec();
 
     private final List<ModifierCondition> children;

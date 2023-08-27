@@ -10,9 +10,8 @@ import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.condition.FalseModifierCondition;
 import axolootl.data.aquarium_modifier.condition.ModifierCondition;
 import axolootl.data.aquarium_modifier.condition.TrueModifierCondition;
-import axolootl.util.TankMultiblock;
+import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -30,35 +29,25 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
-import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
-import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 public class AquariumModifier {
 
     public static final AquariumModifier EMPTY = new AquariumModifier("empty", ModifierSettings.EMPTY, new Vec3i(1, 1, 1), List.of(), FalseModifierCondition.INSTANCE);
 
-    public static final Codec<BlockPredicate> BLOCK_PREDICATE_CODEC = Registry.BLOCK_PREDICATE_TYPES.byNameCodec().dispatch(BlockPredicate::type, BlockPredicateType::codec);
-    public static final Codec<List<BlockPredicate>> BLOCK_PREDICATE_LIST_CODEC = BLOCK_PREDICATE_CODEC.listOf();
-    public static final Codec<List<BlockPredicate>> BLOCK_PREDICATE_LIST_OR_SINGLE_CODEC = Codec.either(BLOCK_PREDICATE_CODEC, BLOCK_PREDICATE_LIST_CODEC)
-            .xmap(either -> either.map(ImmutableList::of, Function.identity()),
-                    list -> list.size() == 1 ? Either.left(list.get(0)) : Either.right(list));
-
     public static final Codec<AquariumModifier> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("translation_key").forGetter(AquariumModifier::getTranslationKey),
             ModifierSettings.CODEC.fieldOf("settings").forGetter(AquariumModifier::getSettings),
             ModifierSettings.POSITIVE_VEC3I_CODEC.optionalFieldOf("dimensions", new Vec3i(1, 1, 1)).forGetter(AquariumModifier::getDimensions),
-            BLOCK_PREDICATE_LIST_OR_SINGLE_CODEC.optionalFieldOf("block", ImmutableList.of(BlockPredicate.not(BlockPredicate.alwaysTrue()))).forGetter(AquariumModifier::getBlockStatePredicate),
+            AxCodecUtils.BLOCK_PREDICATE_LIST_CODEC.optionalFieldOf("block", ImmutableList.of(BlockPredicate.not(BlockPredicate.alwaysTrue()))).forGetter(AquariumModifier::getBlockStatePredicate),
             ModifierCondition.DIRECT_CODEC.optionalFieldOf("condition", TrueModifierCondition.INSTANCE).forGetter(AquariumModifier::getCondition)
     ).apply(instance, AquariumModifier::new));
 

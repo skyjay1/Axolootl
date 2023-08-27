@@ -1,17 +1,15 @@
 package axolootl.data.axolootl_variant;
 
 import axolootl.Axolootl;
-import com.mojang.datafixers.util.Either;
+import axolootl.util.AxCodecUtils;
 import com.mojang.math.Vector3f;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.util.Optional;
-import java.util.function.Function;
 
 @Immutable
 public class AxolootlModelSettings {
@@ -22,20 +20,14 @@ public class AxolootlModelSettings {
 
     public static final AxolootlModelSettings EMPTY = new AxolootlModelSettings(ENTITY_MODEL, Optional.empty(), ENTITY_TEXTURE, Optional.empty(), Optional.empty(), -1, -1);
 
-    private static final Codec<Integer> HEX_INT_CODEC = hexIntCodec();
-
-    private static final Codec<Integer> HEX_OR_INT_CODEC = Codec.either(HEX_INT_CODEC, Codec.INT)
-            .xmap(either -> either.map(Function.identity(), Function.identity()),
-                    i -> Either.right(i));
-
     public static final Codec<AxolootlModelSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.optionalFieldOf("entity", ENTITY_MODEL).forGetter(AxolootlModelSettings::getEntityGeoModel),
             ResourceLocation.CODEC.optionalFieldOf("animations").forGetter(AxolootlModelSettings::getOptionalEntityGeoAnimations),
             ResourceLocation.CODEC.optionalFieldOf("texture", ENTITY_TEXTURE).forGetter(AxolootlModelSettings::getEntityTexture),
             ResourceLocation.CODEC.optionalFieldOf("primary_texture").forGetter(AxolootlModelSettings::getOptionalEntityPrimaryTexture),
             ResourceLocation.CODEC.optionalFieldOf("secondary_texture").forGetter(AxolootlModelSettings::getOptionalEntitySecondaryTexture),
-            HEX_OR_INT_CODEC.optionalFieldOf("primary_color", -1).forGetter(AxolootlModelSettings::getPrimaryColor),
-            HEX_OR_INT_CODEC.optionalFieldOf("secondary_color", -1).forGetter(AxolootlModelSettings::getSecondaryColor)
+            AxCodecUtils.HEX_OR_INT_CODEC.optionalFieldOf("primary_color", -1).forGetter(AxolootlModelSettings::getPrimaryColor),
+            AxCodecUtils.HEX_OR_INT_CODEC.optionalFieldOf("secondary_color", -1).forGetter(AxolootlModelSettings::getSecondaryColor)
     ).apply(instance, AxolootlModelSettings::new));
 
     /** The GeckoLib entity geo model **/
@@ -133,16 +125,6 @@ public class AxolootlModelSettings {
     }
 
     //// METHODS ////
-
-    private static Codec<Integer> hexIntCodec() {
-        Function<String, DataResult<String>> function = (s) -> {
-            if(s.isEmpty()) {
-                return DataResult.error("Failed to parse hex int from empty string");
-            }
-            return DataResult.success(s);
-        };
-        return Codec.STRING.flatXmap(function, function).xmap(s -> Integer.valueOf(s, 16), Integer::toHexString);
-    }
 
     /**
      * @param color a packed color

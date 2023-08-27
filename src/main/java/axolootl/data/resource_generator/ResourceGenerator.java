@@ -7,6 +7,7 @@
 package axolootl.data.resource_generator;
 
 import axolootl.AxRegistry;
+import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Either;
@@ -25,12 +26,8 @@ import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,24 +44,10 @@ public abstract class ResourceGenerator {
     public static final Codec<Holder<ResourceGenerator>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.RESOURCE_GENERATORS, DIRECT_CODEC);
     public static final Codec<HolderSet<ResourceGenerator>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.RESOURCE_GENERATORS, DIRECT_CODEC);
 
-    public static final Codec<List<ResourceGenerator>> DIRECT_LIST_CODEC = DIRECT_CODEC.listOf();
-    public static final Codec<List<ResourceGenerator>> DIRECT_LIST_OR_SINGLE_CODEC = Codec.either(DIRECT_CODEC, DIRECT_LIST_CODEC)
-            .xmap(either -> either.map(ImmutableList::of, Function.identity()),
-                    list -> list.size() == 1 ? Either.left(list.get(0)) : Either.right(list));
+    public static final Codec<List<ResourceGenerator>> DIRECT_LIST_CODEC = AxCodecUtils.listOrElementCodec(DIRECT_CODEC);
 
-    /**
-     * Codec to map between items and item stacks with a single item and no tag
-     */
-    public static final Codec<ItemStack> ITEM_OR_STACK_CODEC = Codec.either(ForgeRegistries.ITEMS.getCodec(), ItemStack.CODEC)
-            .xmap(either -> either.map(ItemStack::new, Function.identity()),
-                    stack -> stack.getCount() == 1 && !stack.hasTag()
-                            ? Either.left(stack.getItem())
-                            : Either.right(stack));
-
-    /**
-     * Codec to map between single objects and simple weighted random lists
-     */
-    public static final Codec<SimpleWeightedRandomList<ResourceGenerator>> WEIGHTED_LIST_CODEC = Codec.either(DIRECT_CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(ResourceGenerator.DIRECT_CODEC))
+    /** Codec to map between single objects and simple weighted random lists **/
+    public static final Codec<SimpleWeightedRandomList<ResourceGenerator>> WEIGHTED_LIST_CODEC = Codec.either(ResourceGenerator.DIRECT_CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(ResourceGenerator.DIRECT_CODEC))
             .xmap(either -> either.map(SimpleWeightedRandomList::single, Function.identity()), ResourceGenerator::eitherSimpleList);
 
     /** The Resource Type of this generator **/
