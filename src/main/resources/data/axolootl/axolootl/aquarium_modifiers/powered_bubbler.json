@@ -1,7 +1,6 @@
 {
   "translation_key": "block.axolootl.powered_bubbler",
   "settings": {
-    "category": "axolootl:bubbler",
     "generation": 0.25,
     "enable_mob_generators": true,
     "energy_cost": 20

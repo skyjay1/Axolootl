@@ -8,7 +8,7 @@ package axolootl.data.breeding;
 
 import axolootl.AxRegistry;
 import axolootl.data.axolootl_variant.AxolootlVariant;
-import com.mojang.datafixers.util.Either;
+import axolootl.util.AxCodecUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
@@ -21,21 +21,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.level.Level;
 
-import java.util.function.Function;
-
 public class AxolootlBreeding {
-
-    private static final Codec<SimpleWeightedRandomList<Holder<AxolootlVariant>>> WEIGHTED_LIST_DIRECT_CODEC =
-            SimpleWeightedRandomList.wrappedCodec(AxolootlVariant.HOLDER_CODEC);
-
-    private static final Codec<SimpleWeightedRandomList<Holder<AxolootlVariant>>> WEIGHTED_LIST_CODEC = Codec.either(AxolootlVariant.HOLDER_CODEC, WEIGHTED_LIST_DIRECT_CODEC)
-            .xmap(either -> either.map(SimpleWeightedRandomList::single, Function.identity()),
-                    list -> list.unwrap().size() == 1 ? Either.left(list.unwrap().get(0).getData()) : Either.right(list));
 
     public static final Codec<AxolootlBreeding> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             AxolootlVariant.HOLDER_CODEC.fieldOf("first").forGetter(AxolootlBreeding::getFirst),
             AxolootlVariant.HOLDER_CODEC.fieldOf("second").forGetter(AxolootlBreeding::getSecond),
-            WEIGHTED_LIST_CODEC.fieldOf("result").forGetter(AxolootlBreeding::getResult)
+            AxCodecUtils.weightedListOrElementCodec(AxolootlVariant.HOLDER_CODEC).fieldOf("result").forGetter(AxolootlBreeding::getResult)
     ).apply(instance, AxolootlBreeding::new));
 
     public static final Codec<Holder<AxolootlBreeding>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AXOLOOTL_BREEDING, CODEC);

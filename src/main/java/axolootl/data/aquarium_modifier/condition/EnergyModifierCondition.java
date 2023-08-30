@@ -34,7 +34,7 @@ public class EnergyModifierCondition extends ModifierCondition {
     private final List<Component> description;
 
     public EnergyModifierCondition(long energy) {
-        this.energy = energy;
+        this.energy = Math.max(0, energy);
         this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.energy", energy));
     }
 

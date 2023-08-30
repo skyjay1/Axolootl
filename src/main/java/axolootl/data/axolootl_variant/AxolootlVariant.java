@@ -13,6 +13,7 @@ import axolootl.data.axolootl_variant.condition.TrueForgeCondition;
 import axolootl.data.resource_generator.EmptyResourceGenerator;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.data.resource_generator.ResourceType;
+import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
@@ -35,7 +36,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -43,20 +43,16 @@ public class AxolootlVariant {
 
     public static final AxolootlVariant EMPTY = new AxolootlVariant(FalseForgeCondition.INSTANCE, "empty", 0, false, Rarity.COMMON, AxolootlModelSettings.EMPTY, 0, ImmutableList.of(), HolderSet.direct(), Holder.direct(EmptyResourceGenerator.INSTANCE));
 
-    private static final Codec<HolderSet<Item>> ITEM_HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(ForgeRegistries.Keys.ITEMS);
-
-    private static final Codec<Rarity> RARITY_CODEC = Codec.STRING.xmap(AxolootlVariant::getRarityByName, r -> r.toString().toLowerCase(Locale.ENGLISH));
-
     public static final Codec<AxolootlVariant> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         ForgeCondition.DIRECT_CODEC.optionalFieldOf("condition", TrueForgeCondition.INSTANCE).forGetter(AxolootlVariant::getCondition),
         Codec.STRING.fieldOf("translation_key").forGetter(AxolootlVariant::getTranslationKey),
         ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("tier", 1).forGetter(AxolootlVariant::getTier),
         Codec.BOOL.optionalFieldOf("fire_immune", false).forGetter(AxolootlVariant::isFireImmune),
-        RARITY_CODEC.optionalFieldOf("rarity", Rarity.COMMON).forGetter(AxolootlVariant::getRarity),
+        AxCodecUtils.RARITY_CODEC.optionalFieldOf("rarity", Rarity.COMMON).forGetter(AxolootlVariant::getRarity),
         AxolootlModelSettings.CODEC.optionalFieldOf("model", AxolootlModelSettings.EMPTY).forGetter(AxolootlVariant::getModelSettings),
         ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("energy_cost", 0).forGetter(AxolootlVariant::getEnergyCost),
         BonusesProvider.CODEC.listOf().optionalFieldOf("food", BonusesProvider.FISH_BONUS_PROVIDERS).forGetter(AxolootlVariant::getFoods),
-        ITEM_HOLDER_SET_CODEC.optionalFieldOf("breed_food", HolderSet.direct()).forGetter(AxolootlVariant::getBreedFood),
+        AxCodecUtils.ITEM_HOLDER_SET_CODEC.optionalFieldOf("breed_food", HolderSet.direct()).forGetter(AxolootlVariant::getBreedFood),
         ResourceGenerator.HOLDER_CODEC.optionalFieldOf("resource_generator", Holder.direct(EmptyResourceGenerator.INSTANCE)).forGetter(AxolootlVariant::getResourceGenerator)
     ).apply(instance, AxolootlVariant::new));
 
@@ -240,15 +236,6 @@ public class AxolootlVariant {
 
     public boolean isEnabled(RegistryAccess registryAccess) {
         return AxRegistry.AxolootlVariantsReg.isValid(registryAccess, this);
-    }
-
-    private static Rarity getRarityByName(final String name) {
-        for(Rarity rarity : Rarity.values()) {
-            if(rarity.toString().toLowerCase(Locale.ENGLISH).equals(name)) {
-                return rarity;
-            }
-        }
-        return Rarity.COMMON;
     }
 
     private static Component createTierDescription(int tier) {

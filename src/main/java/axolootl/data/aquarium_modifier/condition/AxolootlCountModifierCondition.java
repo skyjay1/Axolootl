@@ -10,13 +10,14 @@ import axolootl.AxRegistry;
 import axolootl.entity.IAxolootl;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
+import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -27,28 +28,28 @@ import java.util.Optional;
 public class AxolootlCountModifierCondition extends ModifierCondition {
 
     public static final Codec<AxolootlCountModifierCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            AxolootlVariant.HOLDER_SET_CODEC.optionalFieldOf("variants").forGetter(AxolootlCountModifierCondition::getVariant),
-            IntProvider.NON_NEGATIVE_CODEC.fieldOf("count").forGetter(AxolootlCountModifierCondition::getCount)
+            AxolootlVariant.HOLDER_SET_CODEC.optionalFieldOf("variant").forGetter(AxolootlCountModifierCondition::getVariant),
+            AxCodecUtils.NON_NEGATIVE_INTS_CODEC.fieldOf("count").forGetter(AxolootlCountModifierCondition::getCount)
     ).apply(instance, AxolootlCountModifierCondition::new));
 
     @Nullable
     private final HolderSet<AxolootlVariant> variant;
-    private final IntProvider count;
+    private final MinMaxBounds.Ints count;
     private final List<Component> description;
 
-    public AxolootlCountModifierCondition(Optional<HolderSet<AxolootlVariant>> variant, IntProvider count) {
+    public AxolootlCountModifierCondition(Optional<HolderSet<AxolootlVariant>> variant, MinMaxBounds.Ints count) {
         this.variant = variant.orElse(null);
         this.count = count;
         if(variant.isPresent()) {
             this.description = createCountedDescription("axolootl.modifier_condition.axolootl_count", count, variant.get(), AxolootlVariant::getDescription);
-        } else if(count.getMinValue() == count.getMaxValue() && count.getMaxValue() == 1) {
+        } else if(count.getMin() != null && count.getMax() != null && count.getMin().equals(count.getMax()) && count.getMin() == 1) {
             this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.axolootl_count.any.single", createIntDescription(count)));
         } else {
             this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.axolootl_count.any.multiple", createIntDescription(count)));
         }
     }
 
-    public IntProvider getCount() {
+    public MinMaxBounds.Ints getCount() {
         return count;
     }
 
@@ -71,7 +72,7 @@ public class AxolootlCountModifierCondition extends ModifierCondition {
             count = context.getAxolootls().size();
         }
         // verify count is within range
-        return count >= getCount().getMinValue() && count <= getCount().getMaxValue();
+        return getCount().matches(count);
     }
 
     @Override
@@ -86,6 +87,6 @@ public class AxolootlCountModifierCondition extends ModifierCondition {
 
     @Override
     public String toString() {
-        return "axolootl_count {count=(" + getCount().getMinValue() + "," + getCount().getMaxValue() + ") variant=" + getVariant().toString() + "}";
+        return "axolootl_count {count=(" + Optional.ofNullable(getCount().getMin()) + "," + Optional.ofNullable(getCount().getMax()) + ") variant=" + getVariant().toString() + "}";
     }
 }

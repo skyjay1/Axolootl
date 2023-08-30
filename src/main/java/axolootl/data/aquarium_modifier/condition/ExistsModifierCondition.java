@@ -10,8 +10,8 @@ import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.HolderSet;
-import net.minecraft.util.valueproviders.UniformInt;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -24,7 +24,7 @@ public class ExistsModifierCondition extends CountModifierCondition {
     ).apply(instance, ExistsModifierCondition::new));
 
     public ExistsModifierCondition(HolderSet<AquariumModifier> modifiers, boolean requireActive) {
-        super(modifiers, UniformInt.of(1, Integer.MAX_VALUE), requireActive);
+        super(modifiers, MinMaxBounds.Ints.atLeast(1), requireActive);
     }
 
     @Override

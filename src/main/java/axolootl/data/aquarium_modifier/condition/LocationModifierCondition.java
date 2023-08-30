@@ -8,8 +8,9 @@ package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
-import axolootl.util.MatchingStatePredicate;
+import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
@@ -17,72 +18,54 @@ import net.minecraft.advancements.critereon.FluidPredicate;
 import net.minecraft.advancements.critereon.LightPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 
 @Immutable
 public class LocationModifierCondition extends ModifierCondition {
 
-    public static final Codec<MinMaxBounds.Ints> INTS_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.optionalFieldOf("min").forGetter(o -> o.getMin().describeConstable()),
-            Codec.INT.optionalFieldOf("max").forGetter(o -> o.getMax().describeConstable())
-    ).apply(instance, (p1, p2) -> {
-        if(p1.isPresent() && p2.isEmpty()) return MinMaxBounds.Ints.atLeast(p1.get());
-        if(p1.isEmpty() && p2.isPresent()) return MinMaxBounds.Ints.atMost(p2.get());
-        if(p1.isEmpty() && p2.isEmpty()) return MinMaxBounds.Ints.ANY;
-        return MinMaxBounds.Ints.between(p1.get(), p2.get());
-    }));
-
-    public static final Codec<LightPredicate> LIGHT_PREDICATE_CODEC = INTS_CODEC.xmap(composite -> new LightPredicate.Builder().setComposite(composite).build(), o -> o.composite);
-
-    public static final Codec<FluidPredicate> FLUID_PREDICATE_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            TagKey.codec(ForgeRegistries.Keys.FLUIDS).optionalFieldOf("tag").forGetter(o -> Optional.ofNullable(o.tag)),
-            ForgeRegistries.FLUIDS.getCodec().optionalFieldOf("fluid").forGetter(o -> Optional.ofNullable(o.fluid)),
-            // TODO state properties predicate is only partly supported
-            MatchingStatePredicate.STATE_PROPERTIES_PREDICATE_CODEC.optionalFieldOf("state").forGetter(o -> Optional.of(o.properties))
-    ).apply(instance, (tag, fluid, state) -> {
-        final FluidPredicate.Builder builder = FluidPredicate.Builder.fluid();
-        tag.ifPresent(builder::of);
-        fluid.ifPresent(builder::of);
-        state.ifPresent(builder::setProperties);
-        return builder.build();
-    }));
-
     public static final Codec<LocationModifierCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             DoublesPosition.CODEC.optionalFieldOf("position", DoublesPosition.ANY).forGetter(LocationModifierCondition::getPosition),
             Vec3i.CODEC.optionalFieldOf("offset", Vec3i.ZERO).forGetter(LocationModifierCondition::getOffset),
-            ResourceKey.codec(Registry.BIOME_REGISTRY).optionalFieldOf("biome").forGetter(LocationModifierCondition::getBiome),
-            ResourceKey.codec(Registry.STRUCTURE_REGISTRY).optionalFieldOf("structure").forGetter(LocationModifierCondition::getStructure),
-            ResourceKey.codec(Registry.DIMENSION_REGISTRY).optionalFieldOf("dimension").forGetter(LocationModifierCondition::getDimension),
+            RegistryCodecs.homogeneousList(Registry.BIOME_REGISTRY).optionalFieldOf("biome").forGetter(LocationModifierCondition::getBiome),
+            RegistryCodecs.homogeneousList(Registry.STRUCTURE_REGISTRY).optionalFieldOf("structure").forGetter(LocationModifierCondition::getStructure),
+            RegistryCodecs.homogeneousList(Registry.DIMENSION_REGISTRY).optionalFieldOf("dimension").forGetter(LocationModifierCondition::getDimension),
             Codec.BOOL.optionalFieldOf("smokey").forGetter(LocationModifierCondition::getSmokey),
-            LIGHT_PREDICATE_CODEC.optionalFieldOf("light", LightPredicate.ANY).forGetter(LocationModifierCondition::getLight),
-            FLUID_PREDICATE_CODEC.optionalFieldOf("fluid", FluidPredicate.ANY).forGetter(LocationModifierCondition::getFluid),
+            AxCodecUtils.LIGHT_PREDICATE_CODEC.optionalFieldOf("light", LightPredicate.ANY).forGetter(LocationModifierCondition::getLight),
+            AxCodecUtils.FLUID_PREDICATE_CODEC.optionalFieldOf("fluid", FluidPredicate.ANY).forGetter(LocationModifierCondition::getFluid),
             BlockPredicate.CODEC.optionalFieldOf("block", BlockPredicate.alwaysTrue()).forGetter(LocationModifierCondition::getBlock)
     ).apply(instance, LocationModifierCondition::new));
 
     private final DoublesPosition position;
     private final Vec3i offset;
     @Nullable
-    private final ResourceKey<Biome> biome;
+    private final HolderSet<Biome> biome;
     @Nullable
-    private final ResourceKey<Structure> structure;
+    private final HolderSet<Structure> structure;
     @Nullable
-    private final ResourceKey<Level> dimension;
+    private final HolderSet<Level> dimension;
     @Nullable
     private final Boolean smokey;
     private final LightPredicate light;
@@ -92,8 +75,8 @@ public class LocationModifierCondition extends ModifierCondition {
     private final List<Component> description;
 
     public LocationModifierCondition(DoublesPosition position, Vec3i offset,
-                                     Optional<ResourceKey<Biome>> biome, Optional<ResourceKey<Structure>> structure,
-                                     Optional<ResourceKey<Level>> dimension, Optional<Boolean> smokey,
+                                     Optional<HolderSet<Biome>> biome, Optional<HolderSet<Structure>> structure,
+                                     Optional<HolderSet<Level>> dimension, Optional<Boolean> smokey,
                                      LightPredicate light, FluidPredicate fluid, BlockPredicate block) {
         this.position = position;
         this.offset = offset;
@@ -115,16 +98,19 @@ public class LocationModifierCondition extends ModifierCondition {
             builder.addAll(this.position.getDescription());
         }
         // biome
-        if(this.biome != null) {
-            builder.add(Component.translatable("axolootl.modifier_condition.location.biome", Component.literal(this.biome.location().toString()).withStyle(ChatFormatting.GRAY)));
+        if(this.biome != null && this.biome.size() > 0) {
+            Component text = createOrHolderSetDescription(this.biome, o -> Component.literal(o.toString()).withStyle(ChatFormatting.GRAY));
+            builder.add(Component.translatable("axolootl.modifier_condition.location.biome", text));
         }
         // structure
-        if(this.structure != null) {
-            builder.add(Component.translatable("axolootl.modifier_condition.location.structure", Component.literal(this.structure.location().toString()).withStyle(ChatFormatting.GRAY)));
+        if(this.structure != null && this.structure.size() > 0) {
+            Component text = createOrHolderSetDescription(this.structure, o -> Component.literal(o.toString()).withStyle(ChatFormatting.GRAY));
+            builder.add(Component.translatable("axolootl.modifier_condition.location.structure", text));
         }
         // dimension
-        if(this.dimension != null) {
-            builder.add(Component.translatable("axolootl.modifier_condition.location.dimension", Component.literal(this.dimension.location().toString()).withStyle(ChatFormatting.GRAY)));
+        if(this.dimension != null && this.dimension.size() > 0) {
+            Component text = createOrHolderSetDescription(this.dimension, o -> Component.literal(o.dimension().location().toString()).withStyle(ChatFormatting.GRAY));
+            builder.add(Component.translatable("axolootl.modifier_condition.location.dimension", text));
         }
         // smokey
         if(this.smokey != null) {
@@ -139,34 +125,36 @@ public class LocationModifierCondition extends ModifierCondition {
 
 
     @Override
-    public boolean test(AquariumModifierContext aquariumModifierContext) {
-        final BlockPos blockpos = aquariumModifierContext.getPos().offset(offset);
-        final ServerLevel level = (ServerLevel) aquariumModifierContext.getLevel();
+    public boolean test(AquariumModifierContext context) {
+        final BlockPos blockpos = context.getPos().offset(offset);
+        final ServerLevel level = (ServerLevel) context.getLevel();
         // validate position
-        if (!getPosition().x.matches(blockpos.getX())) {
+        if (!position.x.matches(blockpos.getX())) {
             return false;
         }
-        if (!getPosition().y.matches(blockpos.getY())) {
+        if (!position.y.matches(blockpos.getY())) {
             return false;
         }
-        if (!getPosition().z.matches(blockpos.getZ())) {
+        if (!position.z.matches(blockpos.getZ())) {
             return false;
         }
         // validate dimension
-        if (this.dimension != null && this.dimension != level.dimension()) {
+        final Registry<Level> levelRegistry = context.getRegistryAccess().registryOrThrow(Registry.DIMENSION_REGISTRY);
+        final Holder<Level> dimensionHolder = levelRegistry.getHolderOrThrow(level.dimension());
+        if (this.dimension != null && this.dimension.size() > 0 && !this.dimension.contains(dimensionHolder)) {
             return false;
         }
-        // verify loaded
+        // verify area is loaded
         boolean isLoaded = level.isLoaded(blockpos);
         if(!isLoaded) {
             return false;
         }
         // validate biome
-        if(this.biome != null && !level.getBiome(blockpos).is(this.biome)) {
+        if(this.biome != null && this.biome.size() > 0 && !this.biome.contains(level.getBiome(blockpos))) {
             return false;
         }
         // validate structure
-        if(this.structure != null && !level.structureManager().getStructureWithPieceAt(blockpos, this.structure).isValid()) {
+        if(this.structure != null && !hasAnyStructure(context.getRegistryAccess(), this.structure, level.structureManager().getAllStructuresAt(blockpos).keySet())) {
             return false;
         }
         // validate light
@@ -181,6 +169,10 @@ public class LocationModifierCondition extends ModifierCondition {
         if(!getFluid().matches(level, blockpos)) {
             return false;
         }
+        // validate smokey
+        if(smokey != null && smokey != CampfireBlock.isSmokeyPos(level, blockpos)) {
+            return false;
+        }
         // all checks passed
         return true;
     }
@@ -193,6 +185,40 @@ public class LocationModifierCondition extends ModifierCondition {
     @Override
     public List<Component> getDescription() {
         return description;
+    }
+
+    private static boolean hasAnyStructure(final RegistryAccess registryAccess, final HolderSet<Structure> holderSet, final Set<Structure> structures) {
+        final Registry<Structure> registry = registryAccess.registryOrThrow(Registry.STRUCTURE_REGISTRY);
+        for(Structure structure : structures) {
+            // load resource key
+            Optional<ResourceKey<Structure>> resourceKey = registry.getResourceKey(structure);
+            if(resourceKey.isEmpty()) continue;
+            // load structure holder
+            Holder<Structure> holder = registry.getOrCreateHolderOrThrow(resourceKey.get());
+            // check if holder is in holder set
+            if (holderSet.contains(holder)) {
+                return true;
+            }
+        }
+        // all checks failed
+        return false;
+    }
+
+    private static <T> Component createOrHolderSetDescription(final HolderSet<T> holderSet, final Function<T, Component> toText) {
+        final List<Component> dimensionText = createHolderSetDescription(holderSet, toText);
+        final MutableComponent text = Component.empty();
+        final Component orText = Component.translatable("axolootl.modifier_condition.location.or");
+        // add each component followed by the word "or"
+        for(Component entry : dimensionText) {
+            text.append(entry).append(" ").append(orText).append(" ");
+        }
+        // remove trailing or
+        if(text.getSiblings().size() > 2) {
+            text.getSiblings().remove(text.getSiblings().size() - 1);
+            text.getSiblings().remove(text.getSiblings().size() - 2);
+            text.getSiblings().remove(text.getSiblings().size() - 3);
+        }
+        return text;
     }
 
     private static Component createLightDescription(final MinMaxBounds.Ints bounds) {
@@ -222,15 +248,15 @@ public class LocationModifierCondition extends ModifierCondition {
         return new Vec3i(offset.getX(), offset.getY(), offset.getZ());
     }
 
-    public Optional<ResourceKey<Biome>> getBiome() {
+    public Optional<HolderSet<Biome>> getBiome() {
         return Optional.ofNullable(biome);
     }
 
-    public Optional<ResourceKey<Structure>> getStructure() {
+    public Optional<HolderSet<Structure>> getStructure() {
         return Optional.ofNullable(structure);
     }
 
-    public Optional<ResourceKey<Level>> getDimension() {
+    public Optional<HolderSet<Level>> getDimension() {
         return Optional.ofNullable(dimension);
     }
 
@@ -252,9 +278,12 @@ public class LocationModifierCondition extends ModifierCondition {
 
     //// UTILITY CLASSES ////
 
+    /**
+     * Contains information about X, Y, and Z {@link MinMaxBounds.Doubles}
+     **/
     public static final class DoublesPosition {
 
-        public static final Codec<MinMaxBounds.Doubles> DOUBLES_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        public static final Codec<MinMaxBounds.Doubles> DOUBLES_DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.DOUBLE.optionalFieldOf("min").forGetter(o -> o.getMin().describeConstable()),
                 Codec.DOUBLE.optionalFieldOf("max").forGetter(o -> o.getMax().describeConstable())
         ).apply(instance, (p1, p2) -> {
@@ -263,6 +292,10 @@ public class LocationModifierCondition extends ModifierCondition {
             if(p1.isEmpty() && p2.isEmpty()) return MinMaxBounds.Doubles.ANY;
             return MinMaxBounds.Doubles.between(p1.get(), p2.get());
         }));
+
+        public static final Codec<MinMaxBounds.Doubles> DOUBLES_CODEC = Codec.either(Codec.DOUBLE, DOUBLES_DIRECT_CODEC)
+                .xmap(either -> either.map(MinMaxBounds.Doubles::exactly, Function.identity()),
+                        o -> (o.getMin() != null && o.getMax() != null && o.getMin().equals(o.getMax())) ? Either.left(o.getMin()) : Either.right(o));
 
         public static final Codec<DoublesPosition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 DOUBLES_CODEC.optionalFieldOf("x").forGetter(o -> Optional.of(o.x)),

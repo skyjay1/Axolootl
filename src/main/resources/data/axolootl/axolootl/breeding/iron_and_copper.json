@@ -1,10 +1,5 @@
 {
   "first": "axolootl:iron",
   "second": "axolootl:copper",
-  "result": [
-    {
-      "data": "axolootl:silver",
-      "weight": 1
-    }
-  ]
+  "result": "axolootl:silver"
 }

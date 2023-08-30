@@ -1,10 +1,5 @@
 {
   "first": "axolootl:gravel",
   "second": "axolootl:gravel",
-  "result": [
-    {
-      "data": "axolootl:sand",
-      "weight": 1
-    }
-  ]
+  "result": "axolootl:sand"
 }

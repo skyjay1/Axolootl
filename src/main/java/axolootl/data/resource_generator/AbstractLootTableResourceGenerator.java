@@ -18,6 +18,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
 
@@ -84,7 +85,7 @@ public abstract class AbstractLootTableResourceGenerator extends ResourceGenerat
 
         protected static final Codec<AbstractLootTableResourceGenerator.Wrapper> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 ResourceLocation.CODEC.fieldOf("id").forGetter(Wrapper::getId),
-                AxCodecUtils.ITEM_OR_STACK_CODEC.optionalFieldOf("display", ItemStack.EMPTY).forGetter(Wrapper::getDisplay)
+                AxCodecUtils.ITEM_OR_STACK_CODEC.optionalFieldOf("display", new ItemStack(Items.STONE_SWORD)).forGetter(Wrapper::getDisplay)
         ).apply(instance, AbstractLootTableResourceGenerator.Wrapper::new));
 
         protected static final Codec<AbstractLootTableResourceGenerator.Wrapper> CODEC = Codec.either(ResourceLocation.CODEC, DIRECT_CODEC)

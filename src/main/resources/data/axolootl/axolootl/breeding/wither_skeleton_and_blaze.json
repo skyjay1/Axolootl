@@ -1,10 +1,5 @@
 {
   "first": "axolootl:wither_skeleton",
   "second": "axolootl:blaze",
-  "result": [
-    {
-      "data": "axolootl:wither",
-      "weight": 1
-    }
-  ]
+  "result": "axolootl:wither"
 }

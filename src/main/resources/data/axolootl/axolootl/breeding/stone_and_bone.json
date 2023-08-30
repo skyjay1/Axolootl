@@ -1,10 +1,5 @@
 {
   "first": "axolootl:stone",
   "second": "axolootl:bone",
-  "result": [
-    {
-      "data": "axolootl:coal",
-      "weight": 1
-    }
-  ]
+  "result": "axolootl:coal"
 }

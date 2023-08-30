@@ -1,10 +1,5 @@
 {
   "first": "axolootl:redstone",
   "second": "axolootl:glowstone",
-  "result": [
-    {
-      "data": "axolootl:emerald",
-      "weight": 1
-    }
-  ]
+  "result": "axolootl:emerald"
 }

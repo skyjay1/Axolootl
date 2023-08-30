@@ -92,6 +92,7 @@ import axolootl.menu.CyclingMenu;
 import axolootl.util.ControllerTabSorter;
 import axolootl.util.MatchingStatePredicate;
 import com.google.common.collect.ImmutableList;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -632,6 +633,8 @@ public final class AxRegistry {
     public static final class AquariumModifiersReg {
 
         private static final Set<TagKey<AquariumModifier>> MANDATORY_AQUARIUM_MODIFIERS = new HashSet<>();
+        private static final Set<TagKey<AquariumModifier>> MANDATORY_AQUARIUM_MODIFIERS_VIEW = Collections.unmodifiableSet(MANDATORY_AQUARIUM_MODIFIERS);
+        private static final String MANDATORY_PREFIX = "mandatory";
 
         public static void register() {
             AQUARIUM_MODIFIERS.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -639,12 +642,15 @@ public final class AxRegistry {
 
         public static Set<TagKey<AquariumModifier>> getMandatoryAquariumModifiers(final RegistryAccess registryAccess) {
             if(MANDATORY_AQUARIUM_MODIFIERS.isEmpty()) {
-                // attempt to load mandatory aquarium modifiers
-                for(AquariumModifier entry : AquariumModifier.getRegistry(registryAccess)) {
-                    entry.getSettings().getCategory().ifPresent(tagKey -> MANDATORY_AQUARIUM_MODIFIERS.add(tagKey));
-                }
+                // collect all aquarium modifiers that are in the mandatory folder
+                MANDATORY_AQUARIUM_MODIFIERS.addAll(
+                        AquariumModifier.getRegistry(registryAccess).getTags()
+                                .filter(pair -> pair.getFirst().location().getPath().startsWith(MANDATORY_PREFIX + "/") && pair.getSecond().size() > 0)
+                                .map(Pair::getFirst)
+                                .toList()
+                );
             }
-            return MANDATORY_AQUARIUM_MODIFIERS;
+            return MANDATORY_AQUARIUM_MODIFIERS_VIEW;
         }
     }
 

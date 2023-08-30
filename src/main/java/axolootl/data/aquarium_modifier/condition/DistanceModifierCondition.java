@@ -9,33 +9,35 @@ package axolootl.data.aquarium_modifier.condition;
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
+import axolootl.util.AxCodecUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Immutable
 public class DistanceModifierCondition extends ModifierCondition {
 
     public static final Codec<DistanceModifierCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             AquariumModifier.HOLDER_SET_CODEC.fieldOf("modifier").forGetter(DistanceModifierCondition::getModifier),
-            IntProvider.NON_NEGATIVE_CODEC.fieldOf("distance").forGetter(DistanceModifierCondition::getDistance),
+            AxCodecUtils.NON_NEGATIVE_INTS_CODEC.fieldOf("distance").forGetter(DistanceModifierCondition::getDistance),
             Vec3i.CODEC.optionalFieldOf("offset", Vec3i.ZERO).forGetter(DistanceModifierCondition::getOffset)
     ).apply(instance, DistanceModifierCondition::new));
 
     private final HolderSet<AquariumModifier> modifier;
-    private final IntProvider distance;
+    private final MinMaxBounds.Ints distance;
     private final Vec3i offset;
     private final List<Component> description;
 
-    public DistanceModifierCondition(HolderSet<AquariumModifier> modifier, IntProvider distance, Vec3i offset) {
+    public DistanceModifierCondition(HolderSet<AquariumModifier> modifier, MinMaxBounds.Ints distance, Vec3i offset) {
         this.modifier = modifier;
         this.distance = distance;
         this.offset = offset;
@@ -46,7 +48,7 @@ public class DistanceModifierCondition extends ModifierCondition {
         return modifier;
     }
 
-    public IntProvider getDistance() {
+    public MinMaxBounds.Ints getDistance() {
         return distance;
     }
 
@@ -62,7 +64,7 @@ public class DistanceModifierCondition extends ModifierCondition {
             if(getModifier().contains(entry.getValue().getHolder(context.getRegistryAccess()))) {
                 final int manhattanDistance = pos.distManhattan(entry.getKey());
                 // verify distance is within range
-                if(manhattanDistance >= getDistance().getMinValue() && manhattanDistance <= getDistance().getMaxValue()) {
+                if(getDistance().matches(manhattanDistance)) {
                     return true;
                 }
             }
@@ -82,6 +84,6 @@ public class DistanceModifierCondition extends ModifierCondition {
 
     @Override
     public String toString() {
-        return "distance {distance=(" + getDistance().getMinValue() + "," + getDistance().getMaxValue() + ") modifier=" + getModifier() + "}";
+        return "distance {distance=(" + Optional.ofNullable(getDistance().getMin()) + "," + Optional.ofNullable(getDistance().getMax()) + ") modifier=" + getModifier() + "}";
     }
 }

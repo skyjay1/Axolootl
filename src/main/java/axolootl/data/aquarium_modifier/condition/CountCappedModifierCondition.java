@@ -11,15 +11,15 @@ import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
-import net.minecraft.util.valueproviders.IntProvider;
-import net.minecraft.util.valueproviders.UniformInt;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * checks if the number of modifiers N is less than some value.
@@ -30,17 +30,24 @@ import java.util.Map;
 public class CountCappedModifierCondition extends CountModifierCondition {
 
     public static final Codec<CountCappedModifierCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            AquariumModifier.HOLDER_SET_CODEC.fieldOf("modifier").forGetter(CountModifierCondition::getModifiers),
-            IntProvider.NON_NEGATIVE_CODEC.fieldOf("count").forGetter(CountModifierCondition::getCount),
-            Codec.BOOL.optionalFieldOf("active", false).forGetter(CountModifierCondition::isRequireActive)
+            AquariumModifier.HOLDER_SET_CODEC.fieldOf("modifier").forGetter(CountCappedModifierCondition::getModifiers),
+            Codec.intRange(0, Integer.MAX_VALUE).fieldOf("count").forGetter(CountCappedModifierCondition::getMaxCount),
+            Codec.BOOL.optionalFieldOf("active", false).forGetter(CountCappedModifierCondition::isRequireActive)
     ).apply(instance, CountCappedModifierCondition::new));
 
+    private final int maxCount;
+
     public CountCappedModifierCondition(CountModifierCondition copy) {
-        this(copy.getModifiers(), copy.getCount(), copy.isRequireActive());
+        this(copy.getModifiers(), Optional.ofNullable(copy.getCount().getMax()).orElse(Optional.ofNullable(copy.getCount().getMin()).orElse(0)), copy.isRequireActive());
     }
 
-    public CountCappedModifierCondition(HolderSet<AquariumModifier> modifierId, IntProvider count, boolean requireActive) {
-        super(modifierId, UniformInt.of(Integer.MIN_VALUE, count.getMaxValue()), requireActive);
+    public CountCappedModifierCondition(HolderSet<AquariumModifier> modifierId, final int count, boolean requireActive) {
+        super(modifierId, MinMaxBounds.Ints.atMost(count), requireActive);
+        this.maxCount = count;
+    }
+
+    public int getMaxCount() {
+        return this.maxCount;
     }
 
     @Override
@@ -54,11 +61,11 @@ public class CountCappedModifierCondition extends CountModifierCondition {
             }
         }
         // check if count is within range
-        if(modifiers.size() < getCount().getMaxValue()) {
+        if(modifiers.size() < getMaxCount()) {
             return true;
         }
         // check if blockpos is small enough
-        return sortedIndexOf(modifiers, pos) < getCount().getMaxValue();
+        return sortedIndexOf(modifiers, pos) < getMaxCount();
     }
 
     private void insertSorted(final List<BlockPos> list, final BlockPos pos) {
@@ -84,6 +91,6 @@ public class CountCappedModifierCondition extends CountModifierCondition {
 
     @Override
     public String toString() {
-        return "count_capped {count=(" + getCount().getMinValue() + "," + getCount().getMaxValue() + ") modifier=" + getModifiers() + "}";
+        return "count_capped {count=(" + getMaxCount() + ") modifier=" + getModifiers() + "}";
     }
 }

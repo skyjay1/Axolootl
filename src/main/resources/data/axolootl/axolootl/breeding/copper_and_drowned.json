@@ -1,10 +1,5 @@
 {
   "first": "axolootl:copper",
   "second": "axolootl:drowned",
-  "result": [
-    {
-      "data": "axolootl:prismarine",
-      "weight": 1
-    }
-  ]
+  "result": "axolootl:prismarine"
 }

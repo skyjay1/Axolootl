@@ -7,14 +7,14 @@
 package axolootl.data.breeding_modifier;
 
 import axolootl.data.axolootl_variant.AxolootlVariant;
+import axolootl.util.AxCodecUtils;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.random.Weight;
 import net.minecraft.util.random.WeightedEntry;
-import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -27,7 +27,7 @@ public class WeightedEntryPredicate implements Predicate<WeightedEntry.Wrapper<H
 
     public static final Codec<WeightedEntryPredicate> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.optionalFieldOf("variant").forGetter(o -> Optional.ofNullable(o.variantId)),
-            IntProvider.CODEC.optionalFieldOf("weight").forGetter(o -> Optional.ofNullable(o.weight))
+            AxCodecUtils.POSITIVE_INTS_CODEC.optionalFieldOf("weight").forGetter(o -> Optional.ofNullable(o.weight))
     ).apply(instance, WeightedEntryPredicate::new));
 
     /**
@@ -44,9 +44,9 @@ public class WeightedEntryPredicate implements Predicate<WeightedEntry.Wrapper<H
     @Nullable
     private final String path;
     @Nullable
-    private final IntProvider weight;
+    private final MinMaxBounds.Ints weight;
 
-    private WeightedEntryPredicate(Optional<String> variantId, Optional<IntProvider> weight) {
+    private WeightedEntryPredicate(Optional<String> variantId, Optional<MinMaxBounds.Ints> weight) {
         this.variantId = variantId.orElse(null);
         this.weight = weight.orElse(null);
         if (variantId.isPresent()) {
@@ -78,11 +78,7 @@ public class WeightedEntryPredicate implements Predicate<WeightedEntry.Wrapper<H
         boolean matches;
         matches = (null == namespace) || id.getNamespace().equals(namespace);
         matches &= (null == path) || id.getPath().equals(path);
-        matches &= (null == weight) || isInRangeInclusive(entry.getWeight(), weight);
+        matches &= (null == weight) || this.weight.matches(entry.getWeight().asInt());
         return matches;
-    }
-
-    private static boolean isInRangeInclusive(final Weight weight, final IntProvider range) {
-        return weight.asInt() >= range.getMinValue() && weight.asInt() <= range.getMaxValue();
     }
 }

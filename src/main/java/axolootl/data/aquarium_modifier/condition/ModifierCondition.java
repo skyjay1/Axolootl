@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
@@ -53,18 +54,21 @@ public abstract class ModifierCondition implements Predicate<AquariumModifierCon
      * @param intProvider an int provider
      * @return a component describing the given int provider
      */
-    protected static Component createIntDescription(final IntProvider intProvider) {
+    protected static Component createIntDescription(final MinMaxBounds.Ints intProvider) {
         final String prefix = "axolootl.modifier_condition.int.";
-        if(intProvider.getMaxValue() == intProvider.getMinValue()) {
-            return Component.translatable(prefix + "exact", intProvider.getMaxValue());
+        if(intProvider.getMin() != null && intProvider.getMax() != null && intProvider.getMin().equals(intProvider.getMax())) {
+            return Component.translatable(prefix + "exact", intProvider.getMax());
         }
-        if(intProvider.getMinValue() == Integer.MIN_VALUE) {
-            return Component.translatable(prefix + "max", intProvider.getMaxValue());
+        if(intProvider.getMin() != null && intProvider.getMax() != null && (intProvider.getMin() > 0) && (intProvider.getMax() < Integer.MAX_VALUE)) {
+            return Component.translatable(prefix + "range", intProvider.getMin(), intProvider.getMax());
         }
-        if(intProvider.getMaxValue() == Integer.MAX_VALUE) {
-            return Component.translatable(prefix + "min", intProvider.getMinValue());
+        if(intProvider.getMin() != null) {
+            return Component.translatable(prefix + "max", intProvider.getMax());
         }
-        return Component.translatable(prefix + "range", intProvider.getMinValue(), intProvider.getMaxValue());
+        if(intProvider.getMax() != null) {
+            return Component.translatable(prefix + "min", intProvider.getMin());
+        }
+        return Component.empty();
     }
 
     /**
@@ -99,7 +103,7 @@ public abstract class ModifierCondition implements Predicate<AquariumModifierCon
         return list;
     }
 
-    protected static <T> List<Component> createCountedDescription(final String key, final IntProvider count, final HolderSet<T> holderSet, final Function<T, Component> toText) {
+    protected static <T> List<Component> createCountedDescription(final String key, final MinMaxBounds.Ints count, final HolderSet<T> holderSet, final Function<T, Component> toText) {
         final List<Component> descriptionList = createHolderSetDescription(holderSet, toText);
         // create description for single elements
         if(descriptionList.size() == 1) {

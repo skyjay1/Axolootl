@@ -1,10 +1,5 @@
 {
   "first": "axolootl:obsidian",
   "second": "axolootl:diamond",
-  "result": [
-    {
-      "data": "axolootl:uranium",
-      "weight": 1
-    }
-  ]
+  "result": "axolootl:uranium"
 }

@@ -17,9 +17,7 @@
     },
     {
       "weight": 6,
-      "data": {
-        "type": "axolootl:empty"
-      }
+      "data": "axolootl:empty"
     }
   ]
 }

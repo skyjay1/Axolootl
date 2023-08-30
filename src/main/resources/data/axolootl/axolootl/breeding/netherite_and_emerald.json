@@ -1,10 +1,5 @@
 {
   "first": "axolootl:netherite",
   "second": "axolootl:emerald",
-  "result": [
-    {
-      "data": "axolootl:totemic",
-      "weight": 1
-    }
-  ]
+  "result": "axolootl:totemic"
 }

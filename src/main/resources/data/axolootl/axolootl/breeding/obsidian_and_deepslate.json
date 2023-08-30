@@ -1,10 +1,5 @@
 {
   "first": "axolootl:obsidian",
   "second": "axolootl:deepslate",
-  "result": [
-    {
-      "data": "axolootl:sculk",
-      "weight": 1
-    }
-  ]
+  "result": "axolootl:sculk"
 }

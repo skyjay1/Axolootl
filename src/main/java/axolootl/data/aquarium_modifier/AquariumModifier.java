@@ -41,13 +41,13 @@ import java.util.Optional;
 
 public class AquariumModifier {
 
-    public static final AquariumModifier EMPTY = new AquariumModifier("empty", ModifierSettings.EMPTY, new Vec3i(1, 1, 1), List.of(), FalseModifierCondition.INSTANCE);
+    public static final AquariumModifier EMPTY = new AquariumModifier("empty", ModifierSettings.EMPTY, new Vec3i(1, 1, 1), BlockPredicate.not(BlockPredicate.alwaysTrue()), FalseModifierCondition.INSTANCE);
 
     public static final Codec<AquariumModifier> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("translation_key").forGetter(AquariumModifier::getTranslationKey),
             ModifierSettings.CODEC.fieldOf("settings").forGetter(AquariumModifier::getSettings),
-            ModifierSettings.POSITIVE_VEC3I_CODEC.optionalFieldOf("dimensions", new Vec3i(1, 1, 1)).forGetter(AquariumModifier::getDimensions),
-            AxCodecUtils.BLOCK_PREDICATE_LIST_CODEC.optionalFieldOf("block", ImmutableList.of(BlockPredicate.not(BlockPredicate.alwaysTrue()))).forGetter(AquariumModifier::getBlockStatePredicate),
+            AxCodecUtils.POSITIVE_VEC3I_CODEC.optionalFieldOf("dimensions", new Vec3i(1, 1, 1)).forGetter(AquariumModifier::getDimensions),
+            AxCodecUtils.BLOCK_PREDICATE_CODEC.optionalFieldOf("block", BlockPredicate.not(BlockPredicate.alwaysTrue())).forGetter(AquariumModifier::getBlockStatePredicate),
             ModifierCondition.DIRECT_CODEC.optionalFieldOf("condition", TrueModifierCondition.INSTANCE).forGetter(AquariumModifier::getCondition)
     ).apply(instance, AquariumModifier::new));
 
@@ -60,8 +60,8 @@ public class AquariumModifier {
     private final ModifierSettings settings;
     /** The width, length, and height of the modifier in the world, used for multiblocks **/
     private final Vec3i dimensions;
-    /** The width, length, and height of the modifier in the world, used for multiblocks **/
-    private final List<BlockPredicate> blockStatePredicate;
+    /** The predicate to determine which block states are valid candidates for this aquarium modifier **/
+    private final BlockPredicate blockStatePredicate;
     /** The condition to check each generation cycle to determine if the modifier is active **/
     private final ModifierCondition condition;
 
@@ -69,11 +69,11 @@ public class AquariumModifier {
     private Component description;
     private Holder<AquariumModifier> holder;
 
-    public AquariumModifier(String translationKey, ModifierSettings settings, Vec3i dimensions, List<BlockPredicate> blockStatePredicate, ModifierCondition condition) {
+    public AquariumModifier(String translationKey, ModifierSettings settings, Vec3i dimensions, BlockPredicate blockStatePredicate, ModifierCondition condition) {
         this.translationKey = translationKey;
         this.settings = settings;
         this.dimensions = dimensions;
-        this.blockStatePredicate = ImmutableList.copyOf(blockStatePredicate);
+        this.blockStatePredicate = blockStatePredicate;
         this.condition = condition;
     }
 
@@ -126,12 +126,7 @@ public class AquariumModifier {
      * @return true if the block at the given position is applicable to this modifier
      */
     public boolean isApplicable(final ServerLevel level, final BlockPos pos) {
-        for(BlockPredicate predicate : blockStatePredicate) {
-            if(predicate.test(level, pos)) {
-                return true;
-            }
-        }
-        return false;
+        return blockStatePredicate.test(level, pos);
     }
 
     /**
@@ -233,7 +228,7 @@ public class AquariumModifier {
         return new Vec3i(dimensions.getX(), dimensions.getY(), dimensions.getZ());
     }
 
-    public List<BlockPredicate> getBlockStatePredicate() {
+    public BlockPredicate getBlockStatePredicate() {
         return blockStatePredicate;
     }
 

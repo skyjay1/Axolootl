@@ -6,6 +6,7 @@
 
 package axolootl.data.axolootl_variant;
 
+import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -29,10 +30,8 @@ public class BonusesProvider {
             .add(new BonusesProvider(new HolderSet.Named<>(Registry.ITEM, ItemTags.FISHES), new Bonuses(0.02)))
             .build();
 
-    private static final Codec<HolderSet<Item>> ITEM_HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(ForgeRegistries.Keys.ITEMS);
-
     public static final Codec<BonusesProvider> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ITEM_HOLDER_SET_CODEC.fieldOf("item").forGetter(BonusesProvider::getFoods),
+            AxCodecUtils.ITEM_HOLDER_SET_CODEC.fieldOf("item").forGetter(BonusesProvider::getFoods),
             Bonuses.CODEC.optionalFieldOf("bonus", Bonuses.EMPTY).forGetter(BonusesProvider::getBonuses)
     ).apply(instance, BonusesProvider::new));
 

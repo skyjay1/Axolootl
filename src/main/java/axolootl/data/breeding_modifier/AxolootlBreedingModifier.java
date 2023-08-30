@@ -28,7 +28,6 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.function.Function;
 
-// TODO test to make sure ADD and REMOVE work as expected
 @Immutable
 public abstract class AxolootlBreedingModifier {
 

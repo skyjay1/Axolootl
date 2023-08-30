@@ -1,10 +1,5 @@
 {
   "first": "axolootl:sculk",
   "second": "axolootl:lapis",
-  "result": [
-    {
-      "data": "axolootl:warden",
-      "weight": 1
-    }
-  ]
+  "result": "axolootl:warden"
 }

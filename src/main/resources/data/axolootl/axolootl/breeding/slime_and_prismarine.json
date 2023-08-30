@@ -1,10 +1,5 @@
 {
   "first": "axolootl:slime",
   "second": "axolootl:prismarine",
-  "result": [
-    {
-      "data": "axolootl:guardian",
-      "weight": 1
-    }
-  ]
+  "result": "axolootl:guardian"
 }

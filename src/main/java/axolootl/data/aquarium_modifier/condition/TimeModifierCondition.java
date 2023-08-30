@@ -8,12 +8,13 @@ package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
+import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.valueproviders.IntProvider;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -25,21 +26,23 @@ public class TimeModifierCondition extends ModifierCondition {
 
     public static final Codec<TimeModifierCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.LONG.optionalFieldOf("period").forGetter(TimeModifierCondition::getPeriod),
-            IntProvider.NON_NEGATIVE_CODEC.fieldOf("range").forGetter(TimeModifierCondition::getRange)
+            AxCodecUtils.NON_NEGATIVE_INTS_CODEC.fieldOf("range").forGetter(TimeModifierCondition::getRange)
     ).apply(instance, TimeModifierCondition::new));
 
     @Nullable
     private final Long period;
-    private final IntProvider range;
+    private final MinMaxBounds.Ints range;
     private final List<Component> description;
 
-    public TimeModifierCondition(Optional<Long> period, IntProvider range) {
+    public TimeModifierCondition(Optional<Long> period, MinMaxBounds.Ints range) {
         this.period = period.orElse(null);
         this.range = range;
+        int min = Optional.ofNullable(range.getMin()).orElse(0);
+        int max = Optional.ofNullable(range.getMax()).orElse(0);
         if(period.isPresent()) {
-            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.time.period", range.getMinValue(), range.getMaxValue(), period.get()));
+            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.time.period", min, max, period.get()));
         } else {
-            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.time", range.getMinValue(), range.getMaxValue()));
+            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.time", min, max));
         }
     }
 
@@ -47,7 +50,7 @@ public class TimeModifierCondition extends ModifierCondition {
         return Optional.ofNullable(period);
     }
 
-    public IntProvider getRange() {
+    public MinMaxBounds.Ints getRange() {
         return range;
     }
 
@@ -58,7 +61,7 @@ public class TimeModifierCondition extends ModifierCondition {
         if (this.period != null) {
             i %= this.period;
         }
-        return i >= this.range.getMinValue() && i <= this.range.getMaxValue();
+        return this.getRange().matches((int) i);
 
     }
 
@@ -74,6 +77,6 @@ public class TimeModifierCondition extends ModifierCondition {
 
     @Override
     public String toString() {
-        return "time {range=(" + getRange().getMinValue() + "," + getRange().getMaxValue() + ") period=" + Optional.ofNullable(getPeriod()) + "}";
+        return "time {range=(" + Optional.ofNullable(getRange().getMin()) + "," + Optional.ofNullable(getRange().getMax()) + ") period=" + Optional.ofNullable(getPeriod()) + "}";
     }
 }

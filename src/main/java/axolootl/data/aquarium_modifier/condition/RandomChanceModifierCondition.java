@@ -18,7 +18,7 @@ import java.util.List;
 @Immutable
 public class RandomChanceModifierCondition extends ModifierCondition {
 
-    public static final Codec<RandomChanceModifierCondition> CODEC = Codec.DOUBLE
+    public static final Codec<RandomChanceModifierCondition> CODEC = Codec.doubleRange(0.0D, 1.0D)
             .xmap(RandomChanceModifierCondition::new, RandomChanceModifierCondition::getChance).fieldOf("chance").codec();
 
     private final double chance;

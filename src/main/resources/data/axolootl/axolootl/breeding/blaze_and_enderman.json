@@ -1,10 +1,5 @@
 {
   "first": "axolootl:blaze",
   "second": "axolootl:enderman",
-  "result": [
-    {
-      "data": "axolootl:ender_dragon",
-      "weight": 1
-    }
-  ]
+  "result": "axolootl:ender_dragon"
 }

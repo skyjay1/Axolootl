@@ -6,6 +6,7 @@
 
 package axolootl.client.menu;
 
+import axolootl.AxRegistry;
 import axolootl.Axolootl;
 import axolootl.block.entity.ControllerBlockEntity;
 import axolootl.client.menu.widget.ComponentButton;
@@ -196,6 +197,13 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             tankStatusTooltip.append("\n").append(Component.translatable(PREFIX + "status.seconds_remaining.generate_resources", sTimeRemaining).withStyle(ChatFormatting.GRAY));
         } else {
             tankStatusTooltip.withStyle(ChatFormatting.RED);
+        }
+        // add mandatory modifier information
+        if(tankStatus == TankStatus.MISSING_MODIFIERS) {
+            tankStatusTooltip.append("\n").append(Component.translatable(PREFIX + "mandatory_modifiers").withStyle(ChatFormatting.RESET));
+            for(TagKey<AquariumModifier> tagKey : AxRegistry.AquariumModifiersReg.getMandatoryAquariumModifiers(getMinecraft().level.registryAccess())) {
+                tankStatusTooltip.append("\n").append(Component.literal("#" + tagKey.location().toString()).withStyle(ChatFormatting.GRAY));
+            }
         }
         tankStatusText = Component.translatable(PREFIX + "tank_status", tankStatus.getDescription(), Math.round(controller.getGenerationSpeed() * 100.0D))
                 .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tankStatusTooltip)));

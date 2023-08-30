@@ -9,6 +9,7 @@ package axolootl.data.breeding_modifier;
 import axolootl.AxRegistry;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.breeding.AxolootlBreeding;
+import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -23,7 +24,7 @@ import java.util.List;
 public class AddAxolootlBreedingModifier extends AxolootlBreedingModifier {
 
     public static final Codec<AddAxolootlBreedingModifier> CODEC = RecordCodecBuilder.create(instance -> codecStart(instance)
-            .and(WeightedEntry.Wrapper.codec(AxolootlVariant.HOLDER_CODEC).listOf().fieldOf("values").forGetter(AddAxolootlBreedingModifier::getValues))
+            .and(AxCodecUtils.listOrElementCodec(WeightedEntry.Wrapper.codec(AxolootlVariant.HOLDER_CODEC)).fieldOf("values").forGetter(AddAxolootlBreedingModifier::getValues))
             .apply(instance, AddAxolootlBreedingModifier::new));
 
     private final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> values;
