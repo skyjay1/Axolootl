@@ -5,7 +5,10 @@
       "weight": 9,
       "data": {
         "type": "axolootl:mob",
-        "loot_table": "minecraft:entities/enderman"
+        "loot_table": {
+          "id": "minecraft:entities/enderman",
+          "display": "minecraft:ender_pearl"
+        }
       }
     },
     {

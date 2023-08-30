@@ -62,10 +62,10 @@ public abstract class ModifierCondition implements Predicate<AquariumModifierCon
         if(intProvider.getMin() != null && intProvider.getMax() != null && (intProvider.getMin() > 0) && (intProvider.getMax() < Integer.MAX_VALUE)) {
             return Component.translatable(prefix + "range", intProvider.getMin(), intProvider.getMax());
         }
-        if(intProvider.getMin() != null) {
+        if(intProvider.getMax() != null) {
             return Component.translatable(prefix + "max", intProvider.getMax());
         }
-        if(intProvider.getMax() != null) {
+        if(intProvider.getMin() != null) {
             return Component.translatable(prefix + "min", intProvider.getMin());
         }
         return Component.empty();

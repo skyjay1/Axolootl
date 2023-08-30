@@ -8,6 +8,7 @@
     "primary_texture": "axolootl:axolootl_primary",
     "secondary_texture": "axolootl:axolootl_secondary"
   },
+  "food": [],
   "breed_food": [
     "minecraft:cod",
     "minecraft:cooked_cod",
