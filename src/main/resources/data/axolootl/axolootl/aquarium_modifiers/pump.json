@@ -3,12 +3,11 @@
   "settings": {
     "generation": 0.2
   },
-  "dimensions": [ 1, 2, 1 ],
   "block": {
     "type": "axolootl:matching_state",
     "blocks": "axolootl:pump",
     "state": {
-      "half": "lower"
+      "waterlogged": true
     }
   },
   "condition": {

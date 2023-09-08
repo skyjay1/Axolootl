@@ -1,0 +1,18 @@
+{
+  "translation_key": "block.minecraft.conduit",
+  "settings": {
+    "generation": 0.4
+  },
+  "block": {
+    "type": "axolootl:matching_state",
+    "blocks": "minecraft:conduit",
+    "state": {
+      "waterlogged": true
+    }
+  },
+  "condition": {
+    "type": "axolootl:count_capped",
+    "modifier": "axolootl:conduit",
+    "count": 1
+  }
+}

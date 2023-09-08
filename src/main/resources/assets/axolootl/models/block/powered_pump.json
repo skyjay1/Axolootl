@@ -1,0 +1,9 @@
+{
+  "parent": "axolootl:block/pump",
+  "textures": {
+    "side": "axolootl:block/pump_side",
+    "back": "axolootl:block/powered_pump_back",
+    "front": "axolootl:block/powered_pump_front",
+    "particle": "#front"
+  }
+}

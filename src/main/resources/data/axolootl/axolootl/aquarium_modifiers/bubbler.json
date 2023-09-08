@@ -5,8 +5,11 @@
     "enable_mob_generators": true
   },
   "block": {
-    "type": "minecraft:matching_blocks",
-    "blocks": "axolootl:bubbler"
+    "type": "axolootl:matching_state",
+    "blocks": "axolootl:bubbler",
+    "state": {
+      "waterlogged": true
+    }
   },
   "condition": {
     "type": "axolootl:and",

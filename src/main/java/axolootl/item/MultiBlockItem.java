@@ -6,32 +6,23 @@
 
 package axolootl.item;
 
-import axolootl.Axolootl;
 import axolootl.block.WaterloggedHorizontalMultiBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
 
 public class MultiBlockItem extends BlockItem {
 
-    private static final RegistryObject<Item> GRAND_CASTLE_ITEM = RegistryObject.create(new ResourceLocation(Axolootl.MODID, "grand_castle"), ForgeRegistries.ITEMS);
-
     public MultiBlockItem(Block pBlock, Properties pProperties) {
         super(pBlock, pProperties);
     }
 
+    @Override
     @Nullable
     public BlockPlaceContext updatePlacementContext(BlockPlaceContext pContext) {
         final BlockPos blockpos = pContext.getClickedPos();
@@ -46,21 +37,5 @@ public class MultiBlockItem extends BlockItem {
     @Override
     protected boolean mustSurvive() {
         return false;
-    }
-
-    @Override
-    public boolean isEnchantable(ItemStack pStack) {
-        if(pStack.is(GRAND_CASTLE_ITEM.get())) {
-            return true;
-        }
-        return super.isEnchantable(pStack);
-    }
-
-    @Override
-    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
-        if(stack.is(GRAND_CASTLE_ITEM.get()) && enchantment == Enchantments.FISHING_LUCK) {
-            return true;
-        }
-        return super.canApplyAtEnchantingTable(stack, enchantment);
     }
 }

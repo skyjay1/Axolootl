@@ -20,6 +20,7 @@ import axolootl.block.FilledAquariumFloorBlock;
 import axolootl.block.GrandCastleBlock;
 import axolootl.block.MonsteriumBlock;
 import axolootl.block.OutputBlock;
+import axolootl.block.PumpBlock;
 import axolootl.block.WaterInterfaceBlock;
 import axolootl.block.WaterloggedHorizontalBlock;
 import axolootl.block.WaterloggedHorizontalDoubleBlock;
@@ -83,6 +84,7 @@ import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.data.resource_generator.SelectResourceGenerator;
 import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
+import axolootl.item.GrandCastleMultiBlockItem;
 import axolootl.item.MultiBlockItem;
 import axolootl.menu.AxolootlInspectorMenu;
 import axolootl.menu.AxolootlInterfaceMenu;
@@ -91,6 +93,7 @@ import axolootl.menu.CyclingContainerMenu;
 import axolootl.menu.CyclingMenu;
 import axolootl.util.ControllerTabSorter;
 import axolootl.util.MatchingStatePredicate;
+import axolootl.util.NbtPredicate;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
@@ -355,16 +358,16 @@ public final class AxRegistry {
         public static final RegistryObject<Block> AQUARIUM_OUTPUT = registerWithItem("aquarium_output", () -> new OutputBlock(3, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> LARGE_AQUARIUM_OUTPUT = registerWithItem("large_aquarium_output", () -> new OutputBlock(6, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().sound(SoundType.GLASS).noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).isSuffocating(BlockReg::never).isViewBlocking(BlockReg::never).strength(3.5F, 8.0F)));
         public static final RegistryObject<Block> AQUARIUM_AIRLOCK = registerWithItem("aquarium_airlock", () -> new AquariumAirlockBlock(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().isSuffocating((s, l, p) -> false).requiresCorrectToolForDrops().strength(3.5F, 6.0F)));
-        public static final RegistryObject<Block> BUBBLER = registerWithItem("bubbler", () -> new BubblerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> POWERED_BUBBLER = registerWithItem("powered_bubbler", () -> new BubblerBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> PUMP = registerWithItem("pump", () -> new WaterloggedHorizontalDoubleBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> POWERED_PUMP = registerWithItem("powered_pump", () -> new WaterloggedHorizontalDoubleBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> BUBBLER = registerWithItem("bubbler", () -> new BubblerBlock(BlockBehaviour.Properties.of(Material.METAL)/*.randomTicks()*/.requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> POWERED_BUBBLER = registerWithItem("powered_bubbler", () -> new BubblerBlock(BlockBehaviour.Properties.of(Material.METAL)/*.randomTicks()*/.requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> PUMP = registerWithItem("pump", () -> new PumpBlock(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> POWERED_PUMP = registerWithItem("powered_pump", () -> new PumpBlock(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> BREEDER = registerWithItem("breeder", () -> new BreederBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> NURSERY = registerWithItem("nursery", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> MONSTERIUM = registerWithItem("monsterium", () -> new MonsteriumBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().noOcclusion().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).strength(3.5F)));
         public static final RegistryObject<Block> AUTOFEEDER = registerWithItem("autofeeder", () -> new AutofeederBlock(BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> CASTLE = registerWithItem("castle", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F, 5.0F)));
-        public static final RegistryObject<Block> GRAND_CASTLE = registerWithMultiBlockItem("grand_castle", () -> new GrandCastleBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 20.0F)));
+        public static final RegistryObject<Block> GRAND_CASTLE = registerWithGrandCastleMultiBlockItem("grand_castle", () -> new GrandCastleBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 20.0F)));
         public static final RegistryObject<Block> BASTION = registerWithMultiBlockItem("bastion", () -> new WaterloggedHorizontalMultiBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 60.0F)));
         public static final RegistryObject<Block> PRISTINE_BASTION = registerWithMultiBlockItem("pristine_bastion", () -> new WaterloggedHorizontalMultiBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 60.0F)));
         // TODO end city and end ship blocks
@@ -381,6 +384,10 @@ public final class AxRegistry {
 
         private static RegistryObject<Block> registerWithMultiBlockItem(final String name, final Supplier<Block> supplier) {
             return registerWithItem(name, supplier, block -> ItemReg.register(block.getId().getPath(), () -> new MultiBlockItem(block.get(), new Item.Properties().stacksTo(1).tab(ItemReg.TAB))));
+        }
+
+        private static RegistryObject<Block> registerWithGrandCastleMultiBlockItem(final String name, final Supplier<Block> supplier) {
+            return registerWithItem(name, supplier, block -> ItemReg.register(block.getId().getPath(), () -> new GrandCastleMultiBlockItem(block.get(), new Item.Properties().stacksTo(1).tab(ItemReg.TAB))));
         }
 
         private static boolean never(final BlockState blockState, final BlockGetter blockGetter, final BlockPos blockPos, final EntityType<?> entityType) {
@@ -565,6 +572,7 @@ public final class AxRegistry {
         }
 
         public static final RegistryObject<BlockPredicateType<MatchingStatePredicate>> MATCHING_PROPERTY = BLOCK_PREDICATE_TYPES.register("matching_state", () -> () -> MatchingStatePredicate.CODEC);
+        public static final RegistryObject<BlockPredicateType<NbtPredicate>> TAG = BLOCK_PREDICATE_TYPES.register("matching_tag", () -> () -> NbtPredicate.CODEC);
 
     }
 

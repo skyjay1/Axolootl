@@ -4,12 +4,11 @@
     "generation": 0.5,
     "energy_cost": 80
   },
-  "dimensions": [ 1, 2, 1 ],
   "block": {
     "type": "axolootl:matching_state",
     "blocks": "axolootl:powered_pump",
     "state": {
-      "half": "lower"
+      "waterlogged": true
     }
   },
   "condition": {

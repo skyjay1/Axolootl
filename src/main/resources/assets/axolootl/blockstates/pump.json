@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=east": { "model": "axolootl:block/pump", "y": 90 },
+    "facing=north": { "model": "axolootl:block/pump" },
+    "facing=south": { "model": "axolootl:block/pump", "y": 180 },
+    "facing=west": { "model": "axolootl:block/pump", "y": 270 }
+  }
+}

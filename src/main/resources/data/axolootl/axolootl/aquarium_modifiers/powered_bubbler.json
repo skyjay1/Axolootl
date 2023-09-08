@@ -6,8 +6,11 @@
     "energy_cost": 20
   },
   "block": {
-    "type": "minecraft:matching_blocks",
-    "blocks": "axolootl:powered_bubbler"
+    "type": "axolootl:matching_state",
+    "blocks": "axolootl:powered_bubbler",
+    "state": {
+      "waterlogged": true
+    }
   },
   "condition": {
     "type": "axolootl:count_capped",

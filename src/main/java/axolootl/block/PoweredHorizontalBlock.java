@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
-public class PoweredHorizontalBlock extends HorizontalDirectionalBlock implements SimpleWaterloggedBlock {
+public class PoweredHorizontalBlock extends HorizontalDirectionalBlock {
 
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
