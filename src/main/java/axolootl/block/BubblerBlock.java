@@ -42,6 +42,7 @@ public class BubblerBlock extends Block implements SimpleWaterloggedBlock {
 
     public BubblerBlock(Properties pProperties) {
         super(pProperties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
     }
 
     //// METHODS ////

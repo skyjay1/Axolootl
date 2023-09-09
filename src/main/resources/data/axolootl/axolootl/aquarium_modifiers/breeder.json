@@ -4,8 +4,11 @@
     "breed": 0.8
   },
   "block": {
-    "type": "minecraft:matching_blocks",
-    "blocks": "axolootl:breeder"
+    "type": "axolootl:matching_state",
+    "blocks": "axolootl:breeder",
+    "state": {
+      "waterlogged": "true"
+    }
   },
   "condition": {
     "type": "axolootl:count_capped",

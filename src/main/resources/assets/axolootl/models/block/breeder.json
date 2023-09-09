@@ -1,6 +1,9 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/orientable",
   "textures": {
-    "all": "axolootl:block/breeder"
+    "front": "axolootl:block/breeder_front",
+    "side": "axolootl:block/breeder_side",
+    "bottom": "axolootl:block/breeder_top_bottom",
+    "top": "axolootl:block/breeder_top_bottom"
   }
 }

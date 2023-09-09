@@ -61,9 +61,12 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
 
     @Override
     public void setController(final Level level, final BlockPos pos, final ControllerBlockEntity blockEntity) {
+        boolean isChanged = this.controllerPos != pos || this.controller != blockEntity;
         this.controllerPos = pos;
         this.controller = blockEntity;
-        this.setChanged();
+        if(isChanged) {
+            this.setChanged();
+        }
     }
 
     @Override
@@ -243,6 +246,7 @@ public abstract class InterfaceBlockEntity extends BlockEntity implements Contai
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        inventory.clear();
         ContainerHelper.loadAllItems(tag, inventory);
         controllerPos = readControllerPos(tag);
     }

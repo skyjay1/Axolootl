@@ -8,7 +8,7 @@
     "type": "axolootl:matching_state",
     "blocks": "axolootl:powered_pump",
     "state": {
-      "waterlogged": true
+      "waterlogged": "true"
     }
   },
   "condition": {

@@ -9,6 +9,7 @@ package axolootl.client;
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
 import axolootl.block.GrandCastleBlock;
+import axolootl.client.blockentity.AutofeederBlockEntityRenderer;
 import axolootl.client.entity.AxolootlGeoRenderer;
 import axolootl.client.item.AxolootlBucketItemSettings;
 import axolootl.client.menu.AxolootlInspectorScreen;
@@ -77,6 +78,7 @@ public final class ClientEvents {
         @SubscribeEvent
         public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(AxRegistry.EntityReg.AXOLOOTL.get(), AxolootlGeoRenderer::new);
+            event.registerBlockEntityRenderer(AxRegistry.BlockEntityReg.AUTO_FEEDER.get(), AutofeederBlockEntityRenderer::new);
         }
 
         @SubscribeEvent

@@ -7,7 +7,7 @@
     "type": "axolootl:matching_state",
     "blocks": "minecraft:conduit",
     "state": {
-      "waterlogged": true
+      "waterlogged": "true"
     }
   },
   "condition": {

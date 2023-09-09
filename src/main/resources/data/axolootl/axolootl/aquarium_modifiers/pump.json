@@ -7,7 +7,7 @@
     "type": "axolootl:matching_state",
     "blocks": "axolootl:pump",
     "state": {
-      "waterlogged": true
+      "waterlogged": "true"
     }
   },
   "condition": {

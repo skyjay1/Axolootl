@@ -1303,10 +1303,6 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
      * @return the BreedStatus
      */
     private BreedStatus updateBreedStatus(ServerLevel level, final Map<BlockPos, AquariumModifier> activeModifiers) {
-        // check insufficient resources
-        if(isBreedInputEmpty()) {
-            return BreedStatus.MISSING_RESOURCES;
-        }
         // determine breed settings
         double breedSpeed = BASE_BREED_SPEED;
         boolean mobBreeding = false;
@@ -1317,6 +1313,10 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
         // TODO check breed paused
         // check breed speed
         if(breedSpeed > 0) {
+            // check insufficient resources
+            if(isBreedInputEmpty()) {
+                return BreedStatus.MISSING_RESOURCES;
+            }
             // check capacity
             if(this.trackedAxolootls.size() >= calculateMaxCapacity(this.size)) {
                 return BreedStatus.MAX_COUNT;

@@ -4,12 +4,27 @@
     "breed": 0.2
   },
   "block": {
-    "type": "minecraft:matching_blocks",
-    "blocks": "axolootl:nursery"
+    "type": "axolootl:matching_state",
+    "blocks": "axolootl:nursery",
+    "state": {
+      "waterlogged": "true"
+    }
   },
   "condition": {
-    "type": "axolootl:count_capped",
-    "modifier": "axolootl:nursery",
-    "count": 1
+    "type": "axolootl:and",
+    "children": [
+      {
+        "type": "axolootl:count",
+        "modifier": "axolootl:breeder",
+        "count": {
+          "min": 1
+        }
+      },
+      {
+        "type": "axolootl:count_capped",
+        "modifier": "axolootl:nursery",
+        "count": 1
+      }
+    ]
   }
 }

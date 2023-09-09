@@ -56,9 +56,12 @@ public class EnergyInterfaceBlockEntity extends BlockEntity implements IAquarium
 
     @Override
     public void setController(final Level level, final BlockPos pos, final ControllerBlockEntity blockEntity) {
+        boolean isChanged = this.controllerPos != pos || this.controller != blockEntity;
         this.controllerPos = pos;
         this.controller = blockEntity;
-        this.setChanged();
+        if(isChanged) {
+            this.setChanged();
+        }
     }
 
     @Override

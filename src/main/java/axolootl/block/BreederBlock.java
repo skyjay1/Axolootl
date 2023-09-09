@@ -8,6 +8,7 @@ package axolootl.block;
 
 import axolootl.AxRegistry;
 import axolootl.block.entity.BreederBlockEntity;
+import axolootl.block.entity.InterfaceBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -52,6 +53,19 @@ public class BreederBlock extends WaterloggedHorizontalBlock implements EntityBl
                 NetworkHooks.openScreen(serverPlayer, blockEntity, AxRegistry.MenuReg.writeControllerMenu(controllerPos, pPos, AxRegistry.AquariumTabsReg.FOOD_INTERFACE.get().getSortedIndex(), -1));
             }
             return InteractionResult.CONSUME;
+        }
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.is(newState.getBlock())) {
+            // drop items
+            if(!level.isClientSide() && level.getBlockEntity(pos) instanceof InterfaceBlockEntity blockEntity) {
+                blockEntity.dropAllItems();
+            }
+            // update neighbors
+            level.updateNeighbourForOutputSignal(pos, this);
+            super.onRemove(state, level, pos, newState, isMoving);
         }
     }
 

@@ -1,5 +1,8 @@
 {
   "variants": {
-    "": { "model": "axolootl:block/breeder" }
+    "facing=east": { "model": "axolootl:block/breeder", "y": 90 },
+    "facing=north": { "model": "axolootl:block/breeder" },
+    "facing=south": { "model": "axolootl:block/breeder", "y": 180 },
+    "facing=west": { "model": "axolootl:block/breeder", "y": 270 }
   }
 }

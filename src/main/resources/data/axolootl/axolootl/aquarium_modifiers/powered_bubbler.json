@@ -9,7 +9,7 @@
     "type": "axolootl:matching_state",
     "blocks": "axolootl:powered_bubbler",
     "state": {
-      "waterlogged": true
+      "waterlogged": "true"
     }
   },
   "condition": {
