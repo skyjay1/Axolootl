@@ -4,12 +4,27 @@
     "enable_mob_breeding": true
   },
   "block": {
-    "type": "minecraft:matching_blocks",
-    "blocks": "axolootl:monsterium"
+    "type": "axolootl:matching_state",
+    "blocks": "axolootl:monsterium",
+    "state": {
+      "waterlogged": "true"
+    }
   },
   "condition": {
-    "type": "axolootl:count_capped",
-    "modifier": "axolootl:monsterium",
-    "count": 1
+    "type": "axolootl:and",
+    "children": [
+      {
+        "type": "axolootl:count",
+        "modifier": "axolootl:breeder",
+        "count": {
+          "min": 1
+        }
+      },
+      {
+        "type": "axolootl:count_capped",
+        "modifier": "axolootl:monsterium",
+        "count": 1
+      }
+    ]
   }
 }

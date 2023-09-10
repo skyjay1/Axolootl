@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#B#",
+    "#H#"
+  ],
+  "key": {
+    "#": { "tag": "forge:dusts/prismarine" },
+    "B": { "item": "minecraft:bucket" },
+    "H": { "item": "minecraft:hopper" }
+  },
+  "result": {
+    "item": "axolootl:autofeeder"
+  }
+}

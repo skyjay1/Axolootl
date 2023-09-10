@@ -1,12 +1,8 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {
-      "item": "minecraft:axolotl_bucket"
-    },
-    {
-      "item": "minecraft:chest"
-    }
+    { "item": "minecraft:axolotl_bucket" },
+    { "item": "minecraft:chest" }
   ],
   "result": {
     "item": "axolootl:axolootl_bucket",

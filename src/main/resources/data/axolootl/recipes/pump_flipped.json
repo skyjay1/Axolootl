@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#I#",
+    "ISI",
+    "#I#"
+  ],
+  "key": {
+    "#": { "tag": "forge:dusts/prismarine" },
+    "I": { "tag": "forge:ingots/iron" },
+    "S": { "item": "minecraft:sponge" }
+  },
+  "result": {
+    "item": "axolootl:pump"
+  }
+}

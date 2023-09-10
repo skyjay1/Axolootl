@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#.#"
+  ],
+  "key": {
+    "#": { "item": "minecraft:iron_door" },
+    ".": { "item": "axolootl:aquarium_glass" }
+  },
+  "result": {
+    "item": "axolootl:aquarium_airlock"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "C#C",
+    "#G#",
+    "C#C"
+  ],
+  "key": {
+    "#": { "item": "axolootl:castle" },
+    "C": { "item": "axolootl:castle_rampart" },
+    "G": { "tag": "forge:storage_blocks/gold" }
+  },
+  "result": {
+    "item": "axolootl:grand_castle"
+  }
+}

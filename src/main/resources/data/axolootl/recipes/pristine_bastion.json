@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "B#B",
+    "#G#",
+    "B#B"
+  ],
+  "key": {
+    "#": { "item": "minecraft:gilded_blackstone" },
+    "B": { "item": "axolootl:bastion" },
+    "G": { "tag": "forge:storage_blocks/gold" }
+  },
+  "result": {
+    "item": "axolootl:pristine_bastion"
+  }
+}

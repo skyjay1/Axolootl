@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#I#",
+    "#C#",
+    "#I#"
+  ],
+  "key": {
+    "#": { "tag": "forge:dusts/prismarine" },
+    "I": { "item": "minecraft:iron_bars" },
+    "C": { "tag": "forge:carpets/wool" }
+  },
+  "result": {
+    "item": "axolootl:nursery"
+  }
+}

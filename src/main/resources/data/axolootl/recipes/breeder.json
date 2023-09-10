@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "SFS",
+    "###"
+  ],
+  "key": {
+    "#": { "tag": "forge:dusts/prismarine" },
+    "F": { "item": "minecraft:tropical_fish" },
+    "S": { "item": "minecraft:sugar" }
+  },
+  "result": {
+    "item": "axolootl:breeder"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "axolootl:castle_rampart" },
+    { "item": "axolootl:castle_rampart" }
+  ],
+  "result": {
+    "item": "axolootl:castle"
+  }
+}

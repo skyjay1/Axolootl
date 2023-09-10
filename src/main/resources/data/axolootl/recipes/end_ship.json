@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#S#",
+    "#E#"
+  ],
+  "key": {
+    "#": { "tag": "forge:purpur_blocks" },
+    "S": { "item": "minecraft:shulker_shell" },
+    "E": { "item": "axolootl:end_city_rampart" }
+  },
+  "result": {
+    "item": "axolootl:end_ship"
+  }
+}

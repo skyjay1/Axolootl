@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#W#",
+    "#H#",
+    "###"
+  ],
+  "key": {
+    "#": { "item": "axolootl:aquarium_glass" },
+    "W": { "item": "minecraft:water_bucket" },
+    "H": { "item": "minecraft:hopper" }
+  },
+  "result": {
+    "item": "axolootl:aquarium_water_interface"
+  }
+}

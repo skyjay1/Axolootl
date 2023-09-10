@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "axolootl:bubbler" },
+    { "item": "minecraft:comparator" },
+    { "tag": "forge:storage_blocks/redstone" }
+  ],
+  "result": {
+    "item": "axolootl:powered_bubbler"
+  }
+}

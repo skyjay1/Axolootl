@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#.#",
+    "###"
+  ],
+  "key": {
+    "#": { "item": "axolootl:aquarium_glass" },
+    ".": { "item": "minecraft:comparator" }
+  },
+  "result": {
+    "item": "axolootl:aquarium_energy_interface"
+  }
+}

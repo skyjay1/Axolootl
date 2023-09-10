@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#.#",
+    "#.#"
+  ],
+  "key": {
+    "#": { "item": "axolootl:aquarium_glass" },
+    ".": { "item": "axolootl:aquarium_output" }
+  },
+  "result": {
+    "item": "axolootl:large_aquarium_output"
+  }
+}
