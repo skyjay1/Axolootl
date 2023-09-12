@@ -37,12 +37,12 @@ public class SelectResourceGenerator extends ResourceGenerator {
     private final Set<ResourceType> resourceTypes;
 
     public SelectResourceGenerator(final SimpleWeightedRandomList<Holder<ResourceGenerator>> list, final IntProvider rolls) {
-        super(ResourceType.MULTIPLE);
+        super(ResourceTypes.REFERENCE);
         this.children = list;
         this.rolls = rolls;
         // prepare to build resource type set
         final ImmutableSet.Builder<ResourceType> typeBuilder = ImmutableSet.builder();
-        typeBuilder.add(ResourceType.MULTIPLE);
+        typeBuilder.add(ResourceTypes.REFERENCE);
         list.unwrap().forEach(entry -> typeBuilder.addAll(entry.getData().value().getResourceTypes()));
         // build resource type set
         this.resourceTypes = typeBuilder.build();

@@ -13,6 +13,7 @@ import axolootl.data.axolootl_variant.condition.TrueForgeCondition;
 import axolootl.data.resource_generator.EmptyResourceGenerator;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.data.resource_generator.ResourceType;
+import axolootl.data.resource_generator.ResourceTypes;
 import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -152,7 +153,7 @@ public class AxolootlVariant {
     }
 
     public boolean hasMobResources() {
-        return hasResourceGeneratorOfType(ResourceType.MOB);
+        return hasResourceGeneratorOfType(ResourceTypes.MOB);
     }
 
     //// GETTERS ////

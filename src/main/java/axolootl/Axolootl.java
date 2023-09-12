@@ -7,6 +7,7 @@
 package axolootl;
 
 import axolootl.capability.AxolootlResearchCapability;
+import axolootl.data.resource_generator.ResourceTypes;
 import axolootl.network.AxNetwork;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
@@ -40,6 +41,8 @@ public class Axolootl {
     public Axolootl() {
         // register config
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CONFIG_SPEC);
+        // bootstraps
+        ResourceTypes.bootstrap();
         // register registry objects
         AxRegistry.register();
         // register network

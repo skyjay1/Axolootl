@@ -29,7 +29,7 @@ public class ItemTagResourceGenerator extends ResourceGenerator {
     private final TagKey<Item> tag;
 
     public ItemTagResourceGenerator(TagKey<Item> tag) {
-        super(ResourceType.ITEM);
+        super(ResourceTypes.ITEM);
         this.tag = tag;
     }
 

@@ -36,7 +36,7 @@ public abstract class AbstractLootTableResourceGenerator extends ResourceGenerat
     private final SimpleWeightedRandomList<AbstractLootTableResourceGenerator.Wrapper> list;
 
     public AbstractLootTableResourceGenerator(SimpleWeightedRandomList<AbstractLootTableResourceGenerator.Wrapper> list) {
-        super(ResourceType.MOB);
+        super(ResourceTypes.MOB);
         this.list = list;
     }
 

@@ -33,7 +33,7 @@ public class ItemResourceGenerator extends ResourceGenerator {
     private final SimpleWeightedRandomList<ItemStack> list;
 
     public ItemResourceGenerator(final SimpleWeightedRandomList<ItemStack> list) {
-        super(ResourceType.ITEM);
+        super(ResourceTypes.ITEM);
         this.list = list;
     }
 

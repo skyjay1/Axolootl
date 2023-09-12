@@ -184,12 +184,15 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + RESOURCE_DESCRIPTION_X + RESOURCE_DESCRIPTION_WIDTH + 1, topPos + RESOURCE_DESCRIPTION_Y + 2, 12, RESOURCE_DESCRIPTION_HEIGHT - 2, WIDGETS, 244, 0, 12, 15, 15, true,  (float) ResourceDescriptionGroupButton.getHeight(font) / (float) Math.max(1, resourceDescriptionHeight - RESOURCE_DESCRIPTION_HEIGHT), this));
         this.setFocused(this.scrollButton);
         this.scrollButton.active = this.resourceDescriptionHeight > RESOURCE_DESCRIPTION_HEIGHT;
-        // create on tooltip
+       // create on tooltip
         final Button.OnTooltip componentButtonOnTooltip = (b, p, mx, my) -> renderComponentHoverEffect(p, b.getMessage().getStyle(), mx, my);
         // prepare to add components
         int x = this.leftPos + DETAILS_X;
         int y = this.topPos + DETAILS_Y + (16 - font.lineHeight) / 2;
         int deltaY = DETAILS_LINE_SPACING + font.lineHeight;
+        // add item stack button
+        final Button.OnTooltip iconButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((ItemButton)b).getTooltips(), Optional.empty(), mx, my);
+        this.addRenderableWidget(new ItemButton(x, y + deltaY / 2, false, font, itemRenderer, this.itemStack, this::getTooltipFromItem, b -> {}, iconButtonOnTooltip));
         // add tier text
         this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x + 16 + 2, y, font.lineHeight, font, getTitle(), componentButtonOnTooltip)));
         y += deltaY;
@@ -258,17 +261,6 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         // render background texture
         RenderSystem.setShaderTexture(0, TEXTURE);
         blit(pPoseStack, this.leftPos, this.topPos, 0, 0, WIDTH, HEIGHT);
-        // render item
-        final int deltaY = DETAILS_LINE_SPACING + font.lineHeight;
-        final int x = this.leftPos + DETAILS_X;
-        final int y = this.topPos + DETAILS_Y + (font.lineHeight + deltaY - 16);
-        PoseStack modelViewStack = RenderSystem.getModelViewStack();
-        modelViewStack.pushPose();
-        modelViewStack.translate(x, y, 2_000);
-        RenderSystem.applyModelViewMatrix();
-        this.itemRenderer.renderAndDecorateItem(itemStack, 0, 0);
-        modelViewStack.popPose();
-        RenderSystem.applyModelViewMatrix();
         // render widgets
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
         // render resource descriptions

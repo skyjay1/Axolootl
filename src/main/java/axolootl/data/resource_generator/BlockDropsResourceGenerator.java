@@ -43,7 +43,7 @@ public class BlockDropsResourceGenerator extends ResourceGenerator {
     private final BlockStateProvider blockProvider;
 
     public BlockDropsResourceGenerator(ItemStack tool, BlockStateProvider blockProvider) {
-        super(ResourceType.BLOCK);
+        super(ResourceTypes.BLOCK);
         this.tool = tool;
         this.blockProvider = blockProvider;
     }

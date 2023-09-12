@@ -92,21 +92,12 @@ public abstract class AxolootlBreedingModifier {
         /** Catch-all for anything that needs to run after standard phases **/
         POST("post");
 
-        public static final Codec<Phase> CODEC = Codec.STRING.xmap(Phase::getByName, Phase::getSerializedName);
+        public static final StringRepresentable.EnumCodec<Phase> CODEC = StringRepresentable.fromEnum(Phase::values);
 
         private final String name;
 
         private Phase(String name) {
             this.name = name;
-        }
-
-        public static Phase getByName(final String name) {
-            for(Phase phase : values()) {
-                if(phase.getSerializedName().equals(name)) {
-                    return phase;
-                }
-            }
-            return PRE;
         }
 
         @Override

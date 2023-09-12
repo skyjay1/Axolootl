@@ -7,15 +7,8 @@
 package axolootl.util;
 
 import axolootl.Axolootl;
-import com.google.common.collect.ImmutableMap;
-import com.mojang.serialization.Codec;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public enum BreedStatus implements StringRepresentable {
     /** Breeding is enabled for all entities **/
@@ -33,10 +26,7 @@ public enum BreedStatus implements StringRepresentable {
     /** Breeding is not enabled **/
     INACTIVE("inactive", false);
 
-    public static final Map<String, BreedStatus> NAME_TO_TYPE_MAP = ImmutableMap.copyOf(Arrays.stream(values())
-            .collect(Collectors.<BreedStatus, String, BreedStatus>toMap(BreedStatus::getSerializedName, Function.identity())));
-
-    public static final Codec<BreedStatus> CODEC = Codec.STRING.xmap(BreedStatus::getByName, BreedStatus::getSerializedName);
+    public static final StringRepresentable.EnumCodec<BreedStatus> CODEC = StringRepresentable.fromEnum(BreedStatus::values);
 
     private final String name;
     private final boolean active;
@@ -50,10 +40,6 @@ public enum BreedStatus implements StringRepresentable {
         this.descriptionKey = Axolootl.MODID + ".breed_status." + name;
         this.description = Component.translatable(descriptionKey);
         this.descriptionSubtext = Component.translatable(descriptionKey + ".description");
-    }
-
-    public static BreedStatus getByName(final String name) {
-        return NAME_TO_TYPE_MAP.getOrDefault(name, INACTIVE);
     }
 
     public boolean isActive() {

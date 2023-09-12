@@ -14,6 +14,7 @@ import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.data.resource_generator.ResourceType;
+import axolootl.data.resource_generator.ResourceTypes;
 import axolootl.entity.IAxolootl;
 import axolootl.menu.ControllerMenu;
 import axolootl.util.BreedStatus;
@@ -151,12 +152,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
 
     // OTHER //
 
-    public final BiPredicate<BlockPos, AquariumModifier> foodInterfacePredicate = (p, a) -> (a.getSettings().isEnableMobBreeding() || a.getSettings().getBreedSpeed() > 0 || a.getSettings().getFeedSpeed() > 0) && this.getLevel().getBlockEntity(p) instanceof MenuProvider;
     public final BiPredicate<BlockPos, AquariumModifier> activePredicate = (p, o) -> this.activeAquariumModifiers.contains(p);
-    public final Predicate<IAxolootl> hasMobResourcePredicate = (a) -> {
-        final Optional<AxolootlVariant> oVariant = a.getAxolootlVariant(a.getEntity().level.registryAccess());
-        return oVariant.isPresent() && oVariant.get().hasMobResources();
-    };
 
     public ControllerBlockEntity(BlockPos pPos, BlockState pBlockState) {
         this(AxRegistry.BlockEntityReg.CONTROLLER.get(), pPos, pBlockState);
@@ -414,7 +410,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
             // load generator
             ResourceGenerator gen = oVariant.get().getResourceGenerator().value();
             // verify mob resources are enabled
-            if(gen.is(ResourceType.MOB) && !this.enableMobResources) {
+            if(gen.is(ResourceTypes.MOB) && !this.enableMobResources) {
                 continue;
             }
             // generate resources
@@ -1909,9 +1905,9 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
             setSize(null);
         }
         // read statuses
-        this.tankStatus = TankStatus.getByName(tag.getString(KEY_TANK_STATUS));
-        this.feedStatus = FeedStatus.getByName(tag.getString(KEY_FEED_STATUS));
-        this.breedStatus = BreedStatus.getByName(tag.getString(KEY_BREED_STATUS));
+        this.tankStatus = TankStatus.CODEC.byName(tag.getString(KEY_TANK_STATUS));
+        this.feedStatus = FeedStatus.CODEC.byName(tag.getString(KEY_FEED_STATUS));
+        this.breedStatus = BreedStatus.CODEC.byName(tag.getString(KEY_FEED_STATUS));
         // read speeds
         if(tag.contains(KEY_GENERATION_SPEED) && tag.contains(KEY_FEED_SPEED) && tag.contains(KEY_BREED_SPEED)) {
             this.generationSpeed = tag.getDouble(KEY_GENERATION_SPEED);

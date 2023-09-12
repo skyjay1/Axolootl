@@ -29,11 +29,11 @@ public class AndResourceGenerator extends ResourceGenerator {
     private final Set<ResourceType> resourceTypes;
 
     public AndResourceGenerator(final HolderSet<ResourceGenerator> list) {
-        super(ResourceType.MULTIPLE);
+        super(ResourceTypes.MULTIPLE);
         this.children = list;
         // prepare to build resource type set
         final ImmutableSet.Builder<ResourceType> typeBuilder = ImmutableSet.builder();
-        typeBuilder.add(ResourceType.MULTIPLE);
+        typeBuilder.add(ResourceTypes.MULTIPLE);
         list.forEach(entry -> typeBuilder.addAll(entry.value().getResourceTypes()));
         // build resource type set
         this.resourceTypes = typeBuilder.build();

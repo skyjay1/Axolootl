@@ -25,7 +25,7 @@ public class ReferenceResourceGenerator extends ResourceGenerator {
     private final Holder<ResourceGenerator> holder;
 
     public ReferenceResourceGenerator(Holder<ResourceGenerator> holder) {
-        super(ResourceType.OTHER);
+        super(ResourceTypes.REFERENCE);
         this.holder = holder;
     }
 

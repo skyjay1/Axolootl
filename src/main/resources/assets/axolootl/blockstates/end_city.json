@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=east": { "model": "axolootl:block/end_city", "y": 90 },
+    "facing=north": { "model": "axolootl:block/end_city" },
+    "facing=south": { "model": "axolootl:block/end_city", "y": 180 },
+    "facing=west": { "model": "axolootl:block/end_city", "y": 270 }
+  }
+}

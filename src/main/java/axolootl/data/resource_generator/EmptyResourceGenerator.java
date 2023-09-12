@@ -25,7 +25,7 @@ public class EmptyResourceGenerator extends ResourceGenerator {
     public static final Codec<EmptyResourceGenerator> CODEC = Codec.unit(INSTANCE);
 
     public EmptyResourceGenerator() {
-        super(ResourceType.EMPTY);
+        super(ResourceTypes.EMPTY);
     }
 
     @Override

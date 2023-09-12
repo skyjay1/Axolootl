@@ -7,15 +7,8 @@
 package axolootl.util;
 
 import axolootl.Axolootl;
-import com.google.common.collect.ImmutableMap;
-import com.mojang.serialization.Codec;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public enum FeedStatus implements StringRepresentable {
     /** Feeding is enabled and has sufficient resources **/
@@ -27,10 +20,7 @@ public enum FeedStatus implements StringRepresentable {
     /** Feeding is not enabled **/
     INACTIVE("inactive", false);
 
-    public static final Map<String, FeedStatus> NAME_TO_TYPE_MAP = ImmutableMap.copyOf(Arrays.stream(values())
-            .collect(Collectors.<FeedStatus, String, FeedStatus>toMap(FeedStatus::getSerializedName, Function.identity())));
-
-    public static final Codec<FeedStatus> CODEC = Codec.STRING.xmap(FeedStatus::getByName, FeedStatus::getSerializedName);
+    public static final StringRepresentable.EnumCodec<FeedStatus> CODEC = StringRepresentable.fromEnum(FeedStatus::values);
 
     private final String name;
     private final boolean active;
@@ -44,10 +34,6 @@ public enum FeedStatus implements StringRepresentable {
         this.descriptionKey = Axolootl.MODID + ".feed_status." + name;
         this.description = Component.translatable(descriptionKey);
         this.descriptionSubtext = Component.translatable(descriptionKey + ".description");
-    }
-
-    public static FeedStatus getByName(final String name) {
-        return NAME_TO_TYPE_MAP.getOrDefault(name, INACTIVE);
     }
 
     public boolean isActive() {
