@@ -225,7 +225,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             final String sTimeRemaining = String.format("%.1f", (double) breedTimeRemaining / 20.0D);
             breedStatusTooltip.append("\n").append(Component.translatable(PREFIX + "status.seconds_remaining.breed", sTimeRemaining).withStyle(ChatFormatting.GRAY));
         } else {
-            feedStatusTooltip.withStyle(ChatFormatting.RED);
+            breedStatusTooltip.withStyle(ChatFormatting.RED);
         }
         breedStatusText = Component.translatable(PREFIX + "breed_status", breedStatus.getDescription(), Math.round(controller.getBreedSpeed() * 100.0D))
                 .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, breedStatusTooltip)));

@@ -6,6 +6,8 @@
 
 package axolootl;
 
+import axolootl.block.AquariumGlassBlock;
+import axolootl.block.BlockConverter;
 import axolootl.command.AxolootlResearchCommand;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.axolootl_variant.AxolootlVariant;
@@ -15,8 +17,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.OnDatapackSyncEvent;
@@ -26,7 +30,11 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.server.ServerLifecycleHooks;
+
+import java.util.function.Supplier;
 
 public final class AxEvents {
 
@@ -75,6 +83,7 @@ public final class AxEvents {
         @SubscribeEvent
         public static void onCommonSetup(final FMLCommonSetupEvent event) {
             event.enqueueWork(ModHandler::registerDispenserBehavior);
+            event.enqueueWork(ModHandler::registerAquariumGlassConverters);
         }
 
         private static void registerDispenserBehavior() {
@@ -82,6 +91,20 @@ public final class AxEvents {
             if(axolotlBucketBehavior != null) {
                 DispenserBlock.registerBehavior(AxRegistry.ItemReg.AXOLOOTL_BUCKET.get(), axolotlBucketBehavior);
             }
+        }
+
+        private static void registerAquariumGlassConverters() {
+            registerAquariumGlassConverter(AxRegistry.BlockReg.AQUARIUM_CONTROLLER);
+            registerAquariumGlassConverter(AxRegistry.BlockReg.AQUARIUM_AXOLOOTL_INSPECTOR);
+            registerAquariumGlassConverter(AxRegistry.BlockReg.AQUARIUM_AXOLOOTL_INTERFACE);
+            registerAquariumGlassConverter(AxRegistry.BlockReg.AQUARIUM_ENERGY_INTERFACE);
+            registerAquariumGlassConverter(AxRegistry.BlockReg.AQUARIUM_WATER_INTERFACE);
+            registerAquariumGlassConverter(AxRegistry.BlockReg.AQUARIUM_OUTPUT);
+            registerAquariumGlassConverter(AxRegistry.BlockReg.LARGE_AQUARIUM_OUTPUT);
+        }
+
+        private static void registerAquariumGlassConverter(final RegistryObject<Block> block) {
+            AquariumGlassBlock.registerItemConverter(BlockConverter.itemConverter(RegistryObject.create(block.getId(), ForgeRegistries.ITEMS), block));
         }
     }
 }
