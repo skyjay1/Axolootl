@@ -56,16 +56,17 @@ public class AxolootlBucketItem extends MobBucketItem {
     @Override
     public void fillItemCategory(CreativeModeTab pCategory, NonNullList<ItemStack> pItems) {
         if (this.allowedIn(pCategory)) {
-            ClientUtil.getClientLevel().ifPresentOrElse(level -> {
+            final RegistryAccess access = registryAccess();
+            if (access != null) {
                 // create list of variants
-                List<Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant>> variants = new ArrayList<>(AxolootlVariant.getRegistry(level.registryAccess()).entrySet());
+                List<Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant>> variants = new ArrayList<>(AxolootlVariant.getRegistry(access).entrySet());
                 // remove invalid entries
                 variants.removeIf(e -> !AxRegistry.AxolootlVariantsReg.isValid(e.getKey().location()));
                 // sort by tier, then by name
                 Comparator<Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant>> comparator = Comparator.comparingInt(e -> e.getValue().getTier());
                 variants.sort(comparator.thenComparing(e -> e.getValue().getDescription().getString()));
                 // add each variant to the creative tab
-                for(Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant> variantId : variants) {
+                for (Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant> variantId : variants) {
                     ItemStack itemStack = new ItemStack(this);
                     // create itemstack with tag for this variant
                     CompoundTag tag = new CompoundTag();
@@ -77,7 +78,9 @@ public class AxolootlBucketItem extends MobBucketItem {
                     itemStack.getTag().putInt(AxolootlEntity.KEY_AGE, AxolootlEntity.BABY_AGE);
                     pItems.add(babyItemStack);
                 }
-            }, () -> pItems.add(new ItemStack(this)));
+            } else {
+                pItems.add(new ItemStack(this));
+            }
         }
     }
 
@@ -99,17 +102,8 @@ public class AxolootlBucketItem extends MobBucketItem {
 
     private static Rarity getCachedRarity(final ResourceLocation id) {
         if(!RARITY_CACHE.containsKey(id)) {
-            // load current level
-            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-            RegistryAccess access = null;
-            if(server != null) {
-                access = server.registryAccess();
-            } else {
-                final Optional<Level> oLevel = ClientUtil.getClientLevel();
-                if(oLevel.isPresent()) {
-                    access = oLevel.get().registryAccess();
-                }
-            }
+            // load registry access
+            RegistryAccess access = registryAccess();
             // load axolootl variant
             if(access != null) {
                 AxolootlVariant.getRegistry(access).getOptional(id)
@@ -126,7 +120,7 @@ public class AxolootlBucketItem extends MobBucketItem {
     @Override
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
-        final Level level = (pLevel != null) ? pLevel : Minecraft.getInstance().level;
+        final Level level = (pLevel != null) ? pLevel : ClientUtil.getClientLevel().orElse(null);
         if(level != null) {
             // add tooltips for variant
             getVariant(level.registryAccess(), pStack).ifPresentOrElse(a -> {
@@ -172,6 +166,23 @@ public class AxolootlBucketItem extends MobBucketItem {
                 return IClientItemExtensions.super.getCustomRenderer();
             }
         });
+    }
+
+    /**
+     * @return the current registry access
+     */
+    @Nullable
+    private static RegistryAccess registryAccess() {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if(server != null) {
+            return server.registryAccess();
+        } else {
+            final Optional<Level> oLevel = ClientUtil.getClientLevel();
+            if(oLevel.isPresent()) {
+                return oLevel.get().registryAccess();
+            }
+        }
+        return null;
     }
 
     /**
