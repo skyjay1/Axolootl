@@ -19,10 +19,6 @@
     "axolootl:breeder",
     "axolootl:nursery",
     "axolootl:monsterium",
-    "axolootl:autofeeder",
-    "axolootl:castle",
-    "axolootl:grand_castle",
-    "axolootl:bastion",
-    "axolootl:pristine_bastion"
+    "axolootl:autofeeder"
   ]
 }

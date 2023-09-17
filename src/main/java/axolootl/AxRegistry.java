@@ -299,12 +299,6 @@ public final class AxRegistry {
             ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
-        public static final RegistryObject<Item> CASTLE_RAMPART = register("castle_rampart", () ->
-                new Item(new Item.Properties().stacksTo(16).tab(TAB)));
-        public static final RegistryObject<Item> BASTION_RAMPART = register("bastion_rampart", () ->
-                new Item(new Item.Properties().stacksTo(16).tab(TAB)));
-        public static final RegistryObject<Item> END_CITY_RAMPART = register("end_city_rampart", () ->
-                new Item(new Item.Properties().stacksTo(16).tab(TAB)));
         public static final RegistryObject<Item> AXOLOOTL_BUCKET = register("axolootl_bucket", () ->
                 new AxolootlBucketItem(EntityReg.AXOLOOTL, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET).tab(TAB)));
 
@@ -374,12 +368,6 @@ public final class AxRegistry {
         public static final RegistryObject<Block> NURSERY = registerWithItem("nursery", () -> new NurseryBlock(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_CYAN).noOcclusion().requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> MONSTERIUM = registerWithItem("monsterium", () -> new MonsteriumBlock(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_CYAN).noOcclusion().requiresCorrectToolForDrops().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).strength(3.5F)));
         public static final RegistryObject<Block> AUTOFEEDER = registerWithItem("autofeeder", () -> new AutofeederBlock(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_CYAN).noOcclusion().requiresCorrectToolForDrops().strength(3.5F)));
-        public static final RegistryObject<Block> CASTLE = registerWithItem("castle", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F, 5.0F)));
-        public static final RegistryObject<Block> GRAND_CASTLE = registerWithGrandCastleMultiBlockItem("grand_castle", () -> new GrandCastleBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_BLUE).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 20.0F)));
-        public static final RegistryObject<Block> BASTION = registerWithMultiBlockItem("bastion", () -> new WaterloggedHorizontalMultiBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_BLACK).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 60.0F)));
-        public static final RegistryObject<Block> PRISTINE_BASTION = registerWithMultiBlockItem("pristine_bastion", () -> new WaterloggedHorizontalMultiBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_BLACK).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 60.0F)));
-        public static final RegistryObject<Block> END_CITY = registerWithItem("end_city", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_PURPLE).requiresCorrectToolForDrops().strength(3.5F, 5.0F)));
-        public static final RegistryObject<Block> END_SHIP = registerWithItem("end_ship", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_PURPLE).requiresCorrectToolForDrops().strength(3.5F, 5.0F)));
 
         private static RegistryObject<Block> registerWithItem(final String name, final Supplier<Block> supplier) {
             return registerWithItem(name, supplier, ItemReg::registerBlockItem);
