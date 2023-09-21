@@ -319,7 +319,7 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         for(int i = 0, n = parentButtons.size(); i < n; i++) {
             ParentDataButton button = parentButtons.get(i);
             int index = i;
-            if(index > parentData.size()) {
+            if(index >= parentData.size()) {
                 button.visible = false;
                 continue;
             }
