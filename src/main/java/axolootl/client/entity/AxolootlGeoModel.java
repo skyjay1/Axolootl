@@ -98,7 +98,7 @@ public class AxolootlGeoModel<T extends LivingEntity & LerpingModel & IAxolootl 
         }
         // set up animations
         this.setupInitialAnimationValues(entity, netHeadYaw, headPitch);
-        if (entity.isPlayingDead()) {
+        if (entity.isEntityPlayingDead()) {
             this.setupPlayDeadAnimation(netHeadYaw);
             this.saveAnimationValues(entity);
         } else {

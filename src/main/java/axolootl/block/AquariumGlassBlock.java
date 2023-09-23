@@ -70,7 +70,7 @@ public class AquariumGlassBlock extends AbstractGlassBlock {
      * @return true if the level is client-side or the block was placed
      */
     private boolean convert(Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack itemStack, BlockState blockState) {
-        final boolean result = BlockConverter.convert(level, pos, player, hand, itemStack, blockState);
+        final boolean result = BlockConverter.convert(level, pos, player, hand, itemStack, blockState, Block.UPDATE_ALL);
         return result;
     }
 

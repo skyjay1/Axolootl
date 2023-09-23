@@ -358,6 +358,11 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
     }
 
     @Override
+    public boolean isEntityPlayingDead() {
+        return isPlayingDead();
+    }
+
+    @Override
     public ItemStack asItemStack() {
         ItemStack stack = getBucketItemStack();
         this.saveToBucketTag(stack);

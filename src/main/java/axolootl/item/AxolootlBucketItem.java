@@ -86,7 +86,7 @@ public class AxolootlBucketItem extends MobBucketItem {
 
     @Override
     public String getDescriptionId(ItemStack pStack) {
-        if(pStack.hasTag() && pStack.getTag().contains(AxolootlEntity.KEY_AGE, Tag.TAG_INT) && pStack.getTag().getInt(AxolootlEntity.KEY_AGE) < 0) {
+        if(isBaby(pStack)) {
             return super.getDescriptionId(pStack) + ".baby";
         }
         return super.getDescriptionId(pStack);
@@ -236,5 +236,9 @@ public class AxolootlBucketItem extends MobBucketItem {
     public static ItemStack getWithVariant(final ItemStack itemStack, final ResourceLocation variant) {
         itemStack.getOrCreateTag().putString(AxolootlEntity.KEY_VARIANT_ID, variant.toString());
         return itemStack;
+    }
+
+    public static boolean isBaby(final ItemStack itemStack) {
+        return itemStack.hasTag() && itemStack.getTag().contains(AxolootlEntity.KEY_AGE, Tag.TAG_INT) && itemStack.getTag().getInt(AxolootlEntity.KEY_AGE) < 0;
     }
 }
