@@ -1,0 +1,15 @@
+{
+  "translation_key": "block.axolootl.castle",
+  "settings": {
+    "generation": 0.1
+  },
+  "block": {
+    "type": "minecraft:matching_blocks",
+    "blocks": "axolootl:castle"
+  },
+  "condition": {
+    "type": "axolootl:count_capped",
+    "modifier": "axolootl:castle",
+    "count": 5
+  }
+}

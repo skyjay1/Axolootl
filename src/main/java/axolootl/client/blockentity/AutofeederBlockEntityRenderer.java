@@ -78,18 +78,7 @@ public class AutofeederBlockEntityRenderer implements BlockEntityRenderer<AutoFe
     }
 
     protected int getRenderAmount(ItemStack pStack) {
-        int i = 1;
-        if (pStack.getCount() > 48) {
-            i = 5;
-        } else if (pStack.getCount() > 32) {
-            i = 4;
-        } else if (pStack.getCount() > 16) {
-            i = 3;
-        } else if (pStack.getCount() > 1) {
-            i = 2;
-        }
-
-        return i;
+        return Math.min(pStack.getCount(), (int) Math.ceil(5.0F * (float) pStack.getCount() / (float) pStack.getMaxStackSize()));
     }
 
 }
