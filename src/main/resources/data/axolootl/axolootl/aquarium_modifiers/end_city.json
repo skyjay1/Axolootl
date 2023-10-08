@@ -1,0 +1,20 @@
+{
+  "translation_key": "block.axolootl.end_city",
+  "settings": {
+    "generation": 0.5
+  },
+  "dimensions": [ 1, 2, 1 ],
+  "block": {
+    "type": "axolootl:matching_state",
+    "blocks": "axolootl:end_city",
+    "state": {
+      "half": "lower",
+      "waterlogged": "true"
+    }
+  },
+  "condition": {
+    "type": "axolootl:count_capped",
+    "modifier": "axolootl:end_city",
+    "count": 2
+  }
+}

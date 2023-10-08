@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "axolootl:end_city_rampart" },
+    { "item": "minecraft:dragon_breath" }
+  ],
+  "result": {
+    "item": "axolootl:end_ship"
+  }
+}

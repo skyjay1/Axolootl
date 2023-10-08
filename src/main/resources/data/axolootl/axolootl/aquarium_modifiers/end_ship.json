@@ -1,0 +1,28 @@
+{
+  "translation_key": "block.axolootl.end_ship",
+  "settings": {
+    "generation": 0.5
+  },
+  "block": {
+    "type": "axolootl:matching_state",
+    "blocks": "axolootl:end_ship",
+    "state": {
+      "waterlogged": "true"
+    }
+  },
+  "condition": {
+    "type": "axolootl:and",
+    "children": [
+      {
+        "type": "axolootl:count_capped",
+        "modifier": "axolootl:end_ship",
+        "count": 2
+      },
+      {
+        "type": "axolootl:distance",
+        "modifier": "axolootl:end_city",
+        "distance": 1
+      }
+    ]
+  }
+}

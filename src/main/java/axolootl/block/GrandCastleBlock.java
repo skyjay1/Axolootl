@@ -14,6 +14,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class GrandCastleBlock extends WaterloggedHorizontalMultiBlock {
 
@@ -23,7 +25,7 @@ public class GrandCastleBlock extends WaterloggedHorizontalMultiBlock {
     public static final Enchantment ENCHANTMENT = Enchantments.FISHING_LUCK;
 
     public GrandCastleBlock(Properties pProperties) {
-        super(pProperties);
+        super(pProperties, GrandCastleBlock::createShape);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(ENCHANTMENT_LEVEL, 0)
                 .setValue(FACING, Direction.NORTH)
@@ -51,5 +53,10 @@ public class GrandCastleBlock extends WaterloggedHorizontalMultiBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder.add(ENCHANTMENT_LEVEL));
+    }
+
+    private static VoxelShape createShape(final BlockState blockState) {
+        // TODO grand castle block shapes
+        return Shapes.block();
     }
 }

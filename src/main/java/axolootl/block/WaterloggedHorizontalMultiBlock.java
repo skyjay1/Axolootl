@@ -13,6 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -24,7 +25,12 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock {
@@ -38,8 +44,16 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
 
     private static final Vec3i CENTER = new Vec3i(1, 1, 1);
 
-    public WaterloggedHorizontalMultiBlock(Properties pProperties) {
-        super(pProperties);
+    private final Map<BlockState, VoxelShape> SHAPES = new HashMap<>();
+    private final Function<BlockState, VoxelShape> shapes;
+
+    /**
+     * @param pProperties the block properties
+     * @param shapes a function that creates a voxel shape to be cached for later use
+     */
+    public WaterloggedHorizontalMultiBlock(Properties pProperties, Function<BlockState, VoxelShape> shapes) {
+        super(pProperties.dynamicShape());
+        this.shapes = shapes;
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(WATERLOGGED, false)
@@ -82,6 +96,14 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
         pBuilder.add(FACING).add(WATERLOGGED).add(WIDTH).add(HEIGHT).add(DEPTH);
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
+        if(!SHAPES.containsKey(pState)) {
+            SHAPES.put(pState, this.shapes.apply(pState));
+        }
+        return SHAPES.get(pState);
     }
 
     @Override
