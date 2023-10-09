@@ -16,6 +16,8 @@ import axolootl.block.BreederBlock;
 import axolootl.block.BubblerBlock;
 import axolootl.block.CastleBlock;
 import axolootl.block.ControllerBlock;
+import axolootl.block.EndCityBlock;
+import axolootl.block.EndShipBlock;
 import axolootl.block.EnergyInterfaceBlock;
 import axolootl.block.FilledAquariumFloorBlock;
 import axolootl.block.GrandCastleBlock;
@@ -372,8 +374,9 @@ public final class AxRegistry {
         public static final RegistryObject<Block> MONSTERIUM = registerWithItem("monsterium", () -> new MonsteriumBlock(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_CYAN).noOcclusion().requiresCorrectToolForDrops().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).strength(3.5F)));
         public static final RegistryObject<Block> AUTOFEEDER = registerWithItem("autofeeder", () -> new AutofeederBlock(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_CYAN).noOcclusion().requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> CASTLE = registerWithItem("castle", () -> new CastleBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().dynamicShape().isSuffocating(BlockReg::never).strength(3.5F, 60.0F)));
-        public static final RegistryObject<Block> END_CITY = registerWithItem("end_city", () -> new WaterloggedHorizontalDoubleBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_PURPLE).noOcclusion().isSuffocating(BlockReg::never).strength(3.5F, 60.0F)));
-        public static final RegistryObject<Block> END_SHIP = registerWithItem("end_ship", () -> new WaterloggedHorizontalBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_PURPLE).noOcclusion().isSuffocating(BlockReg::never).strength(3.5F, 60.0F)));
+        public static final RegistryObject<Block> GRAND_CASTLE = registerWithGrandCastleMultiBlockItem("grand_castle", () -> new GrandCastleBlock(BlockBehaviour.Properties.of(Material.STONE, state -> state.getValue(GrandCastleBlock.ENCHANTMENT_LEVEL) > 0 ? MaterialColor.COLOR_BLUE : MaterialColor.STONE).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 120.0F)));
+        public static final RegistryObject<Block> END_CITY = registerWithItem("end_city", () -> new EndCityBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_PURPLE).noOcclusion().isSuffocating(BlockReg::never).strength(3.5F, 60.0F)));
+        public static final RegistryObject<Block> END_SHIP = registerWithItem("end_ship", () -> new EndShipBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_PURPLE).noOcclusion().isSuffocating(BlockReg::never).strength(3.5F, 60.0F)));
 
 
         private static RegistryObject<Block> registerWithItem(final String name, final Supplier<Block> supplier) {

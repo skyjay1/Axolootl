@@ -8,6 +8,7 @@ package axolootl.client;
 
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
+import axolootl.block.GrandCastleBlock;
 import axolootl.client.blockentity.AutofeederBlockEntityRenderer;
 import axolootl.client.entity.AxolootlGeoRenderer;
 import axolootl.client.menu.AxolootlInspectorScreen;
@@ -31,6 +32,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 public final class ClientEvents {
 
@@ -90,13 +93,13 @@ public final class ClientEvents {
         }
 
         private static void onRegisterItemPropertyOverrides() {
-            // TODO Grand Castle
-            /*ItemProperties.register(
+            // Grand Castle
+            ItemProperties.register(
                     RegistryObject.create(new ResourceLocation(Axolootl.MODID, "grand_castle"), ForgeRegistries.ITEMS).get(),
-                    new ResourceLocation("level"),
+                    new ResourceLocation(Axolootl.MODID, "enchantment"),
                     (pStack, pLevel, pEntity, pSeed) -> {
                         return (float) pStack.getEnchantmentLevel(GrandCastleBlock.ENCHANTMENT) / (float) GrandCastleBlock.MAX_ENCHANTMENT_LEVEL;
-                    });*/
+                    });
             // Axolootl Bucket
             ItemProperties.register(AxRegistry.ItemReg.AXOLOOTL_BUCKET.get(), new ResourceLocation(Axolootl.MODID, "baby"),
                     ((pStack, pLevel, pEntity, pSeed) -> AxolootlBucketItem.isBaby(pStack) ? 1.0F : 0.0F)

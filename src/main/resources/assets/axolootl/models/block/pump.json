@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/cube",
+  "parent": "minecraft:block/block",
   "textures": {
     "side": "axolootl:block/pump_side",
     "back": "axolootl:block/pump_back",

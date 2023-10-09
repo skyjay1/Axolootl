@@ -1,21 +1,133 @@
 {
-  "parent": "minecraft:block",
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
-    "0": "block/pink_wool",
-    "particle": "block/pink_wool"
+    "bricks": "axolootl:block/grand_castle/tiny_stone_bricks",
+    "tower": "axolootl:block/grand_castle/tower",
+    "bubble_coral": "block/bubble_coral_block",
+    "particle": "minecraft:stone_bricks"
   },
   "elements": [
     {
-      "from": [0, 0, 8],
-      "to": [16, 16, 16],
+      "from": [1, 14, 7],
+      "to": [8, 16, 14],
       "faces": {
-        "north": {"uv": [0, 0, 16, 16], "texture": "#0"},
-        "east": {"uv": [0, 0, 8, 16], "texture": "#0"},
-        "south": {"uv": [0, 0, 16, 16], "texture": "#0"},
-        "west": {"uv": [0, 0, 8, 16], "texture": "#0"},
-        "up": {"uv": [0, 0, 8, 16], "rotation": 90, "texture": "#0"},
-        "down": {"uv": [0, 0, 8, 16], "rotation": 270, "texture": "#0"}
+        "north": {"uv": [0, 0, 7, 2], "texture": "#bricks"},
+        "south": {"uv": [0, 0, 7, 2], "texture": "#bricks"},
+        "west": {"uv": [0, 0, 7, 2], "texture": "#bricks"}
       }
+    },
+    {
+      "from": [0, 14, 0],
+      "to": [7, 14, 16],
+      "faces": {
+        "up": {"uv": [0, 6, 16, 13], "rotation": 90, "texture": "#tower"},
+        "down": {"uv": [0, 6, 16, 13], "rotation": 90, "texture": "#tower"}
+      }
+    },
+    {
+      "from": [7, 0, 12],
+      "to": [11, 12, 16],
+      "faces": {
+        "north": {"uv": [0, 4, 4, 16], "texture": "#bubble_coral"},
+        "east": {"uv": [0, 4, 4, 16], "texture": "#bubble_coral"},
+        "south": {"uv": [0, 4, 4, 16], "texture": "#bubble_coral"},
+        "west": {"uv": [0, 4, 4, 16], "texture": "#bubble_coral"},
+        "up": {"uv": [0, 4, 4, 8], "texture": "#bubble_coral"},
+        "down": {"uv": [0, 12, 4, 16], "texture": "#bubble_coral"}
+      }
+    },
+    {
+      "from": [7, 0, 0],
+      "to": [11, 12, 4],
+      "faces": {
+        "north": {"uv": [12, 4, 16, 16], "texture": "#bubble_coral"},
+        "east": {"uv": [12, 4, 16, 16], "texture": "#bubble_coral"},
+        "south": {"uv": [12, 4, 16, 16], "texture": "#bubble_coral"},
+        "west": {"uv": [12, 4, 16, 16], "texture": "#bubble_coral"},
+        "up": {"uv": [12, 4, 16, 8], "texture": "#bubble_coral"},
+        "down": {"uv": [12, 12, 16, 16], "texture": "#bubble_coral"}
+      }
+    },
+    {
+      "from": [7, 12, 0],
+      "to": [11, 16, 16],
+      "faces": {
+        "north": {"uv": [12, 0, 16, 4], "texture": "#bubble_coral"},
+        "east": {"uv": [0, 0, 16, 4], "texture": "#bubble_coral"},
+        "south": {"uv": [0, 0, 4, 4], "texture": "#bubble_coral"},
+        "west": {"uv": [0, 0, 16, 4], "texture": "#bubble_coral"},
+        "up": {"uv": [0, 0, 16, 4], "rotation": 90, "texture": "#bubble_coral"},
+        "down": {"uv": [0, 0, 16, 4], "rotation": 90, "texture": "#bubble_coral"}
+      }
+    }
+  ],
+  "groups": [
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": [0]
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "wall",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": [1]
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "entrance",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": [2, 3, 4]
+    },
+    {
+      "name": "exit",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
     }
   ]
 }

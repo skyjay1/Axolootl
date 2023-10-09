@@ -6,6 +6,7 @@
 
 package axolootl.block;
 
+import axolootl.util.ShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -26,6 +27,8 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.HashMap;
@@ -44,14 +47,15 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
 
     private static final Vec3i CENTER = new Vec3i(1, 1, 1);
 
-    private final Map<BlockState, VoxelShape> SHAPES = new HashMap<>();
-    private final Function<BlockState, VoxelShape> shapes;
+    private final Map<BlockState, ShapeData> SHAPES = new HashMap<>();
+    private final Map<BlockState, VoxelShape> VISUAL_SHAPES = new HashMap<>();
+    private final Function<BlockState, ShapeData> shapes;
 
     /**
      * @param pProperties the block properties
-     * @param shapes a function that creates a voxel shape to be cached for later use
+     * @param shapes a function that creates {@link ShapeData} to be cached for later use
      */
-    public WaterloggedHorizontalMultiBlock(Properties pProperties, Function<BlockState, VoxelShape> shapes) {
+    public WaterloggedHorizontalMultiBlock(Properties pProperties, Function<BlockState, ShapeData> shapes) {
         super(pProperties.dynamicShape());
         this.shapes = shapes;
         this.registerDefaultState(this.stateDefinition.any()
@@ -60,6 +64,7 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
                 .setValue(WIDTH, 1)
                 .setValue(HEIGHT, 1)
                 .setValue(DEPTH, 1));
+        this.precalculateShapes();
     }
 
     //// METHODS ////
@@ -92,6 +97,54 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
                 .setValue(DEPTH, 1);
     }
 
+    protected void precalculateShapes() {
+        SHAPES.clear();
+        VISUAL_SHAPES.clear();
+        for(BlockState blockState : this.stateDefinition.getPossibleStates()) {
+            // no need to cache individual shapes, #createVisualShape will handle that too
+            VISUAL_SHAPES.put(blockState, createVisualShape(blockState));
+        }
+    }
+
+    /**
+     * @param blockState the block state
+     * @return the cached visual outline for the given block state
+     */
+    public VoxelShape getOrCreateVisualShape(final BlockState blockState) {
+        if(!VISUAL_SHAPES.containsKey(blockState)) {
+            VISUAL_SHAPES.put(blockState, createVisualShape(blockState));
+        }
+        return VISUAL_SHAPES.get(blockState);
+    }
+
+    private VoxelShape createVisualShape(final BlockState blockState) {
+        final Vec3i offset = getIndex(blockState);
+        VoxelShape shape = Shapes.empty();
+        for(int x = 0; x < 3; x++) {
+            for(int y = 0; y < 3; y++) {
+                for(int z = 0; z < 3; z++) {
+                    BlockState b = blockState.setValue(WIDTH, x).setValue(HEIGHT, y).setValue(DEPTH, z);
+                    shape = ShapeUtils.orUnoptimized(shape, getOrCreateShapeData(b).getCollisionShape().move(x - offset.getX(), y - offset.getY(), z - offset.getZ()));
+                }
+            }
+        }
+        return shape.optimize();
+    }
+
+    /**
+     * @param blockState the block state
+     * @return the cached shape data for the given block state
+     */
+    public ShapeData getOrCreateShapeData(final BlockState blockState) {
+        if(!SHAPES.containsKey(blockState)) {
+            SHAPES.put(blockState, createShapeData(blockState));
+        }
+        return SHAPES.get(blockState);
+    }
+
+    private ShapeData createShapeData(final BlockState blockState) {
+        return this.shapes.apply(blockState);
+    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
@@ -99,11 +152,18 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
     }
 
     @Override
-    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        if(!SHAPES.containsKey(pState)) {
-            SHAPES.put(pState, this.shapes.apply(pState));
+    public VoxelShape getCollisionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
+        final ShapeData shapeData = getOrCreateShapeData(pState);
+        if(shapeData.getCollisionShape().isEmpty() || (shapeData.isPassable() && pContext instanceof EntityCollisionContext context && ShapeUtils.canEntityPass(context.getEntity()))) {
+            return Shapes.empty();
         }
-        return SHAPES.get(pState);
+        return shapeData.getCollisionShape();
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
+        return getOrCreateVisualShape(pState);
+        //return getOrCreateShapeData(pState).getCollisionShape();
     }
 
     @Override
@@ -224,7 +284,7 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
     }
 
     @FunctionalInterface
-    private static interface PositionIterator {
+    public static interface PositionIterator {
         /**
          * @param p the block position
          * @param x the x index in the range [0,3)

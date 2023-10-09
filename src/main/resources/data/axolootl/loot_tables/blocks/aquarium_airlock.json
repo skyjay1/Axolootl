@@ -11,7 +11,7 @@
           "block": "axolootl:aquarium_airlock",
           "condition": "minecraft:block_state_property",
           "properties": {
-            "half": "upper"
+            "half": "lower"
           }
         }
       ],

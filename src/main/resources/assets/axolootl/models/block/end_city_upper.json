@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/cube",
+  "parent": "minecraft:block/block",
   "textures": {
     "side": "axolootl:block/end_city_lower",
     "top_bottom": "axolootl:block/end_city_top_bottom",

@@ -6,6 +6,7 @@
 
 package axolootl.block;
 
+import axolootl.util.ShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -18,9 +19,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class CastleBlock extends WaterloggedHorizontalBlock {
-
-    private static final double MAX_ENTITY_SIZE = 0.62D;
-    private static final double MAX_VOLUME = MAX_ENTITY_SIZE * MAX_ENTITY_SIZE * MAX_ENTITY_SIZE;
 
     private static final VoxelShape SHAPE = Shapes.or(
             Block.box(0.0D, 0.0D, 0.0D, 4.0D, 12.0D, 4.0D),
@@ -41,7 +39,7 @@ public class CastleBlock extends WaterloggedHorizontalBlock {
     @Override
     public VoxelShape getCollisionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         // any entity with a small enough bounding box (measured by volume) can pass through this block
-        if(pContext instanceof EntityCollisionContext context && context.getEntity() != null && volume(context.getEntity().getBoundingBox()) < MAX_VOLUME) {
+        if(pContext instanceof EntityCollisionContext context && ShapeUtils.canEntityPass(context.getEntity())) {
             return Shapes.empty();
         }
         return super.getCollisionShape(pState, pLevel, pPos, pContext);
@@ -50,9 +48,5 @@ public class CastleBlock extends WaterloggedHorizontalBlock {
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         return SHAPE;
-    }
-
-    private static double volume(final AABB aabb) {
-        return aabb.getXsize() * aabb.getYsize() * aabb.getZsize();
     }
 }

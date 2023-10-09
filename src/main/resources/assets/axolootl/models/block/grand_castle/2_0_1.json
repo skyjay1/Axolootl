@@ -1,21 +1,173 @@
 {
-  "parent": "minecraft:block",
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
-    "0": "block/cyan_wool",
-    "particle": "block/cyan_wool"
+    "lower_bricks": "axolootl:block/grand_castle/tiny_stone_bricks_lower",
+    "tower": "axolootl:block/grand_castle/tower",
+    "roof": "axolootl:block/grand_castle/roof",
+    "bubble_coral": "block/bubble_coral_block",
+    "brain_coral": "block/brain_coral_block",
+    "particle": "minecraft:block/stone_bricks"
   },
   "elements": [
     {
-      "from": [0, 0, 0],
-      "to": [8, 16, 16],
+      "from": [8, 0, 4],
+      "to": [15, 15.99, 11],
       "faces": {
-        "north": {"uv": [0, 0, 8, 16], "texture": "#0"},
-        "east": {"uv": [0, 0, 16, 16], "texture": "#0"},
-        "south": {"uv": [0, 0, 8, 16], "texture": "#0"},
-        "west": {"uv": [0, 0, 16, 16], "texture": "#0"},
-        "up": {"uv": [0, 0, 8, 16], "rotation": 180, "texture": "#0"},
-        "down": {"uv": [0, 0, 8, 16], "rotation": 180, "texture": "#0"}
+        "north": {"uv": [0, 0, 7, 16], "texture": "#lower_bricks"},
+        "east": {"uv": [0, 0, 7, 16], "texture": "#lower_bricks"},
+        "south": {"uv": [0, 0, 7, 16], "texture": "#lower_bricks"},
+        "west": {"uv": [0, 0, 7, 16], "texture": "#lower_bricks"},
+        "up": {"uv": [0, 0, 7, 7], "texture": "#lower_bricks"},
+        "down": {"uv": [4, 6, 11, 13], "texture": "#tower"}
+      }
+    },
+    {
+      "from": [1, 0, 3.99],
+      "to": [10, 16, 12.99],
+      "faces": {
+        "north": {"uv": [0, 0, 9, 16], "texture": "#lower_bricks"},
+        "east": {"uv": [0, 0, 9, 16], "texture": "#lower_bricks"},
+        "south": {"uv": [0, 0, 9, 16], "texture": "#lower_bricks"},
+        "west": {"uv": [0, 0, 9, 16], "texture": "#lower_bricks"},
+        "up": {"uv": [0, 0, 9, 9], "texture": "#lower_bricks"},
+        "down": {"uv": [4, 5, 13, 14], "texture": "#tower"}
+      }
+    },
+    {
+      "from": [4, 9, 13],
+      "to": [7, 11, 14],
+      "faces": {
+        "east": {"uv": [3, 5, 4, 7], "texture": "#bubble_coral"},
+        "south": {"uv": [3, 5, 6, 7], "texture": "#bubble_coral"},
+        "west": {"uv": [3, 5, 4, 7], "texture": "#bubble_coral"},
+        "up": {"uv": [3, 5, 6, 6], "rotation": 180, "texture": "#bubble_coral"},
+        "down": {"uv": [3, 5, 6, 6], "rotation": 180, "texture": "#bubble_coral"}
+      }
+    },
+    {
+      "from": [4, 10, 13.01],
+      "to": [7, 15, 13.01],
+      "faces": {
+        "south": {"uv": [13, 8, 16, 13], "texture": "#roof"}
+      }
+    },
+    {
+      "from": [15, 0, 0],
+      "to": [16, 14, 9],
+      "faces": {
+        "north": {"uv": [0, 0, 1, 14], "texture": "#lower_bricks"},
+        "south": {"uv": [0, 0, 1, 14], "texture": "#lower_bricks"},
+        "west": {"uv": [0, 0, 9, 14], "texture": "#lower_bricks"},
+        "up": {"uv": [3, 5, 12, 6], "rotation": 90, "texture": "#tower"},
+        "down": {"uv": [3, 5, 12, 6], "rotation": 90, "texture": "#tower"}
+      }
+    },
+    {
+      "from": [15, 14, 9],
+      "to": [16, 16, 9],
+      "faces": {
+        "north": {"uv": [1, 0, 0, 2], "texture": "#tower"},
+        "south": {"uv": [0, 0, 1, 2], "texture": "#tower"}
+      }
+    },
+    {
+      "from": [1, 14, 0],
+      "to": [15, 14, 5],
+      "faces": {
+        "up": {"uv": [1, 7, 15, 12], "texture": "#tower"},
+        "down": {"uv": [1, 7, 15, 12], "texture": "#tower"}
+      }
+    },
+    {
+      "from": [0, 0, 0],
+      "to": [1, 16, 9],
+      "faces": {
+        "north": {"uv": [0, 0, 1, 16], "texture": "#lower_bricks"},
+        "east": {"uv": [0, 0, 9, 16], "texture": "#lower_bricks"},
+        "south": {"uv": [0, 0, 1, 16], "texture": "#lower_bricks"},
+        "up": {"uv": [11, 5, 12, 14], "texture": "#tower"},
+        "down": {"uv": [11, 5, 12, 14], "texture": "#tower"}
+      }
+    },
+    {
+      "from": [10, 14, 0],
+      "to": [12, 16, 2],
+      "faces": {
+        "north": {"uv": [8, 14, 10, 16], "texture": "#brain_coral"},
+        "east": {"uv": [8, 14, 10, 16], "texture": "#brain_coral"},
+        "south": {"uv": [8, 14, 10, 16], "texture": "#brain_coral"},
+        "west": {"uv": [8, 14, 10, 16], "texture": "#brain_coral"}
       }
     }
+  ],
+  "groups": [
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": [0]
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": [1, 2, 3]
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": [4, 5]
+    },
+    {
+      "name": "wall",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": [6, 7]
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "entrance",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "exit",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    8
   ]
 }

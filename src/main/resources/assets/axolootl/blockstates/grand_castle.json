@@ -5,439 +5,439 @@
     },
     {
       "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 0 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_0_2", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 1 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_0_1", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 2 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_0_0", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 0 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_0_2", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 1 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_0_1", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 2 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_0_0", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 0 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_0_2", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 1 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_0_1", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 2 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_0_0", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 0 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_0_0" }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 1 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_0_1" }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 2 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_0_2" }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 0 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_0_0" }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 1 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_0_1" }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 2 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_0_2" }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 0 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_0_0" }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 1 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_0_1" }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 2 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_0_2" }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 0 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_0_0", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 1 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_0_0", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 2 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_0_0", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 0 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_0_1", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 1 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_0_1", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 2 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_0_1", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 0 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_0_2", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 1 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_0_2", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 2 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_0_2", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 0 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_0_2", "y": 90 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 1 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_0_2", "y": 90 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 2 }, { "facing": "north" } ] },
       "apply": { "model": "axolootl:block/grand_castle/2_0_2", "y": 90 }
     },
     {
-      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 0 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_0_1", "y": 90 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 1 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_0_1", "y": 90 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 2 }, { "facing": "north" } ] },
+      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 1 }, { "facing": "east" } ] },
       "apply": { "model": "axolootl:block/grand_castle/2_0_1", "y": 90 }
     },
     {
-      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 0 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_0_0", "y": 90 }
+      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 2 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_0_0", "y": 90 }
     },
     {
-      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 1 }, { "facing": "north" } ] },
+      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 0 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_0_2", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 1 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_0_1", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 2 }, { "facing": "east" } ] },
       "apply": { "model": "axolootl:block/grand_castle/1_0_0", "y": 90 }
     },
     {
+      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 0 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_0_2", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 1 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_0_1", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 2 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_0_0", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 0 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_0_0", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 1 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_0_1", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 2 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_0_2", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 0 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_0_0", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 1 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_0_1", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 2 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_0_2", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 0 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_0_0", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 1 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_0_1", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 2 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_0_2", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 0 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_0_0", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 1 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_0_0", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 2 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_0_0", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 0 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_0_1", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 1 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_0_1", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 2 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_0_1", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 0 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_0_2", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 1 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_0_2", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 2 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_0_2", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 0 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_0_2", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 1 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_0_2", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 0 }, { "depth": 2 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_0_2", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 0 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_0_1", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 1 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_0_1", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 0 }, { "depth": 2 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_0_1", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 0 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_0_0", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 1 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_0_0", "y": 0 }
+    },
+    {
       "when": { "AND": [ { "width": 2 }, { "height": 0 }, { "depth": 2 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_0_0", "y": 90 }
+      "apply": { "model": "axolootl:block/grand_castle/2_0_0", "y": 0 }
     },
 
 
     {
       "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 0 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_1_2", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 1 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_1_1", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 2 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_1_0", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 0 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_1_2", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 1 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_1_1", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 2 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_1_0", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 0 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_1_2", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 1 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_1_1", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 2 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_1_0", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 0 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_1_0" }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 1 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_1_1" }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 2 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_1_2" }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 0 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_1_0" }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 1 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_1_1" }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 2 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_1_2" }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 0 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_1_0" }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 1 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_1_1" }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 2 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_1_2" }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 0 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_1_0", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 1 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_1_0", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 2 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_1_0", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 0 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_1_1", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 1 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_1_1", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 2 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_1_1", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 0 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_1_2", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 1 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_1_2", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 2 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_1_2", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 0 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_1_2", "y": 90 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 1 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_1_2", "y": 90 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 2 }, { "facing": "north" } ] },
       "apply": { "model": "axolootl:block/grand_castle/2_1_2", "y": 90 }
     },
     {
-      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 0 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_1_1", "y": 90 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 1 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_1_1", "y": 90 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 2 }, { "facing": "north" } ] },
+      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 1 }, { "facing": "east" } ] },
       "apply": { "model": "axolootl:block/grand_castle/2_1_1", "y": 90 }
     },
     {
-      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 0 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_1_0", "y": 90 }
+      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 2 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_1_0", "y": 90 }
     },
     {
-      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 1 }, { "facing": "north" } ] },
+      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 0 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_1_2", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 1 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_1_1", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 2 }, { "facing": "east" } ] },
       "apply": { "model": "axolootl:block/grand_castle/1_1_0", "y": 90 }
     },
     {
+      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 0 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_1_2", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 1 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_1_1", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 2 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_1_0", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 0 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_1_0", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 1 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_1_1", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 2 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_1_2", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 0 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_1_0", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 1 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_1_1", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 2 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_1_2", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 0 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_1_0", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 1 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_1_1", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 2 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_1_2", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 0 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_1_0", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 1 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_1_0", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 2 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_1_0", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 0 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_1_1", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 1 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_1_1", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 2 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_1_1", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 0 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_1_2", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 1 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_1_2", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 2 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_1_2", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 0 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_1_2", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 1 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_1_2", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 1 }, { "depth": 2 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_1_2", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 0 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_1_1", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 1 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_1_1", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 1 }, { "depth": 2 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_1_1", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 0 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_1_0", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 1 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_1_0", "y": 0 }
+    },
+    {
       "when": { "AND": [ { "width": 2 }, { "height": 1 }, { "depth": 2 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_1_0", "y": 90 }
+      "apply": { "model": "axolootl:block/grand_castle/2_1_0", "y": 0 }
     },
 
 
     {
       "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 0 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_2_2", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 1 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_2_1", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 2 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_2_0", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 0 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_2_2", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 1 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_2_1", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 2 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_2_0", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 0 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_2_2", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 1 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_2_1", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 2 }, { "facing": "east" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_2_0", "y": 180 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 0 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_2_0" }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 1 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_2_1" }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 2 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_2_2" }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 0 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_2_0" }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 1 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_2_1" }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 2 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_2_2" }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 0 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_2_0" }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 1 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_2_1" }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 2 }, { "facing": "west" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_2_2" }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 0 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_2_0", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 1 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_2_0", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 2 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_2_0", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 0 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_2_1", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 1 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_2_1", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 2 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_2_1", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 0 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_2_2", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 1 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_2_2", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 2 }, { "facing": "south" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_2_2", "y": 270 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 0 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_2_2", "y": 90 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 1 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_2_2", "y": 90 }
-    },
-    {
-      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 2 }, { "facing": "north" } ] },
       "apply": { "model": "axolootl:block/grand_castle/2_2_2", "y": 90 }
     },
     {
-      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 0 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_2_1", "y": 90 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 1 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/1_2_1", "y": 90 }
-    },
-    {
-      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 2 }, { "facing": "north" } ] },
+      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 1 }, { "facing": "east" } ] },
       "apply": { "model": "axolootl:block/grand_castle/2_2_1", "y": 90 }
     },
     {
-      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 0 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/0_2_0", "y": 90 }
+      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 2 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_2_0", "y": 90 }
     },
     {
-      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 1 }, { "facing": "north" } ] },
+      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 0 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_2_2", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 1 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_2_1", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 2 }, { "facing": "east" } ] },
       "apply": { "model": "axolootl:block/grand_castle/1_2_0", "y": 90 }
     },
     {
+      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 0 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_2_2", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 1 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_2_1", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 2 }, { "facing": "east" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_2_0", "y": 90 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 0 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_2_0", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 1 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_2_1", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 2 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_2_2", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 0 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_2_0", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 1 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_2_1", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 2 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_2_2", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 0 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_2_0", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 1 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_2_1", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 2 }, { "facing": "west" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_2_2", "y": 270 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 0 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_2_0", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 1 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_2_0", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 2 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_2_0", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 0 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_2_1", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 1 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_2_1", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 2 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_2_1", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 0 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_2_2", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 1 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_2_2", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 2 }, { "facing": "south" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_2_2", "y": 180 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 0 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_2_2", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 1 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_2_2", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 0 }, { "height": 2 }, { "depth": 2 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_2_2", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 0 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_2_1", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 1 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_2_1", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 1 }, { "height": 2 }, { "depth": 2 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/2_2_1", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 0 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/0_2_0", "y": 0 }
+    },
+    {
+      "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 1 }, { "facing": "north" } ] },
+      "apply": { "model": "axolootl:block/grand_castle/1_2_0", "y": 0 }
+    },
+    {
       "when": { "AND": [ { "width": 2 }, { "height": 2 }, { "depth": 2 }, { "facing": "north" } ] },
-      "apply": { "model": "axolootl:block/grand_castle/2_2_0", "y": 90 }
+      "apply": { "model": "axolootl:block/grand_castle/2_2_0", "y": 0 }
     }
   ]
 }

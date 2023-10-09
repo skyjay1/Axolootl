@@ -1,0 +1,129 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "axolootl:grand_castle"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        },
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "axolootl:grand_castle",
+          "properties": {
+            "width": "1",
+            "height": "1",
+            "depth": "1",
+            "level": "0"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "axolootl:grand_castle"
+        }
+      ],
+      "functions": [
+        {
+          "function": "minecraft:set_enchantments",
+          "enchantments": {
+            "minecraft:luck_of_the_sea": 1
+          }
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        },
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "axolootl:grand_castle",
+          "properties": {
+            "width": "1",
+            "height": "1",
+            "depth": "1",
+            "level": "1"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "axolootl:grand_castle"
+        }
+      ],
+      "functions": [
+        {
+          "function": "minecraft:set_enchantments",
+          "enchantments": {
+            "minecraft:luck_of_the_sea": 2
+          }
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        },
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "axolootl:grand_castle",
+          "properties": {
+            "width": "1",
+            "height": "1",
+            "depth": "1",
+            "level": "2"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "axolootl:grand_castle"
+        }
+      ],
+      "functions": [
+        {
+          "function": "minecraft:set_enchantments",
+          "enchantments": {
+            "minecraft:luck_of_the_sea": 3
+          }
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        },
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "axolootl:grand_castle",
+          "properties": {
+            "width": "1",
+            "height": "1",
+            "depth": "1",
+            "level": "3"
+          }
+        }
+      ]
+    }
+  ]
+}

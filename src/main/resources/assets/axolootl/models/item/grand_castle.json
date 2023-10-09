@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "axolootl:item/grand_castle"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "axolootl:enchantment": 0.3
+      },
+      "model": "axolootl:item/enchanted_grand_castle"
+    }
+  ]
+}

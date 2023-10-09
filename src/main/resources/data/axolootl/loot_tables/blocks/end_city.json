@@ -11,7 +11,7 @@
           "block": "axolootl:end_city",
           "condition": "minecraft:block_state_property",
           "properties": {
-            "half": "upper"
+            "half": "lower"
           }
         }
       ],
