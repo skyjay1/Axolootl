@@ -19,7 +19,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
@@ -31,6 +30,7 @@ import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -39,15 +39,17 @@ import java.util.function.Predicate;
 public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock {
 
     /** The X index property **/
-    public static final IntegerProperty WIDTH = IntegerProperty.create("width", 0, 3);
+    public static final IntegerProperty WIDTH = IntegerProperty.create("width", 0, 2);
     /** The Y index property **/
-    public static final IntegerProperty HEIGHT = IntegerProperty.create("height", 0, 3);
+    public static final IntegerProperty HEIGHT = IntegerProperty.create("height", 0, 2);
     /** The Z index property **/
-    public static final IntegerProperty DEPTH = IntegerProperty.create("depth", 0, 3);
+    public static final IntegerProperty DEPTH = IntegerProperty.create("depth", 0, 2);
 
     private static final Vec3i CENTER = new Vec3i(1, 1, 1);
+    public static final Direction ORIGIN_DIRECTION = Direction.NORTH;
 
     private final Map<BlockState, ShapeData> SHAPES = new HashMap<>();
+    private final Map<Direction, VoxelShape> CENTERED_VISUAL_SHAPES = new EnumMap<>(Direction.class);
     private final Map<BlockState, VoxelShape> VISUAL_SHAPES = new HashMap<>();
     private final Function<BlockState, ShapeData> shapes;
 
@@ -99,10 +101,22 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
 
     protected void precalculateShapes() {
         SHAPES.clear();
+        CENTERED_VISUAL_SHAPES.clear();
         VISUAL_SHAPES.clear();
+        // calculate centered visual shapes
+        final BlockState centerBlockState = this.defaultBlockState().setValue(WIDTH, 1).setValue(HEIGHT, 1).setValue(DEPTH, 1);
+        final VoxelShape centeredShape = createVisualShape(centerBlockState);
+        CENTERED_VISUAL_SHAPES.putAll(ShapeUtils.rotateShapes(ORIGIN_DIRECTION, centeredShape));
+        // iterate all block states
         for(BlockState blockState : this.stateDefinition.getPossibleStates()) {
-            // no need to cache individual shapes, #createVisualShape will handle that too
-            VISUAL_SHAPES.put(blockState, createVisualShape(blockState));
+            // cache the individual shape
+            SHAPES.put(blockState, createShapeData(blockState));
+            // move the centered shape for the given rotation to the correct offset
+            Vec3i index = getIndex(blockState);
+            VoxelShape shape = CENTERED_VISUAL_SHAPES.get(blockState.getValue(FACING))
+                    .move(1 - index.getX(), 1 - index.getY(), 1 - index.getZ());
+            // cache the offset visual shape
+            VISUAL_SHAPES.put(blockState, shape);
         }
     }
 
@@ -110,10 +124,7 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
      * @param blockState the block state
      * @return the cached visual outline for the given block state
      */
-    public VoxelShape getOrCreateVisualShape(final BlockState blockState) {
-        if(!VISUAL_SHAPES.containsKey(blockState)) {
-            VISUAL_SHAPES.put(blockState, createVisualShape(blockState));
-        }
+    public VoxelShape getVisualShape(final BlockState blockState) {
         return VISUAL_SHAPES.get(blockState);
     }
 
@@ -135,10 +146,18 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
      * @param blockState the block state
      * @return the cached shape data for the given block state
      */
-    public ShapeData getOrCreateShapeData(final BlockState blockState) {
+    protected ShapeData getOrCreateShapeData(final BlockState blockState) {
         if(!SHAPES.containsKey(blockState)) {
             SHAPES.put(blockState, createShapeData(blockState));
         }
+        return SHAPES.get(blockState);
+    }
+
+    /**
+     * @param blockState the block state
+     * @return the cached shape data for the given block state
+     */
+    public ShapeData getShapeData(final BlockState blockState) {
         return SHAPES.get(blockState);
     }
 
@@ -153,7 +172,7 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
 
     @Override
     public VoxelShape getCollisionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        final ShapeData shapeData = getOrCreateShapeData(pState);
+        final ShapeData shapeData = getShapeData(pState);
         if(shapeData.getCollisionShape().isEmpty() || (shapeData.isPassable() && pContext instanceof EntityCollisionContext context && ShapeUtils.canEntityPass(context.getEntity()))) {
             return Shapes.empty();
         }
@@ -162,7 +181,7 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
 
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        return getOrCreateVisualShape(pState);
+        return getVisualShape(pState);
         //return getOrCreateShapeData(pState).getCollisionShape();
     }
 
@@ -188,7 +207,6 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
     @Override
     public void setPlacedBy(Level pLevel, BlockPos pPos, BlockState pState, LivingEntity pPlacer, ItemStack pStack) {
         // determine center
-        final Direction direction = pState.getValue(FACING);
         final BlockPos center = getCenter(pPos, pState);
         // place multiblock
         PositionIterator.accept(center, (p, x, y, z) -> {
@@ -198,7 +216,6 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
             boolean waterlogged = pLevel.getFluidState(p).getType() == Fluids.WATER;
             BlockState state = pState
                     .setValue(WATERLOGGED, waterlogged)
-                    .setValue(FACING, direction)
                     .setValue(WIDTH, x)
                     .setValue(HEIGHT, y)
                     .setValue(DEPTH, z);
@@ -235,7 +252,7 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
         final BlockState blockState = pLevel.getBlockState(center);
         if(blockState.is(pState.getBlock()) && getIndex(blockState).equals(CENTER)) {
             pLevel.setBlock(center, blockState.getFluidState().createLegacyBlock(), Block.UPDATE_SUPPRESS_DROPS | Block.UPDATE_ALL);
-            pLevel.levelEvent(pPlayer, LevelEvent.PARTICLES_DESTROY_BLOCK, center, Block.getId(blockState));
+            //pLevel.levelEvent(pPlayer, LevelEvent.PARTICLES_DESTROY_BLOCK, center, Block.getId(blockState));
         }
     }
 
@@ -380,6 +397,22 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
     }
 
     /**
+     * Helper method for {@link #createRotatedIndexedShape(Vec3i, Direction, Direction, ShapeData[][][])}
+     * @param blockState the block state
+     * @param shapeData a 3d array containing base values for all indices of the multiblock
+     * @return a new {@link ShapeData} object containing a correctly rotated shape
+     * @see #createRotatedIndexedShape(Vec3i, Direction, Direction, ShapeData[][][]) 
+     */
+    protected static ShapeData createRotatedShapeData(final BlockState blockState, final ShapeData[][][] shapeData) {
+        final int width = blockState.getValue(WIDTH);
+        final int depth = blockState.getValue(DEPTH);
+        final int height = blockState.getValue(HEIGHT);
+        final Direction facing = blockState.getValue(FACING);
+
+        return createRotatedIndexedShape(new Vec3i(width, height, depth), ORIGIN_DIRECTION, facing, shapeData);
+    }
+
+    /**
      * Creates a new {@link ShapeData} with rotated shapes, using the shape data in a 3d array as a reference
      * @param index the [width, height, depth] index of the blockstate as calculated by {@link #getIndex(BlockState)}
      * @param originDirection the horizontal direction of the shapes in the 3d array
@@ -412,5 +445,4 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
             case SOUTH: return new Vec3i(index.getZ(), index.getY(), -index.getX() + 2);
         }
     }
-
 }

@@ -6,16 +6,12 @@
 
 package axolootl.block;
 
-import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 
 public class BastionMultiBlock extends WaterloggedHorizontalMultiBlock {
-
-    private static final Direction originDirection = Direction.NORTH;
 
     public BastionMultiBlock(Properties pProperties) {
         super(pProperties, BastionMultiBlock::createShape);
@@ -65,7 +61,7 @@ public class BastionMultiBlock extends WaterloggedHorizontalMultiBlock {
                 new ShapeData(Shapes.block()),
                 new ShapeData(Shapes.join(
                         Shapes.block(),
-                        Block.box(4, 4, 0, 12, 16, 12),
+                        Block.box(2, 2, 0, 14, 16, 14),
                         BooleanOp.ONLY_FIRST), true),
                 new ShapeData(Shapes.or(
                         Block.box(0, 0, 2, 16, 14, 16),
@@ -77,8 +73,8 @@ public class BastionMultiBlock extends WaterloggedHorizontalMultiBlock {
                         Block.box(0, 0, 0, 12, 16, 8),
                         Block.box(12, 0, 0, 16, 16, 4))),
                 new ShapeData(Shapes.join(
-                                Shapes.block(),
-                                Block.box(4, 0, 0, 12, 12, 12),
+                                Block.box(0, 0, 0, 16, 16, 8),
+                                Block.box(2, 0, 0, 14, 12, 8),
                                 BooleanOp.ONLY_FIRST), true),
                 new ShapeData(Block.box(0, 0, 0, 16, 16, 8))
             }
@@ -112,11 +108,6 @@ public class BastionMultiBlock extends WaterloggedHorizontalMultiBlock {
     };
 
     private static ShapeData createShape(final BlockState blockState) {
-        final int width = blockState.getValue(WIDTH);
-        final int depth = blockState.getValue(DEPTH);
-        final int height = blockState.getValue(HEIGHT);
-        final Direction facing = blockState.getValue(FACING);
-
-        return createRotatedIndexedShape(new Vec3i(width, height, depth), originDirection, facing, SHAPE_DATA);
+        return createRotatedShapeData(blockState, SHAPE_DATA);
     }
 }

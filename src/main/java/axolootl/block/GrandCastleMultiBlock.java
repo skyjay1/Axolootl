@@ -7,7 +7,6 @@
 package axolootl.block;
 
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -24,8 +23,6 @@ public class GrandCastleMultiBlock extends WaterloggedHorizontalMultiBlock {
     /** The enchantment level **/
     public static final IntegerProperty ENCHANTMENT_LEVEL = IntegerProperty.create("level", 0, MAX_ENCHANTMENT_LEVEL);
     public static final Enchantment ENCHANTMENT = Enchantments.FISHING_LUCK;
-
-    private static final Direction originDirection = Direction.NORTH;
 
     public GrandCastleMultiBlock(Properties pProperties) {
         super(pProperties, GrandCastleMultiBlock::createShape);
@@ -173,11 +170,6 @@ public class GrandCastleMultiBlock extends WaterloggedHorizontalMultiBlock {
     };
 
     private static ShapeData createShape(final BlockState blockState) {
-        final int width = blockState.getValue(WIDTH);
-        final int depth = blockState.getValue(DEPTH);
-        final int height = blockState.getValue(HEIGHT);
-        final Direction facing = blockState.getValue(FACING);
-
-        return createRotatedIndexedShape(new Vec3i(width, height, depth), originDirection, facing, SHAPE_DATA);
+        return createRotatedShapeData(blockState, SHAPE_DATA);
     }
 }
