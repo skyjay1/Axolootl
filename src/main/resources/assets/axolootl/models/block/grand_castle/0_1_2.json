@@ -3,7 +3,7 @@
   "render_type": "minecraft:cutout",
   "textures": {
     "tower": "axolootl:block/grand_castle/tower",
-    "particle": "minecraft:stone_bricks"
+    "particle": "minecraft:block/stone_bricks"
   },
   "elements": [
     {

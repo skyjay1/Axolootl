@@ -1,0 +1,40 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "bricks": "axolootl:block/bastion/tiny_blackstone_bricks",
+    "cracked_bricks": "axolootl:block/bastion/cracked_tiny_blackstone_bricks",
+    "particle": "#bricks"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 16],
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#cracked_bricks"},
+        "east": {"uv": [0, 0, 16, 16], "texture": "#bricks"},
+        "down": {"uv": [0, 0, 16, 16], "texture": "#bricks"}
+      }
+    }
+  ],
+  "groups": [
+    0,
+    {
+      "name": "bridge",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "entrance",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "exit",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    }
+  ]
+}

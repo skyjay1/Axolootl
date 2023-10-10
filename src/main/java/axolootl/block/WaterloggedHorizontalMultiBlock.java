@@ -209,7 +209,8 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
 
     @Override
     public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos) {
-        if(!pState.getBlock().equals(this)) {
+        // assume if the block at the given position is not this one, this is a preemptive check
+        if(!pState.is(this)) {
             return true;
         }
         // validate positions
@@ -240,23 +241,48 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
 
     //// POSITION HELPERS ////
 
+    /**
+     * @param blockState the block state of a multiblock part
+     * @return the [width, height, depth] values of the block state
+     */
     public static Vec3i getIndex(final BlockState blockState) {
         return new Vec3i(blockState.getValue(WIDTH), blockState.getValue(HEIGHT), blockState.getValue(DEPTH));
     }
 
+    /**
+     * @param pos the block position
+     * @param indices the [width, height, depth] values of the block at the given position
+     * @return the block position of the center of the 3x3x3 multiblock
+     * @see #getIndex(BlockState)
+     * @see #getCenter(BlockPos, BlockState)
+     */
     public static BlockPos getCenter(final BlockPos pos, final Vec3i indices) {
         return pos.offset(-(indices.getX() - 1), -(indices.getY() - 1), -(indices.getZ() - 1));
     }
+
+    /**
+     * @param pos the block position
+     * @param blockState the block state of a multiblock part
+     * @return the block position of the center of the 3x3x3 multiblock
+     * @see #getIndex(BlockState)
+     * @see #getCenter(BlockPos, BlockState)
+     */
     public static BlockPos getCenter(final BlockPos pos, final BlockState blockState) {
         return getCenter(pos, getIndex(blockState));
     }
 
+    /**
+     * @param center the block position of the center of the 3x3x3 multiblock
+     * @return an iterable containing block positions for all blocks in the 3x3x3 multiblock
+     * @see #getCenter(BlockPos, BlockState)
+     * @see #getCenter(BlockPos, Vec3i)
+     */
     public static Iterable<BlockPos> getPositions(final BlockPos center) {
         return BlockPos.betweenClosed(center.getX() - 1, center.getY() - 1, center.getZ() - 1, center.getX() + 1, center.getY() + 1, center.getZ() + 1);
     }
 
     /**
-     * @param center the center position
+     * @param center the block position of the center of the 3x3x3 multiblock
      * @param predicate a predicate to test
      * @return true if all positions passed.
      */
@@ -270,7 +296,7 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
     }
 
     /**
-     * @param center the center position
+     * @param center the block position of the center of the 3x3x3 multiblock
      * @param predicate a predicate to test
      * @return true if any position passed.
      */
@@ -293,6 +319,11 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
          */
         void accept(BlockPos p, int x, int y, int z);
 
+        /**
+         * Iterates all blocks in the 3x3x3 multiblock with the given {@link PositionIterator}
+         * @param center the block position of the center of the 3x3x3 multiblock
+         * @param iterator the position iterator
+         */
         public static void accept(BlockPos center, PositionIterator iterator) {
             BlockPos.MutableBlockPos pos = center.mutable();
             for(int x = 0; x < 3; x++) {
@@ -305,4 +336,81 @@ public class WaterloggedHorizontalMultiBlock extends WaterloggedHorizontalBlock 
             }
         }
     }
+
+    //// SHAPE HELPERS ////
+
+    public static class ShapeData {
+
+        private final VoxelShape collisionShape;
+        private final boolean passable;
+
+        /**
+         * Constructs a {@link ShapeData} with the passable set to true only if the given shape is empty
+         * @param collisionShape the collision voxel shape
+         * @see #ShapeData(VoxelShape, boolean)  ShapeData
+         */
+        public ShapeData(final VoxelShape collisionShape) {
+            this(collisionShape, collisionShape.isEmpty());
+        }
+
+        /**
+         * @param collisionShape the collision voxel shape
+         * @param passable true if small entities can pass through the block without collisions
+         */
+        public ShapeData(final VoxelShape collisionShape, final boolean passable) {
+            this.collisionShape = collisionShape;
+            this.passable = passable;
+        }
+
+        //// GETTERS ////
+
+        /**
+         * @return the collision voxel shape
+         */
+        public VoxelShape getCollisionShape() {
+            return collisionShape;
+        }
+
+        /**
+         * @return true if small entities can pass through the block without collisions
+         */
+        public boolean isPassable() {
+            return passable;
+        }
+    }
+
+    /**
+     * Creates a new {@link ShapeData} with rotated shapes, using the shape data in a 3d array as a reference
+     * @param index the [width, height, depth] index of the blockstate as calculated by {@link #getIndex(BlockState)}
+     * @param originDirection the horizontal direction of the shapes in the 3d array
+     * @param direction the target direction to rotate towards
+     * @param template a 3d array containing base values for all indices of the multiblock
+     * @return a new {@link ShapeData} object containing a correctly rotated shape
+     */
+    public static ShapeData createRotatedIndexedShape(final Vec3i index,
+                                                      final Direction originDirection, final Direction direction,
+                                                      final ShapeData[][][] template) {
+        final Vec3i rotatedIndex = rotateIndex(index, Direction.from2DDataValue(direction.get2DDataValue() - originDirection.get2DDataValue() + 4));
+        final ShapeData shapeData = template[rotatedIndex.getY()][rotatedIndex.getX()][rotatedIndex.getZ()];
+        return new ShapeData(
+                ShapeUtils.rotateShape(originDirection, direction, shapeData.getCollisionShape()),
+                shapeData.isPassable());
+    }
+
+    /**
+     * @param index the original index as calculated by {@link #getIndex(BlockState)}
+     * @param direction the direction to rotate
+     * @return the index after rotating in the given direction
+     * @see #createRotatedIndexedShape(Vec3i, Direction, Direction, ShapeData[][][])
+     */
+    public static Vec3i rotateIndex(final Vec3i index, final Direction direction) {
+        switch (direction) {
+            default:
+            case WEST: return new Vec3i(-index.getX() + 2, index.getY(), -index.getZ() + 2);
+            case NORTH: return new Vec3i(-index.getZ() + 2, index.getY(), index.getX());
+            case EAST: return index;
+            case SOUTH: return new Vec3i(index.getZ(), index.getY(), -index.getX() + 2);
+        }
+    }
+
 }

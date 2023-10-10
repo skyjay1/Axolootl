@@ -8,7 +8,7 @@ package axolootl.client;
 
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
-import axolootl.block.GrandCastleBlock;
+import axolootl.block.GrandCastleMultiBlock;
 import axolootl.client.blockentity.AutofeederBlockEntityRenderer;
 import axolootl.client.entity.AxolootlGeoRenderer;
 import axolootl.client.menu.AxolootlInspectorScreen;
@@ -18,12 +18,10 @@ import axolootl.client.menu.CyclingContainerScreen;
 import axolootl.client.menu.EnergyInterfaceScreen;
 import axolootl.client.menu.FluidInterfaceScreen;
 import axolootl.data.axolootl_variant.AxolootlVariant;
-import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -98,7 +96,7 @@ public final class ClientEvents {
                     RegistryObject.create(new ResourceLocation(Axolootl.MODID, "grand_castle"), ForgeRegistries.ITEMS).get(),
                     new ResourceLocation(Axolootl.MODID, "enchantment"),
                     (pStack, pLevel, pEntity, pSeed) -> {
-                        return (float) pStack.getEnchantmentLevel(GrandCastleBlock.ENCHANTMENT) / (float) GrandCastleBlock.MAX_ENCHANTMENT_LEVEL;
+                        return (float) pStack.getEnchantmentLevel(GrandCastleMultiBlock.ENCHANTMENT) / (float) GrandCastleMultiBlock.MAX_ENCHANTMENT_LEVEL;
                     });
             // Axolootl Bucket
             ItemProperties.register(AxRegistry.ItemReg.AXOLOOTL_BUCKET.get(), new ResourceLocation(Axolootl.MODID, "baby"),

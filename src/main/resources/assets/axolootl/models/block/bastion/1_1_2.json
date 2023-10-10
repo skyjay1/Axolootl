@@ -1,0 +1,67 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "axolootl:block/bastion/tiny_blackstone_bricks",
+    "bricks": "axolootl:block/bastion/tiny_blackstone_bricks",
+    "cracked_bricks": "axolootl:block/bastion/cracked_tiny_blackstone_bricks",
+    "gilded_bricks": "axolootl:block/bastion/gilded_tiny_blackstone_bricks"
+  },
+  "elements": [
+    {
+      "from": [2, 5, 1.99],
+      "to": [10, 13, 1.99],
+      "faces": {
+        "north": {"uv": [3, 7, 11, 15], "texture": "#cracked_bricks"}
+      }
+    },
+    {
+      "from": [0, 0, 8],
+      "to": [0, 8, 16],
+      "faces": {
+        "west": {"uv": [2, 0, 10, 8], "texture": "#gilded_bricks"}
+      }
+    },
+    {
+      "from": [0.01, 0, 2],
+      "to": [16, 14, 16],
+      "faces": {
+        "north": {"uv": [0, 2, 16, 16], "texture": "#bricks"},
+        "west": {"uv": [0, 2, 14, 16], "texture": "#bricks"},
+        "up": {"uv": [0, 0, 16, 14], "texture": "#cracked_bricks"},
+        "down": {"uv": [0, 2, 16, 16], "texture": "#bricks"}
+      }
+    },
+    {
+      "from": [8, 14, 2],
+      "to": [16, 16, 16],
+      "faces": {
+        "north": {"uv": [0, 0, 8, 2], "texture": "#bricks"},
+        "west": {"uv": [0, 7, 14, 9], "texture": "#gilded_bricks"}
+      }
+    }
+  ],
+  "groups": [
+    0,
+    1,
+    2,
+    3,
+    {
+      "name": "bridge",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "entrance",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "exit",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    }
+  ]
+}

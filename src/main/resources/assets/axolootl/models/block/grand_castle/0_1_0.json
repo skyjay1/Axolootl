@@ -5,7 +5,7 @@
     "bricks": "axolootl:block/grand_castle/tiny_stone_bricks",
     "tower": "axolootl:block/grand_castle/tower",
     "brain_coral": "block/brain_coral_block",
-    "particle": "minecraft:stone_bricks"
+    "particle": "minecraft:block/stone_bricks"
   },
   "elements": [
     {

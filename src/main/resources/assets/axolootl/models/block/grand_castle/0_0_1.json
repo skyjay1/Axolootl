@@ -5,7 +5,7 @@
     "bricks": "axolootl:block/grand_castle/tiny_stone_bricks",
     "lower_bricks": "axolootl:block/grand_castle/tiny_stone_bricks_lower",
     "tower": "axolootl:block/grand_castle/tower",
-    "particle": "minecraft:stone_bricks"
+    "particle": "minecraft:block/stone_bricks"
   },
   "elements": [
     {

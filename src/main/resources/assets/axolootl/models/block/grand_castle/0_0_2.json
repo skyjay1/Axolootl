@@ -7,7 +7,7 @@
     "roof": "axolootl:block/grand_castle/roof",
     "brain_coral": "block/brain_coral_block",
     "bubble_coral": "block/bubble_coral_block",
-    "particle": "minecraft:stone_bricks"
+    "particle": "minecraft:block/stone_bricks"
   },
   "elements": [
     {

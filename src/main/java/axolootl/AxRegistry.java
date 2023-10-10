@@ -12,6 +12,7 @@ import axolootl.block.AquariumGlassBlock;
 import axolootl.block.AutofeederBlock;
 import axolootl.block.AxolootlInspectorBlock;
 import axolootl.block.AxolootlInterfaceBlock;
+import axolootl.block.BastionMultiBlock;
 import axolootl.block.BreederBlock;
 import axolootl.block.BubblerBlock;
 import axolootl.block.CastleBlock;
@@ -20,15 +21,12 @@ import axolootl.block.EndCityBlock;
 import axolootl.block.EndShipBlock;
 import axolootl.block.EnergyInterfaceBlock;
 import axolootl.block.FilledAquariumFloorBlock;
-import axolootl.block.GrandCastleBlock;
+import axolootl.block.GrandCastleMultiBlock;
 import axolootl.block.MonsteriumBlock;
 import axolootl.block.NurseryBlock;
 import axolootl.block.OutputBlock;
 import axolootl.block.PumpBlock;
 import axolootl.block.WaterInterfaceBlock;
-import axolootl.block.WaterloggedHorizontalBlock;
-import axolootl.block.WaterloggedHorizontalDoubleBlock;
-import axolootl.block.WaterloggedHorizontalMultiBlock;
 import axolootl.block.entity.AutoFeederBlockEntity;
 import axolootl.block.entity.AxolootlInspectorBlockEntity;
 import axolootl.block.entity.AxolootlInterfaceBlockEntity;
@@ -302,6 +300,7 @@ public final class AxRegistry {
             ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
+        public static final RegistryObject<Item> BASTION_RAMPART = register("bastion_rampart", () -> new Item(new Item.Properties().stacksTo(16).tab(TAB)));
         public static final RegistryObject<Item> CASTLE_RAMPART = register("castle_rampart", () -> new Item(new Item.Properties().stacksTo(16).tab(TAB)));
         public static final RegistryObject<Item> END_CITY_RAMPART = register("end_city_rampart", () -> new Item(new Item.Properties().stacksTo(16).tab(TAB)));
         public static final RegistryObject<Item> AXOLOOTL_BUCKET = register("axolootl_bucket", () ->
@@ -373,8 +372,9 @@ public final class AxRegistry {
         public static final RegistryObject<Block> NURSERY = registerWithItem("nursery", () -> new NurseryBlock(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_CYAN).noOcclusion().requiresCorrectToolForDrops().strength(3.5F)));
         public static final RegistryObject<Block> MONSTERIUM = registerWithItem("monsterium", () -> new MonsteriumBlock(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_CYAN).noOcclusion().requiresCorrectToolForDrops().isValidSpawn(BlockReg::never).isRedstoneConductor(BlockReg::never).strength(3.5F)));
         public static final RegistryObject<Block> AUTOFEEDER = registerWithItem("autofeeder", () -> new AutofeederBlock(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_CYAN).noOcclusion().requiresCorrectToolForDrops().strength(3.5F)));
+        public static final RegistryObject<Block> BASTION = registerWithMultiBlockItem("bastion", () -> new BastionMultiBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_BLACK).noOcclusion().strength(5.0F, 120.0F)));
         public static final RegistryObject<Block> CASTLE = registerWithItem("castle", () -> new CastleBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion().dynamicShape().isSuffocating(BlockReg::never).strength(3.5F, 60.0F)));
-        public static final RegistryObject<Block> GRAND_CASTLE = registerWithGrandCastleMultiBlockItem("grand_castle", () -> new GrandCastleBlock(BlockBehaviour.Properties.of(Material.STONE, state -> state.getValue(GrandCastleBlock.ENCHANTMENT_LEVEL) > 0 ? MaterialColor.COLOR_BLUE : MaterialColor.STONE).noOcclusion().requiresCorrectToolForDrops().strength(5.0F, 120.0F)));
+        public static final RegistryObject<Block> GRAND_CASTLE = registerWithGrandCastleMultiBlockItem("grand_castle", () -> new GrandCastleMultiBlock(BlockBehaviour.Properties.of(Material.STONE, state -> state.getValue(GrandCastleMultiBlock.ENCHANTMENT_LEVEL) > 0 ? MaterialColor.COLOR_BLUE : MaterialColor.STONE).noOcclusion().strength(5.0F, 120.0F)));
         public static final RegistryObject<Block> END_CITY = registerWithItem("end_city", () -> new EndCityBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_PURPLE).noOcclusion().isSuffocating(BlockReg::never).strength(3.5F, 60.0F)));
         public static final RegistryObject<Block> END_SHIP = registerWithItem("end_ship", () -> new EndShipBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_PURPLE).noOcclusion().isSuffocating(BlockReg::never).strength(3.5F, 60.0F)));
 

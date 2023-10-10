@@ -6,9 +6,7 @@
 
 package axolootl.util;
 
-import axolootl.block.ShapeData;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -153,23 +151,4 @@ public final class ShapeUtils {
         return aabb.getXsize() * aabb.getYsize() * aabb.getZsize();
     }
 
-    public static ShapeData createRotatedIndexedShape(final Vec3i index,
-                                                      final Direction originDirection, final Direction direction,
-                                                      final ShapeData[][][] template) {
-        final Vec3i rotatedIndex = rotateIndex(index, Direction.from2DDataValue(direction.get2DDataValue() - originDirection.get2DDataValue() + 4));
-        final ShapeData shapeData = template[rotatedIndex.getY()][rotatedIndex.getX()][rotatedIndex.getZ()];
-        return new ShapeData(
-                ShapeUtils.rotateShape(originDirection, direction, shapeData.getCollisionShape()),
-                shapeData.isPassable());
-    }
-
-    public static Vec3i rotateIndex(final Vec3i index, final Direction direction) {
-        switch (direction) {
-            default:
-            case WEST: return new Vec3i(-index.getX() + 2, index.getY(), -index.getZ() + 2);
-            case NORTH: return new Vec3i(-index.getZ() + 2, index.getY(), index.getX());
-            case EAST: return index;
-            case SOUTH: return new Vec3i(index.getZ(), index.getY(), -index.getX() + 2);
-        }
-    }
 }
