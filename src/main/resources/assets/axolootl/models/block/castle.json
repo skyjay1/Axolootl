@@ -2,9 +2,9 @@
   "parent": "minecraft:block/cube",
   "render_type": "minecraft:cutout",
   "textures": {
-    "tower": "axolootl:block/castle_tower",
-    "rampart": "axolootl:block/castle_tower_rampart",
-    "castle": "axolootl:block/castle_side",
+    "tower": "axolootl:block/castle/tower",
+    "rampart": "axolootl:block/castle/rampart",
+    "castle": "axolootl:block/castle/side",
     "particle": "#tower"
   },
   "elements": [
