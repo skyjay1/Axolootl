@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/air",
+  "textures": {
+    "particle": "axolootl:block/bastion/tiny_blackstone_bricks"
+  }
+}
