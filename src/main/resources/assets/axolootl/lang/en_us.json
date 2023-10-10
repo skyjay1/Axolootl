@@ -157,7 +157,7 @@
   "axolootl.modifier_condition.axolootl_count.multiple": "%1$s of any of the following:",
   "axolootl.modifier_condition.count.single": "%1$s %2$s",
   "axolootl.modifier_condition.count.multiple": "%1$s of any of the following:",
-  "axolootl.modifier_condition.distance.single": "%1$s blocks from %2$s",
+  "axolootl.modifier_condition.distance.single": "%1$s block(s) from %2$s",
   "axolootl.modifier_condition.distance.multiple": "%1$s blocks from any of the following:",
   "axolootl.modifier_condition.energy": "Min. %1$s FE",
   "axolootl.modifier_condition.false": "Never",

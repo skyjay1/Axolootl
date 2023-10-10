@@ -14,18 +14,8 @@
     }
   },
   "condition": {
-    "type": "axolootl:and",
-    "children": [
-      {
-        "type": "axolootl:count_capped",
-        "modifier": "axolootl:bastion",
-        "count": 1
-      },
-      {
-        "type": "axolootl:count",
-        "modifier": "axolootl:pristine_bastion",
-        "count": 0
-      }
-    ]
+    "type": "axolootl:count_capped",
+    "modifier": "axolootl:bastion",
+    "count": 1
   }
 }

@@ -1,21 +1,110 @@
 {
   "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
-    "0": "block/black_wool",
-    "particle": "block/black_wool"
+    "lower_bricks": "axolootl:block/grand_castle/tiny_stone_bricks_lower",
+    "tower": "axolootl:block/grand_castle/tower",
+    "roof": "axolootl:block/grand_castle/roof",
+    "bubble_coral": "block/bubble_coral_block",
+    "particle": "minecraft:block/stone_bricks"
   },
   "elements": [
     {
-      "from": [8, 0, 8],
-      "to": [16, 16, 16],
+      "from": [0, 0, 9],
+      "to": [7, 16, 16],
       "faces": {
-        "north": {"uv": [0, 0, 8, 16], "texture": "#0"},
-        "east": {"uv": [0, 0, 8, 16], "texture": "#0"},
-        "south": {"uv": [0, 0, 8, 16], "texture": "#0"},
-        "west": {"uv": [0, 0, 8, 16], "texture": "#0"},
-        "up": {"uv": [0, 0, 8, 8], "texture": "#0"},
-        "down": {"uv": [0, 0, 8, 8], "texture": "#0"}
+        "north": {"uv": [0, 0, 7, 16], "texture": "#lower_bricks"},
+        "east": {"uv": [0, 0, 7, 16], "texture": "#lower_bricks"},
+        "south": {"uv": [0, 0, 7, 16], "texture": "#lower_bricks"},
+        "west": {"uv": [0, 0, 7, 16], "texture": "#lower_bricks"},
+        "down": {"uv": [5, 6, 12, 13], "texture": "#tower"}
       }
+    },
+    {
+      "from": [2, 6, 8],
+      "to": [5, 8, 9],
+      "faces": {
+        "north": {"uv": [2, 1, 5, 3], "texture": "#bubble_coral"},
+        "east": {"uv": [2, 1, 3, 3], "texture": "#bubble_coral"},
+        "west": {"uv": [2, 1, 3, 3], "texture": "#bubble_coral"},
+        "up": {"uv": [2, 1, 5, 2], "texture": "#bubble_coral"},
+        "down": {"uv": [2, 1, 5, 2], "texture": "#bubble_coral"}
+      }
+    },
+    {
+      "from": [2, 7, 8.99],
+      "to": [5, 12, 8.99],
+      "faces": {
+        "north": {"uv": [13, 8, 16, 13], "texture": "#roof"}
+      }
+    }
+  ],
+  "groups": [
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "wall",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "entrance",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "exit",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": [0, 1, 2]
     }
   ]
 }

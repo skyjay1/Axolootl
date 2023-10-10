@@ -19,11 +19,13 @@ public class AxolootlBucketItemSettings {
     public static final Codec<AxolootlBucketItemSettings> CODEC = Codec.unboundedMap(ResourceLocation.CODEC, ResourceLocation.CODEC)
             .xmap(AxolootlBucketItemSettings::new, AxolootlBucketItemSettings::getVariantToModelMap).fieldOf("values").codec();
 
+    private boolean isLoaded;
     private final Map<ResourceLocation, ResourceLocation> variantToModelMap;
     private final Map<ResourceLocation, ResourceLocation> variantToModelMapView;
 
     public AxolootlBucketItemSettings() {
         this(Map.of());
+        this.isLoaded = false;
     }
 
     public AxolootlBucketItemSettings(Map<ResourceLocation, ResourceLocation> variantToModelMap) {
@@ -42,6 +44,7 @@ public class AxolootlBucketItemSettings {
 
     public void clear() {
         this.variantToModelMap.clear();
+        this.isLoaded = false;
     }
 
     public void put(final ResourceLocation variant, final ResourceLocation model) {
@@ -54,6 +57,14 @@ public class AxolootlBucketItemSettings {
 
     public boolean isEmpty() {
         return this.variantToModelMap.isEmpty();
+    }
+
+    public boolean isLoaded() {
+        return this.isLoaded;
+    }
+
+    public void setLoaded() {
+        this.isLoaded = true;
     }
 
     //// GETTERS ////

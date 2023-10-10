@@ -27,6 +27,14 @@ public class AquariumModifierContext {
     private final Map<BlockPos, AquariumModifier> modifiers;
     private final Set<BlockPos> activeModifiers;
 
+    /**
+     * @param level the level
+     * @param pos the block position of the current aquarium modifier
+     * @param tankSize the tank size
+     * @param axolootls a view of all tracked axolootls
+     * @param modifiers a view of all tracked aquarium modifiers, excluding the current one
+     * @param activeModifiers the set of block positions that contained active modifiers before the current evaluation
+     */
     public AquariumModifierContext(LevelAccessor level, BlockPos pos,
                                    TankMultiblock.Size tankSize, Collection<IAxolootl> axolootls,
                                    Map<BlockPos, AquariumModifier> modifiers, Set<BlockPos> activeModifiers) {
@@ -83,7 +91,7 @@ public class AquariumModifierContext {
     }
 
     /**
-     * @return a view of the aquarium modifiers, not including the one that is being queried
+     * @return a view of the aquarium modifiers, not including the one that is being evaluated
      */
     public Map<BlockPos, AquariumModifier> getModifiers() {
         return modifiers;

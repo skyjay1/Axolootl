@@ -1,21 +1,94 @@
 {
-  "parent": "minecraft:block",
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
-    "0": "block/white_wool",
-    "particle": "block/white_wool"
+    "tower": "axolootl:block/grand_castle/tower",
+    "particle": "minecraft:block/stone_bricks"
   },
   "elements": [
     {
-      "from": [8, 0, 0],
-      "to": [16, 16, 8],
+      "from": [6, 0, 6],
+      "to": [16, 2, 6],
       "faces": {
-        "north": {"uv": [0, 0, 8, 16], "texture": "#0"},
-        "east": {"uv": [0, 0, 8, 16], "texture": "#0"},
-        "south": {"uv": [0, 0, 8, 16], "texture": "#0"},
-        "west": {"uv": [0, 0, 8, 16], "texture": "#0"},
-        "up": {"uv": [0, 0, 8, 8], "texture": "#0"},
-        "down": {"uv": [0, 0, 8, 8], "texture": "#0"}
+        "north": {"uv": [0, 0, 10, 2], "texture": "#tower"},
+        "south": {"uv": [10, 0, 0, 2], "texture": "#tower"}
       }
+    },
+    {
+      "from": [6, 0, 6],
+      "to": [6, 2, 16],
+      "faces": {
+        "east": {"uv": [10, 0, 0, 2], "texture": "#tower"},
+        "west": {"uv": [0, 0, 10, 2], "texture": "#tower"}
+      }
+    }
+  ],
+  "groups": [
+    {
+      "name": "tower",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": [0, 1]
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "wall",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": []
+    },
+    {
+      "name": "tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": []
     }
   ]
 }

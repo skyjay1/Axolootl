@@ -990,30 +990,24 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
         final Set<BlockPos> active = new HashSet<>();
         final Set<BlockPos> wasActive = getActiveAquariumModifiers();
         final Collection<IAxolootl> axolootls = resolveAxolootls(level);
-        final Map<BlockPos, AquariumModifier> modifierMap = ImmutableMap.copyOf(resolveModifiers(level.registryAccess()));
+        final Map<BlockPos, AquariumModifier> modifierMap = resolveModifiers(level.registryAccess());
+        final Map<BlockPos, AquariumModifier> contextMap = new HashMap<>(modifierMap);
+        final Map<BlockPos, AquariumModifier> contextMapView = Collections.unmodifiableMap(contextMap);
         for(Map.Entry<BlockPos, AquariumModifier> entry : modifierMap.entrySet()) {
             // validate modifier
             if(entry.getValue().isApplicable(level, entry.getKey())) {
-                // create context
-                final Map<BlockPos, AquariumModifier> contextMap = new HashMap<>(modifierMap);
+                // remove element from context map
                 contextMap.remove(entry.getKey());
-                AquariumModifierContext context = new AquariumModifierContext(level, entry.getKey(), size, axolootls, contextMap, wasActive);
-                // validate modifier is active and either does not require power or the tank has sufficient power
-                if(entry.getValue().isActive(context)/* && (!isInsufficientPower() || entry.getValue().getSettings().getEnergyCost() <= 0)*/) {
+                // create context
+                AquariumModifierContext context = new AquariumModifierContext(level, entry.getKey(), size, axolootls, contextMapView, wasActive);
+                // check if modifier is active
+                if(entry.getValue().isActive(context)) {
                     active.add(entry.getKey());
                     // attempt to spread
-                    final Optional<BlockPos> oPropogated = entry.getValue().checkAndSpread(context);
-                    // add new modifier to map
-                    oPropogated.ifPresent(b -> {
-                        aquariumModifiers.put(b, entry.getValue().getRegistryName(level.registryAccess()));
-                        // create context to check new modifier immediately
-                        contextMap.put(entry.getKey(), entry.getValue());
-                        // check if the new modifier is active
-                        if(entry.getValue().isActive(new AquariumModifierContext(level, b, size, axolootls, contextMap, wasActive))) {
-                            active.add(b);
-                        }
-                    });
+                    entry.getValue().checkAndSpread(context);
                 }
+                // re-add element to context map
+                contextMap.put(entry.getKey(), entry.getValue());
             } else {
                 invalid.add(entry.getKey());
                 IAquariumControllerProvider.tryClearController(level, entry.getKey());

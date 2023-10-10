@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/cube",
+  "parent": "minecraft:block/block",
   "render_type": "minecraft:cutout",
   "textures": {
     "post": "axolootl:block/nursery_post",

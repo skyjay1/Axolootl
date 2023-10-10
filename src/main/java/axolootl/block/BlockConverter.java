@@ -72,15 +72,16 @@ public interface BlockConverter extends Function<ItemStack, Optional<BlockState>
      * @param hand the interaction hand
      * @param itemStack the item stack
      * @param blockState the block state to place
+     * @param flags the block flag constants (can be ORed)
      * @return true if the level is client-side or the block was placed
      */
-    public static boolean convert(Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack itemStack, BlockState blockState) {
+    public static boolean convert(Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack itemStack, BlockState blockState, final int flags) {
         // validate server side
         if(level.isClientSide()) {
             return true;
         }
         // replace the block
-        if(!level.setBlock(pos, blockState, Block.UPDATE_CLIENTS)) {
+        if(!level.setBlock(pos, blockState, flags)) {
             return false;
         }
         // consume the item

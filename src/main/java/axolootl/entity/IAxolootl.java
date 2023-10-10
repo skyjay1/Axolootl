@@ -85,7 +85,7 @@ public interface IAxolootl {
     /**
      * @return true if the entity is playing dead
      */
-    boolean isPlayingDead();
+    boolean isEntityPlayingDead();
 
     /**
      * @return the generation speed bonus granted by this axolootl

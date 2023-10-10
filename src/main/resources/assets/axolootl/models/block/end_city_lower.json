@@ -1,0 +1,97 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "bricks": "axolootl:block/end_city/tiny_purpur_bricks",
+    "rooms": "axolootl:block/end_city/rooms",
+    "particle": "#bricks"
+  },
+  "elements": [
+    {
+      "from": [4, 0, 4],
+      "to": [12, 3, 12],
+      "faces": {
+        "north": {"uv": [4, 9, 12, 12], "texture": "#bricks"},
+        "east": {"uv": [4, 9, 12, 12], "texture": "#bricks"},
+        "south": {"uv": [4, 9, 12, 12], "texture": "#bricks"},
+        "west": {"uv": [4, 9, 12, 12], "texture": "#bricks"},
+        "up": {"uv": [3, 3, 13, 13], "texture": "#bricks"},
+        "down": {"uv": [3, 3, 13, 13], "texture": "#bricks"}
+      }
+    },
+    {
+      "from": [7, 0, 3.99],
+      "to": [9, 2, 3.99],
+      "faces": {
+        "north": {"uv": [7, 14, 9, 16], "texture": "#bricks"}
+      }
+    },
+    {
+      "from": [5, 3, 5],
+      "to": [11, 4, 11],
+      "faces": {
+        "north": {"uv": [0, 14, 6, 15], "texture": "#rooms"},
+        "east": {"uv": [0, 15, 6, 16], "texture": "#rooms"},
+        "south": {"uv": [0, 14, 6, 15], "texture": "#rooms"},
+        "west": {"uv": [0, 15, 6, 16], "texture": "#rooms"}
+      }
+    },
+    {
+      "from": [4, 4, 4],
+      "to": [12, 6, 12],
+      "faces": {
+        "north": {"uv": [4, 4, 12, 6], "texture": "#bricks"},
+        "east": {"uv": [4, 4, 12, 6], "texture": "#bricks"},
+        "south": {"uv": [4, 4, 12, 6], "texture": "#bricks"},
+        "west": {"uv": [4, 4, 12, 6], "texture": "#bricks"},
+        "up": {"uv": [3, 3, 13, 13], "rotation": 180, "texture": "#bricks"},
+        "down": {"uv": [3, 3, 13, 13], "texture": "#bricks"}
+      }
+    },
+    {
+      "from": [7, 6, 7],
+      "to": [9, 10, 9],
+      "faces": {
+        "north": {"uv": [7, 9, 9, 13], "texture": "#bricks"},
+        "east": {"uv": [7, 3, 9, 7], "texture": "#bricks"},
+        "south": {"uv": [7, 9, 9, 13], "texture": "#bricks"},
+        "west": {"uv": [7, 3, 9, 7], "texture": "#bricks"}
+      }
+    },
+    {
+      "from": [6, 10, 6],
+      "to": [10, 14, 10],
+      "faces": {
+        "north": {"uv": [4, 4, 8, 8], "texture": "#bricks"},
+        "east": {"uv": [8, 4, 12, 8], "texture": "#bricks"},
+        "south": {"uv": [4, 4, 8, 8], "texture": "#bricks"},
+        "west": {"uv": [8, 4, 12, 8], "texture": "#bricks"},
+        "down": {"uv": [6, 3, 10, 7], "texture": "#bricks"}
+      }
+    },
+    {
+      "from": [5, 14, 5],
+      "to": [11, 16, 11],
+      "faces": {
+        "north": {"uv": [4, 10, 10, 12], "texture": "#bricks"},
+        "east": {"uv": [4, 10, 10, 12], "texture": "#bricks"},
+        "south": {"uv": [4, 10, 10, 12], "texture": "#bricks"},
+        "west": {"uv": [4, 10, 10, 12], "texture": "#bricks"},
+        "down": {"uv": [4, 5, 10, 11], "texture": "#bricks"}
+      }
+    }
+  ],
+  "groups": [
+    {
+      "name": "entrance",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": [0, 1, 2, 3]
+    },
+    {
+      "name": "lower_tower",
+      "origin": [0, 0, 0],
+      "color": 0,
+      "children": [4, 5, 6]
+    }
+  ]
+}

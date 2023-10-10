@@ -1,8 +1,12 @@
 {
   "variants": {
-    "facing=east": { "model": "axolootl:block/end_city", "y": 90 },
-    "facing=north": { "model": "axolootl:block/end_city" },
-    "facing=south": { "model": "axolootl:block/end_city", "y": 180 },
-    "facing=west": { "model": "axolootl:block/end_city", "y": 270 }
+    "facing=east,half=lower": { "model": "axolootl:block/end_city_lower", "y": 90 },
+    "facing=north,half=lower": { "model": "axolootl:block/end_city_lower" },
+    "facing=south,half=lower": { "model": "axolootl:block/end_city_lower", "y": 180 },
+    "facing=west,half=lower": { "model": "axolootl:block/end_city_lower", "y": 270 },
+    "facing=east,half=upper": { "model": "axolootl:block/end_city_upper", "y": 90 },
+    "facing=north,half=upper": { "model": "axolootl:block/end_city_upper" },
+    "facing=south,half=upper": { "model": "axolootl:block/end_city_upper", "y": 180 },
+    "facing=west,half=upper": { "model": "axolootl:block/end_city_upper", "y": 270 }
   }
 }

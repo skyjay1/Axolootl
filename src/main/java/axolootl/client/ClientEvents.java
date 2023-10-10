@@ -8,10 +8,9 @@ package axolootl.client;
 
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
-import axolootl.block.GrandCastleBlock;
+import axolootl.block.GrandCastleMultiBlock;
 import axolootl.client.blockentity.AutofeederBlockEntityRenderer;
 import axolootl.client.entity.AxolootlGeoRenderer;
-import axolootl.client.item.AxolootlBucketItemSettings;
 import axolootl.client.menu.AxolootlInspectorScreen;
 import axolootl.client.menu.AxolootlInterfaceScreen;
 import axolootl.client.menu.ControllerScreen;
@@ -20,28 +19,12 @@ import axolootl.client.menu.EnergyInterfaceScreen;
 import axolootl.client.menu.FluidInterfaceScreen;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.item.AxolootlBucketItem;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.client.renderer.item.ItemPropertyFunction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
-import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -49,15 +32,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 public final class ClientEvents {
 
@@ -117,12 +91,17 @@ public final class ClientEvents {
         }
 
         private static void onRegisterItemPropertyOverrides() {
+            // Grand Castle
             ItemProperties.register(
                     RegistryObject.create(new ResourceLocation(Axolootl.MODID, "grand_castle"), ForgeRegistries.ITEMS).get(),
-                    new ResourceLocation("level"),
+                    new ResourceLocation(Axolootl.MODID, "enchantment"),
                     (pStack, pLevel, pEntity, pSeed) -> {
-                        return (float) pStack.getEnchantmentLevel(GrandCastleBlock.ENCHANTMENT) / (float) GrandCastleBlock.MAX_ENCHANTMENT_LEVEL;
+                        return (float) pStack.getEnchantmentLevel(GrandCastleMultiBlock.ENCHANTMENT) / (float) GrandCastleMultiBlock.MAX_ENCHANTMENT_LEVEL;
                     });
+            // Axolootl Bucket
+            ItemProperties.register(AxRegistry.ItemReg.AXOLOOTL_BUCKET.get(), new ResourceLocation(Axolootl.MODID, "baby"),
+                    ((pStack, pLevel, pEntity, pSeed) -> AxolootlBucketItem.isBaby(pStack) ? 1.0F : 0.0F)
+            );
         }
     }
 

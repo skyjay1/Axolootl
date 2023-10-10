@@ -20,9 +20,10 @@
     "axolootl:nursery",
     "axolootl:monsterium",
     "axolootl:autofeeder",
+    "axolootl:bastion",
     "axolootl:castle",
     "axolootl:grand_castle",
-    "axolootl:bastion",
-    "axolootl:pristine_bastion"
+    "axolootl:end_city",
+    "axolootl:end_ship"
   ]
 }

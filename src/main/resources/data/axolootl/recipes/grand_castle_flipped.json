@@ -8,7 +8,7 @@
   "key": {
     "#": { "item": "axolootl:castle" },
     "C": { "item": "axolootl:castle_rampart" },
-    "G": { "tag": "forge:storage_blocks/gold" }
+    "G": { "tag": "minecraft:coral_blocks" }
   },
   "result": {
     "item": "axolootl:grand_castle"

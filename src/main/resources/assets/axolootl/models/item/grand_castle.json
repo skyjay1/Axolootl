@@ -6,7 +6,7 @@
   "overrides": [
     {
       "predicate": {
-        "level": 0.3
+        "axolootl:enchantment": 0.3
       },
       "model": "axolootl:item/enchanted_grand_castle"
     }

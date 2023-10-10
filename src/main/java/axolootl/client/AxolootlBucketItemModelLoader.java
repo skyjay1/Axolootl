@@ -34,8 +34,9 @@ public class AxolootlBucketItemModelLoader {
     private static final String PATH = "models/item/axolootl_bucket/";
 
     public static AxolootlBucketItemSettings instance() {
-        if (instance.isEmpty()) {
+        if (!instance.isLoaded()) {
             instance.merge(reload(Minecraft.getInstance().getResourceManager()));
+            instance.setLoaded();
         }
         return instance;
     }
@@ -58,6 +59,7 @@ public class AxolootlBucketItemModelLoader {
             protected void apply(AxolootlBucketItemSettings pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
                 instance.clear();
                 instance.merge(pObject);
+                instance.setLoaded();
             }
         });
     }
@@ -81,7 +83,7 @@ public class AxolootlBucketItemModelLoader {
             // locate all resources in the given folder
             Map<ResourceLocation, Resource> resources = manager.listResources(PATH, id -> id.getPath().endsWith(".json"));
             if(resources.isEmpty()) {
-                Axolootl.LOGGER.warn("Missing AxolootlBucketItemSettings at " + PATH);
+                Axolootl.LOGGER.warn("No axolootl bucket item settings found at " + PATH);
             }
             // iterate each resource
             for(ResourceLocation entry : resources.keySet()) {
