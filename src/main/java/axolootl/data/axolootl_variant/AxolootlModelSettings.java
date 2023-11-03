@@ -8,10 +8,10 @@ package axolootl.data.axolootl_variant;
 
 import axolootl.Axolootl;
 import axolootl.util.AxCodecUtils;
-import com.mojang.math.Vector3f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -133,6 +133,7 @@ public class AxolootlModelSettings {
     //// METHODS ////
 
     /**
+     * Helper method to unpack a color into 3 values, each between 0 and 1
      * @param color a packed color
      * @return the unpacked red, green, blue components of the color from 0 to 1.0
      */

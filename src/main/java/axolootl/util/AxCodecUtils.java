@@ -18,6 +18,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.item.Item;
@@ -49,7 +50,7 @@ public final class AxCodecUtils {
                     i -> Either.right(i));
 
     /** {@link BlockPredicate} dispatch codec **/
-    public static final Codec<BlockPredicate> BLOCK_PREDICATE_CODEC = Registry.BLOCK_PREDICATE_TYPES.byNameCodec().dispatch(BlockPredicate::type, BlockPredicateType::codec);
+    public static final Codec<BlockPredicate> BLOCK_PREDICATE_CODEC = BuiltInRegistries.BLOCK_PREDICATE_TYPE.byNameCodec().dispatch(BlockPredicate::type, BlockPredicateType::codec);
     /** Item Holder Set codec **/
     public static final Codec<HolderSet<Item>> ITEM_HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(ForgeRegistries.Keys.ITEMS);
     /** {@link Rarity} codec that uses lowercase names to look up rarity enums **/

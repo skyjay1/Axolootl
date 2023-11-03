@@ -143,7 +143,7 @@ public class AxolootlVariant {
      */
     public Holder<AxolootlVariant> getHolder(final RegistryAccess registryAccess) {
         if(null == this.holder) {
-            this.holder =  getRegistry(registryAccess).getOrCreateHolderOrThrow(ResourceKey.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, getRegistryName(registryAccess)));
+            this.holder =  getRegistry(registryAccess).getHolderOrThrow(ResourceKey.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, getRegistryName(registryAccess)));
         }
         return this.holder;
     }
@@ -245,6 +245,10 @@ public class AxolootlVariant {
         while(value >= 100) {
             builder.append(Component.translatable("axolootl.tier." + 100));
             value -= 100;
+        }
+        while(value >= 90) {
+            builder.append(Component.translatable("axolootl.tier." + 90));
+            value -= 90;
         }
         while(value >= 50) {
             builder.append(Component.translatable("axolootl.tier." + 50));

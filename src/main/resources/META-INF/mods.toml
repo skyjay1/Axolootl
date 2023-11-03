@@ -1,10 +1,10 @@
 modLoader="javafml"
-loaderVersion="[43,)"
+loaderVersion="[44,)"
 license="GNU LGPLv3"
 
 [[mods]]
     modId="axolootl"
-    version="19.2.1.0"
+    version="19.3.0.0"
     displayName="Axolootl"
     authors="skyjay1"
     credits=""
@@ -13,18 +13,18 @@ license="GNU LGPLv3"
 [[dependencies.axolootl]]
     modId="forge"
     mandatory=true
-    versionRange="[43,)"
+    versionRange="[44,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.axolootl]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.19.2,1.19.3)"
+    versionRange="[1.19.3,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.axolootl]]
     modId="geckolib3"
     mandatory=true
-    versionRange="[3.1.40,)"
+    versionRange="[4.0.6,)"
     ordering="NONE"
     side="BOTH"

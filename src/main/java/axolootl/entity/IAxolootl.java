@@ -8,18 +8,15 @@ package axolootl.entity;
 
 import axolootl.AxRegistry;
 import axolootl.data.axolootl_variant.AxolootlVariant;
-import com.mojang.math.Vector3f;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -134,19 +131,6 @@ public interface IAxolootl {
         // all checks passed
         return AxolootlVariant.getRegistry(registryAccess).getOptional(oId.get());
     }
-
-    /**
-     * Helper method to unpack a color into 3 values, each between 0 and 1
-     * @param color the packed color
-     * @return the red, green, and blue components of the color, each between 0 and 1.0
-     */
-    public static Vector3f unpackColor(final int color) {
-        final float red = (color >> 16) & 0xFF;
-        final float green = (color >> 8) & 0xFF;
-        final float blue = color & 0xFF;
-        return new Vector3f(red / 255.0F, green / 255.0F, blue / 255.0F);
-    }
-
 
     //// NBT ////
 

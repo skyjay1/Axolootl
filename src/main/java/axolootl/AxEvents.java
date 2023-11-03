@@ -10,7 +10,9 @@ import axolootl.block.AquariumGlassBlock;
 import axolootl.block.BlockConverter;
 import axolootl.command.AxolootlResearchCommand;
 import axolootl.data.aquarium_modifier.AquariumModifier;
+import axolootl.data.aquarium_modifier.condition.ModifierCondition;
 import axolootl.data.axolootl_variant.AxolootlVariant;
+import axolootl.data.axolootl_variant.condition.ForgeCondition;
 import axolootl.data.breeding.AxolootlBreeding;
 import axolootl.data.resource_generator.ResourceGenerator;
 import net.minecraft.core.RegistryAccess;
@@ -22,9 +24,11 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DataPackRegistryEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -44,11 +48,19 @@ public final class AxEvents {
 
         @SubscribeEvent
         public static void onDatapackSync(final OnDatapackSyncEvent event) {
+            AxRegistry.clearCaches();
             final RegistryAccess registryAccess = event.getPlayerList().getServer().registryAccess();
             Axolootl.LOGGER.debug("Axolootl loaded " + (AxolootlVariant.getRegistry(registryAccess).size()) + " axolootl variants");
             Axolootl.LOGGER.debug("Axolootl loaded " + ResourceGenerator.getRegistry(registryAccess).size() + " resource generators");
             Axolootl.LOGGER.debug("Axolootl loaded " + AxolootlBreeding.getRegistry(registryAccess).size() + " axolootl breeding recipes");
             Axolootl.LOGGER.debug("Axolootl loaded " + AquariumModifier.getRegistry(registryAccess).size() + " aquarium modifiers");
+        }
+
+        @SubscribeEvent
+        public static void onPlayerLoggedOut(final PlayerEvent.PlayerLoggedOutEvent event) {
+            if(event.getEntity().level.isClientSide()) {
+                AxRegistry.clearCaches();
+            }
         }
 
         @SubscribeEvent
@@ -62,6 +74,14 @@ public final class AxEvents {
     }
 
     public static final class ModHandler {
+
+        @SubscribeEvent
+        public static void onCreateDatapackRegistry(final DataPackRegistryEvent.NewRegistry event) {
+            event.dataPackRegistry(AxRegistry.Keys.RESOURCE_GENERATORS, ResourceGenerator.DIRECT_CODEC, ResourceGenerator.DIRECT_CODEC);
+            event.dataPackRegistry(AxRegistry.Keys.MODIFIER_CONDITIONS, ModifierCondition.DIRECT_CODEC, ModifierCondition.DIRECT_CODEC);
+            event.dataPackRegistry(AxRegistry.Keys.AXOLOOTL_VARIANTS, AxolootlVariant.CODEC, AxolootlVariant.CODEC);
+            event.dataPackRegistry(AxRegistry.Keys.AQUARIUM_MODIFIERS, AquariumModifier.CODEC, AquariumModifier.CODEC);
+        }
 
         @SubscribeEvent
         public static void onCommonSetup(final FMLCommonSetupEvent event) {

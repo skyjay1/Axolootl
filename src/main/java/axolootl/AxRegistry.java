@@ -6,84 +6,20 @@
 
 package axolootl;
 
-import axolootl.block.AquariumAirlockBlock;
-import axolootl.block.AquariumFloorBlock;
-import axolootl.block.AquariumGlassBlock;
-import axolootl.block.AutofeederBlock;
-import axolootl.block.AxolootlInspectorBlock;
-import axolootl.block.AxolootlInterfaceBlock;
-import axolootl.block.BastionMultiBlock;
-import axolootl.block.BreederBlock;
-import axolootl.block.BubblerBlock;
-import axolootl.block.CastleBlock;
-import axolootl.block.ControllerBlock;
-import axolootl.block.EndCityBlock;
-import axolootl.block.EndShipBlock;
-import axolootl.block.EnergyInterfaceBlock;
-import axolootl.block.FilledAquariumFloorBlock;
-import axolootl.block.GrandCastleMultiBlock;
-import axolootl.block.MonsteriumBlock;
-import axolootl.block.NurseryBlock;
-import axolootl.block.OutputBlock;
-import axolootl.block.PumpBlock;
-import axolootl.block.WaterInterfaceBlock;
-import axolootl.block.entity.AutoFeederBlockEntity;
-import axolootl.block.entity.AxolootlInspectorBlockEntity;
-import axolootl.block.entity.AxolootlInterfaceBlockEntity;
-import axolootl.block.entity.BreederBlockEntity;
-import axolootl.block.entity.ControllerBlockEntity;
-import axolootl.block.entity.EnergyInterfaceBlockEntity;
-import axolootl.block.entity.MonsteriumBlockEntity;
-import axolootl.block.entity.OutputInterfaceBlockEntity;
-import axolootl.block.entity.WaterInterfaceBlockEntity;
+import axolootl.block.*;
+import axolootl.block.entity.*;
 import axolootl.capability.AxolootlResearchCapability;
 import axolootl.data.aquarium_tab.AquariumTab;
 import axolootl.data.aquarium_tab.IAquariumTab;
 import axolootl.data.aquarium_tab.WorldlyMenuProvider;
-import axolootl.data.axolootl_variant.condition.AndForgeCondition;
-import axolootl.data.axolootl_variant.condition.FalseForgeCondition;
-import axolootl.data.axolootl_variant.condition.ForgeConditionContext;
-import axolootl.data.axolootl_variant.condition.ItemExistsForgeCondition;
-import axolootl.data.axolootl_variant.condition.ModLoadedForgeCondition;
-import axolootl.data.axolootl_variant.condition.NotForgeCondition;
-import axolootl.data.axolootl_variant.condition.OrForgeCondition;
-import axolootl.data.axolootl_variant.condition.TagEmptyForgeCondition;
-import axolootl.data.axolootl_variant.condition.TrueForgeCondition;
-import axolootl.data.axolootl_variant.condition.ForgeCondition;
+import axolootl.data.axolootl_variant.condition.*;
 import axolootl.data.breeding.AxolootlBreeding;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.axolootl_variant.AxolootlVariant;
-import axolootl.data.aquarium_modifier.condition.AndModifierCondition;
-import axolootl.data.aquarium_modifier.condition.AxolootlCountModifierCondition;
-import axolootl.data.aquarium_modifier.condition.BlockModifierCondition;
-import axolootl.data.aquarium_modifier.condition.CountCappedModifierCondition;
-import axolootl.data.aquarium_modifier.condition.CountModifierCondition;
-import axolootl.data.aquarium_modifier.condition.DistanceModifierCondition;
-import axolootl.data.aquarium_modifier.condition.EnergyModifierCondition;
-import axolootl.data.aquarium_modifier.condition.ExistsModifierCondition;
-import axolootl.data.aquarium_modifier.condition.FalseModifierCondition;
-import axolootl.data.aquarium_modifier.condition.LocationModifierCondition;
-import axolootl.data.aquarium_modifier.condition.ModifierCondition;
-import axolootl.data.aquarium_modifier.condition.NotModifierCondition;
-import axolootl.data.aquarium_modifier.condition.OrModifierCondition;
-import axolootl.data.aquarium_modifier.condition.RandomChanceModifierCondition;
-import axolootl.data.aquarium_modifier.condition.TimeModifierCondition;
-import axolootl.data.aquarium_modifier.condition.TrueModifierCondition;
-import axolootl.data.aquarium_modifier.condition.WeatherModifierCondition;
+import axolootl.data.aquarium_modifier.condition.*;
 import axolootl.data.breeding.AxolootlBreedingWrapper;
-import axolootl.data.breeding_modifier.AddAxolootlBreedingModifier;
-import axolootl.data.breeding_modifier.AxolootlBreedingModifier;
-import axolootl.data.breeding_modifier.RemoveAxolootlBreedingModifier;
-import axolootl.data.breeding_modifier.SequenceAxolootlBreedingModifier;
-import axolootl.data.resource_generator.AndResourceGenerator;
-import axolootl.data.resource_generator.BlockDropsResourceGenerator;
-import axolootl.data.resource_generator.EmptyResourceGenerator;
-import axolootl.data.resource_generator.ItemResourceGenerator;
-import axolootl.data.resource_generator.ItemTagResourceGenerator;
-import axolootl.data.resource_generator.MobDropsResourceGenerator;
-import axolootl.data.resource_generator.ReferenceResourceGenerator;
-import axolootl.data.resource_generator.ResourceGenerator;
-import axolootl.data.resource_generator.SelectResourceGenerator;
+import axolootl.data.breeding_modifier.*;
+import axolootl.data.resource_generator.*;
 import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
 import axolootl.item.GrandCastleMultiBlockItem;
@@ -96,12 +32,12 @@ import axolootl.menu.CyclingMenu;
 import axolootl.util.ControllerTabSorter;
 import axolootl.util.MatchingStatePredicate;
 import axolootl.util.NbtPredicate;
-import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -112,7 +48,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
@@ -121,7 +56,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -138,7 +72,6 @@ import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
@@ -150,11 +83,11 @@ import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryObject;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -180,82 +113,35 @@ public final class AxRegistry {
     private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Axolootl.MODID);
     private static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, Axolootl.MODID);
     private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, Axolootl.MODID);
-    private static final DeferredRegister<BlockPredicateType<?>> BLOCK_PREDICATE_TYPES = DeferredRegister.create(Registry.BLOCK_PREDICATE_TYPE_REGISTRY, Axolootl.MODID);
+    private static final DeferredRegister<BlockPredicateType<?>> BLOCK_PREDICATE_TYPES = DeferredRegister.create(BuiltInRegistries.BLOCK_PREDICATE_TYPE.key(), Axolootl.MODID);
 
     // RESOURCE GENERATORS //
-    private static final DeferredRegister<Codec<? extends ResourceGenerator>> RESOURCE_GENERATOR_SERIALIZERS = DeferredRegister.create(Keys.RESOURCE_GENERATOR_SERIALIZERS, Axolootl.MODID);
-    public static final Supplier<IForgeRegistry<Codec<? extends ResourceGenerator>>> RESOURCE_GENERATOR_SERIALIZERS_SUPPLIER =
-            RESOURCE_GENERATOR_SERIALIZERS.makeRegistry(() -> new RegistryBuilder<Codec<? extends ResourceGenerator>>().hasTags());
-
-    private static final DeferredRegister<ResourceGenerator> RESOURCE_GENERATORS = DeferredRegister.create(Keys.RESOURCE_GENERATORS, Axolootl.MODID);
-    /** Datapack registry; use {@link ResourceGenerator#getRegistry(RegistryAccess)} to access **/
-    public static final Supplier<IForgeRegistry<ResourceGenerator>> RESOURCE_GENERATORS_SUPPLIER = RESOURCE_GENERATORS.makeRegistry(() -> new RegistryBuilder<ResourceGenerator>()
-            .dataPackRegistry(ResourceGenerator.DIRECT_CODEC, ResourceGenerator.DIRECT_CODEC)
-            .hasTags());
+    public static final DeferredRegister<Codec<? extends ResourceGenerator>> RESOURCE_GENERATOR_SERIALIZERS = DeferredRegister.create(Keys.RESOURCE_GENERATOR_SERIALIZERS, Axolootl.MODID);
+    public static final DeferredRegister<ResourceGenerator> RESOURCE_GENERATORS = DeferredRegister.create(Keys.RESOURCE_GENERATORS, Axolootl.MODID);
 
     // MODIFIER CONDITIONS //
-    private static final DeferredRegister<Codec<? extends ModifierCondition>> MODIFIER_CONDITION_SERIALIZERS = DeferredRegister.create(Keys.MODIFIER_CONDITION_SERIALIZERS, Axolootl.MODID);
-    public static final Supplier<IForgeRegistry<Codec<? extends ModifierCondition>>> MODIFIER_CONDITION_SERIALIZERS_SUPPLIER =
-            MODIFIER_CONDITION_SERIALIZERS.makeRegistry(() -> new RegistryBuilder<Codec<? extends ModifierCondition>>().hasTags());
+    public static final DeferredRegister<Codec<? extends ModifierCondition>> MODIFIER_CONDITION_SERIALIZERS = DeferredRegister.create(Keys.MODIFIER_CONDITION_SERIALIZERS, Axolootl.MODID);
+    public static final DeferredRegister<ModifierCondition> MODIFIER_CONDITIONS = DeferredRegister.create(Keys.MODIFIER_CONDITIONS, Axolootl.MODID);
 
-    private static final DeferredRegister<ModifierCondition> MODIFIER_CONDITIONS = DeferredRegister.create(Keys.MODIFIER_CONDITIONS, Axolootl.MODID);
-    /** Datapack registry; use {@link ModifierCondition#getRegistry(RegistryAccess)} to access **/
-    public static final Supplier<IForgeRegistry<ModifierCondition>> MODIFIER_CONDITION_SUPPLIER = MODIFIER_CONDITIONS.makeRegistry(() -> new RegistryBuilder<ModifierCondition>()
-            .dataPackRegistry(ModifierCondition.DIRECT_CODEC, ModifierCondition.DIRECT_CODEC)
-            .hasTags());
-
-    // VARIANT CONDITIONS //
+    // FORGE CONDITIONS //
     private static final DeferredRegister<Codec<? extends ForgeCondition>> FORGE_CONDITION_SERIALIZERS = DeferredRegister.create(Keys.FORGE_CONDITION_SERIALIZERS, "forge");
-    public static final Supplier<IForgeRegistry<Codec<? extends ForgeCondition>>> FORGE_CONDITION_SERIALIZERS_SUPPLIER =
-            FORGE_CONDITION_SERIALIZERS.makeRegistry(() -> new RegistryBuilder<Codec<? extends ForgeCondition>>().hasTags());
-
     private static final DeferredRegister<ForgeCondition> FORGE_CONDITIONS = DeferredRegister.create(Keys.FORGE_CONDITIONS, "forge");
-    /** Datapack registry; use {@link ForgeCondition#getRegistry(RegistryAccess)} to access **/
-    public static final Supplier<IForgeRegistry<ForgeCondition>> FORGE_CONDITION_SUPPLIER = FORGE_CONDITIONS.makeRegistry(() -> new RegistryBuilder<ForgeCondition>()
-            .dataPackRegistry(ForgeCondition.DIRECT_CODEC, ForgeCondition.DIRECT_CODEC)
-            .hasTags());
 
     // AXOLOOTL VARIANTS //
-    private static final DeferredRegister<AxolootlVariant> AXOLOOTL_VARIANTS = DeferredRegister.create(Keys.AXOLOOTL_VARIANTS, Axolootl.MODID);
-    /** Datapack registry; use {@link AxolootlVariant#getRegistry(RegistryAccess)} to access **/
-    public static final Supplier<IForgeRegistry<AxolootlVariant>> AXOLOOTL_VARIANTS_SUPPLIER = AXOLOOTL_VARIANTS.makeRegistry(() -> new RegistryBuilder<AxolootlVariant>()
-            .dataPackRegistry(AxolootlVariant.CODEC, AxolootlVariant.CODEC)
-            .onClear((owner, stage) -> AxolootlVariantsReg.resetInvalidEntries())
-            .hasTags());
+    public static final DeferredRegister<AxolootlVariant> AXOLOOTL_VARIANTS = DeferredRegister.create(Keys.AXOLOOTL_VARIANTS, Axolootl.MODID);
 
     // AXOLOOTL BREEDING //
-    private static final DeferredRegister<AxolootlBreeding> AXOLOOTL_BREEDING = DeferredRegister.create(Keys.AXOLOOTL_BREEDING, Axolootl.MODID);
-    /** Datapack registry; use {@link AxolootlBreeding#getRegistry(RegistryAccess)} to access **/
-    public static final Supplier<IForgeRegistry<AxolootlBreeding>> AXOLOOTL_BREEDING_SUPPLIER = AXOLOOTL_BREEDING.makeRegistry(() -> new RegistryBuilder<AxolootlBreeding>()
-            .dataPackRegistry(AxolootlBreeding.CODEC, AxolootlBreeding.CODEC)
-            .onClear((owner, stage) -> AxolootlBreedingReg.WRAPPERS.clear())
-            .hasTags());
+    public static final DeferredRegister<AxolootlBreeding> AXOLOOTL_BREEDING = DeferredRegister.create(Keys.AXOLOOTL_BREEDING, Axolootl.MODID);
 
     // AXOLOOTL BREEDING MODIFIERS //
-    private static final DeferredRegister<Codec<? extends AxolootlBreedingModifier>> AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS = DeferredRegister.create(Keys.AXOLOOTL_BREEDING_MODIFIER_SERIALIZERS, Axolootl.MODID);
-    public static final Supplier<IForgeRegistry<Codec<? extends AxolootlBreedingModifier>>> AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS_SUPPLIER =
-            AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS.makeRegistry(() -> new RegistryBuilder<Codec<? extends AxolootlBreedingModifier>>().hasTags());
-
-    private static final DeferredRegister<AxolootlBreedingModifier> AXOLOOTL_BREEDING_MODIFIERS = DeferredRegister.create(Keys.AXOLOOTL_BREEDING_MODIFIERS, Axolootl.MODID);
-    /** Datapack registry; use {@link AxolootlBreedingModifier#getRegistry(RegistryAccess)} to access **/
-    public static final Supplier<IForgeRegistry<AxolootlBreedingModifier>> AXOLOOTL_BREEDING_MODIFIERS_SUPPLIER = AXOLOOTL_BREEDING_MODIFIERS.makeRegistry(() -> new RegistryBuilder<AxolootlBreedingModifier>()
-            .dataPackRegistry(AxolootlBreedingModifier.DIRECT_CODEC, AxolootlBreedingModifier.DIRECT_CODEC)
-            .hasTags());
+    public static final DeferredRegister<Codec<? extends AxolootlBreedingModifier>> AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS = DeferredRegister.create(Keys.AXOLOOTL_BREEDING_MODIFIER_SERIALIZERS, Axolootl.MODID);
+    public static final DeferredRegister<AxolootlBreedingModifier> AXOLOOTL_BREEDING_MODIFIERS = DeferredRegister.create(Keys.AXOLOOTL_BREEDING_MODIFIERS, Axolootl.MODID);
 
     // AQUARIUM MODIFIERS //
-    private static final DeferredRegister<AquariumModifier> AQUARIUM_MODIFIERS = DeferredRegister.create(Keys.AQUARIUM_MODIFIERS, Axolootl.MODID);
-    /** Datapack registry; use {@link AquariumModifier#getRegistry(RegistryAccess)} to access **/
-    public static final Supplier<IForgeRegistry<AquariumModifier>> AQUARIUM_MODIFIERS_SUPPLIER = AQUARIUM_MODIFIERS.makeRegistry(() -> new RegistryBuilder<AquariumModifier>()
-            .dataPackRegistry(AquariumModifier.CODEC, AquariumModifier.CODEC)
-            .onClear((owner, stage) -> AquariumModifiersReg.MANDATORY_AQUARIUM_MODIFIERS.clear())
-            .hasTags());
+    public static final DeferredRegister<AquariumModifier> AQUARIUM_MODIFIERS = DeferredRegister.create(Keys.AQUARIUM_MODIFIERS, Axolootl.MODID);
 
     // AQUARIUM TABS //
-    private static final DeferredRegister<IAquariumTab> AQUARIUM_TABS = DeferredRegister.create(Keys.AQUARIUM_TABS, Axolootl.MODID);
-    /** Not a datapack registry **/
-    public static final Supplier<IForgeRegistry<IAquariumTab>> AQUARIUM_TABS_SUPPLIER = AQUARIUM_TABS.makeRegistry(() -> new RegistryBuilder<IAquariumTab>()
-            .onClear((owner, stage) -> AquariumTabsReg.SORTED_TABS.clear())
-            .hasTags());
+    public static final DeferredRegister<IAquariumTab> AQUARIUM_TABS = DeferredRegister.create(Keys.AQUARIUM_TABS, Axolootl.MODID);
 
     public static void register() {
         BlockReg.register();
@@ -279,6 +165,13 @@ public final class AxRegistry {
 
     //// HELPERS ////
 
+    public static void clearCaches() {
+        AxRegistry.AquariumTabsReg.clearCache();
+        AxRegistry.AxolootlVariantsReg.clearCache();
+        AxRegistry.AquariumModifiersReg.clearCache();
+        AxRegistry.AxolootlBreedingReg.clearCache();
+    }
+
     private static void onCommonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> EntityDataSerializers.registerSerializer(AxolootlEntity.OPTIONAL_RESOURCE_LOCATION));
     }
@@ -287,24 +180,16 @@ public final class AxRegistry {
 
     public static final class ItemReg {
 
-        public static final CreativeModeTab TAB = new CreativeModeTab(Axolootl.MODID) {
-            @Override
-            public ItemStack makeIcon() {
-                return Items.AXOLOTL_BUCKET.getDefaultInstance();
-            }
-        };
-
-        private static final List<RegistryObject<Item>> SPAWN_EGGS = new ArrayList<>();
-
         public static void register() {
             ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
-        public static final RegistryObject<Item> BASTION_RAMPART = register("bastion_rampart", () -> new Item(new Item.Properties().stacksTo(16).tab(TAB)));
-        public static final RegistryObject<Item> CASTLE_RAMPART = register("castle_rampart", () -> new Item(new Item.Properties().stacksTo(16).tab(TAB)));
-        public static final RegistryObject<Item> END_CITY_RAMPART = register("end_city_rampart", () -> new Item(new Item.Properties().stacksTo(16).tab(TAB)));
-        public static final RegistryObject<Item> AXOLOOTL_BUCKET = register("axolootl_bucket", () ->
-                new AxolootlBucketItem(EntityReg.AXOLOOTL, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET).tab(TAB)));
+        public static final RegistryObject<Item> BASTION_RAMPART = register("bastion_rampart", () -> new Item(new Item.Properties().stacksTo(16)));
+        public static final RegistryObject<Item> CASTLE_RAMPART = register("castle_rampart", () -> new Item(new Item.Properties().stacksTo(16)));
+        public static final RegistryObject<Item> END_CITY_RAMPART = register("end_city_rampart", () -> new Item(new Item.Properties().stacksTo(16)));
+        public static final RegistryObject<Item> AXOLOOTL_BUCKET = registerWithSubtypes("axolootl_bucket", () ->
+                new AxolootlBucketItem(EntityReg.AXOLOOTL, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET)),
+                AxolootlBucketItem::createSubtypes);
 
         /**
          * Creates a registry object for a block item and adds it to the mod creative tab
@@ -312,21 +197,7 @@ public final class AxRegistry {
          * @return the registry object
          */
         private static RegistryObject<Item> registerBlockItem(final RegistryObject<Block> block) {
-            return register(block.getId().getPath(), () -> new BlockItem(block.get(), new Item.Properties().tab(TAB)));
-        }
-
-        /**
-         * Creates a registry object for the given vial item and adds it to the mod creative tab
-         * @param name the registry name
-         * @param entityType the entity type supplier
-         * @param bgColor the background color
-         * @param fgColor the foreground color
-         * @return the item registry object
-         */
-        private static <T extends Mob> RegistryObject<Item> registerSpawnEgg(final String name, final RegistryObject<EntityType<T>> entityType, final int bgColor, final int fgColor) {
-            final RegistryObject<Item> spawnEgg = ITEMS.register(name + "_spawn_egg", () -> new ForgeSpawnEggItem(entityType, bgColor, fgColor, new Item.Properties().tab(TAB)));
-            SPAWN_EGGS.add(spawnEgg);
-            return spawnEgg;
+            return register(block.getId().getPath(), () -> new BlockItem(block.get(), new Item.Properties()));
         }
 
         /**
@@ -336,13 +207,18 @@ public final class AxRegistry {
          * @return the item registry object
          */
         private static RegistryObject<Item> register(final String name, final Supplier<Item> supplier) {
-            return ITEMS.register(name, supplier);
+            return AxTabs.add(ITEMS.register(name, supplier));
         }
 
-        public static List<RegistryObject<Item>> getSpawnEggs() {
-            return ImmutableList.copyOf(SPAWN_EGGS);
+        /**
+         * Creates a registry object for the given item and adds it to the mod creative tab
+         * @param name the registry name
+         * @param supplier the item supplier
+         * @return the item registry object
+         */
+        private static RegistryObject<Item> registerWithSubtypes(final String name, final Supplier<Item> supplier, final Supplier<List<ItemStack>> subtypes) {
+            return AxTabs.add(ITEMS.register(name, supplier));
         }
-
     }
 
     public static final class BlockReg {
@@ -390,11 +266,11 @@ public final class AxRegistry {
         }
 
         private static RegistryObject<Block> registerWithMultiBlockItem(final String name, final Supplier<Block> supplier) {
-            return registerWithItem(name, supplier, block -> ItemReg.register(block.getId().getPath(), () -> new MultiBlockItem(block.get(), new Item.Properties().stacksTo(1).tab(ItemReg.TAB))));
+            return registerWithItem(name, supplier, block -> ItemReg.register(block.getId().getPath(), () -> new MultiBlockItem(block.get(), new Item.Properties().stacksTo(1))));
         }
 
         private static RegistryObject<Block> registerWithGrandCastleMultiBlockItem(final String name, final Supplier<Block> supplier) {
-            return registerWithItem(name, supplier, block -> ItemReg.register(block.getId().getPath(), () -> new GrandCastleMultiBlockItem(block.get(), new Item.Properties().stacksTo(1).tab(ItemReg.TAB))));
+            return registerWithItem(name, supplier, block -> ItemReg.register(block.getId().getPath(), () -> new GrandCastleMultiBlockItem(block.get(), new Item.Properties().stacksTo(1))));
         }
 
         private static boolean never(final BlockState blockState, final BlockGetter blockGetter, final BlockPos blockPos, final EntityType<?> entityType) {
@@ -648,7 +524,7 @@ public final class AxRegistry {
     public static final class AquariumModifiersReg {
 
         private static final Set<TagKey<AquariumModifier>> MANDATORY_AQUARIUM_MODIFIERS = new HashSet<>();
-        private static final Set<TagKey<AquariumModifier>> MANDATORY_AQUARIUM_MODIFIERS_VIEW = Collections.unmodifiableSet(MANDATORY_AQUARIUM_MODIFIERS);
+        private static final Set<TagKey<AquariumModifier>> MANDATORY_AQUARIUM_MODIFIERS_CLIENT = new HashSet<>();
         private static final String MANDATORY_PREFIX = "mandatory";
 
         public static void register() {
@@ -656,23 +532,31 @@ public final class AxRegistry {
         }
 
         public static Set<TagKey<AquariumModifier>> getMandatoryAquariumModifiers(final RegistryAccess registryAccess) {
-            if(MANDATORY_AQUARIUM_MODIFIERS.isEmpty()) {
+            final Set<TagKey<AquariumModifier>> set = EffectiveSide.get().isClient() ? MANDATORY_AQUARIUM_MODIFIERS_CLIENT : MANDATORY_AQUARIUM_MODIFIERS;
+            if(set.isEmpty()) {
                 // collect all aquarium modifiers that are in the mandatory folder
-                MANDATORY_AQUARIUM_MODIFIERS.addAll(
-                        AquariumModifier.getRegistry(registryAccess).getTags()
-                                .filter(pair -> pair.getFirst().location().getPath().startsWith(MANDATORY_PREFIX + "/") && pair.getSecond().size() > 0)
-                                .map(Pair::getFirst)
-                                .toList()
+                set.addAll(AquariumModifier.getRegistry(registryAccess).getTags()
+                            .filter(pair -> pair.getFirst().location().getPath().startsWith(MANDATORY_PREFIX + "/") && pair.getSecond().size() > 0)
+                            .map(Pair::getFirst)
+                            .toList()
                 );
             }
-            return MANDATORY_AQUARIUM_MODIFIERS_VIEW;
+            return Collections.unmodifiableSet(set);
+        }
+
+        private static void clearCache() {
+            if(EffectiveSide.get().isClient()) {
+                MANDATORY_AQUARIUM_MODIFIERS_CLIENT.clear();
+            } else {
+                MANDATORY_AQUARIUM_MODIFIERS.clear();
+            }
         }
     }
 
     public static final class AquariumTabsReg {
 
         private static final List<IAquariumTab> SORTED_TABS = new ArrayList<>();
-        private static final List<IAquariumTab> SORTED_TABS_VIEW = Collections.unmodifiableList(SORTED_TABS);
+        private static final List<IAquariumTab> SORTED_TABS_CLIENT = new ArrayList<>();
 
         public static void register() {
             AQUARIUM_TABS.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -750,17 +634,26 @@ public final class AxRegistry {
          * @return an immutable view of the sorted tab list
          */
         public static List<IAquariumTab> getSortedTabs() {
-            if(SORTED_TABS.isEmpty()) {
-                SORTED_TABS.addAll(ControllerTabSorter.recalculateSortedTabs());
+            final List<IAquariumTab> list = EffectiveSide.get().isClient() ? SORTED_TABS_CLIENT : SORTED_TABS;
+            if(list.isEmpty()) {
+                list.addAll(ControllerTabSorter.recalculateSortedTabs());
             }
-            return SORTED_TABS_VIEW;
+            return Collections.unmodifiableList(list);
         }
 
         /**
          * @return the total number of registered tabs
          */
         public static int getTabCount() {
-            return AxRegistry.AQUARIUM_TABS_SUPPLIER.get().getKeys().size();
+            return AxRegistry.AQUARIUM_TABS.getEntries().size();
+        }
+
+        private static void clearCache() {
+            if(EffectiveSide.get().isClient()) {
+                SORTED_TABS_CLIENT.clear();
+            } else {
+                SORTED_TABS.clear();
+            }
         }
 
         private static BiPredicate<BlockPos, AquariumModifier> createFoodInterfacePredicate(final ControllerBlockEntity blockEntity) {
@@ -775,25 +668,24 @@ public final class AxRegistry {
         }
 
         private static final Set<ResourceLocation> INVALID = new HashSet<>();
-        private static final Set<ResourceLocation> INVALID_VIEW = Collections.unmodifiableSet(INVALID);
-        private static boolean hasValidated;
+        private static final Set<ResourceLocation> INVALID_CLIENT = new HashSet<>();
 
         public static void validate(final RegistryAccess access) {
+            final Set<ResourceLocation> set = EffectiveSide.get().isClient() ? INVALID_CLIENT : INVALID;
+            set.clear();
             // create context
             final ForgeConditionContext context = new ForgeConditionContext(access);
             // iterate registry
             for(Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant> entry : AxolootlVariant.getRegistry(access).entrySet()) {
                 // test each entry
                 if(!entry.getValue().getCondition().test(context)) {
-                    INVALID.add(entry.getKey().location());
+                    set.add(entry.getKey().location());
                 }
             }
-            // update flag
-            hasValidated = true;
         }
 
         public static boolean isValid(final ResourceLocation id) {
-            return !INVALID.contains(id);
+            return !getInvalidEntries().contains(id);
         }
 
         public static boolean isValid(final RegistryAccess access, final AxolootlVariant variant) {
@@ -801,22 +693,26 @@ public final class AxRegistry {
         }
 
         public static Set<ResourceLocation> getInvalidEntries() {
-            return INVALID_VIEW;
+            if(EffectiveSide.get().isClient()) {
+                return Collections.unmodifiableSet(INVALID_CLIENT);
+            } else {
+                return Collections.unmodifiableSet(INVALID);
+            }
         }
 
-        public static boolean hasValidated() {
-            return hasValidated;
-        }
-
-        private static void resetInvalidEntries() {
-            INVALID.clear();
-            hasValidated = false;
+        private static void clearCache() {
+            if(EffectiveSide.get().isClient()) {
+                INVALID_CLIENT.clear();
+            } else {
+                INVALID.clear();
+            }
         }
     }
 
     public static final class AxolootlBreedingReg {
 
         private static final Map<ResourceLocation, AxolootlBreedingWrapper> WRAPPERS = new HashMap<>();
+        private static final Map<ResourceLocation, AxolootlBreedingWrapper> WRAPPERS_CLIENT = new HashMap<>();
 
         public static void register() {
             AXOLOOTL_BREEDING.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -829,17 +725,26 @@ public final class AxRegistry {
             if(null == key) {
                 throw new IllegalArgumentException("Attempted to create AxolootlBreedingWrapper for unregistered AxolootlBreeding object " + entry.toString());
             }
+            final Map<ResourceLocation, AxolootlBreedingWrapper> map = EffectiveSide.get().isClient() ? WRAPPERS_CLIENT : WRAPPERS;
             // create value if it does not exist
-            if(!WRAPPERS.containsKey(key)) {
+            if(!map.containsKey(key)) {
                 // collect modifiers
                 final List<AxolootlBreedingModifier> modifiers = AxolootlBreedingModifier.getRegistry(access)
                         .stream()
                         .filter(modifier -> key.equals(modifier.getTarget()))
                         .toList();
                 // add wrapper to map
-                WRAPPERS.put(key, new AxolootlBreedingWrapper(access, entry, modifiers));
+                map.put(key, new AxolootlBreedingWrapper(access, entry, modifiers));
             }
-            return WRAPPERS.get(key);
+            return map.get(key);
+        }
+
+        private static void clearCache() {
+            if(EffectiveSide.get().isClient()) {
+                WRAPPERS_CLIENT.clear();
+            } else {
+                WRAPPERS.clear();
+            }
         }
     }
 
@@ -859,15 +764,15 @@ public final class AxRegistry {
         public static final ResourceKey<Registry<AxolootlVariant>> AXOLOOTL_VARIANTS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "axolootl_variants"));
         public static final ResourceKey<Registry<AxolootlBreeding>> AXOLOOTL_BREEDING = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "breeding"));
         public static final ResourceKey<Registry<Codec<? extends AxolootlBreedingModifier>>> AXOLOOTL_BREEDING_MODIFIER_SERIALIZERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "breeding_modifier_serializers"));
-        public static final ResourceKey<? extends Registry<AxolootlBreedingModifier>> AXOLOOTL_BREEDING_MODIFIERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "breeding_modifiers"));
+        public static final ResourceKey<Registry<AxolootlBreedingModifier>> AXOLOOTL_BREEDING_MODIFIERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "breeding_modifiers"));
         public static final ResourceKey<Registry<AquariumModifier>> AQUARIUM_MODIFIERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "aquarium_modifiers"));
         public static final ResourceKey<Registry<IAquariumTab>> AQUARIUM_TABS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "aquarium_tabs"));
         public static final ResourceKey<Registry<Codec<? extends ResourceGenerator>>> RESOURCE_GENERATOR_SERIALIZERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "resource_generator_serializers"));
-        public static final ResourceKey<? extends Registry<ResourceGenerator>> RESOURCE_GENERATORS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "resource_generators"));
+        public static final ResourceKey<Registry<ResourceGenerator>> RESOURCE_GENERATORS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "resource_generators"));
         public static final ResourceKey<Registry<Codec<? extends ModifierCondition>>> MODIFIER_CONDITION_SERIALIZERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "modifier_condition_serializers"));
-        public static final ResourceKey<? extends Registry<ModifierCondition>> MODIFIER_CONDITIONS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "modifier_conditions"));
+        public static final ResourceKey<Registry<ModifierCondition>> MODIFIER_CONDITIONS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "modifier_conditions"));
         public static final ResourceKey<Registry<Codec<? extends ForgeCondition>>> FORGE_CONDITION_SERIALIZERS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "variant_condition_serializers"));
-        public static final ResourceKey<? extends Registry<ForgeCondition>> FORGE_CONDITIONS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "variant_conditions"));
+        public static final ResourceKey<Registry<ForgeCondition>> FORGE_CONDITIONS = ResourceKey.createRegistryKey(new ResourceLocation(Axolootl.MODID, "variant_conditions"));
 
     }
 }

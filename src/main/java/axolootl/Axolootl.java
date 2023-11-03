@@ -43,6 +43,8 @@ public class Axolootl {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CONFIG_SPEC);
         // bootstraps
         ResourceTypes.bootstrap();
+        // register creative tabs
+        AxTabs.register();
         // register registry objects
         AxRegistry.register();
         // register network

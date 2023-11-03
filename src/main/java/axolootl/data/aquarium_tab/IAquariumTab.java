@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -75,9 +76,9 @@ public interface IAquariumTab {
     }
 
     public static Optional<IAquariumTab> forBlock(final LevelAccessor level, final BlockPos pos, final BlockState blockState) {
-        for(Map.Entry<ResourceKey<IAquariumTab>, IAquariumTab> entry : AxRegistry.AQUARIUM_TABS_SUPPLIER.get().getEntries()) {
-            if(entry.getValue().isFor(level, pos, blockState)) {
-                return Optional.of(entry.getValue());
+        for(RegistryObject<IAquariumTab> entry : AxRegistry.AQUARIUM_TABS.getEntries()) {
+            if(entry.get().isFor(level, pos, blockState)) {
+                return Optional.of(entry.get());
             }
         }
         return Optional.empty();
