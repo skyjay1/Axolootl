@@ -12,11 +12,11 @@ import axolootl.entity.IAxolootl;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LerpingModel;
 import net.minecraft.world.entity.LivingEntity;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.model.GeoModel;
 
-public class AkxolootlGeoModel<T extends LivingEntity & LerpingModel & IAxolootl & IAnimatable> extends AnimatedGeoModel<T> {
+public class AkxolootlGeoModel<T extends LivingEntity & LerpingModel & IAxolootl & GeoAnimatable> extends GeoModel<T> {
 
     private static final ResourceLocation EMPTY_ANIMATIONS = new ResourceLocation(Axolootl.MODID, "animations/entity/axolootl/axolootl.animation.json");
     private static final ResourceLocation MODEL = new ResourceLocation(Axolootl.MODID, "geo/entity/axolootl/akxolootl.geo.json");
@@ -38,7 +38,7 @@ public class AkxolootlGeoModel<T extends LivingEntity & LerpingModel & IAxolootl
     }
 
     @Override
-    public void setCustomAnimations(T entity, int instanceId, AnimationEvent animationEvent) {
-        super.setCustomAnimations(entity, instanceId, animationEvent);
+    public void setCustomAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
+        super.setCustomAnimations(animatable, instanceId, animationState);
     }
 }

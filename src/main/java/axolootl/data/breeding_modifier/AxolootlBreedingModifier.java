@@ -63,7 +63,7 @@ public abstract class AxolootlBreedingModifier {
      * @return the axolootl breeding modifier registry
      */
     public static Registry<AxolootlBreedingModifier> getRegistry(final RegistryAccess access) {
-        return access.registryOrThrow(AxRegistry.Keys.AXOLOOTL_BREEDING_MODIFIERS);
+        return AxRegistry.AXOLOOTL_BREEDING_MODIFIERS_SUPPLIER.apply(access);
     }
 
     /**

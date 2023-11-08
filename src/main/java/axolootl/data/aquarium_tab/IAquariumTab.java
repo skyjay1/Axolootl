@@ -76,9 +76,9 @@ public interface IAquariumTab {
     }
 
     public static Optional<IAquariumTab> forBlock(final LevelAccessor level, final BlockPos pos, final BlockState blockState) {
-        for(RegistryObject<IAquariumTab> entry : AxRegistry.AQUARIUM_TABS.getEntries()) {
-            if(entry.get().isFor(level, pos, blockState)) {
-                return Optional.of(entry.get());
+        for(IAquariumTab entry : AxRegistry.AQUARIUM_TABS_SUPPLIER.get()) {
+            if(entry.isFor(level, pos, blockState)) {
+                return Optional.of(entry);
             }
         }
         return Optional.empty();

@@ -11,19 +11,20 @@ import axolootl.Axolootl;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.entity.IAxolootl;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LerpingModel;
 import net.minecraft.world.entity.LivingEntity;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.renderers.geo.GeoLayerRenderer;
-import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.renderer.GeoRenderer;
+import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -35,24 +36,24 @@ import java.util.Optional;
  * @author skyjay1
  * @param <T> the axolootl entity
  */
-public class AxolootlGeoFermiLayer<T extends LivingEntity & LerpingModel & IAxolootl & IAnimatable> extends GeoLayerRenderer<T> {
+public class FermiLayer<T extends LivingEntity & LerpingModel & IAxolootl & GeoAnimatable> extends GeoRenderLayer<T> {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(Axolootl.MODID, "textures/entity/axolootl/fermi.png");
+    private static final RenderType RENDER_TYPE = RenderType.eyes(TEXTURE);
     private static final TagKey<AxolootlVariant> BLACKLIST = TagKey.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, new ResourceLocation(Axolootl.MODID, "special_blacklist"));
 
-    public AxolootlGeoFermiLayer(IGeoRenderer<T> parent) {
+    public FermiLayer(GeoRenderer<T> parent) {
         super(parent);
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight, T entity,
-                       float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(PoseStack poseStack, T entity, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
         // validate visibility
         final Minecraft minecraft = Minecraft.getInstance();
-        if(null == minecraft.level || null == minecraft.player || entity.isInvisibleTo(minecraft.player)) {
+        if(null == minecraft.player || entity.isInvisibleTo(minecraft.player)) {
             return;
         }
-        final RegistryAccess access = minecraft.level.registryAccess();
+        final RegistryAccess access = entity.level.registryAccess();
         // validate name
         if(!"fermi".equals(entity.getName().getString().toLowerCase(Locale.ENGLISH))) {
             return;
@@ -66,11 +67,6 @@ public class AxolootlGeoFermiLayer<T extends LivingEntity & LerpingModel & IAxol
         if(oVariant.get().is(access, BLACKLIST)) {
             return;
         }
-        renderModel(getEntityModel(), TEXTURE, poseStack, multiBufferSource, LightTexture.FULL_BRIGHT, entity, partialTick, 1.0F, 1.0F, 1.0F);
-    }
-
-    @Override
-    public RenderType getRenderType(ResourceLocation textureLocation) {
-        return RenderType.eyes(textureLocation);
+        getRenderer().reRender(bakedModel, poseStack, bufferSource, entity, RENDER_TYPE, buffer, partialTick, LightTexture.FULL_BRIGHT, packedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

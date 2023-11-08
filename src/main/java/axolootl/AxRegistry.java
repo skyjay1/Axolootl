@@ -86,8 +86,9 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryObject;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -116,32 +117,44 @@ public final class AxRegistry {
     private static final DeferredRegister<BlockPredicateType<?>> BLOCK_PREDICATE_TYPES = DeferredRegister.create(BuiltInRegistries.BLOCK_PREDICATE_TYPE.key(), Axolootl.MODID);
 
     // RESOURCE GENERATORS //
-    public static final DeferredRegister<Codec<? extends ResourceGenerator>> RESOURCE_GENERATOR_SERIALIZERS = DeferredRegister.create(Keys.RESOURCE_GENERATOR_SERIALIZERS, Axolootl.MODID);
-    public static final DeferredRegister<ResourceGenerator> RESOURCE_GENERATORS = DeferredRegister.create(Keys.RESOURCE_GENERATORS, Axolootl.MODID);
+    private static final DeferredRegister<Codec<? extends ResourceGenerator>> RESOURCE_GENERATOR_SERIALIZERS = DeferredRegister.create(Keys.RESOURCE_GENERATOR_SERIALIZERS, Axolootl.MODID);
+    public static final Supplier<IForgeRegistry<Codec<? extends ResourceGenerator>>> RESOURCE_GENERATOR_SERIALIZERS_SUPPLIER = RESOURCE_GENERATOR_SERIALIZERS.makeRegistry(() -> new RegistryBuilder<>());
+    private static final DeferredRegister<ResourceGenerator> RESOURCE_GENERATORS = DeferredRegister.create(Keys.RESOURCE_GENERATORS, Axolootl.MODID);
+    public static final Function<RegistryAccess, Registry<ResourceGenerator>> RESOURCE_GENERATORS_REGISTRY_SUPPLIER = access -> access.registryOrThrow(Keys.RESOURCE_GENERATORS);
 
     // MODIFIER CONDITIONS //
-    public static final DeferredRegister<Codec<? extends ModifierCondition>> MODIFIER_CONDITION_SERIALIZERS = DeferredRegister.create(Keys.MODIFIER_CONDITION_SERIALIZERS, Axolootl.MODID);
-    public static final DeferredRegister<ModifierCondition> MODIFIER_CONDITIONS = DeferredRegister.create(Keys.MODIFIER_CONDITIONS, Axolootl.MODID);
+    private static final DeferredRegister<Codec<? extends ModifierCondition>> MODIFIER_CONDITION_SERIALIZERS = DeferredRegister.create(Keys.MODIFIER_CONDITION_SERIALIZERS, Axolootl.MODID);
+    public static final Supplier<IForgeRegistry<Codec<? extends ModifierCondition>>> MODIFIER_CONDITION_SERIALIZERS_SUPPLIER = MODIFIER_CONDITION_SERIALIZERS.makeRegistry(() -> new RegistryBuilder<>());
+    private static final DeferredRegister<ModifierCondition> MODIFIER_CONDITIONS = DeferredRegister.create(Keys.MODIFIER_CONDITIONS, Axolootl.MODID);
+    public static final Supplier<IForgeRegistry<ModifierCondition>> MODIFIER_CONDITIONS_SUPPLIER = MODIFIER_CONDITIONS.makeRegistry(() -> new RegistryBuilder<>());
 
     // FORGE CONDITIONS //
     private static final DeferredRegister<Codec<? extends ForgeCondition>> FORGE_CONDITION_SERIALIZERS = DeferredRegister.create(Keys.FORGE_CONDITION_SERIALIZERS, "forge");
+    public static final Supplier<IForgeRegistry<Codec<? extends ForgeCondition>>> FORGE_CONDITION_SERIALIZERS_SUPPLIER = FORGE_CONDITION_SERIALIZERS.makeRegistry(() -> new RegistryBuilder<>());
     private static final DeferredRegister<ForgeCondition> FORGE_CONDITIONS = DeferredRegister.create(Keys.FORGE_CONDITIONS, "forge");
+    public static final Supplier<IForgeRegistry<ForgeCondition>> FORGE_CONDITIONS_SUPPLIER = FORGE_CONDITIONS.makeRegistry(() -> new RegistryBuilder<>());
 
     // AXOLOOTL VARIANTS //
-    public static final DeferredRegister<AxolootlVariant> AXOLOOTL_VARIANTS = DeferredRegister.create(Keys.AXOLOOTL_VARIANTS, Axolootl.MODID);
+    private static final DeferredRegister<AxolootlVariant> AXOLOOTL_VARIANTS = DeferredRegister.create(Keys.AXOLOOTL_VARIANTS, Axolootl.MODID);
+    public static final Function<RegistryAccess, Registry<AxolootlVariant>> AXOLOOTL_VARIANTS_SUPPLIER = access -> access.registryOrThrow(Keys.AXOLOOTL_VARIANTS);
 
     // AXOLOOTL BREEDING //
-    public static final DeferredRegister<AxolootlBreeding> AXOLOOTL_BREEDING = DeferredRegister.create(Keys.AXOLOOTL_BREEDING, Axolootl.MODID);
+    private static final DeferredRegister<AxolootlBreeding> AXOLOOTL_BREEDING = DeferredRegister.create(Keys.AXOLOOTL_BREEDING, Axolootl.MODID);
+    public static final Function<RegistryAccess, Registry<AxolootlBreeding>> AXOLOOTL_BREEDING_SUPPLIER = access -> access.registryOrThrow(Keys.AXOLOOTL_BREEDING);
 
     // AXOLOOTL BREEDING MODIFIERS //
-    public static final DeferredRegister<Codec<? extends AxolootlBreedingModifier>> AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS = DeferredRegister.create(Keys.AXOLOOTL_BREEDING_MODIFIER_SERIALIZERS, Axolootl.MODID);
-    public static final DeferredRegister<AxolootlBreedingModifier> AXOLOOTL_BREEDING_MODIFIERS = DeferredRegister.create(Keys.AXOLOOTL_BREEDING_MODIFIERS, Axolootl.MODID);
+    private static final DeferredRegister<Codec<? extends AxolootlBreedingModifier>> AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS = DeferredRegister.create(Keys.AXOLOOTL_BREEDING_MODIFIER_SERIALIZERS, Axolootl.MODID);
+    public static final Supplier<IForgeRegistry<Codec<? extends AxolootlBreedingModifier>>> AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS_SUPPLIER = AXOLOOTL_BREEDING_MODIFIERS_SERIALIZERS.makeRegistry(() -> new RegistryBuilder<>());
+    private static final DeferredRegister<AxolootlBreedingModifier> AXOLOOTL_BREEDING_MODIFIERS = DeferredRegister.create(Keys.AXOLOOTL_BREEDING_MODIFIERS, Axolootl.MODID);
+    public static final Function<RegistryAccess, Registry<AxolootlBreedingModifier>> AXOLOOTL_BREEDING_MODIFIERS_SUPPLIER = access -> access.registryOrThrow(Keys.AXOLOOTL_BREEDING_MODIFIERS);
 
     // AQUARIUM MODIFIERS //
-    public static final DeferredRegister<AquariumModifier> AQUARIUM_MODIFIERS = DeferredRegister.create(Keys.AQUARIUM_MODIFIERS, Axolootl.MODID);
+    private static final DeferredRegister<AquariumModifier> AQUARIUM_MODIFIERS = DeferredRegister.create(Keys.AQUARIUM_MODIFIERS, Axolootl.MODID);
+    public static final Function<RegistryAccess, Registry<AquariumModifier>> AQUARIUM_MODIFIERS_SUPPLIER = access -> access.registryOrThrow(Keys.AQUARIUM_MODIFIERS);
 
     // AQUARIUM TABS //
-    public static final DeferredRegister<IAquariumTab> AQUARIUM_TABS = DeferredRegister.create(Keys.AQUARIUM_TABS, Axolootl.MODID);
+    private static final DeferredRegister<IAquariumTab> AQUARIUM_TABS = DeferredRegister.create(Keys.AQUARIUM_TABS, Axolootl.MODID);
+    public static final Supplier<IForgeRegistry<IAquariumTab>> AQUARIUM_TABS_SUPPLIER = AQUARIUM_TABS.makeRegistry(() -> new RegistryBuilder<>());
 
     public static void register() {
         BlockReg.register();

@@ -11,7 +11,6 @@ import axolootl.data.aquarium_modifier.condition.FalseModifierCondition;
 import axolootl.data.aquarium_modifier.condition.ModifierCondition;
 import axolootl.data.aquarium_modifier.condition.TrueModifierCondition;
 import axolootl.util.AxCodecUtils;
-import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -84,7 +83,7 @@ public class AquariumModifier {
      * @return the axolootl variant registry
      */
     public static Registry<AquariumModifier> getRegistry(final RegistryAccess access) {
-        return access.registryOrThrow(AxRegistry.Keys.AQUARIUM_MODIFIERS);
+        return AxRegistry.AQUARIUM_MODIFIERS_SUPPLIER.apply(access);
     }
 
     /**
@@ -246,7 +245,7 @@ public class AquariumModifier {
     public Holder<AquariumModifier> getHolder(final RegistryAccess registryAccess) {
         if(null == this.holder) {
             final Registry<AquariumModifier> registry = getRegistry(registryAccess);
-            this.holder = registry.getOrCreateHolderOrThrow(ResourceKey.create(AxRegistry.Keys.AQUARIUM_MODIFIERS, getRegistryName(registryAccess)));
+            this.holder = registry.getHolderOrThrow(ResourceKey.create(AxRegistry.Keys.AQUARIUM_MODIFIERS, getRegistryName(registryAccess)));
         }
         return this.holder;
     }

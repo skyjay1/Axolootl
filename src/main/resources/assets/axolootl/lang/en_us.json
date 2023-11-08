@@ -122,6 +122,8 @@
   "axolootl.tank_status.duplicate_controllers.description": "Max. 1 controller per tank",
   "axolootl.tank_status.incomplete": "Incomplete Tank",
   "axolootl.tank_status.incomplete.description": "Tank is broken or incomplete",
+  "axolootl.tank_status.paused": "Paused",
+  "axolootl.tank_status.paused.description": "Tank is paused",
   "axolootl.resource_generator.nothing": "Nothing",
   "axolootl.resource_generator.and.header": "and",
   "axolootl.resource_generator.block.block": "Block",

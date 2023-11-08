@@ -10,9 +10,12 @@ import axolootl.util.AxCodecUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryCodecs;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -27,7 +30,7 @@ public class BonusesProvider {
     public static final List<BonusesProvider> FISH_BONUS_PROVIDERS = ImmutableList.<BonusesProvider>builder()
             .add(new BonusesProvider(HolderSet.direct(ForgeRegistries.ITEMS.getHolder(Items.TROPICAL_FISH).orElseThrow()), new Bonuses(0.05)))
             .add(new BonusesProvider(HolderSet.direct(ForgeRegistries.ITEMS.getHolder(Items.PUFFERFISH).orElseThrow()), new Bonuses(-0.1)))
-            .add(new BonusesProvider(new HolderSet.Named<>(Registry.ITEM, ItemTags.FISHES), new Bonuses(0.02)))
+            .add(new BonusesProvider(BuiltInRegistries.ITEM.getOrCreateTag(ItemTags.FISHES), new Bonuses(0.02)))
             .build();
 
     public static final Codec<BonusesProvider> CODEC = RecordCodecBuilder.create(instance -> instance.group(

@@ -14,10 +14,12 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
 import net.minecraft.world.level.levelgen.blockpredicates.StateTestingPredicate;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +45,7 @@ public class MatchingStatePredicate extends StateTestingPredicate {
 
     public static final Codec<MatchingStatePredicate> CODEC = RecordCodecBuilder.create((instance) ->
             stateTestingCodec(instance)
-                .and(RegistryCodecs.homogeneousList(Registry.BLOCK_REGISTRY).fieldOf("blocks").forGetter(o -> o.blocks))
+                .and(RegistryCodecs.homogeneousList(ForgeRegistries.BLOCKS.getRegistryKey()).fieldOf("blocks").forGetter(o -> o.blocks))
                 .and(STATE_PROPERTIES_PREDICATE_CODEC.fieldOf("state").forGetter(o -> o.state))
                 .apply(instance, MatchingStatePredicate::new));
 

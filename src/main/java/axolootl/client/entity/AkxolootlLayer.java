@@ -11,8 +11,8 @@ import axolootl.Axolootl;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.entity.IAxolootl;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.RegistryAccess;
@@ -20,36 +20,36 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LerpingModel;
 import net.minecraft.world.entity.LivingEntity;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
-import software.bernie.geckolib3.renderers.geo.GeoLayerRenderer;
-import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.renderer.GeoRenderer;
+import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class AxolootlGeoAkxolootlLayer<T extends LivingEntity & LerpingModel & IAxolootl & IAnimatable> extends GeoLayerRenderer<T> {
+public class AkxolootlLayer<T extends LivingEntity & LerpingModel & IAxolootl & GeoAnimatable> extends GeoRenderLayer<T> {
 
     private static final TagKey<AxolootlVariant> BLACKLIST = TagKey.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, new ResourceLocation(Axolootl.MODID, "special_blacklist"));
-    private final AnimatedGeoModel<T> model;
+    private final GeoModel<T> model;
 
     private final Pattern namePattern = Pattern.compile("(?i)ak(-)?xolootl");
 
-    public AxolootlGeoAkxolootlLayer(IGeoRenderer<T> parent, AnimatedGeoModel<T> model) {
+    public AkxolootlLayer(GeoRenderer<T> parent, GeoModel<T> model) {
         super(parent);
         this.model = model;
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight, T entity,
-                       float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(PoseStack poseStack, T entity, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
         // validate visibility
         final Minecraft minecraft = Minecraft.getInstance();
-        if(null == minecraft.level || null == minecraft.player || entity.isInvisibleTo(minecraft.player)) {
+        if(null == minecraft.player || entity.isInvisibleTo(minecraft.player)) {
             return;
         }
-        final RegistryAccess access = minecraft.level.registryAccess();
+        final RegistryAccess access = entity.level.registryAccess();
         // validate name
         if(!namePattern.matcher(entity.getName().getString().toLowerCase(Locale.ENGLISH)).matches()) {
             return;
@@ -64,11 +64,16 @@ public class AxolootlGeoAkxolootlLayer<T extends LivingEntity & LerpingModel & I
             return;
         }
         // render model
-        renderModel(model, model.getTextureResource(entity), poseStack, multiBufferSource, LightTexture.FULL_BRIGHT, entity, partialTick, 1.0F, 1.0F, 1.0F);
+        getRenderer().reRender(bakedModel, poseStack, bufferSource, entity, renderType, buffer, partialTick, packedLight, packedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     @Override
-    public RenderType getRenderType(ResourceLocation textureLocation) {
-        return RenderType.entityCutoutNoCull(textureLocation);
+    public BakedGeoModel getDefaultBakedModel(T animatable) {
+        return this.model.getBakedModel(this.model.getModelResource(animatable));
+    }
+
+    @Override
+    protected ResourceLocation getTextureResource(T animatable) {
+        return this.model.getTextureResource(animatable);
     }
 }

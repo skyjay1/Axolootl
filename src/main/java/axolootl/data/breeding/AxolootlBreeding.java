@@ -53,7 +53,7 @@ public class AxolootlBreeding {
      * @return the axolootl variant registry
      */
     public static Registry<AxolootlBreeding> getRegistry(final RegistryAccess access) {
-        return access.registryOrThrow(AxRegistry.Keys.AXOLOOTL_BREEDING);
+        return AxRegistry.AXOLOOTL_BREEDING_SUPPLIER.apply(access);
     }
 
     /**

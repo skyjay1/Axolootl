@@ -15,7 +15,6 @@ import axolootl.item.AxolootlBucketItem;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.WeightedEntry;
@@ -26,7 +25,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 public class JeiBreedingRecipe {
 
@@ -95,38 +93,11 @@ public class JeiBreedingRecipe {
     }
 
     /**
-     * @param holders a holder set
-     * @return all breeding items for the given axolootl variant(s)
-     */
-    private static List<ItemStack> getFoods(final HolderSet<AxolootlVariant> holders) {
-        final ImmutableList.Builder<ItemStack> builder = ImmutableList.builder();
-        for(Holder<AxolootlVariant> holder : holders) {
-            builder.addAll(holder.get().getBreedFood().stream().map(h -> h.get().getDefaultInstance()).toList());
-        }
-        return builder.build();
-    }
-
-    /**
      * @param holder a holder
      * @return all breeding items for the given axolootl variant(s)
      */
     private static List<ItemStack> getFood(final Holder<AxolootlVariant> holder) {
         return ImmutableList.copyOf(holder.get().getBreedFood().stream().map(h -> h.get().getDefaultInstance()).toList());
-    }
-
-    /**
-     * @param holder a holder set
-     * @return item stack representations of all the axolootl variants in the holder set
-     */
-    private static List<ItemStack> getStacks(final HolderSet<AxolootlVariant> holder) {
-        final List<Holder<AxolootlVariant>> variants = holder.unwrap()
-                .map(tagKey -> AxRegistry.AXOLOOTL_VARIANTS_SUPPLIER.get().tags().getTag(tagKey).stream()
-                        .map(a -> a.getHolder(JeiAddon.getRegistryAccess())).toList(), Function.identity());
-        final ImmutableList.Builder<ItemStack> builder = ImmutableList.builder();
-        for(Holder<AxolootlVariant> entry : variants) {
-            builder.add(getStack(entry, true));
-        }
-        return builder.build();
     }
 
     /**

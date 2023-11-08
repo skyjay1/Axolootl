@@ -16,7 +16,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.Optional;

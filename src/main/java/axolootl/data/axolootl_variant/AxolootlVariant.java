@@ -117,7 +117,7 @@ public class AxolootlVariant {
      * @return the axolootl variant registry
      */
     public static Registry<AxolootlVariant> getRegistry(final RegistryAccess access) {
-        return access.registryOrThrow(AxRegistry.Keys.AXOLOOTL_VARIANTS);
+        return AxRegistry.AXOLOOTL_VARIANTS_SUPPLIER.apply(access);
     }
 
     /**

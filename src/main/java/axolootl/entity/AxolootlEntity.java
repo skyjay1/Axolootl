@@ -52,19 +52,19 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.util.GeckoLibUtil;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, IAquariumControllerProvider {
+public class AxolootlEntity extends Axolotl implements GeoAnimatable, IAxolootl, IAquariumControllerProvider {
 
     public static final EntityDataSerializer<Optional<ResourceLocation>> OPTIONAL_RESOURCE_LOCATION = EntityDataSerializer.optional(FriendlyByteBuf::writeResourceLocation, FriendlyByteBuf::readResourceLocation);
     public static final int BABY_AGE = -24000;
@@ -90,12 +90,12 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
     private Component displayName;
 
     // GECKOLIB //
-    private AnimationFactory factory = GeckoLibUtil.createFactory(this);
-    private final AnimationBuilder ANIM_IDLE = new AnimationBuilder().loop("animation.axolootl.idle");
-    private final AnimationBuilder ANIM_WALK = new AnimationBuilder().loop("animation.axolootl.walk");
-    private final AnimationBuilder ANIM_SWIM = new AnimationBuilder().loop("animation.axolootl.swim");
-    private final AnimationBuilder ANIM_SWIM_IDLE = new AnimationBuilder().loop("animation.axolootl.swim_idle");
-    private final AnimationBuilder ANIM_PLAY_DEAD = new AnimationBuilder().loop("animation.axolootl.play_dead");
+    private AnimatableInstanceCache factory = GeckoLibUtil.createInstanceCache(this);
+    private final RawAnimation ANIM_IDLE = RawAnimation.begin().thenLoop("animation.axolootl.idle");
+    private final RawAnimation ANIM_WALK = RawAnimation.begin().thenLoop("animation.axolootl.walk");
+    private final RawAnimation ANIM_SWIM = RawAnimation.begin().thenLoop("animation.axolootl.swim");
+    private final RawAnimation ANIM_SWIM_IDLE = RawAnimation.begin().thenLoop("animation.axolootl.swim_idle");
+    private final RawAnimation ANIM_PLAY_DEAD = RawAnimation.begin().thenLoop("animation.axolootl.play_dead");
 
     public AxolootlEntity(EntityType<? extends Axolotl> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -500,7 +500,7 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
 
     //// GECKOLIB ////
 
-    protected PlayState animationPredicate(AnimationEvent<AxolootlEntity> event) {
+    protected PlayState handleAnimationState(AnimationState<AxolootlEntity> event) {
         // play dead animation
         if(this.isPlayingDead()) {
             event.getController().setAnimation(ANIM_PLAY_DEAD);
@@ -527,13 +527,18 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<>(this, "controller", 0, this::animationPredicate));
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
+        controllerRegistrar.add(new AnimationController<>(this, "controller", 1, this::handleAnimationState));
     }
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
+    }
+
+    @Override
+    public double getTick(Object o) {
+        return tickCount;
     }
 
     //// NBT ////
