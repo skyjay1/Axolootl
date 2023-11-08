@@ -19,9 +19,9 @@ public class TabGroupButton extends ImageButton {
 
     private final boolean isLeft;
 
-    public TabGroupButton(int pX, int pY, boolean isLeft, OnPress pOnPress, OnTooltip onTooltip) {
+    public TabGroupButton(int pX, int pY, boolean isLeft, OnPress pOnPress) {
         super(pX, pY, WIDTH, HEIGHT, 232, isLeft ? 79 : 79 + HEIGHT * 2, HEIGHT, TEXTURE, 256, 256,
-                pOnPress, onTooltip, Component.translatable("gui.axolootl.tab_group." + (isLeft ? "previous" : "next")));
+                pOnPress, Component.translatable("gui.axolootl.tab_group." + (isLeft ? "previous" : "next")));
         this.isLeft = isLeft;
     }
 }

@@ -34,17 +34,16 @@ public class ItemButton extends Button {
     protected final int textureWidth;
     protected final int textureHeight;
     protected boolean drawBackground;
-    protected boolean drawTooltip;
     protected ItemStack item;
 
-    public ItemButton(int pX, int pY, boolean drawBackground, Font font, ItemRenderer itemRenderer, ItemStack item, Function<ItemStack, List<Component>> getTooltipFromItem, OnPress onPress, OnTooltip onTooltip) {
-        this(pX, pY, drawBackground, font, itemRenderer, item, getTooltipFromItem, onPress, onTooltip, AbstractTabScreen.SLOTS, 30, 18, 256, 256);
+    public ItemButton(int pX, int pY, boolean drawBackground, Font font, ItemRenderer itemRenderer, ItemStack item, Function<ItemStack, List<Component>> getTooltipFromItem, OnPress onPress) {
+        this(pX, pY, drawBackground, font, itemRenderer, item, getTooltipFromItem, onPress, AbstractTabScreen.SLOTS, 30, 18, 256, 256);
     }
 
     public ItemButton(int pX, int pY, boolean drawBackground, Font font, ItemRenderer itemRenderer, ItemStack item,
-                      Function<ItemStack, List<Component>> getTooltipFromItem, OnPress onPress, OnTooltip onTooltip,
+                      Function<ItemStack, List<Component>> getTooltipFromItem, OnPress onPress,
                       ResourceLocation texture, int u, int v, int textureWidth, int textureHeight) {
-        super(pX, pY, WIDTH, HEIGHT, item.getHoverName(), onPress, onTooltip);
+        super(pX, pY, WIDTH, HEIGHT, item.getHoverName(), onPress, Button.DEFAULT_NARRATION);
         this.drawBackground = drawBackground;
         this.font = font;
         this.itemRenderer = itemRenderer;
@@ -55,7 +54,6 @@ public class ItemButton extends Button {
         this.textureV = v;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
-        this.drawTooltip = true;
     }
 
     public List<Component> getTooltips() {
@@ -74,15 +72,11 @@ public class ItemButton extends Button {
     public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         // draw slot
         if (drawBackground) {
-            renderBackground(pPoseStack, this.x, this.y);
+            renderBackground(pPoseStack, this.getX(), this.getY());
         }
         // render item
         if(!this.item.isEmpty()) {
-            renderItem(this.item, this.x, this.y);
-        }
-        // render tooltip
-        if (drawTooltip && this.isHoveredOrFocused()) {
-            this.renderToolTip(pPoseStack, pMouseX, pMouseY);
+            renderItem(this.item, this.getX(), this.getY());
         }
     }
 

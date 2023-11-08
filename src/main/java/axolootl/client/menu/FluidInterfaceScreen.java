@@ -190,8 +190,8 @@ public class FluidInterfaceScreen extends CyclingContainerScreen {
         // load texture, atlas, and color
         final ResourceLocation stillTexture = fluidExtensions.getStillTexture(fluidStack);
         final TextureAtlasSprite stillTextureSprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(stillTexture);
-        final int textureWidth = stillTextureSprite.getWidth();
-        final int textureHeight = stillTextureSprite.getHeight();
+        final int textureWidth = stillTextureSprite.contents().width();
+        final int textureHeight = stillTextureSprite.contents().height();
         final int fluidColor = fluidExtensions.getTintColor(fluidStack);
         final float red = FastColor.ARGB32.red(fluidColor) / 255.0F;
         final float green = FastColor.ARGB32.green(fluidColor) / 255.0F;

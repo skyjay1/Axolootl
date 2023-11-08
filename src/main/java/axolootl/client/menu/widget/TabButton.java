@@ -33,8 +33,8 @@ public class TabButton extends Button {
     private boolean selected;
     private OnPress mutableOnPress;
 
-    public TabButton(int x, int y, int index, final ItemRenderer itemRenderer, OnTooltip onTooltip) {
-        super(x, y, WIDTH, HEIGHT, Component.empty(), b -> {}, onTooltip);
+    public TabButton(int x, int y, int index, final ItemRenderer itemRenderer) {
+        super(x, y, WIDTH, HEIGHT, Component.empty(), b -> {}, Button.DEFAULT_NARRATION);
         this.index = index;
         this.itemRenderer = itemRenderer;
         this.tooltips = new ArrayList<>();
@@ -76,11 +76,11 @@ public class TabButton extends Button {
         // prepare to render image
         int u = index * WIDTH;
         int v = isSelected() ? HEIGHT : 0;
-        int y = this.y + (isSelected() ? DELTA_SELECTED : 0);
+        int y = this.getY() + (isSelected() ? DELTA_SELECTED : 0);
         // render image
         RenderSystem.setShaderTexture(0, TEXTURE);
-        blit(pPoseStack, this.x, y, u, v, WIDTH, HEIGHT);
+        blit(pPoseStack, this.getX(), y, u, v, WIDTH, HEIGHT);
         // render icon
-        this.itemRenderer.renderGuiItem(this.icon, this.x + (this.width - 16) / 2, this.y + DELTA_SELECTED + (this.height - 16) / 2);
+        this.itemRenderer.renderGuiItem(this.icon, this.getX() + (this.width - 16) / 2, this.getY() + DELTA_SELECTED + (this.height - 16) / 2);
     }
 }

@@ -10,30 +10,35 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.Style;
+import org.jetbrains.annotations.Nullable;
 
 public class ComponentButton extends Button {
 
     protected final Font font;
     protected Component hoverMessage;
-    protected boolean drawTooltip;
 
-    public ComponentButton(int pX, int pY, int height, Font font, Component pMessage, OnPress onPress, OnTooltip onTooltip) {
-        this(pX, pY, font.width(pMessage), height, font, pMessage, onPress, onTooltip);
+    public ComponentButton(int pX, int pY, int height, Font font, Component pMessage, OnPress onPress) {
+        this(pX, pY, font.width(pMessage), height, font, pMessage, onPress);
     }
 
-    public ComponentButton(int pX, int pY, int width, int height, Font font, Component pMessage, OnPress onPress, OnTooltip onTooltip) {
-        super(pX, pY, width, height, pMessage, onPress, onTooltip);
+    public ComponentButton(int pX, int pY, int width, int height, Font font, Component pMessage, OnPress onPress) {
+        super(pX, pY, width, height, pMessage, onPress, Button.DEFAULT_NARRATION);
         this.hoverMessage = Component.empty();
         this.font = font;
-        this.drawTooltip = true;
         setMessage(getMessage());
     }
 
     @Override
     public void setMessage(final Component message) {
         super.setMessage(message);
-        this.hoverMessage = (message.getStyle().getClickEvent() != null) ? message.copy().withStyle(message.getStyle()).withStyle(ChatFormatting.UNDERLINE) : message;
+        this.hoverMessage = (message.getStyle().getClickEvent() != null)
+                ? ComponentUtils.mergeStyles(message.copy(), Style.EMPTY.withUnderlined(true))
+                : message;
+        this.setTooltip(Tooltip.create(this.hoverMessage));
     }
 
     public static int getHeight(Font font) {
@@ -41,10 +46,12 @@ public class ComponentButton extends Button {
     }
 
     @Override
+    public void setTooltip(@Nullable Tooltip pTooltip) {
+        super.setTooltip(pTooltip);
+    }
+
+    @Override
     public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        this.font.draw(pPoseStack, isHoveredOrFocused() ? hoverMessage : getMessage(), this.x, this.y + 1, 0);
-        if(drawTooltip && this.isHoveredOrFocused()) {
-            this.renderToolTip(pPoseStack, pMouseX, pMouseY);
-        }
+        this.font.draw(pPoseStack, isHoveredOrFocused() ? hoverMessage : getMessage(), this.getX(), this.getY() + 1, 0);
     }
 }

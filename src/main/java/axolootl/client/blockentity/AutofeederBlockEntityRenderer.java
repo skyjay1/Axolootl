@@ -8,7 +8,7 @@ package axolootl.client.blockentity;
 
 import axolootl.block.entity.AutoFeederBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Vector3f;
 
 public class AutofeederBlockEntityRenderer implements BlockEntityRenderer<AutoFeederBlockEntity> {
 
@@ -47,7 +48,7 @@ public class AutofeederBlockEntityRenderer implements BlockEntityRenderer<AutoFe
         // prepare to render
         pPoseStack.pushPose();
         pPoseStack.translate(0.5D, 0.96D, 0.375D);
-        pPoseStack.mulPose(Vector3f.XP.rotationDegrees(90));
+        pPoseStack.mulPose(Axis.XP.rotationDegrees(90));
 
         // render item stack
         random.setSeed(pBlockEntity.getBlockPos().asLong());

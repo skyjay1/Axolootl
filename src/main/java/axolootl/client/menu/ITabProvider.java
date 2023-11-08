@@ -78,11 +78,12 @@ public interface ITabProvider {
      * @param partialTick the partial tick
      */
     default void renderTabTooltip(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
-        for(TabButton tabButton : getTabButtons()) {
+        // TODO tab tooltip
+        /*for(TabButton tabButton : getTabButtons()) {
             if (tabButton.isHoveredOrFocused()) {
                 tabButton.renderToolTip(poseStack, mouseX, Math.max(mouseY, MIN_TOOLTIP_Y));
             }
-        }
+        }*/
     }
 
     /**

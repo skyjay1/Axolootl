@@ -33,7 +33,7 @@ public class ScrollButton extends Button {
     public ScrollButton(int x, int y, int width, int height, ResourceLocation resourceLocation,
                         int iconU, int iconV, int iconWidth, int iconHeight, int iconDeltaV, boolean isVertical,
                         final float scrollAmountMultiplier, final IScrollListener listener) {
-        super(x, y, Math.max(1, width), Math.max(1, height), Component.empty(), b -> {});
+        super(x, y, Math.max(1, width), Math.max(1, height), Component.empty(), b -> {}, Button.DEFAULT_NARRATION);
         this.resourceLocation = resourceLocation;
         this.iconU = iconU;
         this.iconV = iconV;
@@ -56,8 +56,8 @@ public class ScrollButton extends Button {
                 v += iconDeltaV;
             }
             // determine icon position
-            int renderX = this.x;
-            int renderY = this.y;
+            int renderX = this.getX();
+            int renderY = this.getY();
             if(isVertical) {
                 renderY += Mth.floor((float) (height - iconHeight) * scrollPercent);
             } else {
@@ -103,7 +103,7 @@ public class ScrollButton extends Button {
     }
 
     protected void setValueFromMouse(final double mouseX, final double mouseY) {
-        float scrollPercent = (float) ((isVertical ? (mouseY - this.y) : (mouseX - this.x)) / (float) height);
+        float scrollPercent = (float) ((isVertical ? (mouseY - this.getY()) : (mouseX - this.getX())) / (float) height);
         this.setScrollPercent(Mth.clamp(scrollPercent, 0.0F, 1.0F));
     }
 

@@ -105,14 +105,15 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
         this.scrollButton.active = variants.size() > ENTRY_COUNT;
         // add entry buttons
         this.entryButtons.clear();
-        final Button.OnTooltip entryButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((EntryButton)b).getTooltips(), Optional.empty(), mx, my);
+        // TODO tooltips
+        //final Button.OnTooltip entryButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((EntryButton)b).getTooltips(), Optional.empty(), mx, my);
         for(int i = 0, x, y; i < ENTRY_COUNT; i++) {
             x = this.leftPos + ENTRY_X + (i % ENTRY_COUNT_X) * EntryButton.WIDTH + 1;
             y = this.topPos + ENTRY_Y + (i / ENTRY_COUNT_X) * EntryButton.HEIGHT + 1;
             Button.OnPress onPress = b -> {
                 ((EntryButton)b).openDetails(getMinecraft());
             };
-            this.entryButtons.add(this.addRenderableWidget(new EntryButton(x, y, this.font, this.itemRenderer, onPress, entryButtonOnTooltip)));
+            this.entryButtons.add(this.addRenderableWidget(new EntryButton(x, y, this.font, this.itemRenderer, onPress)));
         }
         updateEntryButtons();
         containerTick();
@@ -228,9 +229,9 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
         private ItemStack icon;
         private List<Component> tooltips;
 
-        public EntryButton(int pX, int pY, Font font, ItemRenderer itemRenderer, OnPress pOnPress, OnTooltip pOnTooltip) {
+        public EntryButton(int pX, int pY, Font font, ItemRenderer itemRenderer, OnPress pOnPress) {
             super(pX, pY, WIDTH, HEIGHT, 137, 104, HEIGHT, WIDGETS, 256, 256,
-                    pOnPress, pOnTooltip, Component.empty());
+                    pOnPress, Component.empty());
             this.tooltips =new ArrayList<>();
             this.key = new ResourceLocation("empty");
             this.entry = AxolootlVariant.EMPTY;
@@ -266,8 +267,8 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
         @Override
         public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
             super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
-            this.itemRenderer.renderGuiItem(this.icon, this.x + 1, this.y + (this.height - 16) / 2);
-            this.font.draw(pPoseStack, getMessage(), this.x + 16 + 3, this.y + (this.height - font.lineHeight) / 2.0F, 0);
+            this.itemRenderer.renderGuiItem(this.icon, this.getX() + 1, this.getY() + (this.height - 16) / 2);
+            this.font.draw(pPoseStack, getMessage(), this.getX() + 16 + 3, this.getY() + (this.height - font.lineHeight) / 2.0F, 0);
         }
 
         public void openDetails(final Minecraft minecraft) {

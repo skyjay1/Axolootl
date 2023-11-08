@@ -24,6 +24,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
@@ -49,9 +50,9 @@ public class LocationModifierCondition extends ModifierCondition {
     public static final Codec<LocationModifierCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             DoublesPosition.CODEC.optionalFieldOf("position", DoublesPosition.ANY).forGetter(LocationModifierCondition::getPosition),
             Vec3i.CODEC.optionalFieldOf("offset", Vec3i.ZERO).forGetter(LocationModifierCondition::getOffset),
-            RegistryCodecs.homogeneousList(Registry.BIOME_REGISTRY).optionalFieldOf("biome").forGetter(LocationModifierCondition::getBiome),
-            RegistryCodecs.homogeneousList(Registry.STRUCTURE_REGISTRY).optionalFieldOf("structure").forGetter(LocationModifierCondition::getStructure),
-            RegistryCodecs.homogeneousList(Registry.DIMENSION_REGISTRY).optionalFieldOf("dimension").forGetter(LocationModifierCondition::getDimension),
+            RegistryCodecs.homogeneousList(Registries.BIOME).optionalFieldOf("biome").forGetter(LocationModifierCondition::getBiome),
+            RegistryCodecs.homogeneousList(Registries.STRUCTURE).optionalFieldOf("structure").forGetter(LocationModifierCondition::getStructure),
+            RegistryCodecs.homogeneousList(Registries.DIMENSION).optionalFieldOf("dimension").forGetter(LocationModifierCondition::getDimension),
             Codec.BOOL.optionalFieldOf("smokey").forGetter(LocationModifierCondition::getSmokey),
             AxCodecUtils.LIGHT_PREDICATE_CODEC.optionalFieldOf("light", LightPredicate.ANY).forGetter(LocationModifierCondition::getLight),
             AxCodecUtils.FLUID_PREDICATE_CODEC.optionalFieldOf("fluid", FluidPredicate.ANY).forGetter(LocationModifierCondition::getFluid),
@@ -139,7 +140,7 @@ public class LocationModifierCondition extends ModifierCondition {
             return false;
         }
         // validate dimension
-        final Registry<Level> levelRegistry = context.getRegistryAccess().registryOrThrow(Registry.DIMENSION_REGISTRY);
+        final Registry<Level> levelRegistry = context.getRegistryAccess().registryOrThrow(Registries.DIMENSION);
         final Holder<Level> dimensionHolder = levelRegistry.getHolderOrThrow(level.dimension());
         if (this.dimension != null && this.dimension.size() > 0 && !this.dimension.contains(dimensionHolder)) {
             return false;
@@ -188,13 +189,13 @@ public class LocationModifierCondition extends ModifierCondition {
     }
 
     private static boolean hasAnyStructure(final RegistryAccess registryAccess, final HolderSet<Structure> holderSet, final Set<Structure> structures) {
-        final Registry<Structure> registry = registryAccess.registryOrThrow(Registry.STRUCTURE_REGISTRY);
+        final Registry<Structure> registry = registryAccess.registryOrThrow(Registries.STRUCTURE);
         for(Structure structure : structures) {
             // load resource key
             Optional<ResourceKey<Structure>> resourceKey = registry.getResourceKey(structure);
             if(resourceKey.isEmpty()) continue;
             // load structure holder
-            Holder<Structure> holder = registry.getOrCreateHolderOrThrow(resourceKey.get());
+            Holder<Structure> holder = registry.getHolderOrThrow(resourceKey.get());
             // check if holder is in holder set
             if (holderSet.contains(holder)) {
                 return true;

@@ -19,9 +19,9 @@ public class CycleButton extends ImageButton {
 
     private final boolean isLeft;
 
-    public CycleButton(int pX, int pY, boolean isLeft, OnPress pOnPress, OnTooltip onTooltip) {
+    public CycleButton(int pX, int pY, boolean isLeft, OnPress pOnPress) {
         super(pX, pY, WIDTH, HEIGHT, 229, isLeft ? 30 : 30 + HEIGHT * 2, HEIGHT, TEXTURE, 256, 256,
-                pOnPress, onTooltip, Component.translatable("gui.axolootl.cycle." + (isLeft ? "previous" : "next")));
+                pOnPress, Component.translatable("gui.axolootl.cycle." + (isLeft ? "previous" : "next")));
         this.isLeft = isLeft;
     }
 }

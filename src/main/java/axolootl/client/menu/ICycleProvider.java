@@ -58,11 +58,12 @@ public interface ICycleProvider {
      * @param partialTick the partial tick
      */
     default void renderCycleTooltip(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
-        for(CycleButton button : getCycleButtons()) {
+        // TODO cycle tooltip
+        /*for(CycleButton button : getCycleButtons()) {
             if (button.isHoveredOrFocused()) {
                 button.renderToolTip(poseStack, mouseX, mouseY);
             }
-        }
+        }*/
     }
 
     /**

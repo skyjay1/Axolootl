@@ -19,6 +19,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -103,7 +104,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
           updateVariantList();
           updateEntryButtons();
         };
-        this.insertButton = addRenderableWidget(new InsertButton(leftPos + WIDTH - InsertButton.WIDTH - 7, topPos + AxolootlInterfaceMenu.INV_Y - 1, font, insertButtonOnPress, (b, p, mx, my) -> renderTooltip(p, b.getMessage(), mx, my)));
+        this.insertButton = addRenderableWidget(new InsertButton(leftPos + WIDTH - InsertButton.WIDTH - 7, topPos + AxolootlInterfaceMenu.INV_Y - 1, font, insertButtonOnPress));
         // add entry buttons
         this.entryButtons.clear();
         for(int i = 0, x, y; i < ENTRY_COUNT; i++) {
@@ -114,7 +115,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
                 updateVariantList();
                 updateEntryButtons();
             };
-            this.entryButtons.add(addRenderableWidget(new EntryButton(x, y, font, onPress, (b, p, mx, my) -> renderTooltip(p, b.getMessage(), mx, my))));
+            this.entryButtons.add(addRenderableWidget(new EntryButton(x, y, font, onPress)));
         }
         updateEntryButtons();
         containerTick();
@@ -224,15 +225,15 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
 
         private final Font font;
 
-        public InsertButton(int pX, int pY, Font font, OnPress pOnPress, OnTooltip pOnTooltip) {
-            super(pX, pY, WIDTH, HEIGHT, 137, 50, HEIGHT, WIDGETS, 256, 256, pOnPress, pOnTooltip, Component.translatable(PREFIX + "insert"));
+        public InsertButton(int pX, int pY, Font font, OnPress pOnPress) {
+            super(pX, pY, WIDTH, HEIGHT, 137, 50, HEIGHT, WIDGETS, 256, 256, pOnPress, Component.translatable(PREFIX + "insert"));
             this.font = font;
         }
 
         @Override
         public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
             super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
-            font.draw(pPoseStack, getMessage(), this.x + (this.width - font.width(getMessage())) / 2.0F, this.y + (this.height - font.lineHeight) / 2.0F, 0);
+            font.draw(pPoseStack, getMessage(), this.getX() + (this.width - font.width(getMessage())) / 2.0F, this.getY() + (this.height - font.lineHeight) / 2.0F, 0);
         }
     }
 
@@ -251,9 +252,9 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
         private Component tooltipText;
         private Component tooltipFailText;
 
-        public EntryButton(int pX, int pY, Font font, OnPress pOnPress, OnTooltip pOnTooltip) {
+        public EntryButton(int pX, int pY, Font font, OnPress pOnPress) {
             super(pX, pY, INTERACT_WIDTH, INTERACT_HEIGHT, 242, 143, INTERACT_HEIGHT, WIDGETS, 256, 256,
-                    pOnPress, pOnTooltip, Component.empty());
+                    pOnPress, Component.empty());
             this.entry = AxolootlVariant.EMPTY;
             this.font = font;
             this.text = Component.empty();
@@ -282,7 +283,7 @@ public class AxolootlInterfaceScreen extends AbstractTabScreen<AxolootlInterface
 
         @Override
         public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-            this.font.draw(pPoseStack, text, this.x + INTERACT_WIDTH + 4, this.y + (this.height - font.lineHeight) / 2.0F, 0);
+            this.font.draw(pPoseStack, text, this.getX() + INTERACT_WIDTH + 4, this.getY() + (this.height - font.lineHeight) / 2.0F, 0);
             super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
         }
     }

@@ -184,59 +184,61 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + RESOURCE_DESCRIPTION_X + RESOURCE_DESCRIPTION_WIDTH + 1, topPos + RESOURCE_DESCRIPTION_Y + 2, 12, RESOURCE_DESCRIPTION_HEIGHT - 2, WIDGETS, 244, 0, 12, 15, 15, true,  (float) ResourceDescriptionGroupButton.getHeight(font) / (float) Math.max(1, resourceDescriptionHeight - RESOURCE_DESCRIPTION_HEIGHT), this));
         this.setFocused(this.scrollButton);
         this.scrollButton.active = this.resourceDescriptionHeight > RESOURCE_DESCRIPTION_HEIGHT;
-       // create on tooltip
-        final Button.OnTooltip componentButtonOnTooltip = (b, p, mx, my) -> renderComponentHoverEffect(p, b.getMessage().getStyle(), mx, my);
+        // create on tooltip
+        // TODO fix tooltips
+        //final Button.OnTooltip componentButtonOnTooltip = (b, p, mx, my) -> renderComponentHoverEffect(p, b.getMessage().getStyle(), mx, my);
         // prepare to add components
         int x = this.leftPos + DETAILS_X;
         int y = this.topPos + DETAILS_Y + (16 - font.lineHeight) / 2;
         int deltaY = DETAILS_LINE_SPACING + font.lineHeight;
         // add item stack button
-        final Button.OnTooltip iconButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((ItemButton)b).getTooltips(), Optional.empty(), mx, my);
-        this.addRenderableWidget(new ItemButton(x, y + deltaY / 2, false, font, itemRenderer, this.itemStack, this::getTooltipFromItem, b -> {}, iconButtonOnTooltip));
+        //final Button.OnTooltip iconButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((ItemButton)b).getTooltips(), Optional.empty(), mx, my);
+        this.addRenderableWidget(new ItemButton(x, y + deltaY / 2, false, font, itemRenderer, this.itemStack, this::getTooltipFromItem, b -> {}));
         // add tier text
-        this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x + 16 + 2, y, font.lineHeight, font, getTitle(), componentButtonOnTooltip)));
+        this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x + 16 + 2, y, font.lineHeight, font, getTitle())));
         y += deltaY;
         // add loot title text
-        int resourceTitleX = this.leftPos + RESOURCE_DESCRIPTION_X;this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x + 16 + 2, y, font.lineHeight, font, tierText, componentButtonOnTooltip)));
-        this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(resourceTitleX, y, font.lineHeight, font, resourceTitleText, componentButtonOnTooltip)));
+        int resourceTitleX = this.leftPos + RESOURCE_DESCRIPTION_X;this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x + 16 + 2, y, font.lineHeight, font, tierText)));
+        this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(resourceTitleX, y, font.lineHeight, font, resourceTitleText)));
         // add energy cost icon, if any
         if(this.variant.getEnergyCost() > 0) {
+            // TODO use energy cost text for tooltip
             final Component energyCostText = Component.translatable(PREFIX + "energy_cost.description", this.variant.getEnergyCost())
                     .withStyle(ChatFormatting.RED);
-            addRenderableWidget(new ItemButton(resourceTitleX + font.width(resourceTitleText) + 4, y - (16 - DetailsComponentButton.getHeight(font)), false, font, itemRenderer, new ItemStack(Items.REDSTONE), item -> ImmutableList.of(energyCostText), b -> {}, (b, p, mx, my) -> renderTooltip(p, energyCostText, mx, my)));
+            addRenderableWidget(new ItemButton(resourceTitleX + font.width(resourceTitleText) + 4, y - (16 - DetailsComponentButton.getHeight(font)), false, font, itemRenderer, new ItemStack(Items.REDSTONE), item -> ImmutableList.of(energyCostText), b -> {}));
         }
         y += deltaY + 4;
         // add food buttons
-        this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x, y, font.lineHeight, font, foodText, componentButtonOnTooltip)));
-        final Button.OnTooltip cyclingItemButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((CyclingItemButton)b).getTooltips(), Optional.empty(), mx, my);
+        this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x, y, font.lineHeight, font, foodText)));
+       // final Button.OnTooltip cyclingItemButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((CyclingItemButton)b).getTooltips(), Optional.empty(), mx, my);
         y += deltaY;
         for(int i = 0, n = foods.size(); i < n; i++) {
-            this.foodButtons.add(addRenderableWidget(new CyclingItemButton(x + i * (CyclingItemButton.WIDTH + 3), y, font, itemRenderer, foods.get(i), itemStack -> getFoodTooltip(this.variant, itemStack), cyclingItemButtonOnTooltip)));
+            this.foodButtons.add(addRenderableWidget(new CyclingItemButton(x + i * (CyclingItemButton.WIDTH + 3), y, font, itemRenderer, foods.get(i), itemStack -> getFoodTooltip(this.variant, itemStack))));
         }
         y += CyclingItemButton.HEIGHT + DETAILS_LINE_SPACING;
         // add breed buttons
-        this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x, y, font.lineHeight, font, breedFoodText, componentButtonOnTooltip)));
+        this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x, y, font.lineHeight, font, breedFoodText)));
         y += deltaY;
         for(int i = 0, n = breedFoods.size(); i < n; i++) {
-            this.breedFoodButtons.add(addRenderableWidget(new CyclingItemButton(x + i * (CyclingItemButton.WIDTH + 3), y, font, itemRenderer, breedFoods.get(i), this::getTooltipFromItem, cyclingItemButtonOnTooltip)));
+            this.breedFoodButtons.add(addRenderableWidget(new CyclingItemButton(x + i * (CyclingItemButton.WIDTH + 3), y, font, itemRenderer, breedFoods.get(i), this::getTooltipFromItem)));
         }
         y += CyclingItemButton.HEIGHT + deltaY;
         // add parent info
-        this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x, y, font.lineHeight, font, parentsTitleText, componentButtonOnTooltip)));
+        this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x, y, font.lineHeight, font, parentsTitleText)));
         y += deltaY;
-        final Button.OnTooltip parentButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((ParentDataButton)b).getTooltips(mx, my), Optional.empty(), mx, my);
+        //final Button.OnTooltip parentButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((ParentDataButton)b).getTooltips(mx, my), Optional.empty(), mx, my);
         for(ParentData entry : parentData) {
-            ParentDataButton button = addRenderableWidget(new ParentDataButton(x, y, font, itemRenderer, this::getTooltipFromItem, parentButtonOnTooltip));
+            ParentDataButton button = addRenderableWidget(new ParentDataButton(x, y, font, itemRenderer, this::getTooltipFromItem));
             this.parentButtons.add(button);
             y += ParentDataButton.HEIGHT + 1;
         }
         // add resource description buttons
         x = this.leftPos + RESOURCE_DESCRIPTION_X + RESOURCE_DESCRIPTION_MARGIN_X;
         y = this.topPos + RESOURCE_DESCRIPTION_Y + 1;
-        final Button.OnTooltip descriptionButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((ResourceDescriptionButton)b).getTooltips(), Optional.empty(), mx, my);
+        //final Button.OnTooltip descriptionButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((ResourceDescriptionButton)b).getTooltips(), Optional.empty(), mx, my);
         for(int i = 0, n = resourceDescriptionGroups.size(), h = ResourceDescriptionGroupButton.getHeight(font); i < n; i++) {
             ResourceDescriptionGroup group = resourceDescriptionGroups.get(i);
-            ResourceDescriptionGroupButton button = new ResourceDescriptionGroupButton(x, y, resourceMaxWidth, h, itemRenderer, font, group, this::getTooltipFromItem, componentButtonOnTooltip, descriptionButtonOnTooltip, resourceDescriptionButtons::add);
+            ResourceDescriptionGroupButton button = new ResourceDescriptionGroupButton(x, y, resourceMaxWidth, h, itemRenderer, font, group, this::getTooltipFromItem, resourceDescriptionButtons::add);
             this.resourceDescriptionGroupButtons.add(button);
             y += button.getTotalHeight() + RESOURCE_DESCRIPTION_MARGIN_Y;
         }
@@ -281,12 +283,12 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
     private void renderHoverActions(final PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         for(ResourceDescriptionGroupButton button : resourceDescriptionGroupButtons) {
             if(button.visible && button.isHoveredOrFocused()) {
-                button.renderToolTip(poseStack, mouseX, mouseY);
+                // TODO button.renderToolTip(poseStack, mouseX, mouseY);
             }
         }
         for(ResourceDescriptionButton button : resourceDescriptionButtons) {
             if(button.visible && button.isHoveredOrFocused()) {
-                button.renderToolTip(poseStack, mouseX, mouseY);
+                // TODO button.renderToolTip(poseStack, mouseX, mouseY);
             }
         }
     }
@@ -333,11 +335,11 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         final int deltaY = -scrollOffset;
         for(ResourceDescriptionGroupButton button : resourceDescriptionGroupButtons) {
             button.move(0, deltaY);
-            button.visible = button.group.showChance() && (button.y + button.getHeight() > scissorStartY || button.y < scissorStartY + RESOURCE_DESCRIPTION_HEIGHT);
+            button.visible = button.group.showChance() && (button.getY() + button.getHeight() > scissorStartY || button.getY() < scissorStartY + RESOURCE_DESCRIPTION_HEIGHT);
         }
         for(ResourceDescriptionButton button : resourceDescriptionButtons) {
             button.move(0, deltaY);
-            button.visible = button.y + button.getHeight() > scissorStartY || button.y < scissorStartY + RESOURCE_DESCRIPTION_HEIGHT;
+            button.visible = button.getY() + button.getHeight() > scissorStartY || button.getY() < scissorStartY + RESOURCE_DESCRIPTION_HEIGHT;
         }
     }
 
@@ -517,12 +519,12 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
 
     private static class DetailsComponentButton extends ComponentButton {
 
-        public DetailsComponentButton(int pX, int pY, int height, Font font, Component pMessage, OnTooltip onTooltip) {
-            this(pX, pY, font.width(pMessage), height, font, pMessage, onTooltip);
+        public DetailsComponentButton(int pX, int pY, int height, Font font, Component pMessage) {
+            this(pX, pY, font.width(pMessage), height, font, pMessage);
         }
 
-        public DetailsComponentButton(int pX, int pY, int width, int height, Font font, Component pMessage, OnTooltip onTooltip) {
-            super(pX, pY, width, height, font, pMessage, b -> {}, onTooltip);
+        public DetailsComponentButton(int pX, int pY, int width, int height, Font font, Component pMessage) {
+            super(pX, pY, width, height, font, pMessage, b -> {});
         }
     }
 
@@ -535,25 +537,23 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         private int yo;
 
         public ResourceDescriptionGroupButton(int pX, int pY, int width, int height, ItemRenderer itemRenderer, Font font, ResourceDescriptionGroup group,
-                                              Function<ItemStack, List<Component>> getTooltipFromItem, OnTooltip onTooltip,
-                                              OnTooltip descriptionButtonOnTooltip,
+                                              Function<ItemStack, List<Component>> getTooltipFromItem,
                                               Consumer<ResourceDescriptionButton> onAddDescriptionButton) {
-            super(pX, pY, height, font, group.getChanceDescription(), onTooltip);
+            super(pX, pY, height, font, group.getChanceDescription());
             this.group = group;
             this.totalWidth = width;
             this.totalHeight = group.showChance() ? height : 0;
             this.xo = pX;
             this.yo = pY;
-            this.drawTooltip = false;
-            init(onAddDescriptionButton, getTooltipFromItem, descriptionButtonOnTooltip, itemRenderer, font);
+            init(onAddDescriptionButton, getTooltipFromItem, itemRenderer, font);
         }
 
-        private void init(Consumer<ResourceDescriptionButton> onAddDescriptionButton, Function<ItemStack, List<Component>> getTooltipFromItem, OnTooltip descriptionButtonOnTooltip, ItemRenderer itemRenderer, Font font) {
+        private void init(Consumer<ResourceDescriptionButton> onAddDescriptionButton, Function<ItemStack, List<Component>> getTooltipFromItem, ItemRenderer itemRenderer, Font font) {
             // add each description button
-            for(int i = 0, n = group.getDescriptions().size(), countX = (this.totalWidth / ResourceDescriptionButton.WIDTH), startY = y + (group.showChance() ? height : 0); i < n; i++) {
+            for(int i = 0, n = group.getDescriptions().size(), countX = (this.totalWidth / ResourceDescriptionButton.WIDTH), startY = this.getY() + (group.showChance() ? height : 0); i < n; i++) {
                 // create the button
                 ResourceDescription description = group.getDescriptions().get(i);
-                ResourceDescriptionButton button = new ResourceDescriptionButton(x + (i % countX) * ResourceDescriptionButton.WIDTH, startY + (i / countX) * ResourceDescriptionButton.getHeight(font), font, itemRenderer, description, getTooltipFromItem, descriptionButtonOnTooltip);
+                ResourceDescriptionButton button = new ResourceDescriptionButton(this.getX() + (i % countX) * ResourceDescriptionButton.WIDTH, startY + (i / countX) * ResourceDescriptionButton.getHeight(font), font, itemRenderer, description, getTooltipFromItem);
                 // add the button
                 onAddDescriptionButton.accept(button);
                 if(i % countX == 0) {
@@ -563,8 +563,8 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         }
 
         public void move(int deltaX, int deltaY) {
-            this.x = this.xo + deltaX;
-            this.y = this.yo + deltaY;
+            this.setX(this.xo + deltaX);
+            this.setY(this.yo + deltaY);
         }
 
         public int getTotalWidth() {
@@ -606,8 +606,8 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         private final Component clickToViewText;
         private List<Component> chanceTooltip;
 
-        public ParentDataButton(int pX, int pY, Font font, ItemRenderer itemRenderer, Function<ItemStack, List<Component>> getTooltipFromItem, OnTooltip onTooltip) {
-            super(pX, pY, true, font, itemRenderer, ItemStack.EMPTY, getTooltipFromItem, b -> {}, onTooltip);
+        public ParentDataButton(int pX, int pY, Font font, ItemRenderer itemRenderer, Function<ItemStack, List<Component>> getTooltipFromItem) {
+            super(pX, pY, true, font, itemRenderer, ItemStack.EMPTY, getTooltipFromItem, b -> {});
             this.entry = new ParentData(AxolootlVariant.EMPTY, AxolootlVariant.EMPTY, 0);
             this.parentA = ItemStack.EMPTY;
             this.parentB = ItemStack.EMPTY;
@@ -639,7 +639,7 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         }
 
         public List<Component> getTooltips(double mouseX, double mouseY) {
-            final double x = mouseX - this.x;
+            final double x = mouseX - this.getX();
             if(x > TEXT_WIDTH + ItemButton.WIDTH + 2) {
                 return withInsertedText(getTooltipFromItem.apply(parentB), this.clickToViewText);
             } else if(x > TEXT_WIDTH) {
@@ -657,7 +657,7 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
 
         @Override
         public void onClick(double pMouseX, double pMouseY) {
-            final double x = pMouseX - this.x;
+            final double x = pMouseX - this.getX();
             if(x > TEXT_WIDTH + ItemButton.WIDTH + 2) {
                 this.onPressParentB.onPress(this);
             } else if(x > TEXT_WIDTH) {
@@ -671,21 +671,17 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
             // render background
             if(drawBackground) {
-                renderBackground(pPoseStack, this.x + TEXT_WIDTH, this.y);
-                renderBackground(pPoseStack, this.x + TEXT_WIDTH + ItemButton.WIDTH + 2, this.y);
+                renderBackground(pPoseStack, this.getX() + TEXT_WIDTH, this.getY());
+                renderBackground(pPoseStack, this.getX() + TEXT_WIDTH + ItemButton.WIDTH + 2, this.getY());
             }
             // render text
-            this.font.draw(pPoseStack, getMessage(), this.x, this.y + (HEIGHT - font.lineHeight) / 2.0F, 0);
+            this.font.draw(pPoseStack, getMessage(), this.getX(), this.getY() + (HEIGHT - font.lineHeight) / 2.0F, 0);
             // render items
             if(!this.parentA.isEmpty()) {
-                renderItem(this.parentA, this.x + TEXT_WIDTH, this.y);
+                renderItem(this.parentA, this.getX() + TEXT_WIDTH, this.getY());
             }
             if(!this.parentB.isEmpty()) {
-                renderItem(this.parentB, this.x + TEXT_WIDTH + ItemButton.WIDTH + 2, this.y);
-            }
-            // render tooltip
-            if (drawTooltip && this.isHoveredOrFocused()) {
-                this.renderToolTip(pPoseStack, pMouseX, pMouseY);
+                renderItem(this.parentB, this.getX() + TEXT_WIDTH + ItemButton.WIDTH + 2, this.getY());
             }
         }
 
@@ -716,18 +712,17 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         private int xo;
         private int yo;
 
-        public ResourceDescriptionButton(int pX, int pY, Font font, ItemRenderer itemRenderer, ResourceDescription description, Function<ItemStack, List<Component>> getTooltipFromItem, OnTooltip onTooltip) {
-            super(pX, pY, false, font, itemRenderer, description.getItem().isEmpty() ? EMPTY_ITEMSTACK : description.getItem(), getTooltipFromItem, b -> {}, onTooltip);
+        public ResourceDescriptionButton(int pX, int pY, Font font, ItemRenderer itemRenderer, ResourceDescription description, Function<ItemStack, List<Component>> getTooltipFromItem) {
+            super(pX, pY, false, font, itemRenderer, description.getItem().isEmpty() ? EMPTY_ITEMSTACK : description.getItem(), getTooltipFromItem, b -> {});
             this.font = font;
             this.description = description;
             this.xo = pX;
             this.yo = pY;
-            this.drawTooltip = false;
         }
 
         public void move(int deltaX, int deltaY) {
-            this.x = this.xo + deltaX;
-            this.y = this.yo + deltaY;
+            this.setX(this.xo + deltaX);
+            this.setY(this.yo + deltaY);
         }
 
         public static int getHeight(final Font font) {
@@ -755,7 +750,7 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
             // render text
             if(description.showChance()) {
                 final int textWidth = font.width(this.description.getChanceDescription());
-                font.draw(pPoseStack, this.description.getChanceDescription(), this.x + (this.width - textWidth) / 2.0F, this.y + this.height + 1, 0);
+                font.draw(pPoseStack, this.description.getChanceDescription(), this.getX() + (this.width - textWidth) / 2.0F, this.getY() + this.height + 1, 0);
             }
             // render button
             super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
@@ -768,8 +763,8 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         private final List<ItemStack> items;
         private int index;
 
-        public CyclingItemButton(int pX, int pY, Font font, ItemRenderer itemRenderer, List<ItemStack> items, Function<ItemStack, List<Component>> getTooltipFromItem, OnTooltip onTooltip) {
-            super(pX, pY, true, font, itemRenderer, ItemStack.EMPTY, getTooltipFromItem, b -> {}, onTooltip);
+        public CyclingItemButton(int pX, int pY, Font font, ItemRenderer itemRenderer, List<ItemStack> items, Function<ItemStack, List<Component>> getTooltipFromItem) {
+            super(pX, pY, true, font, itemRenderer, ItemStack.EMPTY, getTooltipFromItem, b -> {});
             this.items = items;
             this.visible = !items.isEmpty();
             this.index = -1;

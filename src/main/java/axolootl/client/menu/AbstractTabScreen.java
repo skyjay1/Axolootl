@@ -137,14 +137,15 @@ public abstract class AbstractTabScreen<T extends AbstractControllerMenu> extend
 
     @Override
     public TabButton addTabButton(int x, int y, int index) {
-        TabButton button = addRenderableWidget(new TabButton(leftPos + x, topPos + y, index, getMinecraft().getItemRenderer(), (b, p, mx, my) -> renderTooltip(p, ((TabButton)b).getTooltips(), Optional.empty(), mx, my)));
+        TabButton button = addRenderableWidget(new TabButton(leftPos + x, topPos + y, index, getMinecraft().getItemRenderer()));
         button.setSelected(index == this.tab);
         return button;
     }
 
     @Override
     public TabGroupButton addTabGroupButton(int x, int y, boolean isLeft, Button.OnPress onPress) {
-        return addRenderableWidget(new TabGroupButton(leftPos + x, topPos + y, isLeft, onPress, (b, p, mx, my) -> renderTooltip(p, b.getMessage(), mx, Math.max(MIN_TOOLTIP_Y, my))));
+        // TODO make sure tooltips are not off the top of the screen
+        return addRenderableWidget(new TabGroupButton(leftPos + x, topPos + y, isLeft, onPress));
     }
 
     @Override

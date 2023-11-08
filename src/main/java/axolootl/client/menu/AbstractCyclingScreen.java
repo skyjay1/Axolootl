@@ -64,7 +64,7 @@ public abstract class AbstractCyclingScreen<T extends AbstractControllerMenu> ex
 
     @Override
     public CycleButton addCycleButton(int x, int y, boolean isLeft, Button.OnPress onPress) {
-        return addRenderableWidget(new CycleButton(this.leftPos + x, this.topPos + y, isLeft, onPress, (b, p, mx, my) -> renderTooltip(p, b.getMessage(), mx, my)));
+        return addRenderableWidget(new CycleButton(this.leftPos + x, this.topPos + y, isLeft, onPress));
     }
 
     @Override

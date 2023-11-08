@@ -149,16 +149,17 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
           ControllerScreen.this.getMenu().activate();
           ControllerScreen.this.processingTimer = PROCESSING_TIMER;
         };
-        this.activateButton = addRenderableWidget(new ActivateButton((width - ActivateButton.WIDTH) / 2, 90, this.font, activateOnPress, (b, p, mx, my) -> renderTooltip(p, b.getMessage(), mx, my)));
+        this.activateButton = addRenderableWidget(new ActivateButton((width - ActivateButton.WIDTH) / 2, 90, this.font, activateOnPress));
         // add entry buttons
         this.entryButtons.clear();
-        Button.OnTooltip onTooltip = (b, p, mx, my) -> {
+        // TODO tooltips
+        /*Button.OnTooltip onTooltip = (b, p, mx, my) -> {
             renderTooltip(p, ((EntryButton)b).getTooltips(p, mx, my), Optional.empty(), mx, my);
-        };
+        };*/
         for(int i = 0, x, y; i < ENTRY_COUNT; i++) {
             x = this.leftPos + 1 + ENTRY_X + (i % ENTRY_COUNT_X) * EntryButton.WIDTH;
             y = this.topPos + 1 + ENTRY_Y + (i / ENTRY_COUNT_X) * EntryButton.HEIGHT;
-            this.entryButtons.add(this.addRenderableWidget(new EntryButton(x, y, this.font, b -> {}, onTooltip)));
+            this.entryButtons.add(this.addRenderableWidget(new EntryButton(x, y, this.font, b -> {})));
         }
         updateEntryButtons();
         containerTick();
@@ -426,8 +427,8 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
         private List<Component> bonusesTooltips;
         private List<Component> conditionsTooltips;
 
-        public EntryButton(int pX, int pY, Font font, OnPress pOnPress, OnTooltip pOnTooltip) {
-            super(pX, pY, WIDTH, HEIGHT, 0, 234, 0, WIDGETS, 256, 256, pOnPress, pOnTooltip, Component.empty());
+        public EntryButton(int pX, int pY, Font font, OnPress pOnPress) {
+            super(pX, pY, WIDTH, HEIGHT, 0, 234, 0, WIDGETS, 256, 256, pOnPress, Component.empty());
             this.nameTooltips = new ArrayList<>();
             this.countTooltips = new ArrayList<>();
             this.bonusesTooltips = new ArrayList<>();
@@ -481,7 +482,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
 
         public List<Component> getTooltips(final PoseStack poseStack, final int mouseX, final int mouseY) {
             // name tooltips
-            if(mouseX < this.x + font.width(description)) {
+            if(mouseX < this.getX() + font.width(description)) {
                 return this.nameTooltips;
             }
             final List<Component> list = new ArrayList<>(countTooltips);
@@ -504,9 +505,9 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
         public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
             int messageWidth = font.width(countText);
             super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
-            final float drawY = this.y + (this.height - font.lineHeight) / 2.0F;
-            font.draw(pPoseStack, description, this.x + 4, drawY, 0);
-            font.draw(pPoseStack, countText, this.x + (this.width - messageWidth) - 4, drawY, 0);
+            final float drawY = this.getY() + (this.height - font.lineHeight) / 2.0F;
+            font.draw(pPoseStack, description, this.getX() + 4, drawY, 0);
+            font.draw(pPoseStack, countText, this.getX() + (this.width - messageWidth) - 4, drawY, 0);
         }
 
         private static List<Component> createBonusesTooltips(final ModifierSettings modifier, final int activeCount) {
@@ -550,8 +551,8 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
         private final Component message;
         private final Component messagePending;
 
-        public ActivateButton(int pX, int pY, Font font, OnPress pOnPress, OnTooltip pOnTooltip) {
-            super(pX, pY, WIDTH, HEIGHT, 137, 50, HEIGHT, WIDGETS, 256, 256, pOnPress, pOnTooltip, Component.translatable(PREFIX + "activate"));
+        public ActivateButton(int pX, int pY, Font font, OnPress pOnPress) {
+            super(pX, pY, WIDTH, HEIGHT, 137, 50, HEIGHT, WIDGETS, 256, 256, pOnPress, Component.translatable(PREFIX + "activate"));
             this.font = font;
             this.message = getMessage();
             this.messagePending = Component.translatable(PREFIX + "activate.pending");
@@ -569,7 +570,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
         @Override
         public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
             super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
-            font.draw(pPoseStack, getMessage(), this.x + (this.width - font.width(getMessage())) / 2.0F, this.y + (this.height - font.lineHeight) / 2.0F, 0);
+            font.draw(pPoseStack, getMessage(), this.getX() + (this.width - font.width(getMessage())) / 2.0F, this.getY() + (this.height - font.lineHeight) / 2.0F, 0);
         }
     }
 }

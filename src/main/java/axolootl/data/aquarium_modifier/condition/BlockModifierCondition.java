@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -58,7 +59,7 @@ public class BlockModifierCondition extends ModifierCondition {
 
     @Override
     public String toString() {
-        final ResourceLocation id = Registry.BLOCK_PREDICATE_TYPES.getKey(predicate.type());
+        final ResourceLocation id = BuiltInRegistries.BLOCK_PREDICATE_TYPE.getKey(predicate.type());
         if(null == id) {
             return "block {ERROR}";
         }
@@ -67,7 +68,7 @@ public class BlockModifierCondition extends ModifierCondition {
 
     protected static List<Component> createDescription(final BlockPredicate blockPredicate) {
         final List<Component> list = new ArrayList<>();
-        final ResourceLocation id = Registry.BLOCK_PREDICATE_TYPES.getKey(blockPredicate.type());
+        final ResourceLocation id = BuiltInRegistries.BLOCK_PREDICATE_TYPE.getKey(blockPredicate.type());
         // TODO improve by adding support for each block predicate type
         if(id != null) {
             final String key = Util.makeDescriptionId("block_predicate_type", id);
