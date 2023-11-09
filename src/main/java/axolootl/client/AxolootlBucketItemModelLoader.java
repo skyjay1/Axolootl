@@ -31,7 +31,7 @@ public class AxolootlBucketItemModelLoader {
     private static final ResourceLocation AXOLOOTL_BUCKET_ITEM_FALLBACK = new ResourceLocation(Axolootl.MODID, "item/axolootl_bucket_template");
     /** The instance with the merged values of all registered AxolootlBucketItemSettings **/
     private static AxolootlBucketItemSettings instance = new AxolootlBucketItemSettings();
-    private static final String PATH = "models/item/axolootl_bucket/";
+    private static final String PATH = "models/item/axolootl_bucket";
 
     public static AxolootlBucketItemSettings instance() {
         if (!instance.isLoaded()) {

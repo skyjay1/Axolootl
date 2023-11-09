@@ -178,11 +178,25 @@ public final class AxRegistry {
 
     //// HELPERS ////
 
+    /**
+     * Clears the cached datapack-derived data
+     */
     public static void clearCaches() {
         AxRegistry.AquariumTabsReg.clearCache();
         AxRegistry.AxolootlVariantsReg.clearCache();
         AxRegistry.AquariumModifiersReg.clearCache();
         AxRegistry.AxolootlBreedingReg.clearCache();
+    }
+
+    /**
+     * Clears and re-populates cached datapack-derived data
+     * @param registryAccess the registry access
+     */
+    public static void refreshCaches(final RegistryAccess registryAccess) {
+        clearCaches();
+        AxRegistry.AquariumTabsReg.getSortedTabs();
+        AxRegistry.AxolootlVariantsReg.validate(registryAccess);
+        AxRegistry.AquariumModifiersReg.getMandatoryAquariumModifiers(registryAccess);
     }
 
     private static void onCommonSetup(final FMLCommonSetupEvent event) {

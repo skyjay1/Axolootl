@@ -8,6 +8,7 @@ package axolootl.data.resource_generator;
 
 import axolootl.AxRegistry;
 import axolootl.util.AxCodecUtils;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Either;
@@ -35,6 +36,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public abstract class ResourceGenerator {
 
@@ -50,40 +52,25 @@ public abstract class ResourceGenerator {
     public static final Codec<SimpleWeightedRandomList<ResourceGenerator>> WEIGHTED_LIST_CODEC = Codec.either(ResourceGenerator.DIRECT_CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(ResourceGenerator.DIRECT_CODEC))
             .xmap(either -> either.map(SimpleWeightedRandomList::single, Function.identity()), ResourceGenerator::eitherSimpleList);
 
-    /** The Resource Type of this generator **/
-    private final ResourceType resourceType;
-    private final Set<ResourceType> resourceTypes;
-
     private final List<ResourceDescriptionGroup> description;
     private final List<ResourceDescriptionGroup> descriptionView;
 
-    public ResourceGenerator(ResourceType resourceType) {
-        this.resourceType = resourceType;
-        this.resourceTypes = ImmutableSet.of(resourceType);
+    public ResourceGenerator() {
         this.description = new ArrayList<>();
         this.descriptionView = Collections.unmodifiableList(this.description);
     }
 
     /**
-     * @return the primary {@link ResourceType} of the generator
-     */
-    public ResourceType getResourceType() {
-        return this.resourceType;
-    }
-
-    /**
      * @return any {@link ResourceType}s applicable to the generator
      */
-    public Set<ResourceType> getResourceTypes() {
-        return this.resourceTypes;
-    }
+    public abstract Set<ResourceType> getResourceTypes();
 
     /**
      * @param type a resource type
      * @return true if the resource type is applicable to this resource generator
      */
     public boolean is(final ResourceType type) {
-        return type == this.getResourceType() || this.getResourceTypes().contains(type);
+        return this.getResourceTypes().contains(type);
     }
 
     /**

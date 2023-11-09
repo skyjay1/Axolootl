@@ -21,7 +21,7 @@ import net.minecraftforge.registries.tags.ITag;
 import java.util.Collection;
 import java.util.List;
 
-public class ItemTagResourceGenerator extends ResourceGenerator {
+public class ItemTagResourceGenerator extends SimpleResourceGenerator {
 
     public static final Codec<ItemTagResourceGenerator> CODEC = TagKey.codec(ForgeRegistries.Keys.ITEMS)
             .xmap(ItemTagResourceGenerator::new, ItemTagResourceGenerator::getTag).fieldOf("tag").codec();

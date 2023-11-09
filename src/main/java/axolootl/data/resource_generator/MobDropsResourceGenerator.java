@@ -27,13 +27,13 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
-public class MobDropsResourceGenerator extends AbstractLootTableResourceGenerator {
+public class MobDropsResourceGenerator extends LootContextResourceGenerator {
 
     public static final Codec<MobDropsResourceGenerator> CODEC = WEIGHTED_LIST_CODEC
-            .xmap(MobDropsResourceGenerator::new, AbstractLootTableResourceGenerator::getList).fieldOf("loot_table").codec();
+            .xmap(MobDropsResourceGenerator::new, LootContextResourceGenerator::getList).fieldOf("loot_table").codec();
 
     public MobDropsResourceGenerator(SimpleWeightedRandomList<Wrapper> list) {
-        super(list);
+        super(ResourceTypes.MOB, list);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class MobDropsResourceGenerator extends AbstractLootTableResourceGenerato
         final ResourceDescriptionGroup.Builder builder = ResourceDescriptionGroup.builder();
         final int totalWeight = calculateTotalWeight(getList());
         // iterate each entry
-        for(WeightedEntry.Wrapper<AbstractLootTableResourceGenerator.Wrapper> wrapper : getList().unwrap()) {
+        for(WeightedEntry.Wrapper<LootContextResourceGenerator.Wrapper> wrapper : getList().unwrap()) {
             // check for display item
             ItemStack itemStack = wrapper.getData().getDisplay();
             Component description = Component.translatable("axolootl.resource_generator.mob", getDescriptionForLootTable(wrapper.getData().getId()));

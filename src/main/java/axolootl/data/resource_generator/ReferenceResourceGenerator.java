@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public class ReferenceResourceGenerator extends ResourceGenerator {
+public class ReferenceResourceGenerator extends SimpleResourceGenerator {
 
     public static final Codec<ReferenceResourceGenerator> CODEC = HOLDER_CODEC
             .xmap(ReferenceResourceGenerator::new, ReferenceResourceGenerator::getHolder).fieldOf("id").codec();

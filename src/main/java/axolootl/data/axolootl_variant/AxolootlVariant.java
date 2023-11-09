@@ -15,6 +15,7 @@ import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.data.resource_generator.ResourceType;
 import axolootl.data.resource_generator.ResourceTypes;
 import axolootl.util.AxCodecUtils;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
@@ -39,6 +40,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class AxolootlVariant {
 
@@ -80,8 +82,6 @@ public class AxolootlVariant {
     private final HolderSet<Item> breedFood;
     /** The resource generator **/
     private final Holder<ResourceGenerator> resourceGenerator;
-    /** The resource generator lookup map **/
-    private final Set<ResourceType> resourceTypes;
 
     /** The translation component **/
     private Component description;
@@ -103,7 +103,6 @@ public class AxolootlVariant {
         this.foods = ImmutableList.copyOf(foods);
         this.breedFood = breedFood;
         this.resourceGenerator = resourceGenerator;
-        this.resourceTypes = ImmutableSet.copyOf(resourceGenerator.value().getResourceTypes());
     }
 
     //// METHODS ////
@@ -148,10 +147,20 @@ public class AxolootlVariant {
         return this.holder;
     }
 
+    /**
+     * Only available at runtime, after datapacks are fully loaded
+     * @param type the resource type
+     * @return true if the resource generator for this variant has the given type
+     */
     public boolean hasResourceGeneratorOfType(final ResourceType type) {
-        return this.resourceTypes.contains(type);
+        return this.getResourceGenerator().value().is(type);
     }
 
+    /**
+     * Only available at runtime, after datapacks are fully loaded
+     * @return true if the resource generator has the {@link ResourceTypes#MOB} type
+     * @see #hasResourceGeneratorOfType(ResourceType) 
+     */
     public boolean hasMobResources() {
         return hasResourceGeneratorOfType(ResourceTypes.MOB);
     }

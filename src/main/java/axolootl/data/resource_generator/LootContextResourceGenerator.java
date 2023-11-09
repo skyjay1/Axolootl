@@ -27,20 +27,20 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-public abstract class AbstractLootTableResourceGenerator extends ResourceGenerator {
+public abstract class LootContextResourceGenerator extends SimpleResourceGenerator {
 
     protected static final Codec<SimpleWeightedRandomList<Wrapper>> WEIGHTED_LIST_CODEC = Codec.either(Wrapper.CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(Wrapper.CODEC))
             .xmap(either -> either.map(SimpleWeightedRandomList::single, Function.identity()),
                     list -> list.unwrap().size() == 1 ? Either.left(list.unwrap().get(0).getData()) : Either.right(list));
 
-    private final SimpleWeightedRandomList<AbstractLootTableResourceGenerator.Wrapper> list;
+    private final SimpleWeightedRandomList<LootContextResourceGenerator.Wrapper> list;
 
-    public AbstractLootTableResourceGenerator(SimpleWeightedRandomList<AbstractLootTableResourceGenerator.Wrapper> list) {
-        super(ResourceTypes.MOB);
+    public LootContextResourceGenerator(ResourceType resourceType, SimpleWeightedRandomList<LootContextResourceGenerator.Wrapper> list) {
+        super(resourceType);
         this.list = list;
     }
 
-    public SimpleWeightedRandomList<AbstractLootTableResourceGenerator.Wrapper> getList() {
+    public SimpleWeightedRandomList<LootContextResourceGenerator.Wrapper> getList() {
         return list;
     }
 
@@ -83,12 +83,12 @@ public abstract class AbstractLootTableResourceGenerator extends ResourceGenerat
 
     public static class Wrapper {
 
-        protected static final Codec<AbstractLootTableResourceGenerator.Wrapper> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        protected static final Codec<LootContextResourceGenerator.Wrapper> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 ResourceLocation.CODEC.fieldOf("id").forGetter(Wrapper::getId),
                 AxCodecUtils.ITEM_OR_STACK_CODEC.optionalFieldOf("display", new ItemStack(Items.STONE_SWORD)).forGetter(Wrapper::getDisplay)
-        ).apply(instance, AbstractLootTableResourceGenerator.Wrapper::new));
+        ).apply(instance, LootContextResourceGenerator.Wrapper::new));
 
-        protected static final Codec<AbstractLootTableResourceGenerator.Wrapper> CODEC = Codec.either(ResourceLocation.CODEC, DIRECT_CODEC)
+        protected static final Codec<LootContextResourceGenerator.Wrapper> CODEC = Codec.either(ResourceLocation.CODEC, DIRECT_CODEC)
                 .xmap(either -> either.map(id -> new Wrapper(id, ItemStack.EMPTY), Function.identity()),
                         wrapper -> wrapper.getDisplay().isEmpty() ? Either.left(wrapper.getId()) : Either.right(wrapper));
 

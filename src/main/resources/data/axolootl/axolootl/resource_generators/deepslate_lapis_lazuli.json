@@ -32,7 +32,10 @@
     },
     {
       "weight": 4,
-      "data": "axolootl:empty"
+      "data": {
+        "type": "axolootl:reference",
+        "id": "axolootl:empty"
+      }
     }
   ]
 }

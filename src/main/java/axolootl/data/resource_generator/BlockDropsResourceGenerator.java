@@ -32,7 +32,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import java.util.Collection;
 import java.util.List;
 
-public class BlockDropsResourceGenerator extends ResourceGenerator {
+public class BlockDropsResourceGenerator extends SimpleResourceGenerator {
 
     public static final Codec<BlockDropsResourceGenerator> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             AxCodecUtils.ITEM_OR_STACK_CODEC.optionalFieldOf("tool", ItemStack.EMPTY).forGetter(BlockDropsResourceGenerator::getTool),

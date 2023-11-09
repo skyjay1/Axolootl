@@ -28,7 +28,8 @@
         {
           "weight": 13,
           "data": {
-            "type": "axolootl:empty"
+            "type": "axolootl:reference",
+        "id": "axolootl:empty"
           }
         }
       ]

@@ -7,6 +7,7 @@
 package axolootl.data.resource_generator;
 
 import axolootl.AxRegistry;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
@@ -24,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class SelectResourceGenerator extends ResourceGenerator {
 
@@ -34,18 +36,20 @@ public class SelectResourceGenerator extends ResourceGenerator {
 
     private final SimpleWeightedRandomList<Holder<ResourceGenerator>> children;
     private final IntProvider rolls;
-    private final Set<ResourceType> resourceTypes;
+    private final Supplier<Set<ResourceType>> resourceTypes;
 
     public SelectResourceGenerator(final SimpleWeightedRandomList<Holder<ResourceGenerator>> list, final IntProvider rolls) {
-        super(ResourceTypes.REFERENCE);
+        super();
         this.children = list;
         this.rolls = rolls;
-        // prepare to build resource type set
-        final ImmutableSet.Builder<ResourceType> typeBuilder = ImmutableSet.builder();
-        typeBuilder.add(ResourceTypes.REFERENCE);
-        list.unwrap().forEach(entry -> typeBuilder.addAll(entry.getData().value().getResourceTypes()));
-        // build resource type set
-        this.resourceTypes = typeBuilder.build();
+        this.resourceTypes = Suppliers.memoize(() -> {
+            // prepare to build resource type set
+            final ImmutableSet.Builder<ResourceType> typeBuilder = ImmutableSet.builder();
+            typeBuilder.add(ResourceTypes.MULTIPLE);
+            getChildren().unwrap().forEach(entry -> typeBuilder.addAll(entry.getData().value().getResourceTypes()));
+            // build resource type set
+            return typeBuilder.build();
+        });
     }
 
     public SimpleWeightedRandomList<Holder<ResourceGenerator>> getChildren() {
@@ -58,7 +62,7 @@ public class SelectResourceGenerator extends ResourceGenerator {
 
     @Override
     public Set<ResourceType> getResourceTypes() {
-        return this.resourceTypes;
+        return this.resourceTypes.get();
     }
 
     @Override

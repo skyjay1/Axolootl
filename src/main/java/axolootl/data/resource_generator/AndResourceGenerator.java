@@ -7,6 +7,7 @@
 package axolootl.data.resource_generator;
 
 import axolootl.AxRegistry;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
@@ -19,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class AndResourceGenerator extends ResourceGenerator {
 
@@ -26,17 +28,19 @@ public class AndResourceGenerator extends ResourceGenerator {
             .xmap(AndResourceGenerator::new, AndResourceGenerator::getChildren).fieldOf("values").codec();
 
     private final HolderSet<ResourceGenerator> children;
-    private final Set<ResourceType> resourceTypes;
+    private final Supplier<Set<ResourceType>> resourceTypes;
 
     public AndResourceGenerator(final HolderSet<ResourceGenerator> list) {
-        super(ResourceTypes.MULTIPLE);
+        super();
         this.children = list;
-        // prepare to build resource type set
-        final ImmutableSet.Builder<ResourceType> typeBuilder = ImmutableSet.builder();
-        typeBuilder.add(ResourceTypes.MULTIPLE);
-        list.forEach(entry -> typeBuilder.addAll(entry.value().getResourceTypes()));
-        // build resource type set
-        this.resourceTypes = typeBuilder.build();
+        this.resourceTypes = Suppliers.memoize(() -> {
+            // prepare to build resource type set
+            final ImmutableSet.Builder<ResourceType> typeBuilder = ImmutableSet.builder();
+            typeBuilder.add(ResourceTypes.MULTIPLE);
+            getChildren().forEach(entry -> typeBuilder.addAll(entry.value().getResourceTypes()));
+            // build resource type set
+            return typeBuilder.build();
+        });
     }
 
     public HolderSet<ResourceGenerator> getChildren() {
@@ -45,7 +49,7 @@ public class AndResourceGenerator extends ResourceGenerator {
 
     @Override
     public Set<ResourceType> getResourceTypes() {
-        return this.resourceTypes;
+        return this.resourceTypes.get();
     }
 
     @Override
