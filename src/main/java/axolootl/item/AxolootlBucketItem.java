@@ -54,7 +54,7 @@ public class AxolootlBucketItem extends MobBucketItem {
     }
 
     public static List<ItemStack> createSubtypes() {
-        final List<ItemStack> list = NonNullList.of(ItemStack.EMPTY);
+        final List<ItemStack> list = new ArrayList<>();
         final RegistryAccess access = registryAccess();
         if (access != null) {
             // create list of variants
@@ -74,7 +74,7 @@ public class AxolootlBucketItem extends MobBucketItem {
                 list.add(itemStack);
                 // create itemstack with tag for this variant as a baby
                 ItemStack babyItemStack = itemStack.copy();
-                itemStack.getTag().putInt(AxolootlEntity.KEY_AGE, AxolootlEntity.BABY_AGE);
+                babyItemStack.getTag().putInt(AxolootlEntity.KEY_AGE, AxolootlEntity.BABY_AGE);
                 list.add(babyItemStack);
             }
         } else {

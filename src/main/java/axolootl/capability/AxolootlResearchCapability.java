@@ -60,6 +60,14 @@ public class AxolootlResearchCapability implements INBTSerializable<ListTag> {
     }
 
     /**
+     * @param ids the axolootl IDs to add
+     * @return true if the collection changed as a result of this operation
+     */
+    public boolean addAxolootls(final Collection<ResourceLocation> ids) {
+        return this.axolootls.addAll(ids);
+    }
+
+    /**
      * Adds the axolootl and syncs to client if there were any changes
      * @param player the server player
      * @param id the axolootl ID to add

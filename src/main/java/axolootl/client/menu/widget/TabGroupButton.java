@@ -8,6 +8,7 @@ package axolootl.client.menu.widget;
 
 import axolootl.client.menu.ControllerScreen;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -23,5 +24,6 @@ public class TabGroupButton extends ImageButton {
         super(pX, pY, WIDTH, HEIGHT, 232, isLeft ? 79 : 79 + HEIGHT * 2, HEIGHT, TEXTURE, 256, 256,
                 pOnPress, Component.translatable("gui.axolootl.tab_group." + (isLeft ? "previous" : "next")));
         this.isLeft = isLeft;
+        this.setTooltip(Tooltip.create(getMessage()));
     }
 }

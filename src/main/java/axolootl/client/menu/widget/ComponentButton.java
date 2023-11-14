@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +30,7 @@ public class ComponentButton extends Button {
         super(pX, pY, width, height, pMessage, onPress, Button.DEFAULT_NARRATION);
         this.hoverMessage = Component.empty();
         this.font = font;
-        setMessage(getMessage());
+        this.setMessage(getMessage());
     }
 
     @Override
@@ -38,16 +39,16 @@ public class ComponentButton extends Button {
         this.hoverMessage = (message.getStyle().getClickEvent() != null)
                 ? ComponentUtils.mergeStyles(message.copy(), Style.EMPTY.withUnderlined(true))
                 : message;
-        this.setTooltip(Tooltip.create(this.hoverMessage));
+        setTooltipFromMessage(message);
+    }
+
+    public void setTooltipFromMessage(final Component message) {
+        final Component tooltip = message.getStyle().getHoverEvent() != null ? message.getStyle().getHoverEvent().getValue(HoverEvent.Action.SHOW_TEXT) : message;
+        this.setTooltip(Tooltip.create(tooltip));
     }
 
     public static int getHeight(Font font) {
         return font.lineHeight + 2;
-    }
-
-    @Override
-    public void setTooltip(@Nullable Tooltip pTooltip) {
-        super.setTooltip(pTooltip);
     }
 
     @Override

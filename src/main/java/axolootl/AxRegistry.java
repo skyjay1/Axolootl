@@ -244,7 +244,7 @@ public final class AxRegistry {
          * @return the item registry object
          */
         private static RegistryObject<Item> registerWithSubtypes(final String name, final Supplier<Item> supplier, final Supplier<List<ItemStack>> subtypes) {
-            return AxTabs.add(ITEMS.register(name, supplier));
+            return AxTabs.addAll(ITEMS.register(name, supplier), subtypes);
         }
     }
 

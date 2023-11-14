@@ -67,6 +67,7 @@ public class FermiLayer<T extends LivingEntity & LerpingModel & IAxolootl & GeoA
         if(oVariant.get().is(access, BLACKLIST)) {
             return;
         }
-        getRenderer().reRender(bakedModel, poseStack, bufferSource, entity, RENDER_TYPE, buffer, partialTick, LightTexture.FULL_BRIGHT, packedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
+
+        getRenderer().reRender(getDefaultBakedModel(entity), poseStack, bufferSource, entity, RENDER_TYPE, bufferSource.getBuffer(RENDER_TYPE), partialTick, LightTexture.FULL_BRIGHT, packedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

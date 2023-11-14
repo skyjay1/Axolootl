@@ -48,7 +48,6 @@ public abstract class AbstractCyclingScreen<T extends AbstractControllerMenu> ex
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
-        renderCycleTooltip(pPoseStack, pMouseX, pMouseY, pPartialTick);
         // render component tooltip
         if(isHovering(this.titleLabelX, this.titleLabelY, this.cycledTitleWidth, font.lineHeight, pMouseX, pMouseY)) {
             renderComponentHoverEffect(pPoseStack, cycledTitle.getStyle(), pMouseX, pMouseY);

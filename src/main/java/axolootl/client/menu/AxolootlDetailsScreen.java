@@ -29,6 +29,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.core.Holder;
@@ -184,16 +185,12 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         this.scrollButton = addRenderableWidget(new ScrollButton(leftPos + RESOURCE_DESCRIPTION_X + RESOURCE_DESCRIPTION_WIDTH + 1, topPos + RESOURCE_DESCRIPTION_Y + 2, 12, RESOURCE_DESCRIPTION_HEIGHT - 2, WIDGETS, 244, 0, 12, 15, 15, true,  (float) ResourceDescriptionGroupButton.getHeight(font) / (float) Math.max(1, resourceDescriptionHeight - RESOURCE_DESCRIPTION_HEIGHT), this));
         this.setFocused(this.scrollButton);
         this.scrollButton.active = this.resourceDescriptionHeight > RESOURCE_DESCRIPTION_HEIGHT;
-        // create on tooltip
-        // TODO fix tooltips
-        //final Button.OnTooltip componentButtonOnTooltip = (b, p, mx, my) -> renderComponentHoverEffect(p, b.getMessage().getStyle(), mx, my);
         // prepare to add components
         int x = this.leftPos + DETAILS_X;
         int y = this.topPos + DETAILS_Y + (16 - font.lineHeight) / 2;
         int deltaY = DETAILS_LINE_SPACING + font.lineHeight;
         // add item stack button
-        //final Button.OnTooltip iconButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((ItemButton)b).getTooltips(), Optional.empty(), mx, my);
-        this.addRenderableWidget(new ItemButton(x, y + deltaY / 2, false, font, itemRenderer, this.itemStack, this::getTooltipFromItem, b -> {}));
+        this.addRenderableWidget(new ItemButton(x, y + deltaY / 2, false, font, itemRenderer, this.itemStack, this::getTooltipFromItem, b -> {}, true));
         // add tier text
         this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x + 16 + 2, y, font.lineHeight, font, getTitle())));
         y += deltaY;
@@ -202,15 +199,13 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(resourceTitleX, y, font.lineHeight, font, resourceTitleText)));
         // add energy cost icon, if any
         if(this.variant.getEnergyCost() > 0) {
-            // TODO use energy cost text for tooltip
             final Component energyCostText = Component.translatable(PREFIX + "energy_cost.description", this.variant.getEnergyCost())
                     .withStyle(ChatFormatting.RED);
-            addRenderableWidget(new ItemButton(resourceTitleX + font.width(resourceTitleText) + 4, y - (16 - DetailsComponentButton.getHeight(font)), false, font, itemRenderer, new ItemStack(Items.REDSTONE), item -> ImmutableList.of(energyCostText), b -> {}));
+            addRenderableWidget(new ItemButton(resourceTitleX + font.width(resourceTitleText) + 4, y - (16 - DetailsComponentButton.getHeight(font)), false, font, itemRenderer, new ItemStack(Items.REDSTONE), item -> ImmutableList.of(energyCostText), b -> {}, true));
         }
         y += deltaY + 4;
         // add food buttons
         this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x, y, font.lineHeight, font, foodText)));
-       // final Button.OnTooltip cyclingItemButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((CyclingItemButton)b).getTooltips(), Optional.empty(), mx, my);
         y += deltaY;
         for(int i = 0, n = foods.size(); i < n; i++) {
             this.foodButtons.add(addRenderableWidget(new CyclingItemButton(x + i * (CyclingItemButton.WIDTH + 3), y, font, itemRenderer, foods.get(i), itemStack -> getFoodTooltip(this.variant, itemStack))));
@@ -226,8 +221,7 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         // add parent info
         this.componentButtons.add(addRenderableWidget(new DetailsComponentButton(x, y, font.lineHeight, font, parentsTitleText)));
         y += deltaY;
-        //final Button.OnTooltip parentButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((ParentDataButton)b).getTooltips(mx, my), Optional.empty(), mx, my);
-        for(ParentData entry : parentData) {
+        for(int i = 0, n = parentData.size(); i < n; i++) {
             ParentDataButton button = addRenderableWidget(new ParentDataButton(x, y, font, itemRenderer, this::getTooltipFromItem));
             this.parentButtons.add(button);
             y += ParentDataButton.HEIGHT + 1;
@@ -276,21 +270,6 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
             button.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
         }
         disableScissor();
-        // render tooltips
-        renderHoverActions(pPoseStack, pMouseX, pMouseY, pPartialTick);
-    }
-
-    private void renderHoverActions(final PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
-        for(ResourceDescriptionGroupButton button : resourceDescriptionGroupButtons) {
-            if(button.visible && button.isHoveredOrFocused()) {
-                // TODO button.renderToolTip(poseStack, mouseX, mouseY);
-            }
-        }
-        for(ResourceDescriptionButton button : resourceDescriptionButtons) {
-            if(button.visible && button.isHoveredOrFocused()) {
-                // TODO button.renderToolTip(poseStack, mouseX, mouseY);
-            }
-        }
     }
 
     @Override
@@ -683,6 +662,8 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
             if(!this.parentB.isEmpty()) {
                 renderItem(this.parentB, this.getX() + TEXT_WIDTH + ItemButton.WIDTH + 2, this.getY());
             }
+            // update tooltip
+            this.setTooltip(Tooltip.create(AbstractTabScreen.concat(getTooltips(pMouseX, pMouseY))));
         }
 
         private void tryOpenDetails(final RegistryAccess access, final ResourceLocation target) {
@@ -718,6 +699,7 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
             this.description = description;
             this.xo = pX;
             this.yo = pY;
+            this.updateTooltip();
         }
 
         public void move(int deltaX, int deltaY) {

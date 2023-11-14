@@ -87,7 +87,7 @@ public class AxolootlBucketItemModelLoader {
             }
             // iterate each resource
             for(ResourceLocation entry : resources.keySet()) {
-                ResourceLocation variantId = new ResourceLocation(entry.getNamespace(), entry.getPath().replaceFirst(PATH, "").replaceFirst("\\.json", ""));
+                ResourceLocation variantId = new ResourceLocation(entry.getNamespace(), entry.getPath().replaceFirst(PATH + "/", "").replaceFirst("\\.json", ""));
                 ResourceLocation modelId = new ResourceLocation(entry.getNamespace(), entry.getPath().replaceFirst("models/", "").replaceFirst("\\.json", ""));
                 settings.put(variantId, modelId);
             }

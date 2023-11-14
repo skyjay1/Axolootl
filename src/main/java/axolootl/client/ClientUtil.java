@@ -7,8 +7,10 @@
 package axolootl.client;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import software.bernie.shadowed.eliotlash.mclib.math.functions.limit.Min;
 
 import java.util.Optional;
 
@@ -20,5 +22,9 @@ public class ClientUtil {
 
     public static Player getClientPlayer() {
         return Minecraft.getInstance().player;
+    }
+
+    public static RegistryAccess getClientRegistryAccess() {
+        return Minecraft.getInstance().level.registryAccess();
     }
 }

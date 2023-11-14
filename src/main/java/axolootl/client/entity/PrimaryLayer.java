@@ -22,6 +22,8 @@ import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
+import java.util.Optional;
+
 public class PrimaryLayer<T extends LivingEntity & LerpingModel & IAxolootl & GeoAnimatable> extends GeoRenderLayer<T> {
 
     public PrimaryLayer(GeoRenderer<T> parent) {
@@ -33,17 +35,18 @@ public class PrimaryLayer<T extends LivingEntity & LerpingModel & IAxolootl & Ge
         // load model settings
         final AxolootlModelSettings settings = entity.getAxolootlVariant(entity.level.registryAccess()).orElse(AxolootlVariant.EMPTY).getModelSettings();
         // validate layer
-        if(settings.getOptionalEntityPrimaryTexture().isEmpty()) {
+        final Optional<ResourceLocation> oTexture = settings.getOptionalEntityPrimaryTexture();
+        if(oTexture.isEmpty()) {
             return;
         }
         // load colors
         final Vector3f colors = settings.getPrimaryColors();
-        getRenderer().reRender(bakedModel, poseStack, bufferSource, entity, renderType, buffer, partialTick, packedLight, packedOverlay, colors.x(), colors.y(), colors.z(), 1.0F);
+        final RenderType layerRenderType = RenderType.entityCutoutNoCull(oTexture.get());
+        getRenderer().reRender(getDefaultBakedModel(entity), poseStack, bufferSource, entity, layerRenderType, bufferSource.getBuffer(layerRenderType), partialTick, packedLight, packedOverlay, colors.x(), colors.y(), colors.z(), 1.0F);
     }
 
     @Override
     protected ResourceLocation getTextureResource(T entity) {
-        final AxolootlModelSettings settings = entity.getAxolootlVariant(entity.level.registryAccess()).orElse(AxolootlVariant.EMPTY).getModelSettings();
-        return settings.getOptionalEntityPrimaryTexture().orElse(AxolootlModelSettings.ENTITY_TEXTURE);
+        return AxolootlModelSettings.ENTITY_TEXTURE;
     }
 }

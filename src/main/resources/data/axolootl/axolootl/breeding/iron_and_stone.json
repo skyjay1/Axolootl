@@ -1,5 +1,14 @@
 {
   "first": "axolootl:iron",
   "second": "axolootl:stone",
-  "result": "axolootl:lapis"
+  "result": [
+    {
+      "data": "axolootl:lapis",
+      "weight": 4
+    },
+    {
+      "data": "axolootl:deepslate_lapis",
+      "weight": 5
+    }
+  ]
 }

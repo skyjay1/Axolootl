@@ -6,8 +6,11 @@
 
 package axolootl;
 
+import axolootl.client.ClientUtil;
+import axolootl.item.AxolootlBucketItem;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
@@ -16,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
@@ -51,7 +55,10 @@ public final class AxTabs {
 
     private static void onCreativeTabBuild(final CreativeModeTabEvent.BuildContents event) {
         if(event.getTab() == tab) {
+            // add pre-registered items
             SORTED_ITEMS.forEach(supplier -> supplier.get().forEach(itemStack -> event.accept(itemStack)));
+            // add axolootl bucket items
+            //event.acceptAll(AxolootlBucketItem.createSubtypes());
         }
     }
 }

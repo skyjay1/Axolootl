@@ -19,6 +19,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -86,7 +87,7 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
         // resolve variants with cross reference to the tracked variants
         final Registry<AxolootlVariant> registry = AxolootlVariant.getRegistry(access);
         for(Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant> entry : registry.entrySet()) {
-            if(tracked.contains(entry.getKey().location())) {
+            if(tracked.contains(entry.getKey().location()) && AxRegistry.AxolootlVariantsReg.isValid(entry.getKey().location())) {
                 this.variants.add(entry);
             }
         }
@@ -105,8 +106,6 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
         this.scrollButton.active = variants.size() > ENTRY_COUNT;
         // add entry buttons
         this.entryButtons.clear();
-        // TODO tooltips
-        //final Button.OnTooltip entryButtonOnTooltip = (b, p, mx, my) -> renderTooltip(p, ((EntryButton)b).getTooltips(), Optional.empty(), mx, my);
         for(int i = 0, x, y; i < ENTRY_COUNT; i++) {
             x = this.leftPos + ENTRY_X + (i % ENTRY_COUNT_X) * EntryButton.WIDTH + 1;
             y = this.topPos + ENTRY_Y + (i / ENTRY_COUNT_X) * EntryButton.HEIGHT + 1;
@@ -262,6 +261,7 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
             this.tooltips.clear();
             this.tooltips.add(entry.getValue().getDescription());
             this.tooltips.add(Component.translatable("entity.axolootl.axolootl.tier", entry.getValue().getTierDescription()).withStyle(ChatFormatting.GRAY));
+            this.setTooltip(Tooltip.create(AbstractTabScreen.concat(this.tooltips)));
         }
 
         @Override

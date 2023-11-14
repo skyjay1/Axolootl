@@ -66,13 +66,13 @@ public class AxolootlResearchCommand {
 
     private static int add(final CommandSourceStack context, final Collection<ServerPlayer> targets, final ResourceLocation id) throws CommandSyntaxException {
         // validate ID
-        if(!AxRegistry.AxolootlVariantsReg.isValid(id)) {
-            throw INVALID_VARIANT.create(id);
-        }
         final Registry<AxolootlVariant> registry = AxolootlVariant.getRegistry(context.registryAccess());
         final Optional<AxolootlVariant> oVariant = registry.getOptional(id);
         if(oVariant.isEmpty()) {
             throw UNKNOWN_VARIANT.create(id);
+        }
+        if(!AxRegistry.AxolootlVariantsReg.isValid(id)) {
+            throw INVALID_VARIANT.create(id);
         }
         // add to the given players
         for(ServerPlayer target : targets) {
@@ -95,7 +95,7 @@ public class AxolootlResearchCommand {
         // add to the given players
         for(ServerPlayer target : targets) {
             target.getCapability(Axolootl.AXOLOOTL_RESEARCH_CAPABILITY).ifPresent(c -> {
-                ids.forEach(id -> c.addAxolootl(id));
+                c.addAxolootls(ids);
                 c.syncToClient(target);
             });
         }

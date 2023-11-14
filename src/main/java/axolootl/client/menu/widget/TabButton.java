@@ -6,11 +6,13 @@
 
 package axolootl.client.menu.widget;
 
+import axolootl.client.menu.AbstractTabScreen;
 import axolootl.client.menu.ControllerScreen;
 import axolootl.data.aquarium_tab.IAquariumTab;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -27,7 +29,6 @@ public class TabButton extends Button {
     public static final int DELTA_SELECTED = 3;
 
     private final ItemRenderer itemRenderer;
-    private final List<Component> tooltips;
     private ItemStack icon;
     private int index;
     private boolean selected;
@@ -37,7 +38,6 @@ public class TabButton extends Button {
         super(x, y, WIDTH, HEIGHT, Component.empty(), b -> {}, Button.DEFAULT_NARRATION);
         this.index = index;
         this.itemRenderer = itemRenderer;
-        this.tooltips = new ArrayList<>();
         this.icon = ItemStack.EMPTY;
         this.mutableOnPress = b -> {};
     }
@@ -49,9 +49,8 @@ public class TabButton extends Button {
     public void setIndex(final int index, final ItemStack icon, final List<Component> messages, final OnPress onPress) {
         this.index = index;
         this.icon = icon;
-        this.tooltips.clear();
-        this.tooltips.addAll(messages);
         this.mutableOnPress = onPress;
+        this.setTooltip(Tooltip.create(AbstractTabScreen.concat(messages)));
     }
 
     public boolean isSelected() {
@@ -60,10 +59,6 @@ public class TabButton extends Button {
 
     public void setSelected(boolean selected) {
         this.selected = selected;
-    }
-
-    public List<Component> getTooltips() {
-        return this.tooltips;
     }
 
     @Override

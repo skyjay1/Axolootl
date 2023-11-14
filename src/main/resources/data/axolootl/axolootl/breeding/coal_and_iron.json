@@ -1,5 +1,14 @@
 {
   "first": "axolootl:coal",
   "second": "axolootl:iron",
-  "result": "axolootl:redstone"
+  "result": [
+    {
+      "data": "axolootl:redstone",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:deepslate_redstone",
+      "weight": 8
+    }
+  ]
 }

@@ -11,6 +11,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
@@ -37,10 +38,17 @@ public class ItemButton extends Button {
     protected ItemStack item;
 
     public ItemButton(int pX, int pY, boolean drawBackground, Font font, ItemRenderer itemRenderer, ItemStack item, Function<ItemStack, List<Component>> getTooltipFromItem, OnPress onPress) {
-        this(pX, pY, drawBackground, font, itemRenderer, item, getTooltipFromItem, onPress, AbstractTabScreen.SLOTS, 30, 18, 256, 256);
+        this(pX, pY, drawBackground, font, itemRenderer, item, getTooltipFromItem, onPress, false);
     }
 
-    public ItemButton(int pX, int pY, boolean drawBackground, Font font, ItemRenderer itemRenderer, ItemStack item,
+    public ItemButton(int pX, int pY, boolean drawBackground, Font font, ItemRenderer itemRenderer, ItemStack item, Function<ItemStack, List<Component>> getTooltipFromItem, OnPress onPress, boolean updateTooltip) {
+        this(pX, pY, drawBackground, font, itemRenderer, item, getTooltipFromItem, onPress, AbstractTabScreen.SLOTS, 30, 18, 256, 256);
+        if(updateTooltip) {
+            this.updateTooltip();
+        }
+    }
+
+    protected ItemButton(int pX, int pY, boolean drawBackground, Font font, ItemRenderer itemRenderer, ItemStack item,
                       Function<ItemStack, List<Component>> getTooltipFromItem, OnPress onPress,
                       ResourceLocation texture, int u, int v, int textureWidth, int textureHeight) {
         super(pX, pY, WIDTH, HEIGHT, item.getHoverName(), onPress, Button.DEFAULT_NARRATION);
@@ -62,6 +70,11 @@ public class ItemButton extends Button {
 
     public void setItem(ItemStack item) {
         this.item = item;
+        this.setTooltip(Tooltip.create(AbstractTabScreen.concat(getTooltips())));
+    }
+
+    public void updateTooltip() {
+        this.setTooltip(Tooltip.create(AbstractTabScreen.concat(getTooltips())));
     }
 
     public void setDrawBackground(boolean drawBackground) {

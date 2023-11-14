@@ -25,6 +25,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
@@ -152,10 +153,6 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
         this.activateButton = addRenderableWidget(new ActivateButton((width - ActivateButton.WIDTH) / 2, 90, this.font, activateOnPress));
         // add entry buttons
         this.entryButtons.clear();
-        // TODO tooltips
-        /*Button.OnTooltip onTooltip = (b, p, mx, my) -> {
-            renderTooltip(p, ((EntryButton)b).getTooltips(p, mx, my), Optional.empty(), mx, my);
-        };*/
         for(int i = 0, x, y; i < ENTRY_COUNT; i++) {
             x = this.leftPos + 1 + ENTRY_X + (i % ENTRY_COUNT_X) * EntryButton.WIDTH;
             y = this.topPos + 1 + ENTRY_Y + (i / ENTRY_COUNT_X) * EntryButton.HEIGHT;
@@ -508,6 +505,9 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             final float drawY = this.getY() + (this.height - font.lineHeight) / 2.0F;
             font.draw(pPoseStack, description, this.getX() + 4, drawY, 0);
             font.draw(pPoseStack, countText, this.getX() + (this.width - messageWidth) - 4, drawY, 0);
+            if(this.isHoveredOrFocused()) {
+                this.setTooltip(Tooltip.create(AbstractTabScreen.concat(getTooltips(pPoseStack, pMouseX, pMouseY))));
+            }
         }
 
         private static List<Component> createBonusesTooltips(final ModifierSettings modifier, final int activeCount) {

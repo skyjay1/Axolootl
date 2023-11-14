@@ -71,22 +71,6 @@ public interface ITabProvider {
     }
 
     /**
-     * Renders tooltips for the given tabs
-     * @param poseStack the pose stack
-     * @param mouseX the mouse x position
-     * @param mouseY the mouse y position
-     * @param partialTick the partial tick
-     */
-    default void renderTabTooltip(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
-        // TODO tab tooltip
-        /*for(TabButton tabButton : getTabButtons()) {
-            if (tabButton.isHoveredOrFocused()) {
-                tabButton.renderToolTip(poseStack, mouseX, Math.max(mouseY, MIN_TOOLTIP_Y));
-            }
-        }*/
-    }
-
-    /**
      * @param x the relative x position
      * @param y the relative y position
      * @param index the tab index

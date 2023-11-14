@@ -108,6 +108,7 @@ public class AxolootlGeoModel<T extends LivingEntity & LerpingModel & IAxolootl 
         }
         // set up animations
         this.setupInitialAnimationValues(entity, netHeadYaw, headPitch);
+        //if(true) return; // TODO debug
         if (entity.isEntityPlayingDead()) {
             this.setupPlayDeadAnimation(netHeadYaw);
             this.saveAnimationValues(entity);
@@ -137,8 +138,8 @@ public class AxolootlGeoModel<T extends LivingEntity & LerpingModel & IAxolootl 
 
     protected void setupInitialAnimationValues(T entity, float netHeadYaw, float headPitch) {
         body.setPosX(0.0F);
+        body.setPosY(0.0F);
         head.setPosY(0.0F);
-        body.setPosZ(0.0F);
         Map<String, Vector3f> map = entity.getModelRotationValues();
         if (map.isEmpty()) {
             setRotations(body, headPitch * (Mth.PI / 180F), netHeadYaw * (Mth.PI / 180F), 0.0F);
@@ -264,7 +265,7 @@ public class AxolootlGeoModel<T extends LivingEntity & LerpingModel & IAxolootl 
         float cosAgeInTicks = Mth.cos(scaledAgeInTicks);
         float sinAgeInTicks = Mth.sin(scaledAgeInTicks) * 0.15F;
         this.body.setRotX(this.lerpTo(this.body.getRotX(), -0.15F + 0.075F * cosAgeInTicks));
-        this.body.setPosY(this.body.getPosY() - sinAgeInTicks);
+        // TODO this.body.setPosY(this.body.getPosY() - sinAgeInTicks);
         this.head.setRotX(this.lerpTo(this.head.getRotX(), -this.body.getRotX()));
         this.topGills.setRotX(this.lerpTo(this.topGills.getRotX(), 0.2F * cosAgeInTicks));
         this.leftGills.setRotY(this.lerpTo(this.leftGills.getRotY(), -0.3F * cosAgeInTicks - 0.19F));
@@ -280,17 +281,17 @@ public class AxolootlGeoModel<T extends LivingEntity & LerpingModel & IAxolootl 
     protected void setupSwimmingAnimation(float ageInTicks, float headPitch) {
         float scaledAgeInTicks = ageInTicks * 0.33F;
         float sinAgeInTicks = Mth.sin(scaledAgeInTicks);
-        float coseAgeInTicks = Mth.cos(scaledAgeInTicks);
+        float cosAgeInTicks = Mth.cos(scaledAgeInTicks);
         float scaledSinAgeInTicks = 0.13F * sinAgeInTicks;
         this.body.setRotX(this.lerpTo(0.1F, this.body.getRotX(), headPitch * (Mth.PI / 180F) + scaledSinAgeInTicks));
         this.head.setRotX(-scaledSinAgeInTicks * 1.8F);
-        this.body.setPosY(this.body.getPosY() - 0.45F * coseAgeInTicks);
+        // TODO this.body.setPosY(this.body.getPosY() - 0.45F * cosAgeInTicks);
         this.topGills.setRotX(this.lerpTo(this.topGills.getRotX(), -0.5F * sinAgeInTicks - 0.8F));
         this.leftGills.setRotY(this.lerpTo(this.leftGills.getRotY(), 0.3F * sinAgeInTicks + 0.9F));
         this.rightGills.setRotY(this.lerpTo(this.rightGills.getRotY(), -this.leftGills.getRotY()));
         this.tail.setRotY(this.lerpTo(this.tail.getRotY(), 0.3F * Mth.cos(scaledAgeInTicks * 0.9F)));
         this.lerpPart(this.leftHindLeg, -1.8849558F, -0.4F * sinAgeInTicks, (Mth.PI / 2F));
-        this.lerpPart(this.leftFrontLeg, -1.8849558F, -0.2F * coseAgeInTicks - 0.1F, (Mth.PI / 2F));
+        this.lerpPart(this.leftFrontLeg, -1.8849558F, -0.2F * cosAgeInTicks - 0.1F, (Mth.PI / 2F));
         this.applyMirrorLegRotations();
         this.head.setRotY(this.lerpTo(this.head.getRotY(), 0.0F));
         this.head.setRotZ(this.lerpTo(this.head.getRotZ(), 0.0F));

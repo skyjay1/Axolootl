@@ -16,6 +16,7 @@ import axolootl.menu.CyclingMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -23,8 +24,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public abstract class AbstractTabScreen<T extends AbstractControllerMenu> extends AbstractContainerScreen<T> implements ITabProvider {
 
@@ -102,7 +105,6 @@ public abstract class AbstractTabScreen<T extends AbstractControllerMenu> extend
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
-        renderTabTooltip(pPoseStack, pMouseX, pMouseY, pPartialTick);
         // render slot tooltips
         this.renderTooltip(pPoseStack, pMouseX, pMouseY);
     }
@@ -144,7 +146,6 @@ public abstract class AbstractTabScreen<T extends AbstractControllerMenu> extend
 
     @Override
     public TabGroupButton addTabGroupButton(int x, int y, boolean isLeft, Button.OnPress onPress) {
-        // TODO make sure tooltips are not off the top of the screen
         return addRenderableWidget(new TabGroupButton(leftPos + x, topPos + y, isLeft, onPress));
     }
 
@@ -188,7 +189,31 @@ public abstract class AbstractTabScreen<T extends AbstractControllerMenu> extend
 
     //// HELPERS ////
 
+    /**
+     * @param message a component
+     * @param hoverText the hover text to add to the component
+     * @return a copy of the component with the given hover action text
+     */
     protected static Component addHoverText(final Component message, Component hoverText) {
         return message.copy().withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText)));
+    }
+
+    /**
+     * @param components a collection of components
+     * @return a single component with all of the contents of the given collection, separated by new line characters
+     */
+    public static Component concat(final Collection<Component> components) {
+        final Component component = Component.empty();
+        final Component newline = Component.literal("\n");
+        // add each component and newline
+        for(Component c : components) {
+            component.getSiblings().add(c);
+            component.getSiblings().add(newline);
+        }
+        // remove trailing newline
+        if(component.getSiblings().size() > 1) {
+            component.getSiblings().remove(component.getSiblings().size() - 1);
+        }
+        return component;
     }
 }

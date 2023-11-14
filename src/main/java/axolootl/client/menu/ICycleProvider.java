@@ -51,22 +51,6 @@ public interface ICycleProvider {
     }
 
     /**
-     * Renders tooltips for the cycle buttons
-     * @param poseStack the pose stack
-     * @param mouseX the mouse x position
-     * @param mouseY the mouse y position
-     * @param partialTick the partial tick
-     */
-    default void renderCycleTooltip(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
-        // TODO cycle tooltip
-        /*for(CycleButton button : getCycleButtons()) {
-            if (button.isHoveredOrFocused()) {
-                button.renderToolTip(poseStack, mouseX, mouseY);
-            }
-        }*/
-    }
-
-    /**
      * @param title the original title
      * @param pos the block position for the hover text
      * @param cycle the current cycle index
