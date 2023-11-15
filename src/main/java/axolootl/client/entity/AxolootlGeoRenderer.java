@@ -16,6 +16,7 @@ import net.minecraft.world.entity.LivingEntity;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import software.bernie.geckolib.renderer.GeoObjectRenderer;
 
 public class AxolootlGeoRenderer<T extends LivingEntity & LerpingModel & IAxolootl & GeoAnimatable> extends GeoEntityRenderer<T> {
 
@@ -24,7 +25,7 @@ public class AxolootlGeoRenderer<T extends LivingEntity & LerpingModel & IAxoloo
         this.addRenderLayer(new PrimaryLayer<>(this));
         this.addRenderLayer(new SecondaryLayer<>(this));
         this.addRenderLayer(new FermiLayer<>(this));
-        this.addRenderLayer(new AkxolootlLayer<>(this, new GeoEntityRenderer<>(context, new AkxolootlGeoModel<>())));
+        this.addRenderLayer(new AkxolootlLayer<>(this, new GeoObjectRenderer<>(new AkxolootlGeoModel<>())));
     }
 
     @Override

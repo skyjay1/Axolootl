@@ -42,7 +42,7 @@ public class AkxolootlLayer<T extends LivingEntity & LerpingModel & IAxolootl & 
     private static final TagKey<AxolootlVariant> BLACKLIST = TagKey.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, new ResourceLocation(Axolootl.MODID, "special_blacklist"));
     private final GeoRenderer<T> renderer;
 
-    private final Pattern namePattern = Pattern.compile("(?i)ak( -)?xolotl");
+    private final Pattern namePattern = Pattern.compile("(?i)ak(-| )?xolo(o)?tl");
 
     public AkxolootlLayer(GeoRenderer<T> parent, GeoRenderer<T> renderer) {
         super(parent);
@@ -83,10 +83,9 @@ public class AkxolootlLayer<T extends LivingEntity & LerpingModel & IAxolootl & 
         final RenderType layerRenderType = RenderType.entityCutoutNoCull(getTextureResource(entity));
         poseStack.pushPose();
         //RenderUtils.translateAndRotateMatrixForBone(poseStack, bone.get());
-        //poseStack.translate(0, -5.0D / 16.0D, -4.0D / 16.0D);
-        //final float yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
+        poseStack.translate(-0.5D, -0.5D, -0.5D);
+        final float yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
         this.renderer.defaultRender(poseStack, entity, bufferSource, layerRenderType, bufferSource.getBuffer(layerRenderType), yaw, partialTick, packedLight);
-        //this.renderer.actuallyRender(poseStack, entity, getDefaultBakedModel(entity), layerRenderType, bufferSource, bufferSource.getBuffer(layerRenderType), false, partialTick, packedLight, packedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
         poseStack.popPose();
         // reset buffer source
         bufferSource.getBuffer(renderType);
