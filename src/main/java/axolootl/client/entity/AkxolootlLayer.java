@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LerpingModel;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Vector3f;
@@ -39,17 +40,26 @@ import java.util.regex.Pattern;
 public class AkxolootlLayer<T extends LivingEntity & LerpingModel & IAxolootl & GeoAnimatable> extends GeoRenderLayer<T> {
 
     private static final TagKey<AxolootlVariant> BLACKLIST = TagKey.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, new ResourceLocation(Axolootl.MODID, "special_blacklist"));
-    private final GeoModel<T> model;
+    private final GeoRenderer<T> renderer;
 
     private final Pattern namePattern = Pattern.compile("(?i)ak( -)?xolotl");
 
-    public AkxolootlLayer(GeoRenderer<T> parent, GeoModel<T> model) {
+    public AkxolootlLayer(GeoRenderer<T> parent, GeoRenderer<T> renderer) {
         super(parent);
-        this.model = model;
+        this.renderer = renderer;
     }
 
     @Override
     public void render(PoseStack poseStack, T entity, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
+        // nothing
+    }
+
+    @Override
+    public void renderForBone(PoseStack poseStack, T entity, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
+        // validate bone
+        if(!"body".equals(bone.getName())) {
+            return;
+        }
         // validate visibility
         final Minecraft minecraft = Minecraft.getInstance();
         if(null == minecraft.player || entity.isInvisibleTo(minecraft.player)) {
@@ -69,27 +79,26 @@ public class AkxolootlLayer<T extends LivingEntity & LerpingModel & IAxolootl & 
         if(oVariant.get().is(access, BLACKLIST)) {
             return;
         }
-        // validate bone exists
-        final Optional<GeoBone> bone = bakedModel.getBone("body");
-        if(bone.isEmpty()) {
-            return;
-        }
         // render model
         final RenderType layerRenderType = RenderType.entityCutoutNoCull(getTextureResource(entity));
         poseStack.pushPose();
-        RenderUtils.translateAndRotateMatrixForBone(poseStack, bone.get());
-        poseStack.translate(0, -5.0D / 16.0D, -4.0D / 16.0D);
-        getRenderer().reRender(getDefaultBakedModel(entity), poseStack, bufferSource, entity, layerRenderType, bufferSource.getBuffer(layerRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        //RenderUtils.translateAndRotateMatrixForBone(poseStack, bone.get());
+        //poseStack.translate(0, -5.0D / 16.0D, -4.0D / 16.0D);
+        //final float yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
+        this.renderer.defaultRender(poseStack, entity, bufferSource, layerRenderType, bufferSource.getBuffer(layerRenderType), yaw, partialTick, packedLight);
+        //this.renderer.actuallyRender(poseStack, entity, getDefaultBakedModel(entity), layerRenderType, bufferSource, bufferSource.getBuffer(layerRenderType), false, partialTick, packedLight, packedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
         poseStack.popPose();
+        // reset buffer source
+        bufferSource.getBuffer(renderType);
     }
 
     @Override
     public BakedGeoModel getDefaultBakedModel(T animatable) {
-        return this.model.getBakedModel(this.model.getModelResource(animatable));
+        return this.renderer.getGeoModel().getBakedModel(this.renderer.getGeoModel().getModelResource(animatable));
     }
 
     @Override
     protected ResourceLocation getTextureResource(T animatable) {
-        return this.model.getTextureResource(animatable);
+        return this.renderer.getGeoModel().getTextureResource(animatable);
     }
 }

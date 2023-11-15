@@ -24,7 +24,7 @@ public class AxolootlGeoRenderer<T extends LivingEntity & LerpingModel & IAxoloo
         this.addRenderLayer(new PrimaryLayer<>(this));
         this.addRenderLayer(new SecondaryLayer<>(this));
         this.addRenderLayer(new FermiLayer<>(this));
-        this.addRenderLayer(new AkxolootlLayer<>(this, new AkxolootlGeoModel<>()));
+        this.addRenderLayer(new AkxolootlLayer<>(this, new GeoEntityRenderer<>(context, new AkxolootlGeoModel<>())));
     }
 
     @Override
