@@ -30,6 +30,8 @@ minecraft {
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
 
+            args '--username', 'skyjay1'
+
             mods {
                 axolootl {
                     source sourceSets.main

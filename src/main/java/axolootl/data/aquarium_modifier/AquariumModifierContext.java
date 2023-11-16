@@ -91,7 +91,7 @@ public class AquariumModifierContext {
     }
 
     /**
-     * @return a view of the aquarium modifiers, not including the one that is being evaluated
+     * @return a view of the aquarium modifiers
      */
     public Map<BlockPos, AquariumModifier> getModifiers() {
         return modifiers;

@@ -21,12 +21,14 @@ import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@Immutable
 public class SelectResourceGenerator extends ResourceGenerator {
 
     public static final Codec<SelectResourceGenerator> CODEC = RecordCodecBuilder.create(instance -> instance.group(

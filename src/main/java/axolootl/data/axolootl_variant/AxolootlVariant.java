@@ -60,7 +60,8 @@ public class AxolootlVariant {
     ).apply(instance, AxolootlVariant::new));
 
     public static final Codec<Holder<AxolootlVariant>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, CODEC);
-    public static final Codec<HolderSet<AxolootlVariant>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_VARIANTS, CODEC);
+    /** Warning: Minecraft does not support holder sets in synced datapack codecs **/
+    //public static final Codec<HolderSet<AxolootlVariant>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_VARIANTS, CODEC);
 
     /** The requirements for this object to be enabled **/
     private final ForgeCondition condition;
@@ -76,7 +77,7 @@ public class AxolootlVariant {
     private final AxolootlModelSettings axolootlModelSettings;
     /** The amount of energy that is consumed each time a resource is generated **/
     private final int energyCost;
-    /** The map of food to bonuses **/
+    /** An ordered list of foods bonus providers **/
     private final List<BonusesProvider> foods;
     /** The set of foods that enable breeding **/
     private final HolderSet<Item> breedFood;
@@ -238,10 +239,6 @@ public class AxolootlVariant {
             this.tierDescription = createTierDescription(this.getTier());
         }
         return this.tierDescription;
-    }
-
-    public List<Component> getResourceGeneratorDescription() {
-        return this.resourceGenerator.value().getDescriptionText();
     }
 
     public boolean isEnabled(RegistryAccess registryAccess) {

@@ -25,8 +25,10 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.List;
 
+@Immutable
 public class MobDropsResourceGenerator extends LootContextResourceGenerator {
 
     public static final Codec<MobDropsResourceGenerator> CODEC = WEIGHTED_LIST_CODEC

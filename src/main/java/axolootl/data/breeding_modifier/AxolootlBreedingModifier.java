@@ -35,7 +35,8 @@ public abstract class AxolootlBreedingModifier {
             .dispatch(AxolootlBreedingModifier::getCodec, Function.identity());
 
     public static final Codec<Holder<AxolootlBreedingModifier>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AXOLOOTL_BREEDING_MODIFIERS, DIRECT_CODEC);
-    public static final Codec<HolderSet<AxolootlBreedingModifier>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_BREEDING_MODIFIERS, DIRECT_CODEC);
+    /** Warning: Minecraft does not support holder sets in synced datapack codecs **/
+    //public static final Codec<HolderSet<AxolootlBreedingModifier>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_BREEDING_MODIFIERS, DIRECT_CODEC);
 
     public static final Codec<List<AxolootlBreedingModifier>> DIRECT_LIST_CODEC = AxCodecUtils.listOrElementCodec(DIRECT_CODEC);
 

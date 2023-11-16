@@ -30,7 +30,8 @@ public class AxolootlBreeding {
     ).apply(instance, AxolootlBreeding::new));
 
     public static final Codec<Holder<AxolootlBreeding>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AXOLOOTL_BREEDING, CODEC);
-    public static final Codec<HolderSet<AxolootlBreeding>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_BREEDING, CODEC);
+    /** Warning: Minecraft does not support holder sets in synced datapack codecs **/
+    //public static final Codec<HolderSet<AxolootlBreeding>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_BREEDING, CODEC);
 
     /** The first axolootl variant **/
     private final Holder<AxolootlVariant> first;

@@ -11,6 +11,7 @@ import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.concurrent.Immutable;
@@ -24,22 +25,9 @@ public class AndModifierCondition extends ModifierCondition {
             .xmap(AndModifierCondition::new, AndModifierCondition::getChildren).fieldOf("children").codec();
 
     private final List<ModifierCondition> children;
-    private final List<Component> description;
 
     public AndModifierCondition(List<ModifierCondition> children) {
         this.children = ImmutableList.copyOf(children);
-        final List<Component> builder = new ArrayList<>();
-        for(ModifierCondition child : children) {
-            for(Component c : child.getDescription()) {
-                builder.add(Component.literal("  ").append(c));
-                builder.add(Component.translatable("axolootl.modifier_condition.and").withStyle(ChatFormatting.GOLD));
-            }
-        }
-        // remove trailing entry
-        if(!builder.isEmpty()) {
-            builder.remove(builder.size() - 1);
-        }
-        this.description = ImmutableList.copyOf(builder);
     }
 
     public List<ModifierCondition> getChildren() {
@@ -62,8 +50,19 @@ public class AndModifierCondition extends ModifierCondition {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    public List<Component> createDescription(final RegistryAccess registryAccess) {
+        final List<Component> builder = new ArrayList<>();
+        for(ModifierCondition child : children) {
+            for(Component c : child.createDescription(registryAccess)) {
+                builder.add(Component.literal("  ").append(c));
+                builder.add(Component.translatable("axolootl.modifier_condition.and").withStyle(ChatFormatting.GOLD));
+            }
+        }
+        // remove trailing entry
+        if(!builder.isEmpty()) {
+            builder.remove(builder.size() - 1);
+        }
+        return ImmutableList.copyOf(builder);
     }
 
     @Override

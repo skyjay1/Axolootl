@@ -29,9 +29,11 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 
+@Immutable
 public class BlockDropsResourceGenerator extends SimpleResourceGenerator {
 
     public static final Codec<BlockDropsResourceGenerator> CODEC = RecordCodecBuilder.create(instance -> instance.group(

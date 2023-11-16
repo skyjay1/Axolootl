@@ -9,7 +9,7 @@
     "type": "minecraft:any_of",
     "predicates": [
       {
-        "type": "minecraft:matching_blocks",
+        "type": "axolootl:matching_blocks",
         "blocks": "minecraft:seagrass"
       },
       {

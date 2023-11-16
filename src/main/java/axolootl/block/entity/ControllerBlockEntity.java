@@ -990,24 +990,18 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
         final Set<BlockPos> active = new HashSet<>();
         final Set<BlockPos> wasActive = getActiveAquariumModifiers();
         final Collection<IAxolootl> axolootls = resolveAxolootls(level);
-        final Map<BlockPos, AquariumModifier> modifierMap = resolveModifiers(level.registryAccess());
-        final Map<BlockPos, AquariumModifier> contextMap = new HashMap<>(modifierMap);
-        final Map<BlockPos, AquariumModifier> contextMapView = Collections.unmodifiableMap(contextMap);
+        final Map<BlockPos, AquariumModifier> modifierMap = ImmutableMap.copyOf(resolveModifiers(level.registryAccess()));
         for(Map.Entry<BlockPos, AquariumModifier> entry : modifierMap.entrySet()) {
             // validate modifier
             if(entry.getValue().isApplicable(level, entry.getKey())) {
-                // remove element from context map
-                contextMap.remove(entry.getKey());
                 // create context
-                AquariumModifierContext context = new AquariumModifierContext(level, entry.getKey(), size, axolootls, contextMapView, wasActive);
+                AquariumModifierContext context = new AquariumModifierContext(level, entry.getKey(), size, axolootls, modifierMap, wasActive);
                 // check if modifier is active
                 if(entry.getValue().isActive(context)) {
                     active.add(entry.getKey());
                     // attempt to spread
                     entry.getValue().checkAndSpread(context);
                 }
-                // re-add element to context map
-                contextMap.put(entry.getKey(), entry.getValue());
             } else {
                 invalid.add(entry.getKey());
                 IAquariumControllerProvider.tryClearController(level, entry.getKey());

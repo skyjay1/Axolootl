@@ -4,7 +4,7 @@
     "feed": 1.0
   },
   "block": {
-    "type": "minecraft:matching_blocks",
+    "type": "axolootl:matching_blocks",
     "blocks": "axolootl:autofeeder"
   },
   "condition": {

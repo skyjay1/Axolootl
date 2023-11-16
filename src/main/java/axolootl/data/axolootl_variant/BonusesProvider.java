@@ -28,9 +28,9 @@ import java.util.List;
 public class BonusesProvider {
 
     public static final List<BonusesProvider> FISH_BONUS_PROVIDERS = ImmutableList.<BonusesProvider>builder()
-            .add(new BonusesProvider(HolderSet.direct(ForgeRegistries.ITEMS.getHolder(Items.TROPICAL_FISH).orElseThrow()), new Bonuses(0.05)))
-            .add(new BonusesProvider(HolderSet.direct(ForgeRegistries.ITEMS.getHolder(Items.PUFFERFISH).orElseThrow()), new Bonuses(-0.1)))
-            .add(new BonusesProvider(BuiltInRegistries.ITEM.getOrCreateTag(ItemTags.FISHES), new Bonuses(0.02)))
+            //.add(new BonusesProvider(HolderSet.direct(ForgeRegistries.ITEMS.getHolder(Items.TROPICAL_FISH).orElseThrow()), new Bonuses(0.05)))
+            //.add(new BonusesProvider(HolderSet.direct(ForgeRegistries.ITEMS.getHolder(Items.PUFFERFISH).orElseThrow()), new Bonuses(-0.1)))
+            //.add(new BonusesProvider(BuiltInRegistries.ITEM.getOrCreateTag(ItemTags.FISHES), new Bonuses(0.02)))
             .build();
 
     public static final Codec<BonusesProvider> CODEC = RecordCodecBuilder.create(instance -> instance.group(

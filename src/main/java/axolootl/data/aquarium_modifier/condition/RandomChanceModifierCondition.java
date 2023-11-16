@@ -10,6 +10,7 @@ import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.concurrent.Immutable;
@@ -22,12 +23,9 @@ public class RandomChanceModifierCondition extends ModifierCondition {
             .xmap(RandomChanceModifierCondition::new, RandomChanceModifierCondition::getChance).fieldOf("chance").codec();
 
     private final double chance;
-    private final List<Component> description;
 
     public RandomChanceModifierCondition(double chance) {
         this.chance = chance;
-        final String sChance = String.format("%.4f", chance * 100.0D).replaceAll("0*$", "").replaceAll("\\.$", "");
-        this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.random_chance", sChance));
     }
 
     public double getChance() {
@@ -45,8 +43,9 @@ public class RandomChanceModifierCondition extends ModifierCondition {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    public List<Component> createDescription(final RegistryAccess registryAccess) {
+        final String sChance = String.format("%.4f", chance * 100.0D).replaceAll("0*$", "").replaceAll("\\.$", "");
+        return ImmutableList.of(Component.translatable("axolootl.modifier_condition.random_chance", sChance));
     }
 
     @Override

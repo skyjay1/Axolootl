@@ -18,6 +18,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 
+@Immutable
 public class EmptyResourceGenerator extends SimpleResourceGenerator {
 
     public static final EmptyResourceGenerator INSTANCE = new EmptyResourceGenerator();

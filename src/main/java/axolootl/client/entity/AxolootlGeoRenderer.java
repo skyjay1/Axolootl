@@ -30,7 +30,15 @@ public class AxolootlGeoRenderer<T extends LivingEntity & LerpingModel & IAxoloo
 
     @Override
     public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        // TODO remove the call to withScale after 1.19.3 (the bug in GeckoLib is not fixed until later versions)
         this.withScale(animatable.getScale());
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+    }
+
+    @Override
+    public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, T animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
+        final float scale = animatable.getScale();
+        // call the super method
+        super.scaleModelForRender(widthScale * scale, heightScale * scale, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
     }
 }

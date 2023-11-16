@@ -4,7 +4,7 @@
     "generation": 0.06
   },
   "block": {
-    "type": "minecraft:matching_blocks",
+    "type": "axolootl:matching_blocks",
     "blocks": [
       "minecraft:fire_coral",
       "minecraft:fire_coral_fan"

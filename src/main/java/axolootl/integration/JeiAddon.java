@@ -24,6 +24,8 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.List;
+
 @JeiPlugin
 public class JeiAddon implements IModPlugin {
 
@@ -54,6 +56,10 @@ public class JeiAddon implements IModPlugin {
         final ImmutableList.Builder<JeiBreedingRecipe> builder = ImmutableList.builder();
         // collect non-empty breeding wrappers
         for(AxolootlBreeding entry : registry) {
+            // verify
+            if(!AxRegistry.AxolootlVariantsReg.isValid(entry.getFirst().unwrapKey().get().location())) {
+                continue;
+            }
             AxolootlBreedingWrapper wrapper = AxRegistry.AxolootlBreedingReg.getWrapper(registryAccess, entry);
             if(!wrapper.getResult().isEmpty()) {
                 // create jei recipe from wrapper
@@ -61,7 +67,10 @@ public class JeiAddon implements IModPlugin {
             }
         }
         // add recipes
+        final List<JeiBreedingRecipe> list = builder.build();
         registration.addRecipes(BREEDING_TYPE, builder.build());
+        Axolootl.LOGGER.debug("Axolootl sent " + list.size() + " axolootl breeding recipes to JEI");
+        // TODO debug JEI recipes not being registered?
     }
 
     @Override

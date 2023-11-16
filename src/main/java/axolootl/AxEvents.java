@@ -57,13 +57,6 @@ public final class AxEvents {
         }
 
         @SubscribeEvent
-        public static void onServerStarted(final ServerStartedEvent event) {
-            final RegistryAccess access = event.getServer().registryAccess();
-            Axolootl.LOGGER.debug("Axolootl loaded " + ResourceGenerator.getRegistry(access).size() + " resource generators");
-
-        }
-
-        @SubscribeEvent
         public static void onPlayerLoggedOut(final PlayerEvent.PlayerLoggedOutEvent event) {
             if(event.getEntity().level.isClientSide()) {
                 AxRegistry.clearCaches();

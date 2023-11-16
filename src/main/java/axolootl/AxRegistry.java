@@ -29,6 +29,8 @@ import axolootl.menu.AxolootlInterfaceMenu;
 import axolootl.menu.ControllerMenu;
 import axolootl.menu.CyclingContainerMenu;
 import axolootl.menu.CyclingMenu;
+import axolootl.util.AxMatchingBlocksPredicate;
+import axolootl.util.AxMatchingFluidsPredicate;
 import axolootl.util.ControllerTabSorter;
 import axolootl.util.MatchingStatePredicate;
 import axolootl.util.NbtPredicate;
@@ -481,8 +483,10 @@ public final class AxRegistry {
             BLOCK_PREDICATE_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
 
-        public static final RegistryObject<BlockPredicateType<MatchingStatePredicate>> MATCHING_PROPERTY = BLOCK_PREDICATE_TYPES.register("matching_state", () -> () -> MatchingStatePredicate.CODEC);
-        public static final RegistryObject<BlockPredicateType<NbtPredicate>> TAG = BLOCK_PREDICATE_TYPES.register("matching_tag", () -> () -> NbtPredicate.CODEC);
+        public static final RegistryObject<BlockPredicateType<AxMatchingBlocksPredicate>> MATCHING_BLOCKS = BLOCK_PREDICATE_TYPES.register("matching_blocks", () -> () -> AxMatchingBlocksPredicate.CODEC);
+        public static final RegistryObject<BlockPredicateType<AxMatchingFluidsPredicate>> MATCHING_FLUIDS = BLOCK_PREDICATE_TYPES.register("matching_fluids", () -> () -> AxMatchingFluidsPredicate.CODEC);
+        public static final RegistryObject<BlockPredicateType<MatchingStatePredicate>> MATCHING_STATE = BLOCK_PREDICATE_TYPES.register("matching_state", () -> () -> MatchingStatePredicate.CODEC);
+        public static final RegistryObject<BlockPredicateType<NbtPredicate>> MATCHING_TAG = BLOCK_PREDICATE_TYPES.register("matching_tag", () -> () -> NbtPredicate.CODEC);
 
     }
 

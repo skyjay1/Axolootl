@@ -46,12 +46,13 @@ public class AquariumModifier {
             Codec.STRING.fieldOf("translation_key").forGetter(AquariumModifier::getTranslationKey),
             ModifierSettings.CODEC.fieldOf("settings").forGetter(AquariumModifier::getSettings),
             AxCodecUtils.POSITIVE_VEC3I_CODEC.optionalFieldOf("dimensions", new Vec3i(1, 1, 1)).forGetter(AquariumModifier::getDimensions),
-            AxCodecUtils.BLOCK_PREDICATE_CODEC.optionalFieldOf("block", BlockPredicate.not(BlockPredicate.alwaysTrue())).forGetter(AquariumModifier::getBlockStatePredicate),
+            BlockPredicate.CODEC.optionalFieldOf("block", BlockPredicate.not(BlockPredicate.alwaysTrue())).forGetter(AquariumModifier::getBlockStatePredicate),
             ModifierCondition.DIRECT_CODEC.optionalFieldOf("condition", TrueModifierCondition.INSTANCE).forGetter(AquariumModifier::getCondition)
     ).apply(instance, AquariumModifier::new));
 
     public static final Codec<Holder<AquariumModifier>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AQUARIUM_MODIFIERS, CODEC);
-    public static final Codec<HolderSet<AquariumModifier>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AQUARIUM_MODIFIERS, CODEC);
+    /** Warning: Minecraft does not support holder sets in synced datapack codecs **/
+    //public static final Codec<HolderSet<AquariumModifier>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AQUARIUM_MODIFIERS, CODEC);
 
     /** The translation key of the object **/
     private final String translationKey;

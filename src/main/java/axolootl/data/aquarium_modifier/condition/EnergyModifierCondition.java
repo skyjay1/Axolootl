@@ -11,6 +11,7 @@ import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
@@ -31,11 +32,9 @@ public class EnergyModifierCondition extends ModifierCondition {
     private static final Capability<IEnergyStorage> ENERGY_STORAGE_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
     private final long energy;
-    private final List<Component> description;
 
     public EnergyModifierCondition(long energy) {
         this.energy = Math.max(0, energy);
-        this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.energy", energy));
     }
 
     public long getEnergy() {
@@ -62,8 +61,8 @@ public class EnergyModifierCondition extends ModifierCondition {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    public List<Component> createDescription(final RegistryAccess registryAccess) {
+        return ImmutableList.of(Component.translatable("axolootl.modifier_condition.energy", energy));
     }
 
     @Override

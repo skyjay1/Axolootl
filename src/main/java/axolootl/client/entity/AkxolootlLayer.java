@@ -42,7 +42,7 @@ public class AkxolootlLayer<T extends LivingEntity & LerpingModel & IAxolootl & 
     private static final TagKey<AxolootlVariant> BLACKLIST = TagKey.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, new ResourceLocation(Axolootl.MODID, "special_blacklist"));
     private final GeoRenderer<T> renderer;
 
-    private final Pattern namePattern = Pattern.compile("(?i)ak(-| )?xolo(o)?tl");
+    private final Pattern namePattern = Pattern.compile("(?i)ak(?:-| )?xolo(?:o)?tl");
 
     public AkxolootlLayer(GeoRenderer<T> parent, GeoRenderer<T> renderer) {
         super(parent);

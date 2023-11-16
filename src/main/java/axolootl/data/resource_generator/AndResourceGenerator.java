@@ -7,6 +7,7 @@
 package axolootl.data.resource_generator;
 
 import axolootl.AxRegistry;
+import axolootl.util.AxCodecUtils;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -17,20 +18,22 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@Immutable
 public class AndResourceGenerator extends ResourceGenerator {
 
-    public static final Codec<AndResourceGenerator> CODEC = ResourceGenerator.HOLDER_SET_CODEC
+    public static final Codec<AndResourceGenerator> CODEC = AxCodecUtils.listOrElementCodec(ResourceGenerator.HOLDER_CODEC)
             .xmap(AndResourceGenerator::new, AndResourceGenerator::getChildren).fieldOf("values").codec();
 
-    private final HolderSet<ResourceGenerator> children;
+    private final List<Holder<ResourceGenerator>> children;
     private final Supplier<Set<ResourceType>> resourceTypes;
 
-    public AndResourceGenerator(final HolderSet<ResourceGenerator> list) {
+    public AndResourceGenerator(final List<Holder<ResourceGenerator>> list) {
         super();
         this.children = list;
         this.resourceTypes = Suppliers.memoize(() -> {
@@ -43,7 +46,7 @@ public class AndResourceGenerator extends ResourceGenerator {
         });
     }
 
-    public HolderSet<ResourceGenerator> getChildren() {
+    public List<Holder<ResourceGenerator>> getChildren() {
         return children;
     }
 

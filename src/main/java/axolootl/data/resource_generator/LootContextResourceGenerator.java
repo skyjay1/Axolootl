@@ -22,11 +22,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
+@Immutable
 public abstract class LootContextResourceGenerator extends SimpleResourceGenerator {
 
     protected static final Codec<SimpleWeightedRandomList<Wrapper>> WEIGHTED_LIST_CODEC = Codec.either(Wrapper.CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(Wrapper.CODEC))

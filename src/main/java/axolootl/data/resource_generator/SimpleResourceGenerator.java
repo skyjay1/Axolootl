@@ -8,8 +8,10 @@ package axolootl.data.resource_generator;
 
 import com.google.common.collect.ImmutableSet;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Set;
 
+@Immutable
 public abstract class SimpleResourceGenerator extends ResourceGenerator {
 
     private final Set<ResourceType> resourceType;

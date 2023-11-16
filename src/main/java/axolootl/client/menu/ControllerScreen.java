@@ -9,7 +9,6 @@ package axolootl.client.menu;
 import axolootl.AxRegistry;
 import axolootl.Axolootl;
 import axolootl.block.entity.ControllerBlockEntity;
-import axolootl.client.menu.widget.ComponentButton;
 import axolootl.client.menu.widget.ScrollButton;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.ModifierSettings;
@@ -22,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
@@ -330,7 +330,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
                 continue;
             }
             button.visible = true;
-            button.update(modifierDataList.get(index));
+            button.update(modifierDataList.get(index), getMenu().getInventory().player.level.registryAccess());
         }
     }
 
@@ -437,7 +437,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             this.description = Component.empty();
         }
 
-        public void update(final ModifierData entry) {
+        public void update(final ModifierData entry, final RegistryAccess registryAccess) {
             this.entry = entry;
             final ChatFormatting existsColor = (entry.getCount() <= 0) ? ChatFormatting.DARK_GRAY : ChatFormatting.RESET;
             Component activeText = Component.literal("" + entry.getActiveCount()).withStyle(hasInactive ? ChatFormatting.DARK_RED : ChatFormatting.RESET);
@@ -474,23 +474,24 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             if(entry.getModifier().getSettings().getEnergyCost() > 0) {
                 conditionsTooltips.add(createBonusTooltip("axolootl.modifier_settings.energy_cost", entry.getActiveCount(), Component.literal("" + entry.getModifier().getSettings().getEnergyCost()).withStyle(ChatFormatting.RED), Component.literal("" + (entry.getModifier().getSettings().getEnergyCost() * entry.getActiveCount())).withStyle(ChatFormatting.RED)));
             }
-            conditionsTooltips.addAll(entry.getModifier().getCondition().getDescription());
+            conditionsTooltips.addAll(entry.getModifier().getCondition().getDescription(registryAccess));
         }
 
         public List<Component> getTooltips(final PoseStack poseStack, final int mouseX, final int mouseY) {
+            final boolean advancedTooltips = Minecraft.getInstance().options.advancedItemTooltips;
             // name tooltips
             if(mouseX < this.getX() + font.width(description)) {
                 return this.nameTooltips;
             }
             final List<Component> list = new ArrayList<>(countTooltips);
             // bonuses tooltips
-            if(Screen.hasShiftDown()) {
+            if(Screen.hasShiftDown() || advancedTooltips) {
                 list.addAll(bonusesTooltips);
             } else {
                 list.add(showBonuses);
             }
             // conditions tooltips
-            if(hasInactive || Screen.hasControlDown()) {
+            if(hasInactive || Screen.hasControlDown() || advancedTooltips) {
                 list.addAll(conditionsTooltips);
             } else {
                 list.add(showConditions);
