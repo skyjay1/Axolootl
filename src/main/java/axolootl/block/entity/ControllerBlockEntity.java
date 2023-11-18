@@ -31,6 +31,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.ListTag;
@@ -694,8 +695,8 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
 
         final AxolootlVariant variant1 = axolootl.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
         final AxolootlVariant variant2 = other.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
-        final HolderSet<Item> breedFood1 = variant1.getBreedFood();
-        final HolderSet<Item> breedFood2 = variant2.getBreedFood();
+        final HolderSet<Item> breedFood1 = variant1.getBreedFood().get(BuiltInRegistries.ITEM);
+        final HolderSet<Item> breedFood2 = variant2.getBreedFood().get(BuiltInRegistries.ITEM);
 
         // iterate inventories
         IItemHandler handler1 = null;
@@ -1895,7 +1896,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
         // read statuses
         this.tankStatus = TankStatus.CODEC.byName(tag.getString(KEY_TANK_STATUS));
         this.feedStatus = FeedStatus.CODEC.byName(tag.getString(KEY_FEED_STATUS));
-        this.breedStatus = BreedStatus.CODEC.byName(tag.getString(KEY_FEED_STATUS));
+        this.breedStatus = BreedStatus.CODEC.byName(tag.getString(KEY_BREED_STATUS));
         // read speeds
         if(tag.contains(KEY_GENERATION_SPEED) && tag.contains(KEY_FEED_SPEED) && tag.contains(KEY_BREED_SPEED)) {
             this.generationSpeed = tag.getDouble(KEY_GENERATION_SPEED);

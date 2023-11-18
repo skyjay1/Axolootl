@@ -11,6 +11,7 @@ import axolootl.data.axolootl_variant.AxolootlVariant;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.WeightedEntry;
 
@@ -32,7 +33,7 @@ public class RemoveAxolootlBreedingModifier extends AxolootlBreedingModifier {
     }
 
     @Override
-    public void apply(final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> list, final Phase phase) {
+    public void apply(final List<WeightedEntry.Wrapper<ResourceKey<AxolootlVariant>>> list, final Phase phase) {
         // verify phase
         if(phase != Phase.REMOVE) {
             return;

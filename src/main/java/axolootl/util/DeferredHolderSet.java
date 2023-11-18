@@ -6,6 +6,8 @@
 
 package axolootl.util;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
@@ -29,6 +31,10 @@ public class DeferredHolderSet<T> {
 
     public DeferredHolderSet(TagKey<T> tagKey) {
         this(Either.left(tagKey));
+    }
+
+    public DeferredHolderSet(ResourceKey<T> list) {
+        this(ImmutableList.of(list));
     }
 
     public DeferredHolderSet(List<ResourceKey<T>> list) {
@@ -79,8 +85,6 @@ public class DeferredHolderSet<T> {
      */
     private static <T> HolderSet<T> build(final Registry<T> registry, final Either<TagKey<T>, List<ResourceKey<T>>> either) {
         if(either.left().isPresent()) {
-            // TODO all single element values are being parsed as tags when they should be parsed as resource keys
-            // TODO make a codec that only parses to tag key if the string begins with #
             return registry.getOrCreateTag(either.left().get());
         }
         if(either.right().isPresent()) {

@@ -25,6 +25,7 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -63,7 +64,7 @@ public final class AxEvents {
             }
         }
 
-        @SubscribeEvent
+        @SubscribeEvent(priority = EventPriority.HIGH)
         public static void onTagsUpdated(final TagsUpdatedEvent event) {
             // validate axolootl variants
             final RegistryAccess registryAccess = event.getRegistryAccess();

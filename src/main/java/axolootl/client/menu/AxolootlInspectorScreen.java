@@ -87,7 +87,7 @@ public class AxolootlInspectorScreen extends AbstractCyclingScreen<AxolootlInspe
         // resolve variants with cross reference to the tracked variants
         final Registry<AxolootlVariant> registry = AxolootlVariant.getRegistry(access);
         for(Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant> entry : registry.entrySet()) {
-            if(tracked.contains(entry.getKey().location()) && AxRegistry.AxolootlVariantsReg.isValid(entry.getKey().location())) {
+            if(tracked.contains(entry.getKey().location()) && entry.getValue().isEnabled(access)) {
                 this.variants.add(entry);
             }
         }

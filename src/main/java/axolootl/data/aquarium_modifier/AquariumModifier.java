@@ -52,7 +52,7 @@ public class AquariumModifier {
 
     public static final Codec<Holder<AquariumModifier>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AQUARIUM_MODIFIERS, CODEC);
     /** Warning: Minecraft does not support holder sets in synced datapack codecs **/
-    //public static final Codec<HolderSet<AquariumModifier>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AQUARIUM_MODIFIERS, CODEC);
+    public static final Codec<HolderSet<AquariumModifier>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AQUARIUM_MODIFIERS, CODEC);
 
     /** The translation key of the object **/
     private final String translationKey;

@@ -60,7 +60,7 @@ public class AxolootlBucketItem extends MobBucketItem {
             // create list of variants
             List<Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant>> variants = new ArrayList<>(AxolootlVariant.getRegistry(access).entrySet());
             // remove invalid entries
-            variants.removeIf(e -> !AxRegistry.AxolootlVariantsReg.isValid(e.getKey().location()));
+            variants.removeIf(e -> !e.getValue().isEnabled(access));
             // sort by tier, then by name
             Comparator<Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant>> comparator = Comparator.comparingInt(e -> e.getValue().getTier());
             variants.sort(comparator.thenComparing(e -> e.getValue().getDescription().getString()));

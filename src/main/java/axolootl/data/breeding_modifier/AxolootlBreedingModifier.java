@@ -19,6 +19,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
@@ -36,7 +37,7 @@ public abstract class AxolootlBreedingModifier {
 
     public static final Codec<Holder<AxolootlBreedingModifier>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AXOLOOTL_BREEDING_MODIFIERS, DIRECT_CODEC);
     /** Warning: Minecraft does not support holder sets in synced datapack codecs **/
-    //public static final Codec<HolderSet<AxolootlBreedingModifier>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_BREEDING_MODIFIERS, DIRECT_CODEC);
+    public static final Codec<HolderSet<AxolootlBreedingModifier>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_BREEDING_MODIFIERS, DIRECT_CODEC);
 
     public static final Codec<List<AxolootlBreedingModifier>> DIRECT_LIST_CODEC = AxCodecUtils.listOrElementCodec(DIRECT_CODEC);
 
@@ -52,7 +53,7 @@ public abstract class AxolootlBreedingModifier {
      * @param list the mutable list of weighted entries
      * @param phase the modifier phase
      */
-    public abstract void apply(final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> list, final Phase phase);
+    public abstract void apply(final List<WeightedEntry.Wrapper<ResourceKey<AxolootlVariant>>> list, final Phase phase);
 
     /**
      * @return the breeding modifier codec

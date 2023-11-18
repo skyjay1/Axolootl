@@ -217,6 +217,7 @@
   "gui.controller_tab.axolootl.controller.size.invalid": "Size: N/A",
   "gui.controller_tab.axolootl.controller.capacity.single": "Capacity: %1$s axolootl",
   "gui.controller_tab.axolootl.controller.capacity.multiple": "Capacity: %1$s axolootls",
+  "gui.controller_tab.axolootl.controller.capacity.description": "Each axolootl requires %1$s cubic blocks of space",
   "gui.controller_tab.axolootl.controller.status.seconds_remaining.feed": "Preparing to feed in %1$s s",
   "gui.controller_tab.axolootl.controller.status.seconds_remaining.breed": "Preparing to breed in %1$s s",
   "gui.controller_tab.axolootl.controller.status.seconds_remaining.generate_resources": "Preparing to generate resources in %1$s s",

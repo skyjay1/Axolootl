@@ -43,7 +43,7 @@ public abstract class ResourceGenerator {
 
     public static final Codec<Holder<ResourceGenerator>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.RESOURCE_GENERATORS, DIRECT_CODEC);
     /** Warning: Minecraft does not support holder sets in synced datapack codecs **/
-    //public static final Codec<HolderSet<ResourceGenerator>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.RESOURCE_GENERATORS, DIRECT_CODEC);
+    public static final Codec<HolderSet<ResourceGenerator>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.RESOURCE_GENERATORS, DIRECT_CODEC);
 
     public static final Codec<List<ResourceGenerator>> DIRECT_LIST_CODEC = AxCodecUtils.listOrElementCodec(DIRECT_CODEC);
 

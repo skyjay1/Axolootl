@@ -27,28 +27,35 @@ public class AxolootlModelSettings {
     public static final AxolootlModelSettings EMPTY = new AxolootlModelSettings(ENTITY_MODEL, Optional.empty(), ENTITY_TEXTURE, Optional.empty(), Optional.empty(), -1, -1);
 
     public static final Codec<AxolootlModelSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.optionalFieldOf("entity", ENTITY_MODEL).forGetter(AxolootlModelSettings::getEntityGeoModel),
-            ResourceLocation.CODEC.optionalFieldOf("animations").forGetter(AxolootlModelSettings::getOptionalEntityGeoAnimations),
-            ResourceLocation.CODEC.optionalFieldOf("texture", ENTITY_TEXTURE).forGetter(AxolootlModelSettings::getEntityTexture),
-            ResourceLocation.CODEC.optionalFieldOf("primary_texture").forGetter(AxolootlModelSettings::getOptionalEntityPrimaryTexture),
-            ResourceLocation.CODEC.optionalFieldOf("secondary_texture").forGetter(AxolootlModelSettings::getOptionalEntitySecondaryTexture),
+            ResourceLocation.CODEC.optionalFieldOf("entity", ENTITY_MODEL).forGetter(o -> o.entityGeoModelKey),
+            ResourceLocation.CODEC.optionalFieldOf("animations").forGetter(o -> Optional.ofNullable(o.entityGeoAnimationsKey)),
+            ResourceLocation.CODEC.optionalFieldOf("texture", ENTITY_TEXTURE).forGetter(o -> o.entityTextureKey),
+            ResourceLocation.CODEC.optionalFieldOf("primary_texture").forGetter(o -> Optional.ofNullable(o.entityPrimaryTextureKey)),
+            ResourceLocation.CODEC.optionalFieldOf("secondary_texture").forGetter(o -> Optional.ofNullable(o.entitySecondaryTextureKey)),
             AxCodecUtils.HEX_OR_INT_CODEC.optionalFieldOf("primary_color", -1).forGetter(AxolootlModelSettings::getPrimaryColor),
             AxCodecUtils.HEX_OR_INT_CODEC.optionalFieldOf("secondary_color", -1).forGetter(AxolootlModelSettings::getSecondaryColor)
     ).apply(instance, AxolootlModelSettings::new));
 
+    /** The GeckoLib entity geo model shorthand **/
+    private final ResourceLocation entityGeoModelKey;
     /** The GeckoLib entity geo model **/
     private final ResourceLocation entityGeoModel;
+    /** The entity animations shorthand, if any **/
+    @Nullable private final ResourceLocation entityGeoAnimationsKey;
     /** The entity animations, if any **/
-    @Nullable
-    private final ResourceLocation entityGeoAnimations;
+    @Nullable private final ResourceLocation entityGeoAnimations;
+    /** The entity texture shorthand **/
+    private final ResourceLocation entityTextureKey;
     /** The entity texture location, will not be recolored **/
     private final ResourceLocation entityTexture;
+    /** The primary texture shorthand **/
+    @Nullable private final ResourceLocation entityPrimaryTextureKey;
     /** The entity texture location to be recolored using the primary color **/
-    @Nullable
-    private final ResourceLocation entityPrimaryTexture;
+    @Nullable private final ResourceLocation entityPrimaryTexture;
+    /** The secondary texture shorthand **/
+    @Nullable private final ResourceLocation entitySecondaryTextureKey;
     /** The entity texture location to be recolored using the secondary color **/
-    @Nullable
-    private final ResourceLocation entitySecondaryTexture;
+    @Nullable private final ResourceLocation entitySecondaryTexture;
     /** The primary packed color **/
     private final int primaryColor;
     /** The unpacked primary colors **/
@@ -61,10 +68,15 @@ public class AxolootlModelSettings {
     public AxolootlModelSettings(ResourceLocation entityGeoModel, Optional<ResourceLocation> entityGeoAnimations,
                                  ResourceLocation entityTexture, Optional<ResourceLocation> entityPrimaryTexture, Optional<ResourceLocation> entitySecondaryTexture,
                                  int primaryColor, int secondaryColor) {
+        this.entityGeoModelKey = entityGeoModel;
         this.entityGeoModel = new ResourceLocation(entityGeoModel.getNamespace(), "geo/entity/axolootl/" + entityGeoModel.getPath() + ".geo.json");
+        this.entityGeoAnimationsKey = entityGeoAnimations.orElse(null);
         this.entityGeoAnimations = entityGeoAnimations.map(animations -> new ResourceLocation(animations.getNamespace(), "animations/entity/axolootl/" + animations.getPath() + ".animation.json")).orElse(null);
+        this.entityTextureKey = entityTexture;
         this.entityTexture = new ResourceLocation(entityTexture.getNamespace(), "textures/entity/axolootl/" + entityTexture.getPath() + ".png");
+        this.entityPrimaryTextureKey = entityPrimaryTexture.orElse(null);
         this.entityPrimaryTexture = entityPrimaryTexture.map(texture -> new ResourceLocation(texture.getNamespace(), "textures/entity/axolootl/" + texture.getPath() + ".png")).orElse(null);
+        this.entitySecondaryTextureKey = entitySecondaryTexture.orElse(null);
         this.entitySecondaryTexture = entitySecondaryTexture.map(texture -> new ResourceLocation(texture.getNamespace(), "textures/entity/axolootl/" + texture.getPath() + ".png")).orElse(null);
         this.primaryColor = primaryColor;
         this.secondaryColor = secondaryColor;

@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.random.WeightedEntry;
@@ -28,12 +29,12 @@ import java.util.Optional;
 public class AxolootlBreedingWrapper {
 
     private final AxolootlBreeding breeding;
-    private final SimpleWeightedRandomList<Holder<AxolootlVariant>> result;
+    private final SimpleWeightedRandomList<ResourceKey<AxolootlVariant>> result;
 
     public AxolootlBreedingWrapper(final RegistryAccess access, AxolootlBreeding breeding, List<AxolootlBreedingModifier> modifiers) {
         this.breeding = breeding;
         // initialize wrapped result
-        final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> builder = new ArrayList<>(breeding.getResult().unwrap());
+        final List<WeightedEntry.Wrapper<ResourceKey<AxolootlVariant>>> builder = new ArrayList<>(breeding.getResult().unwrap());
         // before everything
         for(AxolootlBreedingModifier modifier : modifiers) {
             modifier.apply(builder, AxolootlBreedingModifier.Phase.PRE);
@@ -51,7 +52,7 @@ public class AxolootlBreedingWrapper {
             modifier.apply(builder, AxolootlBreedingModifier.Phase.POST);
         }
         // remove invalid results
-        builder.removeIf(wrapper -> !AxRegistry.AxolootlVariantsReg.isValid(access, wrapper.getData().value()));
+        builder.removeIf(wrapper -> !AxRegistry.AxolootlVariantsReg.isValid(wrapper.getData().location()));
         // build the list
         this.result = new SimpleWeightedRandomList<>(builder);
     }
@@ -91,16 +92,16 @@ public class AxolootlBreedingWrapper {
      * @param random a random source
      * @return the axolootl variant according to {@link #sampleResult(RandomSource)}, or {@link AxolootlBreeding#getFirst()} if it failed
      */
-    public Holder<AxolootlVariant> getBreedResult(final Level level, final AxolootlVariant aFirst, final AxolootlVariant aSecond, final RandomSource random) {
-        return sampleResult(random).orElse(breeding.getFirst());
+    public AxolootlVariant getBreedResult(final Level level, final AxolootlVariant aFirst, final AxolootlVariant aSecond, final RandomSource random) {
+        return AxolootlVariant.getRegistry(level.registryAccess()).get(sampleResult(random).orElse(breeding.getFirst()).location());
     }
 
     /**
      * @param random a random source
      * @return a random element from the result set
      */
-    public Optional<Holder<AxolootlVariant>> sampleResult(final RandomSource random) {
-        final Optional<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> oVariant = getResult().getRandom(random);
+    public Optional<ResourceKey<AxolootlVariant>> sampleResult(final RandomSource random) {
+        final Optional<WeightedEntry.Wrapper<ResourceKey<AxolootlVariant>>> oVariant = getResult().getRandom(random);
         if(oVariant.isEmpty()) {
             return Optional.empty();
         }
@@ -113,7 +114,7 @@ public class AxolootlBreedingWrapper {
         return breeding;
     }
 
-    public SimpleWeightedRandomList<Holder<AxolootlVariant>> getResult() {
+    public SimpleWeightedRandomList<ResourceKey<AxolootlVariant>> getResult() {
         return result;
     }
 }

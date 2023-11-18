@@ -15,6 +15,7 @@ import axolootl.data.resource_generator.ResourceGenerator;
 import axolootl.data.resource_generator.ResourceType;
 import axolootl.data.resource_generator.ResourceTypes;
 import axolootl.util.AxCodecUtils;
+import axolootl.util.DeferredHolderSet;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -25,6 +26,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistryCodecs;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.RegistryFileCodec;
@@ -44,7 +46,7 @@ import java.util.function.Supplier;
 
 public class AxolootlVariant {
 
-    public static final AxolootlVariant EMPTY = new AxolootlVariant(FalseForgeCondition.INSTANCE, "empty", 0, false, Rarity.COMMON, AxolootlModelSettings.EMPTY, 0, ImmutableList.of(), HolderSet.direct(), Holder.direct(EmptyResourceGenerator.INSTANCE));
+    public static final AxolootlVariant EMPTY = new AxolootlVariant(FalseForgeCondition.INSTANCE, "empty", 0, false, Rarity.COMMON, AxolootlModelSettings.EMPTY, 0, ImmutableList.of(), new DeferredHolderSet<>(ImmutableList.of()), Holder.direct(EmptyResourceGenerator.INSTANCE));
 
     public static final Codec<AxolootlVariant> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         ForgeCondition.DIRECT_CODEC.optionalFieldOf("condition", TrueForgeCondition.INSTANCE).forGetter(AxolootlVariant::getCondition),
@@ -55,13 +57,14 @@ public class AxolootlVariant {
         AxolootlModelSettings.CODEC.optionalFieldOf("model", AxolootlModelSettings.EMPTY).forGetter(AxolootlVariant::getModelSettings),
         ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("energy_cost", 0).forGetter(AxolootlVariant::getEnergyCost),
         BonusesProvider.CODEC.listOf().optionalFieldOf("food", BonusesProvider.FISH_BONUS_PROVIDERS).forGetter(AxolootlVariant::getFoods),
-        AxCodecUtils.ITEM_HOLDER_SET_CODEC.optionalFieldOf("breed_food", HolderSet.direct()).forGetter(AxolootlVariant::getBreedFood),
+        DeferredHolderSet.codec(ForgeRegistries.ITEMS.getRegistryKey()).optionalFieldOf("breed_food", new DeferredHolderSet<>(ImmutableList.of())).forGetter(AxolootlVariant::getBreedFood),
         ResourceGenerator.HOLDER_CODEC.optionalFieldOf("resource_generator", Holder.direct(EmptyResourceGenerator.INSTANCE)).forGetter(AxolootlVariant::getResourceGenerator)
     ).apply(instance, AxolootlVariant::new));
 
-    public static final Codec<Holder<AxolootlVariant>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, CODEC);
+    public static final Codec<ResourceKey<AxolootlVariant>> RESOURCE_KEY_CODEC = ResourceKey.codec(AxRegistry.Keys.AXOLOOTL_VARIANTS);
+    public static final Codec<Holder<AxolootlVariant>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, CODEC, false);
     /** Warning: Minecraft does not support holder sets in synced datapack codecs **/
-    //public static final Codec<HolderSet<AxolootlVariant>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_VARIANTS, CODEC);
+    public static final Codec<HolderSet<AxolootlVariant>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_VARIANTS, CODEC);
 
     /** The requirements for this object to be enabled **/
     private final ForgeCondition condition;
@@ -80,7 +83,7 @@ public class AxolootlVariant {
     /** An ordered list of foods bonus providers **/
     private final List<BonusesProvider> foods;
     /** The set of foods that enable breeding **/
-    private final HolderSet<Item> breedFood;
+    private final DeferredHolderSet<Item> breedFood;
     /** The resource generator **/
     private final Holder<ResourceGenerator> resourceGenerator;
 
@@ -88,12 +91,14 @@ public class AxolootlVariant {
     private Component description;
     /** The tier text component **/
     private Component tierDescription;
+    /** The registry ID **/
+    private ResourceLocation id;
     /** The registry object holder **/
     private Holder<AxolootlVariant> holder;
 
     public AxolootlVariant(ForgeCondition condition, String translationKey, int tier, boolean isFireImmune,
                            Rarity rarity, AxolootlModelSettings axolootlModelSettings, int energyCost,
-                           List<BonusesProvider> foods, HolderSet<Item> breedFood, Holder<ResourceGenerator> resourceGenerator) {
+                           List<BonusesProvider> foods, DeferredHolderSet<Item> breedFood, Holder<ResourceGenerator> resourceGenerator) {
         this.condition = condition;
         this.translationKey = translationKey;
         this.tier = tier;
@@ -131,10 +136,13 @@ public class AxolootlVariant {
 
     /**
      * @param registryAccess the registry access
-     * @return the resource location ID of the object, if present. Not cached.
+     * @return the resource location ID of the object, if present.
      */
     public ResourceLocation getRegistryName(final RegistryAccess registryAccess) {
-        return Optional.ofNullable(getRegistry(registryAccess).getKey(this)).orElseThrow(() -> new IllegalStateException("Missing key in Axolootl Variant registry for object " + this.toString()));
+        if(null == this.id) {
+            this.id = Optional.ofNullable(getRegistry(registryAccess).getKey(this)).orElseThrow(() -> new IllegalStateException("Missing key in Axolootl Variant registry for object " + this.toString()));
+        }
+        return this.id;
     }
 
     /**
@@ -211,7 +219,7 @@ public class AxolootlVariant {
         if(holder.isPresent()) {
             // find matching holder
             for(BonusesProvider provider : getFoods()) {
-                if(provider.getFoods().contains(holder.get())) {
+                if(provider.getFoods().get(BuiltInRegistries.ITEM).contains(holder.get())) {
                     return Optional.of(provider.getBonuses());
                 }
             }
@@ -219,7 +227,7 @@ public class AxolootlVariant {
         return Optional.empty();
     }
 
-    public HolderSet<Item> getBreedFood() {
+    public DeferredHolderSet<Item> getBreedFood() {
         return breedFood;
     }
 

@@ -56,10 +56,14 @@ public class JeiAddon implements IModPlugin {
         final ImmutableList.Builder<JeiBreedingRecipe> builder = ImmutableList.builder();
         // collect non-empty breeding wrappers
         for(AxolootlBreeding entry : registry) {
-            // verify
-            if(!AxRegistry.AxolootlVariantsReg.isValid(entry.getFirst().unwrapKey().get().location())) {
+            // verify parents
+            if(!AxRegistry.AxolootlVariantsReg.isValid(entry.getFirst().location())) {
                 continue;
             }
+            if(!AxRegistry.AxolootlVariantsReg.isValid(entry.getSecond().location())) {
+                continue;
+            }
+            // get or create wrapper
             AxolootlBreedingWrapper wrapper = AxRegistry.AxolootlBreedingReg.getWrapper(registryAccess, entry);
             if(!wrapper.getResult().isEmpty()) {
                 // create jei recipe from wrapper

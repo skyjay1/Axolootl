@@ -235,11 +235,16 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             this.modifierCountText = Component.translatable(PREFIX + "modifier_count.invalid");
         } else {
             // create size component
-            Vec3i dim = size.get().getDimensions();
-            this.tankSizeText = Component.translatable(PREFIX + "size", dim.getX(), dim.getY(), dim.getZ());
+            final Vec3i dim = size.get().getFullDimensions();
+            final Component tankSizeTooltip = Component.translatable(FluidInterfaceScreen.PREFIX + "volume", size.get().getInnerVolume());
+            this.tankSizeText = Component.translatable(PREFIX + "size", dim.getX() + 1, dim.getY() + 1, dim.getZ() + 1)
+                    .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tankSizeTooltip)));
             // create capacity component
             int capacity = ControllerBlockEntity.calculateMaxCapacity(size.get());
-            this.axolootlCapacityText = Component.translatable(PREFIX + "capacity." + (capacity == 1 ? "single" : "multiple"), capacity);
+            final String volumeFactor = "%.2f".formatted(Axolootl.CONFIG.TANK_CAPACITY_VOLUME_FACTOR.get()).replaceAll("0*$", "").replaceAll("\\.$", "");
+            final Component axolootlCapacityTooltip = Component.translatable(PREFIX + "capacity.description", volumeFactor);
+            this.axolootlCapacityText = Component.translatable(PREFIX + "capacity." + (capacity == 1 ? "single" : "multiple"), capacity)
+                    .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, axolootlCapacityTooltip)));
             // create modifier tooltip
             int modifierCount = controller.getAquariumModifiers().size();
             int activeCount = controller.getActiveAquariumModifiers().size();
@@ -315,7 +320,15 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             return;
         }
         // modifier count
-        y += textDeltaY * 4;
+        y += textDeltaY * 2;
+        if(isHovering(x, y, this.font.width(tankSizeText), font.lineHeight, mouseX, mouseY)) {
+            renderComponentHoverEffect(poseStack, tankSizeText.getStyle(), mouseX, mouseY);
+        }
+        y += textDeltaY;
+        if(isHovering(x, y, this.font.width(axolootlCapacityText), font.lineHeight, mouseX, mouseY)) {
+            renderComponentHoverEffect(poseStack, axolootlCapacityText.getStyle(), mouseX, mouseY);
+        }
+        y += textDeltaY;
         if(isHovering(x, y, this.font.width(modifierCountText), font.lineHeight, mouseX, mouseY)) {
             renderComponentHoverEffect(poseStack, modifierCountText.getStyle(), mouseX, mouseY);
         }
