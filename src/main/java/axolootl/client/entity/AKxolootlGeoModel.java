@@ -16,11 +16,11 @@ import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.model.GeoModel;
 
-public class AkxolootlGeoModel<T extends LivingEntity & LerpingModel & IAxolootl & GeoAnimatable> extends GeoModel<T> {
+public class AKxolootlGeoModel<T extends LivingEntity & LerpingModel & IAxolootl & GeoAnimatable> extends GeoModel<T> {
 
     private static final ResourceLocation EMPTY_ANIMATIONS = new ResourceLocation(Axolootl.MODID, "animations/entity/axolootl/axolootl.animation.json");
-    private static final ResourceLocation MODEL = new ResourceLocation(Axolootl.MODID, "geo/entity/axolootl/akxolootl.geo.json");
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Axolootl.MODID, "textures/entity/axolootl/akxolootl.png");
+    private static final ResourceLocation MODEL = new ResourceLocation(Axolootl.MODID, "geo/entity/axolootl/akxolotl.geo.json");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(Axolootl.MODID, "textures/entity/axolootl/akxolotl.png");
 
     @Override
     public ResourceLocation getModelResource(T entity) {

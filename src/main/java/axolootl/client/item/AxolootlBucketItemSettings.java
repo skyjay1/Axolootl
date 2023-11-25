@@ -88,7 +88,7 @@ public class AxolootlBucketItemSettings {
 
     @Override
     public int hashCode() {
-        return Objects.hash(variantToModelMap);
+        return variantToModelMap.hashCode();
     }
 
     @Override
