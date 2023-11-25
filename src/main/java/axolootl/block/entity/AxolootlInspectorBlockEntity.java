@@ -30,6 +30,8 @@ import java.util.Optional;
 
 public class AxolootlInspectorBlockEntity extends InterfaceBlockEntity {
 
+    protected static final int MAX_PROGRESS = 310;
+
     protected int progress;
     protected int maxProgress;
 
@@ -69,7 +71,7 @@ public class AxolootlInspectorBlockEntity extends InterfaceBlockEntity {
 
     public AxolootlInspectorBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
         super(pType, pPos, pBlockState, 1, 2);
-        this.maxProgress = 310; // TODO balance
+        this.maxProgress = MAX_PROGRESS;
     }
 
     public static void tick(final Level level, final BlockPos pos, final BlockState state, final AxolootlInspectorBlockEntity self) {

@@ -6,39 +6,28 @@
 
 package axolootl.client.entity;
 
-import axolootl.AxRegistry;
-import axolootl.Axolootl;
+import axolootl.data.axolootl_variant.AxolootlModelSettings;
 import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.entity.IAxolootl;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LerpingModel;
 import net.minecraft.world.entity.LivingEntity;
 import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoLayerRenderer;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
-import java.util.Locale;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
-public class AxolootlGeoAkxolootlLayer<T extends LivingEntity & LerpingModel & IAxolootl & IAnimatable> extends GeoLayerRenderer<T> {
+public class PrimaryLayer<T extends LivingEntity & LerpingModel & IAxolootl & IAnimatable> extends GeoLayerRenderer<T> {
 
-    private static final TagKey<AxolootlVariant> BLACKLIST = TagKey.create(AxRegistry.Keys.AXOLOOTL_VARIANTS, new ResourceLocation(Axolootl.MODID, "special_blacklist"));
-    private final AnimatedGeoModel<T> model;
 
-    private final Pattern namePattern = Pattern.compile("(?i)ak(-)?xolootl");
-
-    public AxolootlGeoAkxolootlLayer(IGeoRenderer<T> parent, AnimatedGeoModel<T> model) {
+    public PrimaryLayer(IGeoRenderer<T> parent) {
         super(parent);
-        this.model = model;
     }
 
     @Override
@@ -49,22 +38,16 @@ public class AxolootlGeoAkxolootlLayer<T extends LivingEntity & LerpingModel & I
         if(null == minecraft.level || null == minecraft.player || entity.isInvisibleTo(minecraft.player)) {
             return;
         }
-        final RegistryAccess access = minecraft.level.registryAccess();
-        // validate name
-        if(!namePattern.matcher(entity.getName().getString().toLowerCase(Locale.ENGLISH)).matches()) {
+        // load model settings
+        final AxolootlModelSettings settings = entity.getAxolootlVariant(minecraft.level.registryAccess()).orElse(AxolootlVariant.EMPTY).getModelSettings();
+        final Optional<ResourceLocation> oPrimary = settings.getOptionalEntityPrimaryTexture();
+        // validate layer
+        if(oPrimary.isEmpty()) {
             return;
         }
-        // validate variant
-        final Optional<AxolootlVariant> oVariant = entity.getAxolootlVariant(access);
-        if(oVariant.isEmpty()) {
-            return;
-        }
-        // validate not on blacklist
-        if(oVariant.get().is(access, BLACKLIST)) {
-            return;
-        }
-        // render model
-        renderModel(model, model.getTextureResource(entity), poseStack, multiBufferSource, LightTexture.FULL_BRIGHT, entity, partialTick, 1.0F, 1.0F, 1.0F);
+        // load colors
+        final Vector3f colors = settings.getPrimaryColors();
+        renderModel(getEntityModel(), oPrimary.get(), poseStack, multiBufferSource, packedLight, entity, partialTick, colors.x(), colors.y(), colors.z());
     }
 
     @Override

@@ -11,7 +11,6 @@ import axolootl.data.aquarium_modifier.condition.FalseModifierCondition;
 import axolootl.data.aquarium_modifier.condition.ModifierCondition;
 import axolootl.data.aquarium_modifier.condition.TrueModifierCondition;
 import axolootl.util.AxCodecUtils;
-import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -47,11 +46,12 @@ public class AquariumModifier {
             Codec.STRING.fieldOf("translation_key").forGetter(AquariumModifier::getTranslationKey),
             ModifierSettings.CODEC.fieldOf("settings").forGetter(AquariumModifier::getSettings),
             AxCodecUtils.POSITIVE_VEC3I_CODEC.optionalFieldOf("dimensions", new Vec3i(1, 1, 1)).forGetter(AquariumModifier::getDimensions),
-            AxCodecUtils.BLOCK_PREDICATE_CODEC.optionalFieldOf("block", BlockPredicate.not(BlockPredicate.alwaysTrue())).forGetter(AquariumModifier::getBlockStatePredicate),
+            BlockPredicate.CODEC.optionalFieldOf("block", BlockPredicate.not(BlockPredicate.alwaysTrue())).forGetter(AquariumModifier::getBlockStatePredicate),
             ModifierCondition.DIRECT_CODEC.optionalFieldOf("condition", TrueModifierCondition.INSTANCE).forGetter(AquariumModifier::getCondition)
     ).apply(instance, AquariumModifier::new));
 
     public static final Codec<Holder<AquariumModifier>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AQUARIUM_MODIFIERS, CODEC);
+    /** Warning: Minecraft does not support holder sets in synced datapack codecs **/
     public static final Codec<HolderSet<AquariumModifier>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AQUARIUM_MODIFIERS, CODEC);
 
     /** The translation key of the object **/
@@ -84,7 +84,7 @@ public class AquariumModifier {
      * @return the axolootl variant registry
      */
     public static Registry<AquariumModifier> getRegistry(final RegistryAccess access) {
-        return access.registryOrThrow(AxRegistry.Keys.AQUARIUM_MODIFIERS);
+        return AxRegistry.AQUARIUM_MODIFIERS_REGISTRY_SUPPLIER.apply(access);
     }
 
     /**
@@ -246,7 +246,7 @@ public class AquariumModifier {
     public Holder<AquariumModifier> getHolder(final RegistryAccess registryAccess) {
         if(null == this.holder) {
             final Registry<AquariumModifier> registry = getRegistry(registryAccess);
-            this.holder = registry.getOrCreateHolderOrThrow(ResourceKey.create(AxRegistry.Keys.AQUARIUM_MODIFIERS, getRegistryName(registryAccess)));
+            this.holder = registry.getHolderOrThrow(ResourceKey.create(AxRegistry.Keys.AQUARIUM_MODIFIERS, getRegistryName(registryAccess)));
         }
         return this.holder;
     }

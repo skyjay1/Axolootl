@@ -11,6 +11,7 @@ import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.concurrent.Immutable;
@@ -24,16 +25,9 @@ public class NotModifierCondition extends ModifierCondition {
             .xmap(NotModifierCondition::new, NotModifierCondition::getChild).fieldOf("child").codec();
 
     private final ModifierCondition child;
-    private final List<Component> description;
 
     public NotModifierCondition(ModifierCondition child) {
         this.child = child;
-        final List<Component> builder = new ArrayList<>();
-        builder.add(Component.translatable("axolootl.modifier_condition.not").withStyle(ChatFormatting.BOLD, ChatFormatting.GOLD));
-        for(Component c : child.getDescription()) {
-            builder.add(Component.literal("  ").append(c));
-        }
-        this.description = ImmutableList.copyOf(builder);
     }
 
     public ModifierCondition getChild() {
@@ -51,8 +45,13 @@ public class NotModifierCondition extends ModifierCondition {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    public List<Component> createDescription(final RegistryAccess registryAccess) {
+        final List<Component> builder = new ArrayList<>();
+        builder.add(Component.translatable("axolootl.modifier_condition.not").withStyle(ChatFormatting.BOLD, ChatFormatting.GOLD));
+        for(Component c : child.createDescription(registryAccess)) {
+            builder.add(Component.literal("  ").append(c));
+        }
+        return builder;
     }
 
     @Override

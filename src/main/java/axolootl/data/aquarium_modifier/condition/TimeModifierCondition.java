@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 
@@ -32,18 +33,10 @@ public class TimeModifierCondition extends ModifierCondition {
     @Nullable
     private final Long period;
     private final MinMaxBounds.Ints range;
-    private final List<Component> description;
 
     public TimeModifierCondition(Optional<Long> period, MinMaxBounds.Ints range) {
         this.period = period.orElse(null);
         this.range = range;
-        int min = Optional.ofNullable(range.getMin()).orElse(0);
-        int max = Optional.ofNullable(range.getMax()).orElse(0);
-        if(period.isPresent()) {
-            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.time.period", min, max, period.get()));
-        } else {
-            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.time", min, max));
-        }
     }
 
     public Optional<Long> getPeriod() {
@@ -71,8 +64,13 @@ public class TimeModifierCondition extends ModifierCondition {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    public List<Component> createDescription(final RegistryAccess registryAccess) {
+        int min = Optional.ofNullable(range.getMin()).orElse(0);
+        int max = Optional.ofNullable(range.getMax()).orElse(0);
+        if(period != null) {
+            return ImmutableList.of(Component.translatable("axolootl.modifier_condition.time.period", min, max, period));
+        }
+        return ImmutableList.of(Component.translatable("axolootl.modifier_condition.time", min, max));
     }
 
     @Override

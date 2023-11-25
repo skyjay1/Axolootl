@@ -252,19 +252,16 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
         return baby;
     }
 
-    public Optional<IAxolootl> spawnAxolootlFromBreeding(ServerLevel pLevel, Animal pMate, Holder<AxolootlVariant> variant) {
+    public Optional<IAxolootl> spawnAxolootlFromBreeding(ServerLevel pLevel, Animal pMate, AxolootlVariant variant) {
         // determine variant ID
-        final Optional<ResourceKey<AxolootlVariant>> oVariantId = variant.unwrapKey();
-        if(oVariantId.isEmpty()) {
-            return Optional.empty();
-        }
+        final ResourceLocation variantId = variant.getRegistryName(pLevel.registryAccess());
         // create offspring
         AgeableMob ageablemob = this.getBreedOffspring(pLevel, pMate);
         if(!(ageablemob instanceof IAxolootl iaxolootl)) {
             return Optional.empty();
         }
         // update variant ID
-        iaxolootl.setAxolootlVariantId(oVariantId.get().location());
+        iaxolootl.setAxolootlVariantId(variantId);
         // prepare entity
         ageablemob.setBaby(true);
         ageablemob.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
@@ -449,9 +446,9 @@ public class AxolootlEntity extends Axolotl implements IAnimatable, IAxolootl, I
             return Optional.empty();
         }
         // load result
-        Holder<AxolootlVariant> result = oRecipe.get().getBreedResult(level, selfVariant, otherVariant, this.getRandom());
+        AxolootlVariant result = oRecipe.get().getBreedResult(level, selfVariant, otherVariant, this.getRandom());
         // validate result
-        if(!result.value().isEnabled(level.registryAccess()) || (result.value().hasMobResources() && !enableMobBreeding)) {
+        if(!result.isEnabled(level.registryAccess()) || (result.hasMobResources() && !enableMobBreeding)) {
             return Optional.empty();
         }
         // create axolootl

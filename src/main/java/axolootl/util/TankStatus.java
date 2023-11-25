@@ -26,7 +26,9 @@ public enum TankStatus implements StringRepresentable {
     /** Tank is complete but a duplicate controller was found **/
     DUPLICATE_CONTROLLERS("duplicate_controllers", false),
     /** Tank border is incomplete or invalid **/
-    INCOMPLETE("incomplete", false);
+    INCOMPLETE("incomplete", false),
+    /** Tank is not active for other reasons **/
+    PAUSED("paused", false);
 
     public static final StringRepresentable.EnumCodec<TankStatus> CODEC = StringRepresentable.fromEnum(TankStatus::values);
 

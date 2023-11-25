@@ -14,8 +14,8 @@ import axolootl.entity.AxolootlEntity;
 import axolootl.item.AxolootlBucketItem;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.WeightedEntry;
@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
 public class JeiBreedingRecipe {
 
@@ -40,18 +38,20 @@ public class JeiBreedingRecipe {
     private final List<Map.Entry<ItemStack, Double>> sortedResult;
 
     public JeiBreedingRecipe(AxolootlBreedingWrapper wrapper) {
+        final RegistryAccess access = JeiAddon.getRegistryAccess();
+        final Registry<AxolootlVariant> variants = AxolootlVariant.getRegistry(access);
         this.wrapper = wrapper;
-        this.requiresMonsterium = wrapper.getResult().unwrap().stream().anyMatch(w -> w.getData().value().hasMobResources());
+        this.requiresMonsterium = wrapper.getResult().unwrap().stream().anyMatch(w -> variants.get(w.getData().location()).hasMobResources());
         // create inputs
         this.first = ImmutableList.of(getStack(wrapper.getBreeding().getFirst(), false));
         this.second = ImmutableList.of(getStack(wrapper.getBreeding().getSecond(), false));
         // create foods
-        this.firstFood = getFood(wrapper.getBreeding().getFirst());
-        this.secondFood = getFood(wrapper.getBreeding().getSecond());
+        this.firstFood = getFood(wrapper.getBreeding().getFirst(access));
+        this.secondFood = getFood(wrapper.getBreeding().getSecond(access));
         // create results
         double totalWeight = ResourceGenerator.calculateTotalWeight(wrapper.getResult());
         final ImmutableMap.Builder<ItemStack, Double> builder = ImmutableMap.builder();
-        for(WeightedEntry.Wrapper<Holder<AxolootlVariant>> entry : wrapper.getResult().unwrap()) {
+        for(WeightedEntry.Wrapper<ResourceKey<AxolootlVariant>> entry : wrapper.getResult().unwrap()) {
             builder.put(getStack(entry.getData(), true), entry.getWeight().asInt() / totalWeight);
         }
         this.result = builder.build();
@@ -95,60 +95,20 @@ public class JeiBreedingRecipe {
     }
 
     /**
-     * @param holders a holder set
+     * @param variant the axolootl variant
      * @return all breeding items for the given axolootl variant(s)
      */
-    private static List<ItemStack> getFoods(final HolderSet<AxolootlVariant> holders) {
-        final ImmutableList.Builder<ItemStack> builder = ImmutableList.builder();
-        for(Holder<AxolootlVariant> holder : holders) {
-            builder.addAll(holder.get().getBreedFood().stream().map(h -> h.get().getDefaultInstance()).toList());
-        }
-        return builder.build();
+    private static List<ItemStack> getFood(final AxolootlVariant variant) {
+        return ImmutableList.copyOf(variant.getBreedFood().get(Registry.ITEM).stream().map(h -> h.get().getDefaultInstance()).toList());
     }
 
     /**
-     * @param holder a holder
-     * @return all breeding items for the given axolootl variant(s)
-     */
-    private static List<ItemStack> getFood(final Holder<AxolootlVariant> holder) {
-        return ImmutableList.copyOf(holder.get().getBreedFood().stream().map(h -> h.get().getDefaultInstance()).toList());
-    }
-
-    /**
-     * @param holder a holder set
-     * @return item stack representations of all the axolootl variants in the holder set
-     */
-    private static List<ItemStack> getStacks(final HolderSet<AxolootlVariant> holder) {
-        final List<Holder<AxolootlVariant>> variants = holder.unwrap()
-                .map(tagKey -> AxRegistry.AXOLOOTL_VARIANTS_SUPPLIER.get().tags().getTag(tagKey).stream()
-                        .map(a -> a.getHolder(JeiAddon.getRegistryAccess())).toList(), Function.identity());
-        final ImmutableList.Builder<ItemStack> builder = ImmutableList.builder();
-        for(Holder<AxolootlVariant> entry : variants) {
-            builder.add(getStack(entry, true));
-        }
-        return builder.build();
-    }
-
-    /**
-     * @param holder a holder
+     * @param key the axolootl variant resource key
      * @param baby true to create a stack with a baby entity
      * @return item stack representations of the axolootl variants for the holder
      */
-    private static ItemStack getStack(final Holder<AxolootlVariant> holder, final boolean baby) {
-        final Optional<ResourceKey<AxolootlVariant>> oKey = holder.unwrapKey();
-        if(oKey.isEmpty()) {
-            return getStack(holder.get(), baby);
-        }
-        return getStack(oKey.get().location(), baby);
-    }
-
-    /**
-     * @param variant the axolootl variant
-     * @param baby true to create a stack with a baby entity
-     * @return item stack representations of the axolootl variant
-     */
-    private static ItemStack getStack(final AxolootlVariant variant, final boolean baby) {
-        return getStack(variant.getRegistryName(JeiAddon.getRegistryAccess()), baby);
+    private static ItemStack getStack(final ResourceKey<AxolootlVariant> key, final boolean baby) {
+        return getStack(key.location(), baby);
     }
 
     /**

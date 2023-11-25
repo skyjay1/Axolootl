@@ -237,11 +237,16 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             this.modifierCountText = Component.translatable(PREFIX + "modifier_count.invalid");
         } else {
             // create size component
-            Vec3i dim = size.get().getDimensions();
-            this.tankSizeText = Component.translatable(PREFIX + "size", dim.getX(), dim.getY(), dim.getZ());
+            final Vec3i dim = size.get().getFullDimensions();
+            final Component tankSizeTooltip = Component.translatable(FluidInterfaceScreen.PREFIX + "volume", size.get().getInnerVolume());
+            this.tankSizeText = Component.translatable(PREFIX + "size", dim.getX() + 1, dim.getY() + 1, dim.getZ() + 1)
+                    .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tankSizeTooltip)));
             // create capacity component
             int capacity = ControllerBlockEntity.calculateMaxCapacity(size.get());
-            this.axolootlCapacityText = Component.translatable(PREFIX + "capacity." + (capacity == 1 ? "single" : "multiple"), capacity);
+            final String volumeFactor = "%.2f".formatted(Axolootl.CONFIG.TANK_CAPACITY_VOLUME_FACTOR.get()).replaceAll("0*$", "").replaceAll("\\.$", "");
+            final Component axolootlCapacityTooltip = Component.translatable(PREFIX + "capacity.description", volumeFactor);
+            this.axolootlCapacityText = Component.translatable(PREFIX + "capacity." + (capacity == 1 ? "single" : "multiple"), capacity)
+                    .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, axolootlCapacityTooltip)));
             // create modifier tooltip
             int modifierCount = controller.getAquariumModifiers().size();
             int activeCount = controller.getActiveAquariumModifiers().size();
@@ -316,8 +321,15 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
         if(!hasTank) {
             return;
         }
-        // modifier count
-        y += textDeltaY * 4;
+        y += textDeltaY * 2;
+        if(isHovering(x, y, this.font.width(tankSizeText), font.lineHeight, mouseX, mouseY)) {
+            renderComponentHoverEffect(poseStack, tankSizeText.getStyle(), mouseX, mouseY);
+        }
+        y += textDeltaY;
+        if(isHovering(x, y, this.font.width(axolootlCapacityText), font.lineHeight, mouseX, mouseY)) {
+            renderComponentHoverEffect(poseStack, axolootlCapacityText.getStyle(), mouseX, mouseY);
+        }
+        y += textDeltaY;
         if(isHovering(x, y, this.font.width(modifierCountText), font.lineHeight, mouseX, mouseY)) {
             renderComponentHoverEffect(poseStack, modifierCountText.getStyle(), mouseX, mouseY);
         }
@@ -332,7 +344,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
                 continue;
             }
             button.visible = true;
-            button.update(modifierDataList.get(index));
+            button.update(modifierDataList.get(index), getMenu().getInventory().player.level.registryAccess());
         }
     }
 
@@ -439,7 +451,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             this.description = Component.empty();
         }
 
-        public void update(final ModifierData entry) {
+        public void update(final ModifierData entry, final RegistryAccess registryAccess) {
             this.entry = entry;
             final ChatFormatting existsColor = (entry.getCount() <= 0) ? ChatFormatting.DARK_GRAY : ChatFormatting.RESET;
             Component activeText = Component.literal("" + entry.getActiveCount()).withStyle(hasInactive ? ChatFormatting.DARK_RED : ChatFormatting.RESET);
@@ -476,7 +488,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             if(entry.getModifier().getSettings().getEnergyCost() > 0) {
                 conditionsTooltips.add(createBonusTooltip("axolootl.modifier_settings.energy_cost", entry.getActiveCount(), Component.literal("" + entry.getModifier().getSettings().getEnergyCost()).withStyle(ChatFormatting.RED), Component.literal("" + (entry.getModifier().getSettings().getEnergyCost() * entry.getActiveCount())).withStyle(ChatFormatting.RED)));
             }
-            conditionsTooltips.addAll(entry.getModifier().getCondition().getDescription());
+            conditionsTooltips.addAll(entry.getModifier().getCondition().getDescription(registryAccess));
         }
 
         public List<Component> getTooltips(final PoseStack poseStack, final int mouseX, final int mouseY) {

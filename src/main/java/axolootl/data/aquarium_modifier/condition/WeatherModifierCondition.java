@@ -11,6 +11,7 @@ import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 
@@ -31,34 +32,11 @@ public class WeatherModifierCondition extends ModifierCondition {
     private final Boolean isRaining;
     @Nullable
     private final Boolean isThundering;
-    private final List<Component> description;
 
     public WeatherModifierCondition(Optional<Boolean> raining, Optional<Boolean> thundering) {
         this.isRaining = raining.orElse(null);
         this.isThundering = thundering.orElse(null);
-        // create components
-        final Component cRaining = Component.translatable("axolootl.modifier_condition.weather.raining");
-        final Component cThundering = Component.translatable("axolootl.modifier_condition.weather.thundering");
-        Component cRainingText = null;
-        Component cThunderingText = null;
-        if(raining.isPresent()) {
-            cRainingText = raining.get() ? cRaining : Component.translatable("axolootl.modifier_condition.weather.not", cRaining);
-        }
-        if(thundering.isPresent()) {
-            cThunderingText = thundering.get() ? cThundering : Component.translatable("axolootl.modifier_condition.weather.not", cThundering);
-        }
-        // create description
-        if(cRainingText != null && cThunderingText != null) {
-            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.weather.multiple", cRainingText, cThunderingText));
-        } else if(cRainingText != null) {
-            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.weather.single", cRainingText));
-        } else if(cThunderingText != null) {
-            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.weather.single", cThunderingText));
-        } else {
-            this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.weather.never"));
-        }
     }
-
 
     @Nullable
     public Optional<Boolean> isRaining() {
@@ -86,8 +64,28 @@ public class WeatherModifierCondition extends ModifierCondition {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    public List<Component> createDescription(final RegistryAccess registryAccess) {
+        // create components
+        final Component cRaining = Component.translatable("axolootl.modifier_condition.weather.raining");
+        final Component cThundering = Component.translatable("axolootl.modifier_condition.weather.thundering");
+        Component cRainingText = null;
+        Component cThunderingText = null;
+        if(isRaining != null) {
+            cRainingText = isRaining ? cRaining : Component.translatable("axolootl.modifier_condition.weather.not", cRaining);
+        }
+        if(isThundering != null) {
+            cThunderingText = isThundering ? cThundering : Component.translatable("axolootl.modifier_condition.weather.not", cThundering);
+        }
+        // create description
+        if(cRainingText != null && cThunderingText != null) {
+            return ImmutableList.of(Component.translatable("axolootl.modifier_condition.weather.multiple", cRainingText, cThunderingText));
+        } else if(cRainingText != null) {
+            return ImmutableList.of(Component.translatable("axolootl.modifier_condition.weather.single", cRainingText));
+        } else if(cThunderingText != null) {
+            return ImmutableList.of(Component.translatable("axolootl.modifier_condition.weather.single", cThunderingText));
+        } else {
+            return ImmutableList.of(Component.translatable("axolootl.modifier_condition.weather.never"));
+        }
     }
 
     @Override

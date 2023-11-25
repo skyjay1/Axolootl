@@ -13,7 +13,6 @@ import axolootl.data.axolootl_variant.AxolootlVariant;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import axolootl.data.resource_generator.ResourceGenerator;
-import axolootl.data.resource_generator.ResourceType;
 import axolootl.data.resource_generator.ResourceTypes;
 import axolootl.entity.IAxolootl;
 import axolootl.menu.ControllerMenu;
@@ -694,8 +693,8 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
 
         final AxolootlVariant variant1 = axolootl.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
         final AxolootlVariant variant2 = other.getAxolootlVariant(level.registryAccess()).orElse(AxolootlVariant.EMPTY);
-        final HolderSet<Item> breedFood1 = variant1.getBreedFood();
-        final HolderSet<Item> breedFood2 = variant2.getBreedFood();
+        final HolderSet<Item> breedFood1 = variant1.getBreedFood().get(Registry.ITEM);
+        final HolderSet<Item> breedFood2 = variant2.getBreedFood().get(Registry.ITEM);
 
         // iterate inventories
         IItemHandler handler1 = null;
@@ -990,24 +989,18 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
         final Set<BlockPos> active = new HashSet<>();
         final Set<BlockPos> wasActive = getActiveAquariumModifiers();
         final Collection<IAxolootl> axolootls = resolveAxolootls(level);
-        final Map<BlockPos, AquariumModifier> modifierMap = resolveModifiers(level.registryAccess());
-        final Map<BlockPos, AquariumModifier> contextMap = new HashMap<>(modifierMap);
-        final Map<BlockPos, AquariumModifier> contextMapView = Collections.unmodifiableMap(contextMap);
+        final Map<BlockPos, AquariumModifier> modifierMap = ImmutableMap.copyOf(resolveModifiers(level.registryAccess()));
         for(Map.Entry<BlockPos, AquariumModifier> entry : modifierMap.entrySet()) {
             // validate modifier
             if(entry.getValue().isApplicable(level, entry.getKey())) {
-                // remove element from context map
-                contextMap.remove(entry.getKey());
                 // create context
-                AquariumModifierContext context = new AquariumModifierContext(level, entry.getKey(), size, axolootls, contextMapView, wasActive);
+                AquariumModifierContext context = new AquariumModifierContext(level, entry.getKey(), size, axolootls, modifierMap, wasActive);
                 // check if modifier is active
                 if(entry.getValue().isActive(context)) {
                     active.add(entry.getKey());
                     // attempt to spread
                     entry.getValue().checkAndSpread(context);
                 }
-                // re-add element to context map
-                contextMap.put(entry.getKey(), entry.getValue());
             } else {
                 invalid.add(entry.getKey());
                 IAquariumControllerProvider.tryClearController(level, entry.getKey());
@@ -1901,7 +1894,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
         // read statuses
         this.tankStatus = TankStatus.CODEC.byName(tag.getString(KEY_TANK_STATUS));
         this.feedStatus = FeedStatus.CODEC.byName(tag.getString(KEY_FEED_STATUS));
-        this.breedStatus = BreedStatus.CODEC.byName(tag.getString(KEY_FEED_STATUS));
+        this.breedStatus = BreedStatus.CODEC.byName(tag.getString(KEY_BREED_STATUS));
         // read speeds
         if(tag.contains(KEY_GENERATION_SPEED) && tag.contains(KEY_FEED_SPEED) && tag.contains(KEY_BREED_SPEED)) {
             this.generationSpeed = tag.getDouble(KEY_GENERATION_SPEED);

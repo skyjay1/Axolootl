@@ -7,6 +7,8 @@
 package axolootl.data.resource_generator;
 
 import axolootl.AxRegistry;
+import axolootl.util.AxCodecUtils;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
@@ -16,36 +18,41 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
+@Immutable
 public class AndResourceGenerator extends ResourceGenerator {
 
-    public static final Codec<AndResourceGenerator> CODEC = ResourceGenerator.HOLDER_SET_CODEC
+    public static final Codec<AndResourceGenerator> CODEC = AxCodecUtils.listOrElementCodec(ResourceGenerator.HOLDER_CODEC)
             .xmap(AndResourceGenerator::new, AndResourceGenerator::getChildren).fieldOf("values").codec();
 
-    private final HolderSet<ResourceGenerator> children;
-    private final Set<ResourceType> resourceTypes;
+    private final List<Holder<ResourceGenerator>> children;
+    private final Supplier<Set<ResourceType>> resourceTypes;
 
-    public AndResourceGenerator(final HolderSet<ResourceGenerator> list) {
-        super(ResourceTypes.MULTIPLE);
+    public AndResourceGenerator(final List<Holder<ResourceGenerator>> list) {
+        super();
         this.children = list;
-        // prepare to build resource type set
-        final ImmutableSet.Builder<ResourceType> typeBuilder = ImmutableSet.builder();
-        typeBuilder.add(ResourceTypes.MULTIPLE);
-        list.forEach(entry -> typeBuilder.addAll(entry.value().getResourceTypes()));
-        // build resource type set
-        this.resourceTypes = typeBuilder.build();
+        this.resourceTypes = Suppliers.memoize(() -> {
+            // prepare to build resource type set
+            final ImmutableSet.Builder<ResourceType> typeBuilder = ImmutableSet.builder();
+            typeBuilder.add(ResourceTypes.MULTIPLE);
+            getChildren().forEach(entry -> typeBuilder.addAll(entry.value().getResourceTypes()));
+            // build resource type set
+            return typeBuilder.build();
+        });
     }
 
-    public HolderSet<ResourceGenerator> getChildren() {
+    public List<Holder<ResourceGenerator>> getChildren() {
         return children;
     }
 
     @Override
     public Set<ResourceType> getResourceTypes() {
-        return this.resourceTypes;
+        return this.resourceTypes.get();
     }
 
     @Override

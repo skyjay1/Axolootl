@@ -18,10 +18,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.tags.ITag;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 
-public class ItemTagResourceGenerator extends ResourceGenerator {
+@Immutable
+public class ItemTagResourceGenerator extends SimpleResourceGenerator {
 
     public static final Codec<ItemTagResourceGenerator> CODEC = TagKey.codec(ForgeRegistries.Keys.ITEMS)
             .xmap(ItemTagResourceGenerator::new, ItemTagResourceGenerator::getTag).fieldOf("tag").codec();

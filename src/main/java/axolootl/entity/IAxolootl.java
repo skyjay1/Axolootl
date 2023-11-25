@@ -135,19 +135,6 @@ public interface IAxolootl {
         return AxolootlVariant.getRegistry(registryAccess).getOptional(oId.get());
     }
 
-    /**
-     * Helper method to unpack a color into 3 values, each between 0 and 1
-     * @param color the packed color
-     * @return the red, green, and blue components of the color, each between 0 and 1.0
-     */
-    public static Vector3f unpackColor(final int color) {
-        final float red = (color >> 16) & 0xFF;
-        final float green = (color >> 8) & 0xFF;
-        final float blue = color & 0xFF;
-        return new Vector3f(red / 255.0F, green / 255.0F, blue / 255.0F);
-    }
-
-
     //// NBT ////
 
     public static final String KEY_VARIANT_ID = "Axolootl";

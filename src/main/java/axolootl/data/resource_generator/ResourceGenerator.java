@@ -8,8 +8,7 @@ package axolootl.data.resource_generator;
 
 import axolootl.AxRegistry;
 import axolootl.util.AxCodecUtils;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
@@ -18,7 +17,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
@@ -28,20 +26,23 @@ import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
+@Immutable
 public abstract class ResourceGenerator {
 
     public static final Codec<ResourceGenerator> DIRECT_CODEC = ExtraCodecs.lazyInitializedCodec(() -> AxRegistry.RESOURCE_GENERATOR_SERIALIZERS_SUPPLIER.get().getCodec())
             .dispatch(ResourceGenerator::getCodec, Function.identity());
 
     public static final Codec<Holder<ResourceGenerator>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.RESOURCE_GENERATORS, DIRECT_CODEC);
+    /** Warning: Minecraft does not support holder sets in synced datapack codecs **/
     public static final Codec<HolderSet<ResourceGenerator>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.RESOURCE_GENERATORS, DIRECT_CODEC);
 
     public static final Codec<List<ResourceGenerator>> DIRECT_LIST_CODEC = AxCodecUtils.listOrElementCodec(DIRECT_CODEC);
@@ -50,40 +51,23 @@ public abstract class ResourceGenerator {
     public static final Codec<SimpleWeightedRandomList<ResourceGenerator>> WEIGHTED_LIST_CODEC = Codec.either(ResourceGenerator.DIRECT_CODEC, SimpleWeightedRandomList.wrappedCodecAllowingEmpty(ResourceGenerator.DIRECT_CODEC))
             .xmap(either -> either.map(SimpleWeightedRandomList::single, Function.identity()), ResourceGenerator::eitherSimpleList);
 
-    /** The Resource Type of this generator **/
-    private final ResourceType resourceType;
-    private final Set<ResourceType> resourceTypes;
+    private final Supplier<List<ResourceDescriptionGroup>> description;
 
-    private final List<ResourceDescriptionGroup> description;
-    private final List<ResourceDescriptionGroup> descriptionView;
-
-    public ResourceGenerator(ResourceType resourceType) {
-        this.resourceType = resourceType;
-        this.resourceTypes = ImmutableSet.of(resourceType);
-        this.description = new ArrayList<>();
-        this.descriptionView = Collections.unmodifiableList(this.description);
-    }
-
-    /**
-     * @return the primary {@link ResourceType} of the generator
-     */
-    public ResourceType getResourceType() {
-        return this.resourceType;
+    public ResourceGenerator() {
+        this.description = Suppliers.memoize(this::createDescription);
     }
 
     /**
      * @return any {@link ResourceType}s applicable to the generator
      */
-    public Set<ResourceType> getResourceTypes() {
-        return this.resourceTypes;
-    }
+    public abstract Set<ResourceType> getResourceTypes();
 
     /**
      * @param type a resource type
      * @return true if the resource type is applicable to this resource generator
      */
     public boolean is(final ResourceType type) {
-        return type == this.getResourceType() || this.getResourceTypes().contains(type);
+        return this.getResourceTypes().contains(type);
     }
 
     /**
@@ -91,14 +75,7 @@ public abstract class ResourceGenerator {
      * @return the list of descriptions
      */
     public List<ResourceDescriptionGroup> getDescription() {
-        if(this.description.isEmpty()) {
-            this.description.addAll(createDescription());
-        }
-        return this.descriptionView;
-    }
-
-    public List<Component> getDescriptionText() {
-        return createDescriptionText(getDescription());
+        return this.description.get();
     }
 
     /**
@@ -120,57 +97,6 @@ public abstract class ResourceGenerator {
     protected abstract List<ResourceDescriptionGroup> createDescription();
 
     //// HELPER METHODS ////
-
-    public static List<Component> createDescriptionText(final List<ResourceDescriptionGroup> descriptions) {
-        final ImmutableList.Builder<Component> builder = ImmutableList.builder();
-        final boolean showGroupChance = descriptions.size() > 1;
-        for(ResourceDescriptionGroup group : descriptions) {
-            MutableComponent chanceDescription = null;
-            // add percent chance text
-            if(showGroupChance || group.showChance()) {
-                chanceDescription = group.getChanceDescription().copy();
-                builder.add(chanceDescription);
-            }
-            // create single-line component if possible
-            if(group.getDescriptions().size() == 1 && group.getDescriptions().get(0).getDescriptions().size() <= 1) {
-                ResourceDescription description = group.getDescriptions().get(0);
-                MutableComponent componentBuilder = (chanceDescription != null) ? chanceDescription.append(" ") : Component.empty();
-                // add description percent chance text
-                if(description.showChance()) {
-                    componentBuilder.append(description.getChanceDescription()).append(" ");
-                }
-                // add description text
-                if(description.getDescriptions().isEmpty()) {
-                    componentBuilder.append(getItemDisplayName(description.getItem()));
-                } else {
-                    Component c = description.getDescriptions().get(0);
-                    componentBuilder.append(c).withStyle(c.getStyle());
-                }
-                // add to builder if necessary
-                if(chanceDescription == null) {
-                    builder.add(componentBuilder);
-                }
-            } else {
-                // iterate descriptions in group
-                boolean showDescriptionChance = group.getDescriptions().size() > 1;
-                for(ResourceDescription description : group.getDescriptions()) {
-                    // add description percent chance text
-                    if(showDescriptionChance || description.showChance()) {
-                        builder.add(description.getChanceDescription());
-                    }
-                    // add description text
-                    if(description.getDescriptions().isEmpty()) {
-                        builder.add(Component.literal("  ").append(getItemDisplayName(description.getItem())));
-                    }
-                    for(Component c : description.getDescriptions()) {
-                        builder.add(Component.literal("  ").append(c).withStyle(c.getStyle()));
-                    }
-                }
-            }
-        }
-
-        return builder.build();
-    }
 
     /**
      * @param list a weighted random list

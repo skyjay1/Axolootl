@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.WeightedEntry;
 
@@ -24,18 +25,18 @@ import java.util.List;
 public class AddAxolootlBreedingModifier extends AxolootlBreedingModifier {
 
     public static final Codec<AddAxolootlBreedingModifier> CODEC = RecordCodecBuilder.create(instance -> codecStart(instance)
-            .and(AxCodecUtils.listOrElementCodec(WeightedEntry.Wrapper.codec(AxolootlVariant.HOLDER_CODEC)).fieldOf("values").forGetter(AddAxolootlBreedingModifier::getValues))
+            .and(AxCodecUtils.listOrElementCodec(WeightedEntry.Wrapper.codec(AxolootlVariant.RESOURCE_KEY_CODEC)).fieldOf("values").forGetter(AddAxolootlBreedingModifier::getValues))
             .apply(instance, AddAxolootlBreedingModifier::new));
 
-    private final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> values;
+    private final List<WeightedEntry.Wrapper<ResourceKey<AxolootlVariant>>> values;
 
-    public AddAxolootlBreedingModifier(final ResourceLocation target, List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> values) {
+    public AddAxolootlBreedingModifier(final ResourceLocation target, List<WeightedEntry.Wrapper<ResourceKey<AxolootlVariant>>> values) {
         super(target);
         this.values = ImmutableList.copyOf(values);
     }
 
     @Override
-    public void apply(final List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> list, final Phase phase) {
+    public void apply(final List<WeightedEntry.Wrapper<ResourceKey<AxolootlVariant>>> list, final Phase phase) {
         // verify phase
         if(phase != Phase.ADD) {
             return;
@@ -51,7 +52,7 @@ public class AddAxolootlBreedingModifier extends AxolootlBreedingModifier {
 
     //// GETTERS ////
 
-    public List<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> getValues() {
+    public List<WeightedEntry.Wrapper<ResourceKey<AxolootlVariant>>> getValues() {
         return values;
     }
 }

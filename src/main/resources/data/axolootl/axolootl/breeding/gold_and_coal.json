@@ -1,5 +1,14 @@
 {
   "first": "axolootl:gold",
   "second": "axolootl:coal",
-  "result": "axolootl:diamond"
+  "result": [
+    {
+      "data": "axolootl:diamond",
+      "weight": 1
+    },
+    {
+      "data": "axolootl:deepslate_diamond",
+      "weight": 32
+    }
+  ]
 }

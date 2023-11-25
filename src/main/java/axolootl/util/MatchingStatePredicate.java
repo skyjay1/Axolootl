@@ -18,11 +18,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
 import net.minecraft.world.level.levelgen.blockpredicates.StateTestingPredicate;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class MatchingStatePredicate extends StateTestingPredicate {
 
@@ -44,16 +46,16 @@ public class MatchingStatePredicate extends StateTestingPredicate {
     public static final Codec<MatchingStatePredicate> CODEC = RecordCodecBuilder.create((instance) ->
             stateTestingCodec(instance)
                 .and(RegistryCodecs.homogeneousList(Registry.BLOCK_REGISTRY).fieldOf("blocks").forGetter(o -> o.blocks))
-                .and(STATE_PROPERTIES_PREDICATE_CODEC.fieldOf("state").forGetter(o -> o.state))
+                .and(STATE_PROPERTIES_PREDICATE_CODEC.optionalFieldOf("state").forGetter(o -> Optional.ofNullable(o.state)))
                 .apply(instance, MatchingStatePredicate::new));
 
     private final HolderSet<Block> blocks;
     private final StatePropertiesPredicate state;
 
-    public MatchingStatePredicate(Vec3i offset, HolderSet<Block> blocks, StatePropertiesPredicate state) {
+    public MatchingStatePredicate(Vec3i offset, HolderSet<Block> blocks, Optional<StatePropertiesPredicate> state) {
         super(offset);
         this.blocks = blocks;
-        this.state = state;
+        this.state = state.orElse(null);
     }
 
     @Override
@@ -61,11 +63,11 @@ public class MatchingStatePredicate extends StateTestingPredicate {
         if(!pState.is(this.blocks)) {
             return false;
         }
-        return this.state.matches(pState);
+        return null == this.state || this.state.matches(pState);
     }
 
     @Override
     public BlockPredicateType<?> type() {
-        return AxRegistry.BlockPredicateTypesReg.MATCHING_PROPERTY.get();
+        return AxRegistry.BlockPredicateTypesReg.MATCHING_STATE.get();
     }
 }

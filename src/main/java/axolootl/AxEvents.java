@@ -22,6 +22,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -45,6 +47,7 @@ public final class AxEvents {
         @SubscribeEvent
         public static void onDatapackSync(final OnDatapackSyncEvent event) {
             final RegistryAccess registryAccess = event.getPlayerList().getServer().registryAccess();
+            AxRegistry.refreshCaches(registryAccess);
             Axolootl.LOGGER.debug("Axolootl loaded " + (AxolootlVariant.getRegistry(registryAccess).size()) + " axolootl variants");
             Axolootl.LOGGER.debug("Axolootl loaded " + ResourceGenerator.getRegistry(registryAccess).size() + " resource generators");
             Axolootl.LOGGER.debug("Axolootl loaded " + AxolootlBreeding.getRegistry(registryAccess).size() + " axolootl breeding recipes");
@@ -52,6 +55,13 @@ public final class AxEvents {
         }
 
         @SubscribeEvent
+        public static void onPlayerLoggedOut(final PlayerEvent.PlayerLoggedOutEvent event) {
+            if(event.getEntity().level.isClientSide()) {
+                AxRegistry.clearCaches();
+            }
+        }
+
+        @SubscribeEvent(priority = EventPriority.HIGH)
         public static void onTagsUpdated(final TagsUpdatedEvent event) {
             // validate axolootl variants
             final RegistryAccess registryAccess = event.getRegistryAccess();

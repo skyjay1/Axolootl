@@ -10,6 +10,7 @@ import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.concurrent.Immutable;
@@ -22,11 +23,7 @@ public class TrueModifierCondition extends ModifierCondition {
 
     public static final Codec<TrueModifierCondition> CODEC = Codec.unit(INSTANCE);
 
-    private final List<Component> description;
-
-    public TrueModifierCondition() {
-        this.description = ImmutableList.of(Component.translatable("axolootl.modifier_condition.true"));
-    }
+    public TrueModifierCondition() {}
 
     @Override
     public boolean test(AquariumModifierContext aquariumModifierContext) {
@@ -39,8 +36,8 @@ public class TrueModifierCondition extends ModifierCondition {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    public List<Component> createDescription(final RegistryAccess registryAccess) {
+        return ImmutableList.of(Component.translatable("axolootl.modifier_condition.true"));
     }
 
     @Override

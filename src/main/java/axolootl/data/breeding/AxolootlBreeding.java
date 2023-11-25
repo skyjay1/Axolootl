@@ -17,6 +17,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.level.Level;
@@ -24,23 +25,24 @@ import net.minecraft.world.level.Level;
 public class AxolootlBreeding {
 
     public static final Codec<AxolootlBreeding> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            AxolootlVariant.HOLDER_CODEC.fieldOf("first").forGetter(AxolootlBreeding::getFirst),
-            AxolootlVariant.HOLDER_CODEC.fieldOf("second").forGetter(AxolootlBreeding::getSecond),
-            AxCodecUtils.weightedListOrElementCodec(AxolootlVariant.HOLDER_CODEC).fieldOf("result").forGetter(AxolootlBreeding::getResult)
+            AxolootlVariant.RESOURCE_KEY_CODEC.fieldOf("first").forGetter(AxolootlBreeding::getFirst),
+            AxolootlVariant.RESOURCE_KEY_CODEC.fieldOf("second").forGetter(AxolootlBreeding::getSecond),
+            AxCodecUtils.weightedListOrElementCodec(AxolootlVariant.RESOURCE_KEY_CODEC).fieldOf("result").forGetter(AxolootlBreeding::getResult)
     ).apply(instance, AxolootlBreeding::new));
 
     public static final Codec<Holder<AxolootlBreeding>> HOLDER_CODEC = RegistryFileCodec.create(AxRegistry.Keys.AXOLOOTL_BREEDING, CODEC);
+    /** Warning: Minecraft does not support holder sets in synced datapack codecs **/
     public static final Codec<HolderSet<AxolootlBreeding>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(AxRegistry.Keys.AXOLOOTL_BREEDING, CODEC);
 
     /** The first axolootl variant **/
-    private final Holder<AxolootlVariant> first;
+    private final ResourceKey<AxolootlVariant> first;
     /** The second axolootl variant **/
-    private final Holder<AxolootlVariant> second;
+    private final ResourceKey<AxolootlVariant> second;
     /** A weighted list to determine the result, if it is empty the first variant is used instead **/
-    private final SimpleWeightedRandomList<Holder<AxolootlVariant>> result;
+    private final SimpleWeightedRandomList<ResourceKey<AxolootlVariant>> result;
 
-    public AxolootlBreeding(Holder<AxolootlVariant> first, Holder<AxolootlVariant> second,
-                                  SimpleWeightedRandomList<Holder<AxolootlVariant>> result) {
+    public AxolootlBreeding(ResourceKey<AxolootlVariant> first, ResourceKey<AxolootlVariant> second,
+                                  SimpleWeightedRandomList<ResourceKey<AxolootlVariant>> result) {
         this.first = first;
         this.second = second;
         this.result = result;
@@ -53,7 +55,7 @@ public class AxolootlBreeding {
      * @return the axolootl variant registry
      */
     public static Registry<AxolootlBreeding> getRegistry(final RegistryAccess access) {
-        return access.registryOrThrow(AxRegistry.Keys.AXOLOOTL_BREEDING);
+        return AxRegistry.AXOLOOTL_BREEDING_REGISTRY_SUPPLIER.apply(access);
     }
 
     /**
@@ -69,21 +71,29 @@ public class AxolootlBreeding {
         final ResourceLocation idFirst = aFirst.getRegistryName(level.registryAccess());
         final ResourceLocation idSecond = aSecond.getRegistryName(level.registryAccess());
         // check holder sets (order does not matter)
-        return (this.first.is(idFirst) && this.second.is(idSecond)
-            || (this.first.is(idSecond) && this.second.is(idFirst)));
+        return (this.first.location().equals(idFirst) && this.second.location().equals(idSecond)
+            || (this.first.location().equals(idSecond) && this.second.location().equals(idFirst)));
     }
 
     //// GETTERS ////
 
-    public Holder<AxolootlVariant> getFirst() {
+    public AxolootlVariant getFirst(final RegistryAccess access) {
+        return AxolootlVariant.getRegistry(access).get(first.location());
+    }
+
+    public AxolootlVariant getSecond(final RegistryAccess access) {
+        return AxolootlVariant.getRegistry(access).get(second.location());
+    }
+
+    public ResourceKey<AxolootlVariant> getFirst() {
         return first;
     }
 
-    public Holder<AxolootlVariant> getSecond() {
+    public ResourceKey<AxolootlVariant> getSecond() {
         return second;
     }
 
-    public SimpleWeightedRandomList<Holder<AxolootlVariant>> getResult() {
+    public SimpleWeightedRandomList<ResourceKey<AxolootlVariant>> getResult() {
         return result;
     }
 }

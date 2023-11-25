@@ -1,5 +1,14 @@
 {
   "first": "axolootl:redstone",
   "second": "axolootl:glowstone",
-  "result": "axolootl:emerald"
+  "result": [
+    {
+      "data": "axolootl:emerald",
+      "weight": 24
+    },
+    {
+      "data": "axolootl:deepslate_emerald",
+      "weight": 1
+    }
+  ]
 }

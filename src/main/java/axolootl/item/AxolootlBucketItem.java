@@ -55,33 +55,39 @@ public class AxolootlBucketItem extends MobBucketItem {
 
     @Override
     public void fillItemCategory(CreativeModeTab pCategory, NonNullList<ItemStack> pItems) {
-        if (this.allowedIn(pCategory)) {
-            final RegistryAccess access = registryAccess();
-            if (access != null) {
-                // create list of variants
-                List<Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant>> variants = new ArrayList<>(AxolootlVariant.getRegistry(access).entrySet());
-                // remove invalid entries
-                variants.removeIf(e -> !AxRegistry.AxolootlVariantsReg.isValid(e.getKey().location()));
-                // sort by tier, then by name
-                Comparator<Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant>> comparator = Comparator.comparingInt(e -> e.getValue().getTier());
-                variants.sort(comparator.thenComparing(e -> e.getValue().getDescription().getString()));
-                // add each variant to the creative tab
-                for (Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant> variantId : variants) {
-                    ItemStack itemStack = new ItemStack(this);
-                    // create itemstack with tag for this variant
-                    CompoundTag tag = new CompoundTag();
-                    tag.putString(AxolootlEntity.KEY_VARIANT_ID, variantId.getKey().location().toString());
-                    itemStack.setTag(tag);
-                    pItems.add(itemStack);
-                    // create itemstack with tag for this variant as a baby
-                    ItemStack babyItemStack = itemStack.copy();
-                    itemStack.getTag().putInt(AxolootlEntity.KEY_AGE, AxolootlEntity.BABY_AGE);
-                    pItems.add(babyItemStack);
-                }
-            } else {
-                pItems.add(new ItemStack(this));
-            }
+        if(this.allowedIn(pCategory)) {
+            pItems.addAll(createSubtypes());
         }
+    }
+
+    public static List<ItemStack> createSubtypes() {
+        final List<ItemStack> list = new ArrayList<>();
+        final RegistryAccess access = registryAccess();
+        if (access != null) {
+            // create list of variants
+            List<Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant>> variants = new ArrayList<>(AxolootlVariant.getRegistry(access).entrySet());
+            // remove invalid entries
+            variants.removeIf(e -> !e.getValue().isEnabled(access));
+            // sort by tier, then by name
+            Comparator<Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant>> comparator = Comparator.comparingInt(e -> e.getValue().getTier());
+            variants.sort(comparator.thenComparing(e -> e.getValue().getDescription().getString()));
+            // add each variant to the creative tab
+            for (Map.Entry<ResourceKey<AxolootlVariant>, AxolootlVariant> variantId : variants) {
+                ItemStack itemStack = new ItemStack(AxRegistry.ItemReg.AXOLOOTL_BUCKET.get());
+                // create itemstack with tag for this variant
+                CompoundTag tag = new CompoundTag();
+                tag.putString(AxolootlEntity.KEY_VARIANT_ID, variantId.getKey().location().toString());
+                itemStack.setTag(tag);
+                list.add(itemStack);
+                // create itemstack with tag for this variant as a baby
+                ItemStack babyItemStack = itemStack.copy();
+                babyItemStack.getTag().putInt(AxolootlEntity.KEY_AGE, AxolootlEntity.BABY_AGE);
+                list.add(babyItemStack);
+            }
+        } else {
+            list.add(new ItemStack(AxRegistry.ItemReg.AXOLOOTL_BUCKET.get()));
+        }
+        return list;
     }
 
     @Override

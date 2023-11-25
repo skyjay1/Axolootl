@@ -13,11 +13,13 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public class ReferenceResourceGenerator extends ResourceGenerator {
+@Immutable
+public class ReferenceResourceGenerator extends SimpleResourceGenerator {
 
     public static final Codec<ReferenceResourceGenerator> CODEC = HOLDER_CODEC
             .xmap(ReferenceResourceGenerator::new, ReferenceResourceGenerator::getHolder).fieldOf("id").codec();

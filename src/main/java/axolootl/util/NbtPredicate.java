@@ -63,7 +63,7 @@ public class NbtPredicate implements BlockPredicate {
 
     @Override
     public BlockPredicateType<?> type() {
-        return AxRegistry.BlockPredicateTypesReg.TAG.get();
+        return AxRegistry.BlockPredicateTypesReg.MATCHING_TAG.get();
     }
 
     @Override

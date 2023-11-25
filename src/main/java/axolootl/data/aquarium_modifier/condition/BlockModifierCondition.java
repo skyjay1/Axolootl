@@ -8,11 +8,10 @@ package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
-import axolootl.util.AxCodecUtils;
-import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -25,15 +24,13 @@ import java.util.List;
 @Immutable
 public class BlockModifierCondition extends ModifierCondition {
 
-    public static final Codec<BlockModifierCondition> CODEC = AxCodecUtils.BLOCK_PREDICATE_CODEC
+    public static final Codec<BlockModifierCondition> CODEC = BlockPredicate.CODEC
             .xmap(BlockModifierCondition::new, BlockModifierCondition::getPredicate).fieldOf("predicate").codec();
 
     private final BlockPredicate predicate;
-    private final List<Component> description;
 
     public BlockModifierCondition(BlockPredicate predicate) {
         this.predicate = predicate;
-        this.description = ImmutableList.copyOf(createDescription(predicate));
     }
 
     public BlockPredicate getPredicate() {
@@ -52,8 +49,8 @@ public class BlockModifierCondition extends ModifierCondition {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    public List<Component> createDescription(final RegistryAccess registryAccess) {
+        return createDescription(predicate);
     }
 
     @Override

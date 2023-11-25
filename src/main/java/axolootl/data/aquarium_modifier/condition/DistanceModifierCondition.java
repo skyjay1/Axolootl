@@ -10,20 +10,21 @@ import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifier;
 import axolootl.data.aquarium_modifier.AquariumModifierContext;
 import axolootl.util.AxCodecUtils;
+import axolootl.util.DeferredHolderSet;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,24 +33,22 @@ import java.util.Optional;
 public class DistanceModifierCondition extends ModifierCondition {
 
     public static final Codec<DistanceModifierCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            AquariumModifier.HOLDER_SET_CODEC.fieldOf("modifier").forGetter(DistanceModifierCondition::getModifier),
+            DeferredHolderSet.codec(AxRegistry.Keys.AQUARIUM_MODIFIERS).fieldOf("modifier").forGetter(DistanceModifierCondition::getModifier),
             AxCodecUtils.NON_NEGATIVE_INTS_CODEC.fieldOf("distance").forGetter(DistanceModifierCondition::getDistance),
             Vec3i.CODEC.optionalFieldOf("offset", Vec3i.ZERO).forGetter(DistanceModifierCondition::getOffset)
     ).apply(instance, DistanceModifierCondition::new));
 
-    private final HolderSet<AquariumModifier> modifier;
+    private final DeferredHolderSet<AquariumModifier> modifier;
     private final MinMaxBounds.Ints distance;
     private final Vec3i offset;
-    private final List<Component> description;
 
-    public DistanceModifierCondition(HolderSet<AquariumModifier> modifier, MinMaxBounds.Ints distance, Vec3i offset) {
+    public DistanceModifierCondition(DeferredHolderSet<AquariumModifier> modifier, MinMaxBounds.Ints distance, Vec3i offset) {
         this.modifier = modifier;
         this.distance = distance;
         this.offset = offset;
-        this.description = createCountedDescription("axolootl.modifier_condition.distance", distance, modifier, AquariumModifier::getDescription);
     }
 
-    public HolderSet<AquariumModifier> getModifier() {
+    public DeferredHolderSet<AquariumModifier> getModifier() {
         return modifier;
     }
 
@@ -64,9 +63,14 @@ public class DistanceModifierCondition extends ModifierCondition {
     @Override
     public boolean test(AquariumModifierContext context) {
         final BlockPos pos = context.getPos().offset(offset);
+        final Registry<AquariumModifier> registry = context.getRegistryAccess().registryOrThrow(AxRegistry.Keys.AQUARIUM_MODIFIERS);
+        final HolderSet<AquariumModifier> holderSet = getModifier().get(registry);
         // check distance to each matching modifier
         for(Map.Entry<BlockPos, AquariumModifier> entry : context.getModifiers().entrySet()) {
-            if(getModifier().contains(entry.getValue().getHolder(context.getRegistryAccess()))) {
+            // skip this entry
+            if(entry.getKey().equals(context.getPos())) continue;
+            // calculate distance for matching modifiers
+            if(holderSet.contains(entry.getValue().getHolder(context.getRegistryAccess()))) {
                 if(isWithinDistance(pos, entry.getKey(), entry.getValue())) {
                     return true;
                 }
@@ -117,8 +121,10 @@ public class DistanceModifierCondition extends ModifierCondition {
     }
 
     @Override
-    public List<Component> getDescription() {
-        return description;
+    public List<Component> createDescription(final RegistryAccess registryAccess) {
+        final Registry<AquariumModifier> registry = registryAccess.registryOrThrow(AxRegistry.Keys.AQUARIUM_MODIFIERS);
+        final HolderSet<AquariumModifier> holderSet = getModifier().get(registry);
+        return createCountedDescription("axolootl.modifier_condition.distance", distance, registry, holderSet, AquariumModifier::getDescription);
     }
 
     @Override

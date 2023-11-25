@@ -23,10 +23,10 @@ import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
 import java.util.Optional;
 
-public class AxolootlGeoPrimaryLayer<T extends LivingEntity & LerpingModel & IAxolootl & IAnimatable> extends GeoLayerRenderer<T> {
+public class SecondaryLayer<T extends LivingEntity & LerpingModel & IAxolootl & IAnimatable> extends GeoLayerRenderer<T> {
 
 
-    public AxolootlGeoPrimaryLayer(IGeoRenderer<T> parent) {
+    public SecondaryLayer(IGeoRenderer<T> parent) {
         super(parent);
     }
 
@@ -40,14 +40,14 @@ public class AxolootlGeoPrimaryLayer<T extends LivingEntity & LerpingModel & IAx
         }
         // load model settings
         final AxolootlModelSettings settings = entity.getAxolootlVariant(minecraft.level.registryAccess()).orElse(AxolootlVariant.EMPTY).getModelSettings();
-        final Optional<ResourceLocation> oPrimary = settings.getOptionalEntityPrimaryTexture();
+        final Optional<ResourceLocation> oSecondary = settings.getOptionalEntitySecondaryTexture();
         // validate layer
-        if(oPrimary.isEmpty()) {
+        if(oSecondary.isEmpty()) {
             return;
         }
         // load colors
-        final Vector3f colors = settings.getPrimaryColors();
-        renderModel(getEntityModel(), oPrimary.get(), poseStack, multiBufferSource, packedLight, entity, partialTick, colors.x(), colors.y(), colors.z());
+        final Vector3f colors = settings.getSecondaryColors();
+        renderModel(getEntityModel(), oSecondary.get(), poseStack, multiBufferSource, packedLight, entity, partialTick, colors.x(), colors.y(), colors.z());
     }
 
     @Override

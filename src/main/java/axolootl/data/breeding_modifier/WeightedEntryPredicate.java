@@ -13,6 +13,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.WeightedEntry;
 
@@ -23,7 +24,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Immutable
-public class WeightedEntryPredicate implements Predicate<WeightedEntry.Wrapper<Holder<AxolootlVariant>>> {
+public class WeightedEntryPredicate implements Predicate<WeightedEntry.Wrapper<ResourceKey<AxolootlVariant>>> {
 
     public static final Codec<WeightedEntryPredicate> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.optionalFieldOf("variant").forGetter(o -> Optional.ofNullable(o.variantId)),
@@ -73,8 +74,8 @@ public class WeightedEntryPredicate implements Predicate<WeightedEntry.Wrapper<H
      * @param entry a weighted entry for an axolootl variant holder
      * @return true if the predicate matches the given axolootl variant
      */
-    public boolean test(final WeightedEntry.Wrapper<Holder<AxolootlVariant>> entry) {
-        ResourceLocation id = entry.getData().unwrapKey().get().location();
+    public boolean test(final WeightedEntry.Wrapper<ResourceKey<AxolootlVariant>> entry) {
+        ResourceLocation id = entry.getData().location();
         boolean matches;
         matches = (null == namespace) || id.getNamespace().equals(namespace);
         matches &= (null == path) || id.getPath().equals(path);

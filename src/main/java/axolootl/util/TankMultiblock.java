@@ -298,8 +298,18 @@ public class TankMultiblock {
             return origin;
         }
 
+        /**
+         * @return the size of the offset from the origin
+         */
         public Vec3i getDimensions() {
             return new Vec3i(dimensions.getX(), dimensions.getY(), dimensions.getZ());
+        }
+
+        /**
+         * @return the number of blocks in each dimension
+         */
+        public Vec3i getFullDimensions() {
+            return new Vec3i(dimensions.getX() + 1, dimensions.getY() + 1, dimensions.getZ() + 1);
         }
 
         public long getVolume() {

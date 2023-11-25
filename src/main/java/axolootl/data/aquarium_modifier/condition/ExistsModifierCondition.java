@@ -8,22 +8,25 @@ package axolootl.data.aquarium_modifier.condition;
 
 import axolootl.AxRegistry;
 import axolootl.data.aquarium_modifier.AquariumModifier;
+import axolootl.util.AxCodecUtils;
+import axolootl.util.DeferredHolderSet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.critereon.MinMaxBounds;
-import net.minecraft.core.HolderSet;
+import net.minecraft.core.Holder;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.List;
 
 @Immutable
 public class ExistsModifierCondition extends CountModifierCondition {
 
     public static final Codec<ExistsModifierCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            AquariumModifier.HOLDER_SET_CODEC.fieldOf("modifier").forGetter(CountModifierCondition::getModifiers),
+            DeferredHolderSet.codec(AxRegistry.Keys.AQUARIUM_MODIFIERS).fieldOf("modifier").forGetter(CountModifierCondition::getModifiers),
             Codec.BOOL.optionalFieldOf("active", false).forGetter(CountModifierCondition::isRequireActive)
     ).apply(instance, ExistsModifierCondition::new));
 
-    public ExistsModifierCondition(HolderSet<AquariumModifier> modifiers, boolean requireActive) {
+    public ExistsModifierCondition(DeferredHolderSet<AquariumModifier> modifiers, boolean requireActive) {
         super(modifiers, MinMaxBounds.Ints.atLeast(1), requireActive);
     }
 

@@ -38,6 +38,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -127,10 +128,10 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         // determine food and breed food item stacks
         final List<HolderSet<Item>> foods = new ArrayList<>();
         for(BonusesProvider provider : this.variant.getFoods()) {
-            foods.add(provider.getFoods());
+            foods.add(provider.getFoods().get(Registry.ITEM));
         }
         this.foods = distributeEqually(resolveHolderSets(foods), FOOD_MAX_COUNT);
-        this.breedFoods = distributeEqually(resolveHolderSet(this.variant.getBreedFood()), BREED_FOOD_MAX_COUNT);
+        this.breedFoods = distributeEqually(resolveHolderSet(this.variant.getBreedFood().get(Registry.ITEM)), BREED_FOOD_MAX_COUNT);
         // create text components
         this.resourceTitleText = Component.translatable(PREFIX + "loot")
                 .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(PREFIX + "loot.description"))));
@@ -473,11 +474,11 @@ public class AxolootlDetailsScreen extends Screen implements ScrollButton.IScrol
         for(AxolootlBreeding breeding : breedingRegistry) {
             final AxolootlBreedingWrapper breedingWrapper = AxRegistry.AxolootlBreedingReg.getWrapper(access, breeding);
             // iterate results of each recipe to check for the given variant
-            for(WeightedEntry.Wrapper<Holder<AxolootlVariant>> wrapper : breedingWrapper.getResult().unwrap()) {
-                if(wrapper.getData().is(variantId)) {
+            for(WeightedEntry.Wrapper<ResourceKey<AxolootlVariant>> wrapper : breedingWrapper.getResult().unwrap()) {
+                if(wrapper.getData().location().equals(variantId)) {
                     // result variant matches, resolve parents and calculate percentage chance
                     double totalWeight = ResourceGenerator.calculateTotalWeight(breedingWrapper.getResult());
-                    list.add(new ParentData(breeding.getFirst().value(), breeding.getSecond().value(), wrapper.getWeight().asInt() / totalWeight));
+                    list.add(new ParentData(breeding.getFirst(access), breeding.getSecond(access), wrapper.getWeight().asInt() / totalWeight));
                 }
             }
         }
