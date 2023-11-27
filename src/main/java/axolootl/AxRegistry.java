@@ -250,7 +250,7 @@ public final class AxRegistry {
          * @return the registry object
          */
         private static RegistryObject<Item> registerBlockItem(final RegistryObject<Block> block) {
-            return register(block.getId().getPath(), () -> new BlockItem(block.get(), new Item.Properties()));
+            return register(block.getId().getPath(), () -> new BlockItem(block.get(), new Item.Properties().tab(TAB)));
         }
 
         /**

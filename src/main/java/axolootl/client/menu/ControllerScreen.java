@@ -239,7 +239,7 @@ public class ControllerScreen extends AbstractTabScreen<ControllerMenu> implemen
             // create size component
             final Vec3i dim = size.get().getFullDimensions();
             final Component tankSizeTooltip = Component.translatable(FluidInterfaceScreen.PREFIX + "volume", size.get().getInnerVolume());
-            this.tankSizeText = Component.translatable(PREFIX + "size", dim.getX() + 1, dim.getY() + 1, dim.getZ() + 1)
+            this.tankSizeText = Component.translatable(PREFIX + "size", dim.getX(), dim.getY(), dim.getZ())
                     .withStyle(a -> a.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tankSizeTooltip)));
             // create capacity component
             int capacity = ControllerBlockEntity.calculateMaxCapacity(size.get());

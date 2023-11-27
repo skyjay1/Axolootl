@@ -657,7 +657,7 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
             if (!axolootl.isBreedCandidate(level, Optional.empty())) continue;
             // iterate each other axolootl
             for(int j = i + 1; j < n; j++) {
-                IAxolootl other = axolootls.get(i);
+                IAxolootl other = axolootls.get(j);
                 // validate other can breed
                 if (axolootl == other || !other.isBreedCandidate(level, oAxolootl)) continue;
                 // attempt to breed from each known item handler
@@ -1312,14 +1312,15 @@ public class ControllerBlockEntity extends BlockEntity implements MenuProvider, 
                 if(this.trackedAxolootls.size() < 2) {
                     return BreedStatus.MIN_COUNT;
                 }
-                return BreedStatus.RESOURCE_MOB_ONLY;
+                // all checks passed
+                return BreedStatus.ACTIVE;
             }
             // check min count of resource variants
             if(resourceVariants < 2) {
                 return BreedStatus.MIN_COUNT;
             }
-            // all checks passed
-            return BreedStatus.ACTIVE;
+            // resource mobs passed
+            return BreedStatus.RESOURCE_MOB_ONLY;
         }
         // no breeding
         return BreedStatus.INACTIVE;
