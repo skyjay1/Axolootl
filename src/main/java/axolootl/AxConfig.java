@@ -29,7 +29,7 @@ public class AxConfig {
                 .defineInRange("base_generation_period", 8000L, 1L, 96000L);
         BASE_BREEDING_PERIOD = builder
                 .comment("The base number of ticks in a mob breeding cycle")
-                .defineInRange("base_breeding_period", 12000L, 1L, 96000L);
+                .defineInRange("base_breeding_period", 8000L, 1L, 96000L);
         BASE_FEEDING_PERIOD = builder
                 .comment("The base number of ticks in a mob feeding cycle")
                 .defineInRange("base_feeding_period", 6000L, 1L, 96000L);
