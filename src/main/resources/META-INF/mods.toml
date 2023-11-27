@@ -4,7 +4,7 @@ license="GNU LGPLv3"
 
 [[mods]]
     modId="axolootl"
-    version="19.2.1.1"
+    version="19.2.1.2"
     displayName="Axolootl"
     authors="skyjay1"
     credits=""
